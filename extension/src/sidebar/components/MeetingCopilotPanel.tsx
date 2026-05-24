@@ -403,12 +403,15 @@ export function MeetingCopilotPanel() {
   return (
     <div style={wrap}>
       <div style={header}>
-        <div style={dot(isLive ? "#7FB236" : "#5A5A62")} />
+        <span
+          className={isLive ? "signal-dot signal-dot--pulse" : "signal-dot"}
+          style={{ background: isLive ? "var(--signal-live)" : "var(--ink-5)" }}
+        />
         <span style={kicker}>Meeting copilot {isLive ? "— live" : "— pre-call"}</span>
       </div>
 
       <div style={infoBox}>
-        Fill in the details below and click <strong style={{ color: "#F0EBDB" }}>Start live copilot</strong>.
+        Fill in the details below and click <strong style={{ color: "var(--ink)" }}>Start live copilot</strong>.
         If a Google Meet tab is open, the on-screen transponder will attach to it automatically.
         Otherwise the copilot runs in this panel and uses the mock transcript stream.
       </div>
@@ -416,7 +419,7 @@ export function MeetingCopilotPanel() {
       <div style={calendarBox}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
           <div>
-            <div style={{ fontSize: 12, color: "#F0EBDB", fontWeight: 600 }}>
+            <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
               Google Calendar {calendarStatus?.connected ? "· connected" : ""}
             </div>
             <div style={{ ...muted, fontSize: 11, marginTop: 2 }}>
@@ -425,7 +428,7 @@ export function MeetingCopilotPanel() {
                 : `Connect once to auto-fill prospect/agenda from the calendar invite when you click Start copilot in Meet.`}
             </div>
             {calendarStatus?.error && (
-              <div style={{ ...muted, fontSize: 11, color: "#E05A4B", marginTop: 2 }}>
+              <div style={{ ...muted, fontSize: 11, color: "var(--signal-error)", marginTop: 2 }}>
                 {calendarStatus.error}
               </div>
             )}
@@ -468,7 +471,7 @@ export function MeetingCopilotPanel() {
             style={{
               ...muted,
               fontSize: 11,
-              color: pasteStatus.ok ? "#7FB236" : "#E05A4B",
+              color: pasteStatus.ok ? "var(--signal-live)" : "var(--signal-error)",
             }}
           >
             {pasteStatus.detail}
@@ -491,11 +494,11 @@ export function MeetingCopilotPanel() {
                   setMeetingNotes(h.summary_markdown);
                 }}
               >
-                <div style={{ fontSize: 12, color: "#F0EBDB", fontWeight: 600, textAlign: "left" }}>{h.company || "—"}</div>
-                <div style={{ fontSize: 10, color: "#A8A195", textAlign: "left", marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600, textAlign: "left" }}>{h.company || "—"}</div>
+                <div style={{ fontSize: 10, color: "var(--ink-4)", textAlign: "left", marginTop: 2 }}>
                   {h.persona || "—"}
                 </div>
-                <div style={{ fontSize: 10, color: "#7FB236", marginTop: 4, textAlign: "left", lineHeight: 1.3 }}>
+                <div style={{ fontSize: 10, color: "var(--signal-live)", marginTop: 4, textAlign: "left", lineHeight: 1.3 }}>
                   {h.headline.slice(0, 60)}{h.headline.length > 60 ? "…" : ""}
                 </div>
               </button>
@@ -527,7 +530,7 @@ export function MeetingCopilotPanel() {
               </button>
             </div>
             {urlStatus && (
-              <div style={{ ...muted, fontSize: 11, color: urlStatus.ok ? "#7FB236" : "#E05A4B" }}>
+              <div style={{ ...muted, fontSize: 11, color: urlStatus.ok ? "var(--signal-live)" : "var(--signal-error)" }}>
                 {urlStatus.detail}
               </div>
             )}
@@ -590,7 +593,7 @@ export function MeetingCopilotPanel() {
               ...muted,
               fontSize: 11,
               marginTop: 8,
-              color: transponderStatus.ok ? "#7FB236" : "#E05A4B",
+              color: transponderStatus.ok ? "var(--signal-live)" : "var(--signal-error)",
             }}
           >
             {transponderStatus.detail}
@@ -627,7 +630,7 @@ export function MeetingCopilotPanel() {
             <div
               style={{
                 ...muted,
-                color: pushStatus.ok ? "#7FB236" : "#E05A4B",
+                color: pushStatus.ok ? "var(--signal-live)" : "var(--signal-error)",
                 fontSize: 11,
               }}
             >
@@ -687,75 +690,77 @@ export function MeetingCopilotPanel() {
   );
 }
 
+// Inline styles below reference CSS variables defined in tokens.css.
+// Because MeetingCopilotPanel renders inside data-skin="cursor", these
+// resolve to Cursor's warm cream canvas + timeline-pastel accent system.
 const wrap: React.CSSProperties = {
-  background: "#0E0E12",
-  border: "1px solid #2A2A34",
-  borderRadius: 0,
-  color: "#F0EBDB",
-  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+  background: "var(--surface-1)",
+  border: "1px solid var(--line)",
+  borderRadius: 6,
+  color: "var(--ink)",
+  fontFamily: "'Inter', 'Space Grotesk', system-ui, sans-serif",
   letterSpacing: "-0.02em",
   padding: 16,
   display: "flex",
   flexDirection: "column",
   gap: 16,
+  boxShadow: "var(--shadow-card)",
 };
 
 const header: React.CSSProperties = { display: "flex", alignItems: "center", gap: 8 };
 
 const infoBox: React.CSSProperties = {
-  background: "#15151A",
-  border: "1px solid #2A2A34",
-  borderLeft: "2px solid #F58549",
+  background: "var(--surface-2)",
+  border: "1px solid var(--line)",
+  borderLeft: "3px solid var(--brand-orange)",
   padding: "10px 12px",
   fontSize: 12,
-  color: "#A8A195",
+  color: "var(--ink-3)",
   lineHeight: 1.55,
+  borderRadius: 4,
 };
 
 const calendarBox: React.CSSProperties = {
-  background: "#15151A",
-  border: "1px solid #2A2A34",
-  borderLeft: "2px solid #2A4494",
+  background: "var(--surface-2)",
+  border: "1px solid var(--line)",
+  borderLeft: "3px solid var(--accent-blue)",
   padding: "10px 12px",
+  borderRadius: 4,
 };
 
 const kicker: React.CSSProperties = {
+  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
   fontSize: 10,
+  fontWeight: 600,
   letterSpacing: "0.14em",
   textTransform: "uppercase",
-  color: "#A8A195",
+  color: "var(--ink-4)",
 };
-
-const dot = (color: string): React.CSSProperties => ({
-  width: 8,
-  height: 8,
-  background: color,
-  display: "inline-block",
-});
 
 const section: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 8 };
 const sectionHead: React.CSSProperties = {
   display: "flex", justifyContent: "space-between", alignItems: "center",
-  fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase",
-  color: "#D4CDB5",
+  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+  fontSize: 11, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase",
+  color: "var(--ink-3)",
 };
 
 const optional: React.CSSProperties = {
   fontSize: 9,
   letterSpacing: "0.14em",
   textTransform: "uppercase",
-  color: "#5A5A62",
+  color: "var(--ink-5)",
   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
 };
 
-const muted: React.CSSProperties = { color: "#A8A195", fontSize: 12, lineHeight: 1.55 };
+const muted: React.CSSProperties = { color: "var(--ink-3)", fontSize: 12, lineHeight: 1.55 };
 
 const input: React.CSSProperties = {
-  background: "#060608",
-  border: "1px solid #2A2A34",
-  borderRadius: 0,
-  color: "#F0EBDB",
-  padding: "8px 10px",
+  background: "var(--surface-0)",
+  border: "1px solid var(--line)",
+  borderRadius: 6,
+  color: "var(--ink)",
+  padding: "8px 12px",
   fontFamily: "inherit",
   fontSize: 13,
   width: "100%",
@@ -768,69 +773,75 @@ const select: React.CSSProperties = {
 };
 
 const crmBox: React.CSSProperties = {
-  background: "#15151A",
-  border: "1px solid #2A2A34",
+  background: "var(--surface-2)",
+  border: "1px solid var(--line)",
   padding: "10px 12px",
   fontSize: 12,
+  borderRadius: 4,
 };
 
 const agendaRow: React.CSSProperties = { display: "flex", gap: 6, alignItems: "center" };
 
 const ghostBtn: React.CSSProperties = {
-  background: "transparent",
-  border: "1px solid #3A3A46",
-  color: "#D4CDB5",
-  padding: "4px 10px",
+  background: "var(--surface-1)",
+  border: "1px solid var(--line)",
+  color: "var(--ink-2)",
+  padding: "6px 12px",
   fontSize: 11,
   fontFamily: "inherit",
+  fontWeight: 600,
   cursor: "pointer",
-  letterSpacing: "0.04em",
+  letterSpacing: 0,
+  borderRadius: 6,
 };
 
 const primaryBtn: React.CSSProperties = {
-  background: "#F58549",
+  background: "var(--brand-orange)",
   color: "#0A0A0A",
   border: 0,
-  padding: "10px 16px",
-  fontWeight: 600,
+  padding: "10px 18px",
+  fontWeight: 700,
+  fontSize: 14,
   cursor: "pointer",
   fontFamily: "inherit",
-  boxShadow: "0 8px 0 -4px #F58549",
   width: "100%",
+  borderRadius: 6,
 };
 
 const xBtn: React.CSSProperties = {
   background: "transparent",
-  border: "1px solid #3A3A46",
-  color: "#A8A195",
+  border: "1px solid var(--line)",
+  color: "var(--ink-4)",
   padding: "0 8px",
   cursor: "pointer",
   fontSize: 14,
+  borderRadius: 4,
 };
 
 const bullets: React.CSSProperties = {
   margin: "4px 0 0 16px",
   padding: 0,
-  color: "#D4CDB5",
+  color: "var(--ink-2)",
   fontSize: 12,
   lineHeight: 1.55,
 };
 
 const pre: React.CSSProperties = {
   margin: "4px 0 0",
-  padding: "8px 10px",
-  background: "#060608",
-  border: "1px solid #2A2A34",
-  color: "#D4CDB5",
+  padding: "10px 12px",
+  background: "var(--surface-4)",
+  border: "1px solid var(--line)",
+  color: "#FFFFFF",
   fontSize: 11,
   fontFamily: "'JetBrains Mono', ui-monospace, monospace",
   whiteSpace: "pre-wrap",
   wordBreak: "break-word",
+  borderRadius: 4,
 };
 
 const historyChip: React.CSSProperties = {
-  background: "#15151A",
-  border: "1px solid #2A2A34",
+  background: "var(--surface-2)",
+  border: "1px solid var(--line)",
   padding: "8px 10px",
   minWidth: 160,
   maxWidth: 220,
@@ -838,6 +849,7 @@ const historyChip: React.CSSProperties = {
   fontFamily: "inherit",
   textAlign: "left",
   flexShrink: 0,
+  borderRadius: 6,
 };
 
 function summaryToMarkdown(

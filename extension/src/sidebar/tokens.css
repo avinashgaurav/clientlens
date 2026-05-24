@@ -1,0 +1,447 @@
+/*
+ * Project Wingman — Multi-Surface Design Token System
+ * =====================================================
+ *
+ * This file defines CSS variables for every brand surface. Tailwind tokens
+ * in tailwind.config.js reference these variables, so a single token like
+ * `bg-surface-1` resolves to a different hex depending on the `data-skin`
+ * attribute on the nearest ancestor.
+ *
+ * Six skins are defined, one per surface in the revamp:
+ *
+ *   data-skin="brand"   → default sidebar chrome (pitch / KB / settings)
+ *                            playful-but-dense PostHog: warm cream canvas,
+ *                            white cards, pastel callout banners
+ *
+ *   data-skin="live"    → Live Meeting Copilot panel
+ *                            cursor's marketing canvas (warm cream + orange)
+ *                            plus the timeline-pastel palette for AI agent
+ *                            stages (peach=thinking, mint=grep, blue=read,
+ *                            lavender=edit, gold=done)
+ *
+ *   data-skin="insights"   → Post-call Insights / call history
+ *                            near-black surface ladder + spotify green,
+ *                            heavy shadows on elevation, pill geometry
+ *
+ *   data-skin="linear"    → Extension popup
+ *                            deepest dark canvas (#010102) + minimal chrome,
+ *                            56px nav rows, lavender focus ring (mapped to
+ *                            wingman orange for brand consistency)
+ *
+ *   data-skin="vercel"    → In-Meet transponder overlay
+ *                            stark black/white precision, no chromatic
+ *                            noise to compete with the Meet UI
+ *
+ *   data-skin="spacex"    → Landing page hero band
+ *                            pure black canvas, full-bleed photography
+ *                            framing, single ghost-outlined pill CTA
+ *
+ * Brand mark: orange #F58549 persists across every skin (wordmark + one
+ * designated primary CTA per surface). Surface-specific accents do the
+ * rest of the work.
+ *
+ * Token names (legend):
+ *   --surface-0..4   surface lift ladder (0 = deepest canvas)
+ *   --ink, --ink-2..5   text ladder (ink = highest emphasis)
+ *   --line, --line-2..3   hairline borders
+ *   --brand-orange   the persistent Wingman brand mark
+ *   --accent-*       skin-specific signal colors
+ *   --shadow-*       skin-specific elevation
+ *
+ * Adding a new skin: copy any existing block, change the data-skin selector,
+ * override the variables you need. Components don't change.
+ */
+
+/* ===================================================================
+ * BASE / DEFAULT — PostHog skin
+ * ===================================================================
+ * The default skin (no data-skin attribute or data-skin="brand").
+ * Playful-but-dense. Warm cream canvas. White cards. Uppercase eyebrows.
+ */
+:root,
+[data-skin="brand"] {
+  /* Brand mark — Wingman orange, persistent across every skin */
+  --brand-orange: #F58549;
+  --brand-orange-hover: #E07539;
+  --brand-orange-press: #C66224;
+
+  /* Surfaces */
+  --surface-0: #EEEFE9;   /* page canvas — warm cream */
+  --surface-1: #FFFFFF;   /* white card on cream — the dominant card surface */
+  --surface-2: #FCFCFA;   /* warm-white doc card */
+  --surface-3: #E5E7E0;   /* soft surface — button-secondary, sub-nav */
+  --surface-4: #23251D;   /* inverted dark — code block on cream */
+
+  /* Text */
+  --ink: #23251D;         /* headlines, near-black olive-charcoal */
+  --ink-2: #33342D;       /* charcoal — emphasized body */
+  --ink-3: #4D4F46;       /* body — default paragraph */
+  --ink-4: #6C6E63;       /* mute — metadata */
+  --ink-5: #9B9C92;       /* ash — disabled */
+
+  /* Lines */
+  --line: #BFC1B7;
+  --line-2: #DCDFD2;
+  --line-3: #E5E7E0;
+
+  /* Pastel callout banners (PostHog signature) */
+  --accent-blue: #2C84E0;
+  --accent-blue-soft: #DCEAF6;
+  --accent-green: #2C8C66;
+  --accent-green-soft: #D9EDDF;
+  --accent-red: #CD4239;
+  --accent-red-soft: #F7D6D3;
+  --accent-purple: #7C44A6;
+  --accent-purple-soft: #E7D8EE;
+  --accent-yellow: #F7A501;
+
+  /* Status / signal colors */
+  --signal-live: #2C8C66;
+  --signal-warn: #F7A501;
+  --signal-error: #CD4239;
+  --signal-info: #2C84E0;
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px rgba(35,37,29,0.04);
+  --shadow-2: 0 4px 12px rgba(35,37,29,0.06);
+  --shadow-card: none;
+}
+
+/* ===================================================================
+ * CURSOR skin — Live Meeting Copilot panel
+ * ===================================================================
+ * Warm cream canvas with timeline-pastel accents for live AI agent
+ * stages. The five timeline colors map to Wingman's live agents:
+ *
+ *   timeline-peach    → Sentiment Agent (the "feeling" stage)
+ *   timeline-mint     → Agenda Agent (the "tracking" stage)
+ *   timeline-blue     → Coach Agent (the "reading transcript" stage)
+ *   timeline-lavender → Objection Council (the "editing response" stage)
+ *   timeline-gold     → Council Validator (the "done / verified" stage)
+ */
+[data-skin="live"] {
+  --brand-orange: #F58549;
+  --brand-orange-hover: #E07539;
+  --brand-orange-press: #C66224;
+
+  --surface-0: #F7F7F4;   /* warm cream — cursor canvas */
+  --surface-1: #FFFFFF;   /* white card */
+  --surface-2: #FAFAF7;   /* canvas-soft */
+  --surface-3: #E6E5E0;   /* soft surface */
+  --surface-4: #26251E;   /* warm near-black */
+
+  --ink: #26251E;
+  --ink-2: #26251E;
+  --ink-3: #5A5852;
+  --ink-4: #807D72;
+  --ink-5: #A09C92;
+
+  --line: #E6E5E0;
+  --line-2: #EFEEE8;
+  --line-3: #CFCDC4;
+
+  /* Cursor timeline pastels — the gem of this skin */
+  --timeline-thinking: #DFA88F;   /* peach — sentiment */
+  --timeline-grep: #9FC9A2;       /* mint — agenda */
+  --timeline-read: #9FBBE0;       /* blue — coach */
+  --timeline-edit: #C0A8DD;       /* lavender — objection */
+  --timeline-done: #C08532;       /* gold — validator */
+
+  --accent-blue: #9FBBE0;
+  --accent-blue-soft: #E8F0F8;
+  --accent-green: #1F8A65;
+  --accent-green-soft: #DCEEE5;
+  --accent-red: #CF2D56;
+  --accent-red-soft: #F8D8E2;
+  --accent-purple: #C0A8DD;
+  --accent-purple-soft: #EFE6F5;
+
+  --signal-live: #1F8A65;
+  --signal-warn: #C08532;
+  --signal-error: #CF2D56;
+  --signal-info: #9FBBE0;
+
+  --shadow-1: 0 1px 2px rgba(38,37,30,0.04);
+  --shadow-2: 0 4px 16px rgba(38,37,30,0.08);
+  --shadow-card: none;
+}
+
+/* ===================================================================
+ * SPOTIFY skin — Post-call Insights view
+ * ===================================================================
+ * Near-black immersive ladder. Spotify green as functional signal only.
+ * Pill geometry. Heavy shadows on elevation. Album-grid metaphor →
+ * call-history grid.
+ */
+[data-skin="insights"] {
+  --brand-orange: #F58549;
+  --brand-orange-hover: #FFA070;
+  --brand-orange-press: #C66224;
+
+  --surface-0: #121212;   /* deepest */
+  --surface-1: #181818;   /* card */
+  --surface-2: #1F1F1F;   /* elevated card / button bg */
+  --surface-3: #252525;   /* alt card */
+  --surface-4: #272727;
+
+  --ink: #FFFFFF;
+  --ink-2: #FDFDFD;
+  --ink-3: #CBCBCB;
+  --ink-4: #B3B3B3;
+  --ink-5: #7C7C7C;
+
+  --line: #4D4D4D;
+  --line-2: #2A2A2A;
+  --line-3: #7C7C7C;
+
+  /* Spotify accents */
+  --accent-green: #1ED760;
+  --accent-green-soft: #1DB954;
+  --accent-blue: #539DF5;
+  --accent-blue-soft: #2A4494;
+  --accent-red: #F3727F;
+  --accent-red-soft: #6F1212;
+  --accent-purple: #C0A8DD;
+  --accent-purple-soft: #2A2A34;
+  --accent-yellow: #FFA42B;
+
+  --signal-live: #1ED760;        /* the iconic Spotify green */
+  --signal-warn: #FFA42B;
+  --signal-error: #F3727F;
+  --signal-info: #539DF5;
+
+  --shadow-1: rgba(0,0,0,0.3) 0px 8px 8px;
+  --shadow-2: rgba(0,0,0,0.5) 0px 8px 24px;
+  --shadow-card: rgba(0,0,0,0.3) 0px 8px 8px;
+}
+
+/* ===================================================================
+ * LINEAR skin — Popup
+ * ===================================================================
+ * Deepest dark canvas in the catalog. Four-step surface ladder. Hairline
+ * borders. Lavender focus accent — but Wingman orange remains the primary
+ * CTA so the popup still reads as Wingman.
+ */
+[data-skin="linear"] {
+  --brand-orange: #F58549;
+  --brand-orange-hover: #FFA070;
+  --brand-orange-press: #C66224;
+
+  --surface-0: #010102;   /* deepest dark — linear canvas */
+  --surface-1: #0F1011;   /* charcoal lift */
+  --surface-2: #141516;
+  --surface-3: #18191A;
+  --surface-4: #191A1B;
+
+  --ink: #F7F8F8;
+  --ink-2: #FFFFFF;
+  --ink-3: #D0D6E0;
+  --ink-4: #8A8F98;
+  --ink-5: #62666D;
+
+  --line: #23252A;
+  --line-2: #34343A;
+  --line-3: #3E3E44;
+
+  --accent-blue: #5E6AD2;          /* linear lavender */
+  --accent-blue-soft: #5E69D1;
+  --accent-green: #27A644;
+  --accent-green-soft: #1F8A65;
+  --accent-red: #F3727F;
+  --accent-red-soft: #6F1212;
+  --accent-purple: #5E6AD2;
+  --accent-purple-soft: #828FFF;
+
+  --signal-live: #27A644;
+  --signal-warn: #F7A501;
+  --signal-error: #F3727F;
+  --signal-info: #5E6AD2;
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-2: 0 4px 16px rgba(0,0,0,0.6);
+  --shadow-card: none;
+}
+
+/* ===================================================================
+ * VERCEL skin — In-Meet transponder overlay + landing body
+ * ===================================================================
+ * Stark monochrome. White canvas, black ink. Pill buttons. Multi-color
+ * mesh gradients reserved for hero / feature accents (not the transponder).
+ */
+[data-skin="vercel"] {
+  --brand-orange: #F58549;
+  --brand-orange-hover: #E07539;
+  --brand-orange-press: #C66224;
+
+  --surface-0: #FFFFFF;
+  --surface-1: #FAFAFA;
+  --surface-2: #F5F5F5;
+  --surface-3: #EBEBEB;
+  --surface-4: #171717;
+
+  --ink: #171717;
+  --ink-2: #171717;
+  --ink-3: #4D4D4D;
+  --ink-4: #888888;
+  --ink-5: #A1A1A1;
+
+  --line: #EBEBEB;
+  --line-2: #A1A1A1;
+  --line-3: #4D4D4D;
+
+  --accent-blue: #0070F3;
+  --accent-blue-soft: #D3E5FF;
+  --accent-green: #50E3C2;
+  --accent-green-soft: #AAFFEC;
+  --accent-red: #EE0000;
+  --accent-red-soft: #F7D4D6;
+  --accent-purple: #7928CA;
+  --accent-purple-soft: #D8CCF1;
+  --accent-yellow: #F5A623;
+  --accent-pink: #FF0080;
+  --accent-magenta: #EB367F;
+
+  /* Vercel signature mesh gradient stops */
+  --gradient-develop-start: #007CF0;
+  --gradient-develop-end: #00DFD8;
+  --gradient-preview-start: #7928CA;
+  --gradient-preview-end: #FF0080;
+  --gradient-ship-start: #FF4D4D;
+  --gradient-ship-end: #F9CB28;
+
+  --signal-live: #50E3C2;
+  --signal-warn: #F5A623;
+  --signal-error: #EE0000;
+  --signal-info: #0070F3;
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-2: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-card: 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+/* ===================================================================
+ * SPACEX skin — Landing page hero band
+ * ===================================================================
+ * Pure black canvas. White display type uppercase with positive tracking.
+ * Single ghost-outlined pill CTA per band. No accent colors — the
+ * imagery does the chromatic work.
+ */
+[data-skin="spacex"] {
+  --brand-orange: #F58549;
+  --brand-orange-hover: #FFA070;
+  --brand-orange-press: #C66224;
+
+  --surface-0: #000000;
+  --surface-1: #0A0A0A;
+  --surface-2: #0F0F0F;
+  --surface-3: #1A1A1A;
+  --surface-4: #F0F0FA;
+
+  --ink: #FFFFFF;
+  --ink-2: #FFFFFF;
+  --ink-3: #F0F0FA;
+  --ink-4: #B0B0B5;
+  --ink-5: #5A5A5F;
+
+  --line: #3A3A3F;
+  --line-2: #5A5A5F;
+  --line-3: #FFFFFF;
+
+  --accent-blue: #FFFFFF;
+  --accent-blue-soft: #0A0A0A;
+  --accent-green: #FFFFFF;
+  --accent-green-soft: #0A0A0A;
+  --accent-red: #FFFFFF;
+  --accent-red-soft: #0A0A0A;
+
+  --signal-live: #FFFFFF;
+  --signal-warn: #FFFFFF;
+  --signal-error: #FFFFFF;
+  --signal-info: #FFFFFF;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-card: none;
+}
+
+/* ===================================================================
+ * Cross-skin utility classes
+ * ===================================================================
+ */
+
+/* Uppercase eyebrow label — PostHog, Cursor, Vercel all use it */
+.eyebrow {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+/* Signal-light dot — for live agent indicators (live/insights skins).
+ * Uses color-mix() for the translucent halo (Chrome 111+, March 2023).
+ * Chrome extensions ride Chrome's auto-update so this is fine; if you're
+ * porting these tokens to a non-extension surface with older browser
+ * support, swap to an rgba() with the channel pre-mixed. */
+.signal-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--signal-live);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal-live) 20%, transparent);
+}
+
+.signal-dot--pulse {
+  animation: signal-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes signal-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal-live) 20%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--signal-live) 5%, transparent);
+  }
+}
+
+/* Cursor "agent thinking" shimmer — for Live Meeting Copilot loading states */
+.shimmer-cursor {
+  background: linear-gradient(
+    90deg,
+    var(--surface-1) 0%,
+    var(--timeline-read, var(--surface-2)) 50%,
+    var(--surface-1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-cursor 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer-cursor {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Spotify play-tile hover scale — for Insights tiles */
+.tile-album {
+  transition: transform 200ms ease, background-color 200ms ease;
+}
+.tile-album:hover {
+  transform: translateY(-2px);
+  background-color: var(--surface-2);
+}
+
+/* Vercel mesh-gradient hero text fill — for landing page accent words */
+.gradient-text-vercel {
+  background: linear-gradient(
+    90deg,
+    var(--gradient-develop-start, #007CF0),
+    var(--gradient-preview-start, #7928CA),
+    var(--gradient-ship-end, #F9CB28)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

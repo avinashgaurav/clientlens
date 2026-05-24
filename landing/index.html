@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>Project Wingman — Sales Copilot</title>
+  <meta
+    name="description"
+    content="An AI copilot that sits in your browser sidebar — pitch generation, live meeting coaching, objection handling, and post-call insights for B2B sales reps."
+  />
+  <meta property="og:title" content="Project Wingman — Sales Copilot" />
+  <meta property="og:description" content="Pitch generation, live meeting coaching, objection handling, and post-call insights. Lives in your sidebar. Works on every deal." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="og.png" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ────────── TOP NAV ────────── -->
+  <nav class="topnav">
+    <div class="container topnav__inner">
+      <a href="#hero" class="brand">
+        <div class="brand__mark"><span>PW</span></div>
+        <span class="brand__name">Project Wingman</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/avinashgaurav/project-wingman-sales-copilot">GitHub</a>
+      </div>
+      <a class="nav-cta" href="#install">Install free</a>
+    </div>
+  </nav>
+
+  <!-- ────────── HERO (SpaceX skin) ────────── -->
+  <section id="hero" class="hero">
+    <div class="container hero__inner">
+      <div class="hero__eyebrow">AI sales copilot · v1.0</div>
+      <h1 class="hero__headline">
+        The copilot that<br />
+        <em>closes deals with you</em>.
+      </h1>
+      <p class="hero__lede">
+        Live coaching during the call. Pitch generation grounded in your knowledge base.
+        Objection handling on tap. Post-call insights that actually feed your pipeline.
+        Project Wingman sits in your Chrome sidebar and never asks you to switch tabs.
+      </p>
+      <div class="hero__cta-row">
+        <a class="btn-pill btn-pill--primary" href="#install">
+          Install free
+          <span aria-hidden="true">→</span>
+        </a>
+        <a class="btn-pill btn-pill--ghost" href="#how">See how it works</a>
+      </div>
+
+      <div class="hero__stats">
+        <div>
+          <div class="hero__stat__value num">4×</div>
+          <div class="hero__stat__label">Faster pitch turnaround</div>
+        </div>
+        <div>
+          <div class="hero__stat__value num">100%</div>
+          <div class="hero__stat__label">Bring your own LLM keys</div>
+        </div>
+        <div>
+          <div class="hero__stat__value num">0</div>
+          <div class="hero__stat__label">Tabs to switch during a call</div>
+        </div>
+        <div>
+          <div class="hero__stat__value num">∞</div>
+          <div class="hero__stat__label">Objections handled</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── TRUST STRIP (Vercel skin) ────────── -->
+  <section class="trust">
+    <div class="container">
+      <div class="trust__label">Built for reps at every kind of company</div>
+      <div class="trust__row">
+        <span class="trust__logo">SaaS</span>
+        <span class="trust__logo">Fintech</span>
+        <span class="trust__logo">DevTools</span>
+        <span class="trust__logo">AI/ML</span>
+        <span class="trust__logo">CyberSec</span>
+        <span class="trust__logo">CloudOps</span>
+        <span class="trust__logo">MedTech</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── FEATURE 1: Live Meeting Copilot (Cursor skin) ────────── -->
+  <section id="features" class="band feature-cursor">
+    <div class="container">
+      <div class="feature__grid">
+        <div class="feature__copy">
+          <div class="eyebrow eyebrow--light" style="color:#807D72;margin-bottom:16px;">
+            01 · Live meeting copilot
+          </div>
+          <h2>Five agents coaching you in real time.</h2>
+          <p>
+            The second you join a Google Meet, Wingman starts listening. Five specialised
+            agents run on the rolling transcript — sentiment, agenda, coach, objection,
+            and the validator that fact-checks every number you're about to say.
+          </p>
+          <ul class="feature__bullets">
+            <li>
+              <span class="pill pill--thinking">Sentiment</span>
+              <span>Reads the prospect's tone every few seconds. Tells you when to soften, when to push.</span>
+            </li>
+            <li>
+              <span class="pill pill--grep">Agenda</span>
+              <span>Tracks topics covered vs. planned. Warns you 12 minutes in if you haven't done discovery.</span>
+            </li>
+            <li>
+              <span class="pill pill--read">Coach</span>
+              <span>Surfaces the next-best-sentence the moment the prospect pushes back.</span>
+            </li>
+            <li>
+              <span class="pill pill--edit">Objection</span>
+              <span>Three-agent council answers "they just said X, what do I say?"</span>
+            </li>
+            <li>
+              <span class="pill pill--done">Validator</span>
+              <span>Every number you cite is fact-checked against your knowledge base. No surprises.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="mock-sidebar">
+          <div class="mock-sidebar__head">
+            <div class="mock-sidebar__dot"></div>
+            <span class="mono" style="font-size:11px;color:#5A5852;text-transform:uppercase;letter-spacing:0.12em;">
+              Live · Acme Cloud · 14:32
+            </span>
+          </div>
+          <div class="mock-sidebar__body">
+            <div class="mock-row">
+              <span class="mock-row__time">14:30</span>
+              <span class="mock-row__pill pill pill--thinking">Sentiment</span>
+              <span class="mock-row__text">Positive · 82%. Tone warmed up after pricing.</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row__time">14:31</span>
+              <span class="mock-row__pill pill pill--grep">Agenda</span>
+              <span class="mock-row__text">3/5 covered. ROI not yet discussed.</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row__time">14:32</span>
+              <span class="mock-row__pill pill pill--read">Coach</span>
+              <span class="mock-row__text">Try: "What would 18% faster cycle times mean for your H2?"</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row__time">14:32</span>
+              <span class="mock-row__pill pill pill--edit">Objection</span>
+              <span class="mock-row__text">"Too expensive" — counter via case study #12 (Northwind, 4.2x ROI).</span>
+            </div>
+            <div class="mock-row">
+              <span class="mock-row__time">14:33</span>
+              <span class="mock-row__pill pill pill--done">Validator</span>
+              <span class="mock-row__text">"30% reduction" verified against source kb-acme-1.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── FEATURE 2: Pitch generation (Vercel mesh) ────────── -->
+  <section class="band feature-vercel">
+    <div class="container">
+      <div class="feature__grid">
+        <div class="mesh-card">
+          <div>
+            <div class="mesh-card__eyebrow">Multi-agent pipeline</div>
+            <div class="mesh-card__heading">From "company name" to pitch deck in 38 seconds.</div>
+            <div class="mesh-card__copy">
+              Retrieval → ICP personalization → brand compliance → fact-check validation.
+              Every number cites a source from your KB. Banned hype words rejected automatically.
+            </div>
+          </div>
+          <div class="mesh-card__stat-row">
+            <div>
+              <div class="mesh-card__stat__value num">38s</div>
+              <div class="mesh-card__stat__label">Avg pitch generation</div>
+            </div>
+            <div>
+              <div class="mesh-card__stat__value num">4</div>
+              <div class="mesh-card__stat__label">Agents in council</div>
+            </div>
+            <div>
+              <div class="mesh-card__stat__value num">5</div>
+              <div class="mesh-card__stat__label">ICP profiles tuned</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature__copy">
+          <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">02 · Pitch generation</div>
+          <h2>Pitches grounded in your battle cards, never invented.</h2>
+          <p>
+            Pick the ICP — CFO, CTO, VP Sales, RevOps, Generic — paste the prospect's site
+            or LinkedIn, and the council does the rest. Output is presentation, one-pager,
+            detailed doc, or analysis-style writeup. Every numeric claim cites a source_id.
+            Validator rejects anything unsourced before it ever reaches you.
+          </p>
+          <ul class="feature__bullets" style="border-color:#EBEBEB;">
+            <li style="border-color:#EBEBEB;">
+              <span class="pill" style="background:#171717;color:#fff;">CFO</span>
+              <span>Numbers-first, hedged. Payback period, ROI breakdown, hidden costs.</span>
+            </li>
+            <li style="border-color:#EBEBEB;">
+              <span class="pill" style="background:#171717;color:#fff;">CTO</span>
+              <span>Architecture, security posture, integration surface, scaling characteristics.</span>
+            </li>
+            <li style="border-color:#EBEBEB;">
+              <span class="pill" style="background:#171717;color:#fff;">VP Sales</span>
+              <span>Win rates, ACV uplift, competitive displacement, case studies.</span>
+            </li>
+            <li style="border-color:#EBEBEB;">
+              <span class="pill" style="background:#171717;color:#fff;">RevOps</span>
+              <span>Workflow automation, attribution, integration hygiene.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── FEATURE 3: Post-call insights (Spotify skin) ────────── -->
+  <section class="band feature-spotify">
+    <div class="container">
+      <div class="feature__grid">
+        <div class="feature__copy">
+          <div class="eyebrow" style="color:#1ED760;margin-bottom:16px;">03 · Post-call insights</div>
+          <h2>Your week, finally legible.</h2>
+          <p>
+            Every call ends with a structured summary: agenda coverage, sentiment timeline,
+            objections raised, action items, sourced quotes. One click pushes it to Zoho as
+            a CRM note. Your Insights tab is the album-grid of every conversation you've had —
+            scannable, sortable, replayable.
+          </p>
+          <ul class="feature__bullets">
+            <li>
+              <span class="pill">Sentiment</span>
+              <span>Trended across the call. See exactly when it shifted, and why.</span>
+            </li>
+            <li>
+              <span class="pill">Agenda</span>
+              <span>What got covered, what got skipped. Roll into next-touch agenda automatically.</span>
+            </li>
+            <li>
+              <span class="pill">Objections</span>
+              <span>Each objection, the response quality, and the source citation that backed it.</span>
+            </li>
+            <li>
+              <span class="pill">Next steps</span>
+              <span>Action items with owner and due date. CRM-ready in one click.</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="album-grid">
+          <div class="album-tile">
+            <div class="album-tile__art">
+              <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#1ED760;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Positive</span>
+              <div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Acme Cloud</div>
+                <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Priya Patel · VP Sales</div>
+              </div>
+              <div class="album-tile__play">▶</div>
+            </div>
+            <div class="album-tile__bar"><div class="album-tile__bar__fill" style="width:82%;"></div></div>
+            <div class="album-tile__meta">
+              <span>32m</span>
+              <span>Today 14:30</span>
+            </div>
+          </div>
+
+          <div class="album-tile">
+            <div class="album-tile__art">
+              <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#B3B3B3;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Neutral</span>
+              <div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Northwind Logistics</div>
+                <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Marco Silva · CFO</div>
+              </div>
+              <div class="album-tile__play">▶</div>
+            </div>
+            <div class="album-tile__bar"><div class="album-tile__bar__fill" style="width:56%;background:#B3B3B3;"></div></div>
+            <div class="album-tile__meta">
+              <span>28m</span>
+              <span>Yest 11:00</span>
+            </div>
+          </div>
+
+          <div class="album-tile">
+            <div class="album-tile__art">
+              <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#1ED760;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Won</span>
+              <div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Quantum Retail</div>
+                <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Jordan Lee · CTO</div>
+              </div>
+              <div class="album-tile__play">▶</div>
+            </div>
+            <div class="album-tile__bar"><div class="album-tile__bar__fill" style="width:71%;"></div></div>
+            <div class="album-tile__meta">
+              <span>41m</span>
+              <span>Wed 16:15</span>
+            </div>
+          </div>
+
+          <div class="album-tile">
+            <div class="album-tile__art">
+              <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#F3727F;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Stalled</span>
+              <div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Helios Energy</div>
+                <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Sam Okafor · RevOps</div>
+              </div>
+              <div class="album-tile__play">▶</div>
+            </div>
+            <div class="album-tile__bar"><div class="album-tile__bar__fill" style="width:32%;background:#F3727F;"></div></div>
+            <div class="album-tile__meta">
+              <span>24m</span>
+              <span>Tue 09:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── HOW IT WORKS (PostHog skin) ────────── -->
+  <section id="how" class="band how">
+    <div class="container">
+      <div class="how__heading">
+        <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">From install to first close</div>
+        <h2>Three steps. Ten minutes. No tab switching.</h2>
+        <p>
+          Wingman runs entirely in your browser sidebar. No installs on the prospect side,
+          no shared zoom plugin to sell-in, no IT ticket. You install once, sign in with
+          Google, and you're coaching.
+        </p>
+      </div>
+      <div class="how__grid">
+        <div class="how__card">
+          <div class="how__card__step">1</div>
+          <h3>Install the extension</h3>
+          <p>
+            Drop the unpacked extension into Chrome (or grab it from the Web Store when we
+            ship). Sign in with your Google workspace account. The sidebar opens.
+          </p>
+        </div>
+        <div class="how__card">
+          <div class="how__card__step">2</div>
+          <h3>Add your knowledge base</h3>
+          <p>
+            Upload case studies, battle cards, pricing decks, brand guides. Wingman chunks
+            and embeds them locally with Gemini, and indexes into an in-browser vector store.
+            Designers and PMMs can update without bothering eng.
+          </p>
+        </div>
+        <div class="how__card">
+          <div class="how__card__step">3</div>
+          <h3>Join your next Meet</h3>
+          <p>
+            The sidebar lights up. Five agents start coaching. The transponder overlays on
+            Meet itself. You stop juggling tabs and start running better calls. Post-call,
+            one click pushes the summary to Zoho.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── CLOSING CTA (SpaceX echo) ────────── -->
+  <section id="install" class="cta">
+    <div class="cta__inner">
+      <div class="hero__eyebrow" style="justify-content:center;color:#F58549;margin-bottom:24px;">
+        Bring your own keys · MIT licensed · No SaaS lock-in
+      </div>
+      <h2>Stop juggling tabs.<br />Start closing deals.</h2>
+      <p>
+        Wingman is open-source and runs entirely on infrastructure you control. Plug in
+        your own Anthropic, Gemini, Groq, or any OpenAI-compatible endpoint.
+      </p>
+      <div class="hero__cta-row" style="justify-content:center;">
+        <a class="btn-pill btn-pill--primary" href="https://github.com/avinashgaurav/project-wingman-sales-copilot">
+          Get it on GitHub
+          <span aria-hidden="true">→</span>
+        </a>
+        <a class="btn-pill btn-pill--ghost" href="https://github.com/avinashgaurav/project-wingman-sales-copilot#quick-start">
+          Read the docs
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── FOOTER (Linear skin) ────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__brand">
+            <div class="brand__mark"><span>PW</span></div>
+            <span class="brand__name" style="color:#F7F8F8;">Project Wingman</span>
+          </div>
+          <p class="footer__tagline">
+            An open-source sales copilot that runs on the LLM provider you already pay for.
+            Built by sales people who got tired of switching tabs.
+          </p>
+        </div>
+        <div class="footer__col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#install">Install</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#roadmap">Roadmap</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Docs</h4>
+          <ul>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#quick-start">Quick start</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#configuration">Configuration</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#security-model">Security</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/issues">Issues</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Project</h4>
+          <ul>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot">GitHub</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/blob/main/README.md">README</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/blob/main/LICENSE">License</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__legal">
+        <span>© Project Wingman · MIT licensed</span>
+        <span class="mono" style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;">v1.0</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

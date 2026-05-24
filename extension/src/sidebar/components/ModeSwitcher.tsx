@@ -3,8 +3,8 @@ import { FileText, Shield } from "lucide-react";
 import { useAppStore } from "../stores/app-store";
 import type { OutputMode } from "../../shared/types";
 
-// Email mode removed from the Generate Pitch surface per product direction.
-// Draft-from-scratch emails now live outside this flow.
+// PostHog-style pill toggle: rest = transparent text, active = ink fill with
+// inverted text. Sits flush in a hairline-bordered group on the cream canvas.
 const MODES: { id: OutputMode; label: string; icon: React.ReactNode }[] = [
   { id: "pitch", label: "Pitch", icon: <FileText size={12} /> },
   { id: "objection", label: "Objection", icon: <Shield size={12} /> },
@@ -13,21 +13,32 @@ const MODES: { id: OutputMode; label: string; icon: React.ReactNode }[] = [
 export function ModeSwitcher() {
   const { outputMode, setOutputMode } = useAppStore();
   return (
-    <div className="flex gap-1 bg-[#0E0E12] border border-[#2A2A34] p-1">
-      {MODES.map((m) => (
-        <button
-          key={m.id}
-          onClick={() => setOutputMode(m.id)}
-          className={`flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-medium transition-colors ${
-            outputMode === m.id
-              ? "bg-[#F58549] text-[#0A0A0A]"
-              : "text-[#A8A195] hover:text-[#F0EBDB]"
-          }`}
-        >
-          {m.icon}
-          {m.label}
-        </button>
-      ))}
+    <div
+      className="flex gap-1 p-1"
+      style={{
+        background: "var(--surface-1)",
+        border: "1px solid var(--line)",
+        borderRadius: 6,
+      }}
+    >
+      {MODES.map((m) => {
+        const active = outputMode === m.id;
+        return (
+          <button
+            key={m.id}
+            onClick={() => setOutputMode(m.id)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold transition-colors"
+            style={{
+              background: active ? "var(--brand-orange)" : "transparent",
+              color: active ? "#0A0A0A" : "var(--ink-3)",
+              borderRadius: 4,
+            }}
+          >
+            {m.icon}
+            {m.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -1,117 +1,162 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 
+// Linear-skin popup. Deep dark canvas (#010102), 4-step surface ladder,
+// hairline borders, 1-2 action rows max. Brand orange survives as the
+// primary CTA so the popup still feels like Wingman.
+
+// Type definitions kept inline to avoid pulling chrome.d.ts into the popup
+// build — the popup runs in MV3 extension context where these globals exist.
+declare const chrome: any;
+
+const STYLES = {
+  page: {
+    padding: 16,
+    background: "#010102",
+    color: "#F7F8F8",
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    letterSpacing: "-0.02em",
+  } as React.CSSProperties,
+  header: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 16,
+  } as React.CSSProperties,
+  mark: {
+    width: 32, height: 32,
+    background: "#F58549",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    flexShrink: 0,
+    borderRadius: 6,
+  } as React.CSSProperties,
+  markText: {
+    fontFamily: "'JetBrains Mono', monospace",
+    fontWeight: 800,
+    fontSize: 13,
+    color: "#0A0A0A",
+    letterSpacing: "-0.02em",
+  } as React.CSSProperties,
+  brand: { display: "flex", flexDirection: "column", lineHeight: 1 } as React.CSSProperties,
+  brandName: {
+    fontWeight: 700,
+    fontSize: 14,
+    color: "#F7F8F8",
+    letterSpacing: "-0.03em",
+  } as React.CSSProperties,
+  brandEyebrow: {
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: 9,
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.14em",
+    color: "#62666D",
+    marginTop: 4,
+  } as React.CSSProperties,
+
+  // Primary action row — orange pill button (Wingman brand mark)
+  primaryBtn: (hover: boolean): React.CSSProperties => ({
+    width: "100%",
+    padding: "10px 14px",
+    background: "#F58549",
+    color: "#0A0A0A",
+    border: "none",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontSize: 13,
+    fontWeight: 700,
+    fontFamily: "'Inter', system-ui, sans-serif",
+    letterSpacing: "-0.01em",
+    transition: "filter 140ms ease, transform 140ms ease",
+    filter: hover ? "brightness(1.05)" : "none",
+    transform: hover ? "translateY(-1px)" : "translateY(0)",
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+  }),
+
+  // Secondary action row — charcoal lift (Linear surface-1)
+  secondaryRow: (hover: boolean): React.CSSProperties => ({
+    width: "100%",
+    marginTop: 8,
+    padding: "10px 14px",
+    background: hover ? "#141516" : "#0F1011",
+    color: "#F7F8F8",
+    border: "1px solid #23252A",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontSize: 13,
+    fontWeight: 500,
+    fontFamily: "'Inter', system-ui, sans-serif",
+    letterSpacing: "-0.01em",
+    transition: "background 140ms ease",
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    textAlign: "left" as const,
+  }),
+
+  hint: {
+    marginTop: 12,
+    fontSize: 10,
+    color: "#62666D",
+    textAlign: "center" as const,
+    fontFamily: "'JetBrains Mono', monospace",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.14em",
+  } as React.CSSProperties,
+};
+
 function Popup() {
-  const [hover, setHover] = useState(false);
+  const [openHover, setOpenHover] = useState(false);
+  const [insightsHover, setInsightsHover] = useState(false);
 
   function openSidebar() {
-    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]: any) => {
       if (tab?.id) chrome.sidePanel.open({ tabId: tab.id });
       window.close();
     });
   }
 
+  function openInsights() {
+    // Future hook: pass a tab hint to App.tsx via storage so the sidebar
+    // opens straight onto the Insights tab. Today it opens the sidebar
+    // and the user clicks Insights manually.
+    try {
+      chrome.storage?.local?.set?.({ clientlens_open_tab: "insights" }, () => { /* noop */ });
+    } catch { /* non-extension env */ }
+    openSidebar();
+  }
+
   return (
-    <div
-      style={{
-        padding: "14px",
-        background: "#060608",
-        color: "#F0EBDB",
-        fontFamily: "'Space Grotesk', system-ui, -apple-system, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          marginBottom: "14px",
-        }}
-      >
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            background: "#F58549",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace",
-              fontWeight: 800,
-              fontSize: 13,
-              color: "#0A0A0A",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            CL
-          </span>
+    <div style={STYLES.page}>
+      <div style={STYLES.header}>
+        <div style={STYLES.mark}>
+          <span style={STYLES.markText}>PW</span>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
-          <span
-            style={{
-              fontWeight: 600,
-              fontSize: 14,
-              color: "#F0EBDB",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            Project Wingman
-          </span>
-          <span
-            style={{
-              fontFamily: "'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace",
-              fontSize: 9,
-              textTransform: "uppercase",
-              letterSpacing: "0.14em",
-              color: "#8A8378",
-              marginTop: 3,
-            }}
-          >
-            Sales Copilot
-          </span>
+        <div style={STYLES.brand}>
+          <span style={STYLES.brandName}>Project Wingman</span>
+          <span style={STYLES.brandEyebrow}>Sales Copilot</span>
         </div>
       </div>
+
       <button
         onClick={openSidebar}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        style={{
-          width: "100%",
-          padding: "9px 12px",
-          background: "#F58549",
-          color: "#0A0A0A",
-          border: "none",
-          borderRadius: 0,
-          cursor: "pointer",
-          fontSize: 12,
-          fontWeight: 600,
-          fontFamily: "'Space Grotesk', system-ui, sans-serif",
-          letterSpacing: "-0.01em",
-          transition: "box-shadow 140ms ease, transform 140ms ease",
-          boxShadow: hover ? "0 8px 0 -4px #F58549" : "none",
-          transform: hover ? "translateY(-1px)" : "translateY(0)",
-        }}
+        onMouseEnter={() => setOpenHover(true)}
+        onMouseLeave={() => setOpenHover(false)}
+        style={STYLES.primaryBtn(openHover)}
       >
-        Open Sales Copilot →
+        <span>Open Sales Copilot</span>
+        <span aria-hidden="true">→</span>
       </button>
-      <div
-        style={{
-          marginTop: 10,
-          fontSize: 10,
-          color: "#5A5A62",
-          textAlign: "center",
-          fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-          textTransform: "uppercase",
-          letterSpacing: "0.14em",
-        }}
+
+      <button
+        onClick={openInsights}
+        onMouseEnter={() => setInsightsHover(true)}
+        onMouseLeave={() => setInsightsHover(false)}
+        style={STYLES.secondaryRow(insightsHover)}
       >
-        Opens in side panel
-      </div>
+        <span>This week's insights</span>
+        <span aria-hidden="true">→</span>
+      </button>
+
+      <div style={STYLES.hint}>Opens in side panel</div>
     </div>
   );
 }

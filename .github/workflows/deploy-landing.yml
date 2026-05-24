@@ -1,0 +1,59 @@
+name: Deploy Landing Page
+
+# Deploys /landing/ (static HTML + CSS) to GitHub Pages on every push to
+# main. The extension build is untouched by this workflow — only the
+# /landing/ directory is published.
+#
+# One-time repo setup before this works:
+#   Settings → Pages → Source: "GitHub Actions"
+#
+# Once enabled, the landing page is reachable at
+#   https://<owner>.github.io/<repo>/
+# (the URL appears in the Actions run summary after first deploy).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "landing/**"
+      - ".github/workflows/deploy-landing.yml"
+  # Manual trigger from Actions tab for ad-hoc deploys (e.g., after a
+  # landing-only hotfix on a non-main branch that you merged in).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Coalesce overlapping deploys; never cancel an in-progress one so we
+# don't leave Pages in a half-published state. Group key is namespaced
+# to this repo so it doesn't collide with other Pages workflows in the
+# same org.
+concurrency:
+  group: pages-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload landing artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Only ship the static landing folder. The extension build
+          # lives elsewhere and never touches Pages.
+          path: landing/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

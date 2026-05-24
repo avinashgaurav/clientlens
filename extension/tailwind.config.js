@@ -1,28 +1,30 @@
 /** @type {import('tailwindcss').Config}
  *
- * Project Wingman design-system bridge.
+ * Project Wingman — Multi-Surface Token Bridge.
+ * ===============================================
  *
- * Rather than sweep every V1 component's Tailwind classes, we remap the
- * scales the existing code already uses so the whole app inherits the
- * brand automatically:
+ * Every color token below resolves to a CSS variable defined in
+ * src/sidebar/tokens.css. That file scopes the variables per `data-skin`
+ * attribute, so the *same Tailwind class* renders differently depending
+ * on which surface a component lives inside:
  *
- *   slate-*   → Project Wingman ink/line ladder (cream text on dark surfaces)
- *   violet-*  → orange  (primary accent / CTA)
- *   emerald-* → green   (success, "live")
- *   red-*     → err (#F87171)
- *   amber-*   → warn (#FBBF24)
+ *   <div data-skin="brand">…</div>   ← default sidebar (cream + white cards)
+ *   <div data-skin="live">…</div>    ← live meeting copilot
+ *   <div data-skin="insights">…</div>   ← post-call insights
+ *   <div data-skin="linear">…</div>    ← popup
+ *   <div data-skin="vercel">…</div>    ← transponder + landing body
+ *   <div data-skin="spacex">…</div>    ← landing hero band
  *
- * Standing rules from tokens.css are enforced globally:
- *   - border-radius scale collapses to 0 (with a single pill exception)
- *   - font-family defaults to Space Grotesk / JetBrains Mono
+ * Components don't change. Wrap a surface in the appropriate skin and
+ * the palette swaps automatically.
  *
- * Brand classes are also exposed directly: bg-orange, text-ink-2, etc.
+ * V1 brand-bridge remaps (slate-* → cream/ink, violet-* → orange, etc.)
+ * are preserved so existing components keep working without touch-ups.
  */
 export default {
   content: ["./src/**/*.{ts,tsx}", "./sidebar.html", "./popup.html"],
   theme: {
-    // Full override of the borderRadius scale — sharp corners everywhere.
-    // One pill escape hatch for status dots per tokens.css.
+    // Sharp corners by default. Pill escape hatch retained.
     borderRadius: {
       none: "0",
       DEFAULT: "0",
@@ -37,112 +39,155 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["'Space Grotesk'", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["'Inter'", "'Space Grotesk'", "system-ui", "-apple-system", "sans-serif"],
         mono: ["'JetBrains Mono'", "ui-monospace", "'SF Mono'", "Menlo", "monospace"],
+        display: ["'Inter'", "'Space Grotesk'", "system-ui", "sans-serif"],
       },
       letterSpacing: {
         body: "-0.02em",
         heading: "-0.03em",
         display: "-0.05em",
         meta: "0.14em",
+        eyebrow: "0.14em",
+        spacex: "0.08em",
       },
       colors: {
-        // Brand-level aliases (top-level — used as `bg-orange`, `text-blue`, etc.)
-        blue: "#2A4494",
-        orange: "#F58549",
-        black: "#0A0A0A",
-        cream: "#F0EBDB",
-        ink: {
-          DEFAULT: "#F0EBDB",
-          2: "#D4CDB5",
-          3: "#A8A195",
-          4: "#8A8378",
-          5: "#5A5A62",
-        },
-        line: {
-          DEFAULT: "#2A2A34",
-          2: "#3A3A46",
-          3: "#55555E",
-        },
+        // ─────────────────────────────────────────────────────────────
+        // CSS-variable backed tokens — these are the canonical names.
+        // ─────────────────────────────────────────────────────────────
+
+        // Brand mark — persists across every skin
+        orange: "var(--brand-orange)",
+        "orange-hover": "var(--brand-orange-hover)",
+        "orange-press": "var(--brand-orange-press)",
+
+        // Surfaces (lift ladder, 0 = deepest canvas)
         surface: {
-          0: "#060608",
-          1: "#0E0E12",
-          2: "#15151A",
-          3: "#1C1C24",
-          4: "#252530",
+          0: "var(--surface-0)",
+          1: "var(--surface-1)",
+          2: "var(--surface-2)",
+          3: "var(--surface-3)",
+          4: "var(--surface-4)",
         },
 
-        // Remaps so existing V1 Tailwind classes inherit brand.
+        // Text
+        ink: {
+          DEFAULT: "var(--ink)",
+          2: "var(--ink-2)",
+          3: "var(--ink-3)",
+          4: "var(--ink-4)",
+          5: "var(--ink-5)",
+        },
+
+        // Lines / borders
+        line: {
+          DEFAULT: "var(--line)",
+          2: "var(--line-2)",
+          3: "var(--line-3)",
+        },
+
+        // Skin-specific signal colors
+        signal: {
+          live: "var(--signal-live)",
+          warn: "var(--signal-warn)",
+          error: "var(--signal-error)",
+          info: "var(--signal-info)",
+        },
+
+        // Accent banner family (PostHog callouts, Cursor timeline, etc.)
+        accent: {
+          blue: "var(--accent-blue)",
+          "blue-soft": "var(--accent-blue-soft)",
+          green: "var(--accent-green)",
+          "green-soft": "var(--accent-green-soft)",
+          red: "var(--accent-red)",
+          "red-soft": "var(--accent-red-soft)",
+          purple: "var(--accent-purple)",
+          "purple-soft": "var(--accent-purple-soft)",
+        },
+
+        // Cursor timeline pastels — maps to Wingman's live agent stages
+        timeline: {
+          thinking: "var(--timeline-thinking, #DFA88F)",
+          grep: "var(--timeline-grep, #9FC9A2)",
+          read: "var(--timeline-read, #9FBBE0)",
+          edit: "var(--timeline-edit, #C0A8DD)",
+          done: "var(--timeline-done, #C08532)",
+        },
+
+        // Convenience aliases used across the existing codebase
+        blue: "var(--accent-blue)",
+        green: "var(--accent-green)",
+        red: "var(--accent-red)",
+        black: "#0A0A0A",
+        cream: "var(--ink)",
+
+        // ─────────────────────────────────────────────────────────────
+        // V1 brand-bridge remaps — preserved so existing component
+        // classes (bg-slate-800, text-slate-400 etc.) still resolve to
+        // surface/ink tokens automatically.
+        // ─────────────────────────────────────────────────────────────
         slate: {
-          50: "#F0EBDB",
-          100: "#F0EBDB",
-          200: "#F0EBDB",
-          300: "#D4CDB5",
-          400: "#A8A195",
-          500: "#A8A195",
-          600: "#5A5A62",
-          700: "#3A3A46",
-          800: "#2A2A34",
-          900: "#0E0E12",
-          950: "#060608",
+          50: "var(--ink)",
+          100: "var(--ink)",
+          200: "var(--ink-2)",
+          300: "var(--ink-3)",
+          400: "var(--ink-4)",
+          500: "var(--ink-4)",
+          600: "var(--ink-5)",
+          700: "var(--line-2)",
+          800: "var(--line)",
+          900: "var(--surface-1)",
+          950: "var(--surface-0)",
         },
         violet: {
-          50: "#FDE7D9",
-          100: "#FBD0B3",
-          200: "#F9B98E",
-          300: "#F7A268",
-          400: "#F58549",
-          500: "#F58549",
-          600: "#F58549",
-          700: "#D46A36",
-          800: "#A04D25",
-          900: "#6F3417",
-          950: "#451F0D",
+          50: "var(--brand-orange)",
+          100: "var(--brand-orange)",
+          200: "var(--brand-orange)",
+          300: "var(--brand-orange)",
+          400: "var(--brand-orange)",
+          500: "var(--brand-orange)",
+          600: "var(--brand-orange)",
+          700: "var(--brand-orange-press)",
+          800: "var(--brand-orange-press)",
+          900: "var(--brand-orange-press)",
+          950: "var(--brand-orange-press)",
         },
         indigo: {
-          400: "#F58549",
-          500: "#F58549",
-          600: "#F58549",
-          700: "#D46A36",
+          400: "var(--brand-orange)",
+          500: "var(--brand-orange)",
+          600: "var(--brand-orange)",
+          700: "var(--brand-orange-press)",
         },
         emerald: {
-          400: "#7FB236",
-          500: "#7FB236",
-          600: "#7FB236",
-          700: "#5F871F",
-        },
-        green: {
-          DEFAULT: "#7FB236",
-          400: "#7FB236",
-          500: "#7FB236",
-          600: "#7FB236",
-        },
-        red: {
-          300: "#FCA5A5",
-          400: "#F87171",
-          500: "#F87171",
-          600: "#EF4444",
-          700: "#B91C1C",
-          900: "#6F1212",
+          400: "var(--accent-green)",
+          500: "var(--accent-green)",
+          600: "var(--accent-green)",
+          700: "var(--accent-green)",
         },
         amber: {
-          300: "#FCD34D",
-          400: "#FBBF24",
-          500: "#FBBF24",
-          600: "#D97706",
+          300: "var(--signal-warn)",
+          400: "var(--signal-warn)",
+          500: "var(--signal-warn)",
+          600: "var(--signal-warn)",
         },
         yellow: {
-          400: "#FBBF24",
-          500: "#FBBF24",
+          400: "var(--signal-warn)",
+          500: "var(--signal-warn)",
         },
       },
       boxShadow: {
-        // Hard offset shadows (no blur radius) — tokens.css standing rule.
-        "hover-orange": "0 8px 0 -4px #F58549",
-        "hover-blue": "0 8px 0 -4px #2A4494",
-        "hover-green": "0 8px 0 -4px #7FB236",
-        "hover-ink": "0 4px 0 -2px #F0EBDB",
-        toast: "0 8px 0 -4px #F58549",
+        // Skin-aware elevation — each skin's tokens.css defines these.
+        skin: "var(--shadow-1)",
+        "skin-lifted": "var(--shadow-2)",
+        card: "var(--shadow-card)",
+
+        // Brutalist hard-offset shadows kept for legacy V1 components.
+        "hover-orange": "0 8px 0 -4px var(--brand-orange)",
+        "hover-blue": "0 8px 0 -4px var(--accent-blue)",
+        "hover-green": "0 8px 0 -4px var(--accent-green)",
+        "hover-ink": "0 4px 0 -2px var(--ink)",
+        toast: "0 8px 0 -4px var(--brand-orange)",
       },
     },
   },
