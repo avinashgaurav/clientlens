@@ -18,6 +18,7 @@ import {
   listSessionHistory,
   type StoredSessionSummary,
 } from "../../shared/utils/settings-storage";
+import { buildCallRecord, saveCallRecord } from "../../shared/utils/call-history-storage";
 import { pushZohoNote, pushCustomTool } from "../../shared/utils/integrations";
 import { parsePastedInvite } from "../../shared/utils/meeting-parse";
 import { CopyButton } from "./CopyButton";
@@ -322,14 +323,26 @@ export function MeetingCopilotPanel() {
         kbEntries,
       );
       setSummary(s);
-      saveSessionToHistory({
-        id: finalSession.id,
-        saved_at: new Date().toISOString(),
-        company: finalSession.input.company_name,
-        persona: finalSession.input.persona_role,
-        headline: s.headline,
-        summary_markdown: summaryToMarkdown(s, finalSession.input.company_name, finalSession.input.persona_role),
-      });
+      // Dual-write transition (#42): legacy chip-strip store + new
+      // call-history store. The chip strip still reads from the legacy key
+      // until #43 wires InsightsPanel to the new store; once that lands a
+      // follow-up issue can drop the legacy write. Both stores swallow
+      // their own quota errors internally; the try/catch here only catches
+      // unexpected serialization failures so they're visible in the
+      // service-worker console instead of poisoning stopSession.
+      try {
+        saveSessionToHistory({
+          id: finalSession.id,
+          saved_at: new Date().toISOString(),
+          company: finalSession.input.company_name,
+          persona: finalSession.input.persona_role,
+          headline: s.headline,
+          summary_markdown: summaryToMarkdown(s, finalSession.input.company_name, finalSession.input.persona_role),
+        });
+        saveCallRecord(buildCallRecord({ ...finalSession, status: "ended", ended_at: new Date().toISOString() }, s));
+      } catch (err) {
+        console.warn("[wingman] call record save failed", err);
+      }
     } else {
       resetSession();
     }

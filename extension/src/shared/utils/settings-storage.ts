@@ -10,6 +10,7 @@
  */
 
 import type { LLMProvider } from "../agents/llm-client";
+import { CALL_HISTORY_STORAGE_KEY } from "./call-history-storage";
 
 const STORAGE_KEY = "clientlens_user_settings_v1";
 
@@ -333,6 +334,7 @@ export function clearSessionHistory(): void {
 export function clearAllSessionData(): { removed: string[] } {
   const keys = [
     "clientlens_session_history_v1",
+    CALL_HISTORY_STORAGE_KEY,
     "clientlens_calendar_status_v1",
     "clientlens.transponder.pos",
     "clientlens.transponder.dock",
