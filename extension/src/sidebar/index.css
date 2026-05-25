@@ -27,7 +27,15 @@ body {
     color: var(--ink-5);
   }
   .input:focus {
-    border-color: var(--brand-orange);
+    /* Intentionally :focus (not :focus-visible). Text inputs conventionally
+     * show focus state on mouse click too — the border tint is subtle. The
+     * keyboard-only outline ring is handled by the unlayered :focus-visible
+     * rule in tokens.css.
+     *
+     * --focus-ring is darker than --brand-orange on light skins (4.06:1 vs
+     * 2.52:1 on white) to meet WCAG 2.4.11. The token degrades to brand
+     * orange on dark skins where the lighter shade already passes. */
+    border-color: var(--focus-ring, var(--brand-orange));
   }
 }
 
