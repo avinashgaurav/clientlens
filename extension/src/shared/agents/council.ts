@@ -426,10 +426,10 @@ Return JSON:
   const text = await callLLM(client, system, user, 2000);
   const parsed = extractJson<FactCheck>(text) ?? { grounded: true, claims: [], hallucinations: [] };
 
-  // "warn" instead of "fail" — flagged items are often legitimate KB content
+  // "warning" instead of "fail" — flagged items are often legitimate KB content
   // the retrieval agent didn't select, not actual hallucinations. Hard "fail"
   // here was blocking every pitch even when ICP output was perfectly usable.
-  const status = parsed.hallucinations.length > 0 ? "warn" : "pass";
+  const status = parsed.hallucinations.length > 0 ? "warning" : "pass";
   return {
     agent: "validation",
     status,
@@ -442,9 +442,9 @@ Return JSON:
 // ─── Council Orchestrator ─────────────────────────────────────────────────────
 
 // Single-pass council (4 LLM calls total: retrieval → ICP → brand → validation).
-// A retry loop existed previously but caused double-runs on validation "warn"
+// A retry loop existed previously but caused double-runs on validation "warning"
 // since validation rarely returns "pass" on the first attempt with free-tier
-// models. Removed in favour of accepting "warn" at the council vote step.
+// models. Removed in favour of accepting "warning" at the council vote step.
 
 export async function* runCouncil(opts: {
   input: PersonalizationInput;
@@ -514,7 +514,7 @@ export async function* runCouncil(opts: {
     yield { type: "stage", stage: "generating", message: "Council vote…" };
 
     const agents = [retrieval, icpResult, brandResult, validationResult];
-    // Accept "warn" from validation — only hard "fail" on ALL agents blocks output.
+    // Accept "warning" from validation — only hard "fail" on any agent blocks output.
     // Previously requiring validationResult === "pass" caused the retry loop to
     // always fire (validation rarely returns "pass" on first attempt with free
     // models), doubling the LLM call count and making it look like agents re-ran.
