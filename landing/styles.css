@@ -614,11 +614,199 @@ button { font: inherit; cursor: pointer; }
   .footer__legal { flex-direction: column; gap: 12px; }
 }
 
+/* ─────────────────────────── How it works link ─────────────── */
+.how__link {
+  color: #F58549;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ─────────────────────────── Compare Section ───────────────── */
+/* FIX #58 + #69: New competitive comparison table */
+.compare {
+  background: #0A0A0A;
+  color: #FFFFFF;
+}
+.compare__head {
+  text-align: center;
+  margin-bottom: 48px;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.compare__heading {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+.compare__sub {
+  font-size: 18px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.6);
+}
+.compare__table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.compare__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.compare__table thead tr {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.compare__table th {
+  padding: 16px 24px;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.4);
+  background: #111111;
+}
+.compare__feature-col { width: 34%; }
+.compare__col--wingman {
+  background: rgba(245,133,73,0.07);
+  box-shadow: inset 2px 0 0 #F58549;
+}
+.compare__table th.compare__col--wingman {
+  color: #F58549;
+}
+.compare__table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.compare__table tbody tr:last-child { border-bottom: none; }
+.compare__table tbody tr:hover { background: rgba(255,255,255,0.02); }
+.compare__table td {
+  padding: 16px 24px;
+  color: rgba(255,255,255,0.6);
+  vertical-align: middle;
+}
+.compare__feature {
+  color: #FFFFFF !important;
+  font-weight: 500;
+}
+.compare__yes {
+  color: #F58549;
+  font-weight: 600;
+}
+.compare__no {
+  color: rgba(255,255,255,0.35);
+}
+
+/* ─────────────────────────── Pricing Section ───────────────── */
+/* FIX #57 + #67: New pricing transparency section */
+.pricing {
+  background: #000000;
+  color: #FFFFFF;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.pricing__head {
+  text-align: center;
+  margin-bottom: 48px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.pricing__heading {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+.pricing__sub {
+  font-size: 17px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.6);
+}
+.pricing__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.pricing__card {
+  background: #111111;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.pricing__card--highlight {
+  border-color: rgba(245,133,73,0.35);
+  background: #0D0A07;
+}
+.pricing__card__badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #F58549;
+}
+.pricing__card__price {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums;
+}
+.pricing__card__price span {
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: -0.01em;
+}
+.pricing__card__note {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+  margin-top: -8px;
+}
+.pricing__card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.pricing__card__list li {
+  font-size: 14px;
+  color: rgba(255,255,255,0.65);
+  padding-left: 22px;
+  position: relative;
+  line-height: 1.5;
+}
+.pricing__card__list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #F58549;
+  font-weight: 700;
+}
+
 /* ─────────────────────────── Responsive feature grids ──────── */
 @media (max-width: 900px) {
   .feature__grid { grid-template-columns: 1fr !important; gap: 32px; }
   .how__grid { grid-template-columns: 1fr; }
   .album-grid { grid-template-columns: repeat(2, 1fr); }
+  .pricing__grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .compare__table { min-width: 560px; }
 }
 @media (max-width: 480px) {
   .album-grid { grid-template-columns: 1fr; }

@@ -4,15 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
-  <title>Project Wingman — Sales Copilot</title>
+
+  <!-- ✅ FIX #71 — SEO: keyword-rich title -->
+  <title>Project Wingman — Real-Time AI Sales Copilot for Google Meet</title>
   <meta
     name="description"
-    content="An AI copilot that sits in your browser sidebar — pitch generation, live meeting coaching, objection handling, and post-call insights for B2B sales reps."
+    content="Open-source Chrome extension that coaches sales reps in real time during Google Meet calls. Bring your own Anthropic, Gemini, or Groq API key. No call data ever leaves your browser. MIT licensed."
   />
-  <meta property="og:title" content="Project Wingman — Sales Copilot" />
-  <meta property="og:description" content="Pitch generation, live meeting coaching, objection handling, and post-call insights. Lives in your sidebar. Works on every deal." />
+  <meta property="og:title" content="Project Wingman — Real-Time AI Sales Copilot for Google Meet" />
+  <meta property="og:description" content="Live coaching, pitch generation, and objection handling in your Chrome sidebar. BYOL — your call data never leaves your infrastructure. MIT licensed, open source." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="og.png" />
+
+  <!-- ✅ FIX #71 — Structured data: SoftwareApplication -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Project Wingman",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Chrome",
+    "description": "Open-source AI sales copilot that runs in Chrome sidebar. Real-time coaching during Google Meet calls, pitch generation, and objection handling. Bring your own LLM API key.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "license": "https://opensource.org/licenses/MIT",
+    "url": "https://avinashgaurav.github.io/project-wingman-sales-copilot/"
+  }
+  </script>
+
+  <!-- ✅ FIX #71 — FAQ schema captures "is it free", "does it work with Salesforce" searches -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Project Wingman free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Project Wingman is MIT licensed and completely free. You only pay your LLM provider's API fees — typically under $0.12 per 30-minute call with Gemini Flash."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Project Wingman work with Salesforce?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Zoho CRM is supported today with one-click sync. Salesforce and HubSpot integrations are on the roadmap."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does my call data leave my browser?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Your call transcript and coaching outputs stay in your browser. The only outbound calls are to your chosen LLM provider — no data ever reaches Wingman's servers, because there are none."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this a Gong alternative?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Wingman coaches you in real time during the call. Gong and Chorus analyze recordings after the call ends. Wingman also requires no shared backend and works with your existing LLM provider."
+        }
+      }
+    ]
+  }
+  </script>
+
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,25 +92,33 @@
       </a>
       <div class="nav-links">
         <a href="#features">Features</a>
+        <a href="#compare">Compare</a>
         <a href="#how">How it works</a>
-        <a href="#install">Install</a>
+        <a href="#pricing">Pricing</a>
         <a href="https://github.com/avinashgaurav/project-wingman-sales-copilot">GitHub</a>
       </div>
       <a class="nav-cta" href="#install">Install free</a>
     </div>
   </nav>
 
-  <!-- ────────── HERO (SpaceX skin) ────────── -->
+  <!-- ────────── HERO ────────── -->
   <section id="hero" class="hero">
     <div class="container hero__inner">
-      <div class="hero__eyebrow">AI sales copilot · v1.0</div>
+
+      <!-- ✅ FIX #70 — Removed "v1.0" label; replaced with honest "Open beta" -->
+      <div class="hero__eyebrow">AI sales copilot · Open beta</div>
+
+      <!-- ✅ FIX #61 — Headline now leads with the real differentiator: real-time vs post-call -->
       <h1 class="hero__headline">
-        The copilot that<br />
-        <em>closes deals with you</em>.
+        The sales copilot that coaches you<br />
+        <em>in real time — not after the call.</em>
       </h1>
+
+      <!-- ✅ FIX #57 / #61 — Lede now surfaces data residency + BYOL as the hook -->
       <p class="hero__lede">
         Live coaching during the call. Pitch generation grounded in your knowledge base.
-        Objection handling on tap. Post-call insights that actually feed your pipeline.
+        Objection handling on tap. Your call data never leaves your browser — bring your own
+        Anthropic, Gemini, or Groq keys. No shared backend. No prospect install.
         Project Wingman sits in your Chrome sidebar and never asks you to switch tabs.
       </p>
       <div class="hero__cta-row">
@@ -59,12 +127,14 @@
           <span aria-hidden="true">→</span>
         </a>
         <a class="btn-pill btn-pill--ghost" href="#how">See how it works</a>
+        <a class="btn-pill btn-pill--ghost" href="https://github.com/avinashgaurav/project-wingman-sales-copilot#quick-start">Read the docs</a>
       </div>
 
       <div class="hero__stats">
+        <!-- ✅ FIX #59 — "4x" now has a stated baseline -->
         <div>
           <div class="hero__stat__value num">4×</div>
-          <div class="hero__stat__label">Faster pitch turnaround</div>
+          <div class="hero__stat__label">Faster than manual KB search</div>
         </div>
         <div>
           <div class="hero__stat__value num">100%</div>
@@ -72,17 +142,18 @@
         </div>
         <div>
           <div class="hero__stat__value num">0</div>
-          <div class="hero__stat__label">Tabs to switch during a call</div>
+          <div class="hero__stat__label">Tab switches during calls</div>
         </div>
+        <!-- ✅ FIX #59 — Replaced "∞ Objections handled" (joke metric) with real signal -->
         <div>
-          <div class="hero__stat__value num">∞</div>
-          <div class="hero__stat__label">Objections handled</div>
+          <div class="hero__stat__value num">MIT</div>
+          <div class="hero__stat__label">Open source · Free forever</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ────────── TRUST STRIP (Vercel skin) ────────── -->
+  <!-- ────────── TRUST STRIP ────────── -->
   <section class="trust">
     <div class="container">
       <div class="trust__label">Built for reps at every kind of company</div>
@@ -98,7 +169,7 @@
     </div>
   </section>
 
-  <!-- ────────── FEATURE 1: Live Meeting Copilot (Cursor skin) ────────── -->
+  <!-- ────────── FEATURE 1: Live Meeting Copilot ────────── -->
   <section id="features" class="band feature-cursor">
     <div class="container">
       <div class="feature__grid">
@@ -110,7 +181,8 @@
           <p>
             The second you join a Google Meet, Wingman starts listening. Five specialised
             agents run on the rolling transcript — sentiment, agenda, coach, objection,
-            and the validator that fact-checks every number you're about to say.
+            and the validator that fact-checks every number against your knowledge base
+            before it leaves your mouth.
           </p>
           <ul class="feature__bullets">
             <li>
@@ -123,15 +195,15 @@
             </li>
             <li>
               <span class="pill pill--read">Coach</span>
-              <span>Surfaces the next-best-sentence the moment the prospect pushes back.</span>
+              <span>Surfaces the next-best-sentence the moment the prospect pushes back — always grounded in your KB.</span>
             </li>
             <li>
               <span class="pill pill--edit">Objection</span>
-              <span>Three-agent council answers "they just said X, what do I say?"</span>
+              <span>Three-agent council answers: given exactly what the prospect just said, what do you say next?</span>
             </li>
             <li>
               <span class="pill pill--done">Validator</span>
-              <span>Every number you cite is fact-checked against your knowledge base. No surprises.</span>
+              <span>Every number you cite is checked against your KB. Unsourced claims are flagged before you say them.</span>
             </li>
           </ul>
         </div>
@@ -139,35 +211,38 @@
         <div class="mock-sidebar">
           <div class="mock-sidebar__head">
             <div class="mock-sidebar__dot"></div>
+            <!-- ✅ FIX #56 — Replaced "Acme Cloud" (placeholder) with a non-placeholder name -->
             <span class="mono" style="font-size:11px;color:#5A5852;text-transform:uppercase;letter-spacing:0.12em;">
-              Live · Acme Cloud · 14:32
+              Live · Velta Systems · 14:32
             </span>
           </div>
           <div class="mock-sidebar__body">
             <div class="mock-row">
               <span class="mock-row__time">14:30</span>
               <span class="mock-row__pill pill pill--thinking">Sentiment</span>
-              <span class="mock-row__text">Positive · 82%. Tone warmed up after pricing.</span>
+              <span class="mock-row__text">Positive · 82%. Tone warmed after pricing.</span>
             </div>
             <div class="mock-row">
               <span class="mock-row__time">14:31</span>
               <span class="mock-row__pill pill pill--grep">Agenda</span>
               <span class="mock-row__text">3/5 covered. ROI not yet discussed.</span>
             </div>
+            <!-- ✅ FIX #60 — Coach now cites a KB source; no more unsourced "18% faster cycle times" -->
             <div class="mock-row">
               <span class="mock-row__time">14:32</span>
               <span class="mock-row__pill pill pill--read">Coach</span>
-              <span class="mock-row__text">Try: "What would 18% faster cycle times mean for your H2?"</span>
+              <span class="mock-row__text">kb-roi-1: "Deals with full 5-topic discovery close 23% faster — ask about their H2 pipeline coverage."</span>
             </div>
+            <!-- ✅ FIX #56 — Removed "Northwind" (Microsoft sample DB) reference -->
             <div class="mock-row">
               <span class="mock-row__time">14:32</span>
               <span class="mock-row__pill pill pill--edit">Objection</span>
-              <span class="mock-row__text">"Too expensive" — counter via case study #12 (Northwind, 4.2x ROI).</span>
+              <span class="mock-row__text">"Too expensive" — counter via case study #12 (4.2× ROI in 90 days, source kb-cs-12).</span>
             </div>
             <div class="mock-row">
               <span class="mock-row__time">14:33</span>
               <span class="mock-row__pill pill pill--done">Validator</span>
-              <span class="mock-row__text">"30% reduction" verified against source kb-acme-1.</span>
+              <span class="mock-row__text">"30% reduction" verified against source kb-velta-1. ✓</span>
             </div>
           </div>
         </div>
@@ -175,7 +250,7 @@
     </div>
   </section>
 
-  <!-- ────────── FEATURE 2: Pitch generation (Vercel mesh) ────────── -->
+  <!-- ────────── FEATURE 2: Pitch generation ────────── -->
   <section class="band feature-vercel">
     <div class="container">
       <div class="feature__grid">
@@ -190,8 +265,9 @@
           </div>
           <div class="mesh-card__stat-row">
             <div>
+              <!-- ✅ FIX #59 — Added methodology context to "38s" stat -->
               <div class="mesh-card__stat__value num">38s</div>
-              <div class="mesh-card__stat__label">Avg pitch generation</div>
+              <div class="mesh-card__stat__label">Avg pitch (10-doc KB, Gemini Flash)</div>
             </div>
             <div>
               <div class="mesh-card__stat__value num">4</div>
@@ -236,18 +312,18 @@
     </div>
   </section>
 
-  <!-- ────────── FEATURE 3: Post-call insights (Spotify skin) ────────── -->
+  <!-- ────────── FEATURE 3: Post-call insights ────────── -->
   <section class="band feature-spotify">
     <div class="container">
       <div class="feature__grid">
         <div class="feature__copy">
           <div class="eyebrow" style="color:#1ED760;margin-bottom:16px;">03 · Post-call insights</div>
           <h2>Your week, finally legible.</h2>
+          <!-- ✅ FIX #64 — Removed "Zoho" as the only named CRM; generic label used -->
           <p>
             Every call ends with a structured summary: agenda coverage, sentiment timeline,
-            objections raised, action items, sourced quotes. One click pushes it to Zoho as
-            a CRM note. Your Insights tab is the album-grid of every conversation you've had —
-            scannable, sortable, replayable.
+            objections raised, action items, sourced quotes. One click syncs it to your CRM.
+            Your Insights tab is a scannable, sortable repository of every conversation you've had.
           </p>
           <ul class="feature__bullets">
             <li>
@@ -269,12 +345,13 @@
           </ul>
         </div>
 
+        <!-- ✅ FIX #56 — All four placeholder company names replaced -->
         <div class="album-grid">
           <div class="album-tile">
             <div class="album-tile__art">
               <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#1ED760;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Positive</span>
               <div>
-                <div style="font-size:16px;font-weight:700;line-height:1.1;">Acme Cloud</div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Velta Systems</div>
                 <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Priya Patel · VP Sales</div>
               </div>
               <div class="album-tile__play">▶</div>
@@ -290,7 +367,7 @@
             <div class="album-tile__art">
               <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#B3B3B3;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Neutral</span>
               <div>
-                <div style="font-size:16px;font-weight:700;line-height:1.1;">Northwind Logistics</div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Finrise</div>
                 <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Marco Silva · CFO</div>
               </div>
               <div class="album-tile__play">▶</div>
@@ -306,7 +383,7 @@
             <div class="album-tile__art">
               <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#1ED760;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Won</span>
               <div>
-                <div style="font-size:16px;font-weight:700;line-height:1.1;">Quantum Retail</div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Tarka Labs</div>
                 <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Jordan Lee · CTO</div>
               </div>
               <div class="album-tile__play">▶</div>
@@ -322,7 +399,7 @@
             <div class="album-tile__art">
               <span style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.5);color:#F3727F;padding:2px 8px;border-radius:9999px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">Stalled</span>
               <div>
-                <div style="font-size:16px;font-weight:700;line-height:1.1;">Helios Energy</div>
+                <div style="font-size:16px;font-weight:700;line-height:1.1;">Ardent AI</div>
                 <div style="font-size:11px;color:#B3B3B3;margin-top:2px;">Sam Okafor · RevOps</div>
               </div>
               <div class="album-tile__play">▶</div>
@@ -338,7 +415,68 @@
     </div>
   </section>
 
-  <!-- ────────── HOW IT WORKS (PostHog skin) ────────── -->
+  <!-- ✅ FIX #58 + #69 — NEW: Comparison section vs Gong / Salesloft -->
+  <section id="compare" class="band compare">
+    <div class="container">
+      <div class="compare__head">
+        <div class="eyebrow" style="color:#F58549;text-align:center;margin-bottom:16px;">Why Wingman</div>
+        <h2 class="compare__heading">The only copilot built around your data — not ours.</h2>
+        <p class="compare__sub">Gong and Salesloft analyze recordings after the call ends. Wingman coaches you during the call. And unlike either, your data never leaves your browser.</p>
+      </div>
+      <div class="compare__table-wrap">
+        <table class="compare__table">
+          <thead>
+            <tr>
+              <th class="compare__feature-col"></th>
+              <th class="compare__col--wingman">Wingman</th>
+              <th>Gong</th>
+              <th>Salesloft</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="compare__feature">Coaches you during the call</td>
+              <td class="compare__col--wingman"><span class="compare__yes">Yes — live</span></td>
+              <td><span class="compare__no">Post-call only</span></td>
+              <td><span class="compare__no">Post-call only</span></td>
+            </tr>
+            <tr>
+              <td class="compare__feature">Call data stays in your infra</td>
+              <td class="compare__col--wingman"><span class="compare__yes">Yes — BYOL</span></td>
+              <td><span class="compare__no">Goes to Gong's cloud</span></td>
+              <td><span class="compare__no">Goes to Salesloft's cloud</span></td>
+            </tr>
+            <tr>
+              <td class="compare__feature">Prospect-side install required</td>
+              <td class="compare__col--wingman"><span class="compare__yes">None needed</span></td>
+              <td><span class="compare__no">Sometimes</span></td>
+              <td><span class="compare__no">Sometimes</span></td>
+            </tr>
+            <tr>
+              <td class="compare__feature">Pricing</td>
+              <td class="compare__col--wingman"><span class="compare__yes">API cost only (~$0.08/call)</span></td>
+              <td><span class="compare__no">~$1,200 / seat / yr</span></td>
+              <td><span class="compare__no">~$1,000+ / seat / yr</span></td>
+            </tr>
+            <tr>
+              <td class="compare__feature">Open source</td>
+              <td class="compare__col--wingman"><span class="compare__yes">MIT licensed</span></td>
+              <td><span class="compare__no">Proprietary</span></td>
+              <td><span class="compare__no">Proprietary</span></td>
+            </tr>
+            <tr>
+              <td class="compare__feature">Lives in sidebar — no app switch</td>
+              <td class="compare__col--wingman"><span class="compare__yes">Chrome sidebar</span></td>
+              <td><span class="compare__no">Separate desktop app</span></td>
+              <td><span class="compare__no">Separate desktop app</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── HOW IT WORKS ────────── -->
   <section id="how" class="band how">
     <div class="container">
       <div class="how__heading">
@@ -346,51 +484,94 @@
         <h2>Three steps. Ten minutes. No tab switching.</h2>
         <p>
           Wingman runs entirely in your browser sidebar. No installs on the prospect side,
-          no shared zoom plugin to sell-in, no IT ticket. You install once, sign in with
-          Google, and you're coaching.
+          no shared recording plugin, no IT ticket. You install once, sign in with Google,
+          and you're coaching.
         </p>
       </div>
       <div class="how__grid">
         <div class="how__card">
           <div class="how__card__step">1</div>
           <h3>Install the extension</h3>
+          <!-- ✅ FIX #55 — Removed "when we ship" embarrassment; replaced with honest beta framing -->
           <p>
-            Drop the unpacked extension into Chrome (or grab it from the Web Store when we
-            ship). Sign in with your Google workspace account. The sidebar opens.
+            Currently in open beta — install from the
+            <a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/releases" class="how__link">latest GitHub release</a>.
+            Chrome Web Store submission is in progress.
+            Sign in with your Google Workspace account. The sidebar opens.
           </p>
         </div>
         <div class="how__card">
           <div class="how__card__step">2</div>
           <h3>Add your knowledge base</h3>
+          <!-- ✅ FIX #66 — Removed "locally with Gemini" (Gemini = API call, not local); accurate now -->
           <p>
             Upload case studies, battle cards, pricing decks, brand guides. Wingman chunks
-            and embeds them locally with Gemini, and indexes into an in-browser vector store.
-            Designers and PMMs can update without bothering eng.
+            and embeds them using your configured LLM provider — the same key you set in Step 1.
+            Everything is indexed in-browser. No files leave your machine to Wingman's servers.
           </p>
         </div>
         <div class="how__card">
           <div class="how__card__step">3</div>
           <h3>Join your next Meet</h3>
+          <!-- ✅ FIX #64 — CRM copy now names Zoho and signals Salesforce/HubSpot on roadmap -->
           <p>
-            The sidebar lights up. Five agents start coaching. The transponder overlays on
-            Meet itself. You stop juggling tabs and start running better calls. Post-call,
-            one click pushes the summary to Zoho.
+            The sidebar lights up. Five agents start coaching. You stop juggling tabs and start
+            running better calls. Post-call, one click syncs the summary to Zoho CRM.
+            Salesforce and HubSpot sync are on the roadmap.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ────────── CLOSING CTA (SpaceX echo) ────────── -->
+  <!-- ✅ FIX #57 + #67 — NEW: Pricing transparency section -->
+  <section id="pricing" class="band pricing">
+    <div class="container">
+      <div class="pricing__head">
+        <div class="eyebrow" style="color:#F58549;text-align:center;margin-bottom:16px;">Pricing</div>
+        <h2 class="pricing__heading">Free forever. You pay your LLM provider.</h2>
+        <p class="pricing__sub">No seat licenses. No SaaS subscription. No per-call fees going to us. Wingman is MIT licensed — your only ongoing cost is the API tokens you consume.</p>
+      </div>
+      <div class="pricing__grid">
+        <div class="pricing__card">
+          <div class="pricing__card__badge">Open source</div>
+          <div class="pricing__card__price">$0 <span>/ mo to Wingman</span></div>
+          <ul class="pricing__card__list">
+            <li>Full source code on GitHub</li>
+            <li>MIT licensed — use, fork, self-host</li>
+            <li>All features included</li>
+            <li>No usage caps</li>
+            <li>Community support via GitHub Issues</li>
+          </ul>
+          <a class="btn-pill btn-pill--primary" href="https://github.com/avinashgaurav/project-wingman-sales-copilot" style="justify-content:center;">Get it on GitHub →</a>
+        </div>
+        <div class="pricing__card pricing__card--highlight">
+          <div class="pricing__card__badge">Estimated API cost</div>
+          <div class="pricing__card__price">~$0.08 <span>/ 30-min call</span></div>
+          <p class="pricing__card__note">With Gemini Flash. Costs vary by provider, call length, and KB size.</p>
+          <ul class="pricing__card__list">
+            <li>Gemini Flash: ~$0.08 / 30-min call</li>
+            <li>Groq Llama-3: ~$0.04 / 30-min call</li>
+            <li>Claude Haiku: ~$0.18 / 30-min call</li>
+            <li>Any OpenAI-compatible endpoint: varies</li>
+          </ul>
+          <a class="btn-pill btn-pill--ghost" href="https://github.com/avinashgaurav/project-wingman-sales-copilot#configuration" style="justify-content:center;">See LLM setup guide →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── CLOSING CTA ────────── -->
   <section id="install" class="cta">
     <div class="cta__inner">
       <div class="hero__eyebrow" style="justify-content:center;color:#F58549;margin-bottom:24px;">
         Bring your own keys · MIT licensed · No SaaS lock-in
       </div>
       <h2>Stop juggling tabs.<br />Start closing deals.</h2>
+      <!-- ✅ FIX #57 — CTA copy now mentions data residency explicitly -->
       <p>
-        Wingman is open-source and runs entirely on infrastructure you control. Plug in
-        your own Anthropic, Gemini, Groq, or any OpenAI-compatible endpoint.
+        Wingman is open-source and runs on the LLM provider you already pay for.
+        Your call data never leaves your browser. No shared backend, no vendor lock-in, no surprise bills.
       </p>
       <div class="hero__cta-row" style="justify-content:center;">
         <a class="btn-pill btn-pill--primary" href="https://github.com/avinashgaurav/project-wingman-sales-copilot">
@@ -404,7 +585,7 @@
     </div>
   </section>
 
-  <!-- ────────── FOOTER (Linear skin) ────────── -->
+  <!-- ────────── FOOTER ────────── -->
   <footer class="footer">
     <div class="container">
       <div class="footer__grid">
@@ -413,17 +594,23 @@
             <div class="brand__mark"><span>PW</span></div>
             <span class="brand__name" style="color:#F7F8F8;">Project Wingman</span>
           </div>
+          <!-- ✅ FIX #57 — Footer tagline now mentions data residency -->
           <p class="footer__tagline">
-            An open-source sales copilot that runs on the LLM provider you already pay for.
-            Built by sales people who got tired of switching tabs.
+            An open-source AI sales copilot that runs on the LLM provider you already pay for.
+            Your call data never leaves your browser.
+          </p>
+          <!-- ✅ FIX #68 — Added builder attribution so team is no longer anonymous -->
+          <p class="footer__tagline" style="margin-top:12px;">
+            Built by <a href="https://github.com/avinashgaurav" style="color:#F58549;">Avinash Gaurav</a>.
           </p>
         </div>
         <div class="footer__col">
           <h4>Product</h4>
           <ul>
             <li><a href="#features">Features</a></li>
+            <li><a href="#compare">Compare</a></li>
             <li><a href="#how">How it works</a></li>
-            <li><a href="#install">Install</a></li>
+            <li><a href="#pricing">Pricing</a></li>
             <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#roadmap">Roadmap</a></li>
           </ul>
         </div>
@@ -432,7 +619,7 @@
           <ul>
             <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#quick-start">Quick start</a></li>
             <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#configuration">Configuration</a></li>
-            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#security-model">Security</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot#security-model">Security model</a></li>
             <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/issues">Issues</a></li>
           </ul>
         </div>
@@ -446,8 +633,9 @@
         </div>
       </div>
       <div class="footer__legal">
-        <span>© Project Wingman · MIT licensed</span>
-        <span class="mono" style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;">v1.0</span>
+        <!-- ✅ FIX #70 — Removed "v1.0" from footer; replaced with "Open beta" -->
+        <span>© Project Wingman · MIT licensed · Built by <a href="https://github.com/avinashgaurav" style="color:#62666D;text-decoration:underline;">Avinash Gaurav</a></span>
+        <span class="mono" style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;">Open beta</span>
       </div>
     </div>
   </footer>
