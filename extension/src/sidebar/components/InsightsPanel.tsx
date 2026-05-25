@@ -1,7 +1,8 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Play, TrendingUp, MessageCircle, Clock, Award, Radio } from "lucide-react";
 import { useCallHistory } from "../hooks/useCallHistory";
 import type { StoredCallRecord } from "../../shared/utils/call-history-storage";
+import { CallHistoryTable } from "./CallHistoryTable";
 
 // Spotify-skinned post-call insights. The album-grid metaphor maps onto
 // a call-history tile grid: each tile = one prospect call. Data comes
@@ -71,6 +72,7 @@ const OUTCOME_LABEL: Record<CallSummary["outcome"], string> = {
 function CallTile({ call }: { call: CallSummary }) {
   return (
     <button
+      type="button"
       className="tile-spotify text-left p-3 flex flex-col gap-2 cursor-pointer"
       style={{
         background: "var(--surface-1)",
@@ -266,12 +268,17 @@ function EmptyState() {
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
+type ViewMode = "grid" | "table";
+
 export function InsightsPanel() {
   const { records, empty } = useCallHistory();
   const calls = useMemo(() => records.map(toCallSummary), [records]);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   // "This Week" hero stats are computed from the 7-day slice; the Total Calls
   // KPI tile shows the full 30-day count so reps see the broader picture too.
+  // (Hook call placed above any conditional return so rules-of-hooks ordering
+  // stays stable if future edits add another early return above the table view.)
   const stats = useMemo(() => {
     const totalCalls = records.length;
     const cutoff = Date.now() - WEEK_MS;
@@ -292,6 +299,14 @@ export function InsightsPanel() {
     const totalObjections = thisWeek.reduce((s, r) => s + r.objectionsHandled, 0);
     return { totalCalls, weekCount, winRate, avgSentiment, totalObjections };
   }, [records]);
+
+  // Drill-in to the full-history table (#44). CallHistoryTable handles its
+  // own empty state, so we don't gate this on `!empty` — a mid-session prune
+  // shows "No calls" inside the table instead of silently teleporting the
+  // user back to the grid empty state.
+  if (viewMode === "table") {
+    return <CallHistoryTable records={records} onBack={() => setViewMode("grid")} />;
+  }
 
   if (empty) {
     return (
@@ -365,14 +380,12 @@ export function InsightsPanel() {
       <div className="pt-1">
         <div className="flex items-center justify-between mb-2">
           <div className="eyebrow">Recent calls</div>
-          {/* "See all" lands with #44 (full-history view). Disabled until then. */}
           <button
             type="button"
-            disabled
-            aria-label="See all calls (coming soon)"
-            title="Full-history view ships with #44"
-            className="text-[11px] font-semibold cursor-not-allowed"
-            style={{ color: "var(--signal-live)", opacity: 0.5 }}
+            onClick={() => setViewMode("table")}
+            aria-label="See all calls"
+            className="text-[11px] font-semibold"
+            style={{ color: "var(--signal-live)" }}
           >
             See all →
           </button>
