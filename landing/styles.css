@@ -100,7 +100,10 @@ button { font: inherit; cursor: pointer; }
   border: none;
   transition: filter 140ms ease, transform 140ms ease;
 }
-.nav-cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.nav-cta:hover { filter: brightness(1.05); }
+@media (hover: hover) {
+  .nav-cta:hover { transform: translateY(-1px); }
+}
 @media (max-width: 768px) {
   .nav-links { display: none; }
 }
@@ -180,7 +183,10 @@ button { font: inherit; cursor: pointer; }
 .btn-pill--primary {
   background: #F58549; color: #0A0A0A;
 }
-.btn-pill--primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.btn-pill--primary:hover { filter: brightness(1.05); }
+@media (hover: hover) {
+  .btn-pill--primary:hover { transform: translateY(-1px); }
+}
 .btn-pill--ghost {
   background: transparent; color: #FFFFFF;
   border-color: rgba(255,255,255,0.4);
@@ -427,7 +433,10 @@ button { font: inherit; cursor: pointer; }
   cursor: pointer;
   box-shadow: rgba(0,0,0,0.3) 0px 8px 8px;
 }
-.album-tile:hover { background: #1F1F1F; transform: translateY(-2px); }
+.album-tile:hover { background: #1F1F1F; }
+@media (hover: hover) {
+  .album-tile:hover { transform: translateY(-2px); }
+}
 .album-tile__art {
   position: relative;
   aspect-ratio: 1;
@@ -613,4 +622,8 @@ button { font: inherit; cursor: pointer; }
 }
 @media (max-width: 480px) {
   .album-grid { grid-template-columns: 1fr; }
+  .footer__grid { grid-template-columns: 1fr; gap: 32px; }
+  .trust__row { gap: 24px; }
+  .hero__stats { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .hero__stat__value { font-size: 28px; }
 }
