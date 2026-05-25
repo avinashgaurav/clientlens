@@ -424,6 +424,32 @@
   100% { background-position: -200% 0; }
 }
 
+/* Skin crossfade — smooth transition between data-skin palettes.
+ *
+ * Tab switches in the sidebar swap `data-skin` (brand → live → insights),
+ * which flips the variable values descendant elements consume. Without a
+ * transition, the canvas snaps between warm-cream to near-black — jarring.
+ *
+ * Wrapped in @layer base so Tailwind's @layer utilities (e.g.
+ * `transition-all duration-500` on the generation-progress bar) keeps
+ * winning the cascade on individual components. Without the layer wrap,
+ * an unlayered rule here would clobber every Tailwind transition utility.
+ *
+ * Wrapped in prefers-reduced-motion: no-preference so accessibility users
+ * still get the instant swap they expect.
+ */
+@layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-skin],
+    [data-skin] * {
+      transition:
+        background-color 280ms ease,
+        color 280ms ease,
+        border-color 280ms ease;
+    }
+  }
+}
+
 /* Spotify play-tile hover scale — for Insights tiles */
 .tile-album {
   transition: transform 200ms ease, background-color 200ms ease;
