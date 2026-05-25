@@ -269,10 +269,20 @@ function runMigrationOnce(): void {
 
 export function listCallRecords(): StoredCallRecord[] {
   runMigrationOnce();
+  // Pure read: filter expired entries out of the returned snapshot without
+  // touching disk. The persisted prune happens in pruneExpiredCallRecords()
+  // and in saveCallRecord(), so callers reading this never trigger a write.
+  return safeRead().filter(withinRetention);
+}
+
+// Persisted retention sweep. Call from write paths (saveCallRecord) and from
+// hooks on mount / visibility change so expired entries get reclaimed off
+// disk over time. Separated from listCallRecords so reads stay side-effect
+// free.
+export function pruneExpiredCallRecords(): void {
   const all = safeRead();
   const fresh = all.filter(withinRetention);
   if (fresh.length !== all.length) safeWrite(fresh);
-  return fresh;
 }
 
 export function saveCallRecord(record: StoredCallRecord): void {
@@ -282,6 +292,7 @@ export function saveCallRecord(record: StoredCallRecord): void {
     .filter(withinRetention)
     .slice(0, CALL_HISTORY_LIMIT);
   safeWrite(next);
+  emitChange();
 }
 
 export function getCallRecord(id: string): StoredCallRecord | null {
@@ -299,6 +310,38 @@ export function clearCallHistory(): void {
   } catch {
     /* ignore */
   }
+  emitChange();
+}
+
+// ─── Change notifications ─────────────────────────────────────────────────────
+//
+// Consumers (InsightsPanel, See-all-calls view) need to refresh when a
+// session ends and a new record lands. The standard window "storage" event
+// only fires for OTHER tabs writing to localStorage — same-tab writes are
+// silent. We dispatch a custom event so React hooks can subscribe to
+// both same-tab and cross-tab changes uniformly.
+
+const CHANGE_EVENT = "wingman:call-history-changed";
+
+function emitChange(): void {
+  try {
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+  } catch {
+    /* SSR / non-browser context — ignore */
+  }
+}
+
+export function subscribeCallHistoryChanges(callback: () => void): () => void {
+  const sameTab = () => callback();
+  const crossTab = (e: StorageEvent) => {
+    if (e.key === CALL_HISTORY_KEY) callback();
+  };
+  window.addEventListener(CHANGE_EVENT, sameTab);
+  window.addEventListener("storage", crossTab);
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, sameTab);
+    window.removeEventListener("storage", crossTab);
+  };
 }
 
 // Exposed for clearAllSessionData() in settings-storage.ts so the

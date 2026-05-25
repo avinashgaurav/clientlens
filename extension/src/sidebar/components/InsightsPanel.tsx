@@ -1,11 +1,12 @@
 import React, { useMemo } from "react";
-import { Play, TrendingUp, MessageCircle, Clock, Award } from "lucide-react";
+import { Play, TrendingUp, MessageCircle, Clock, Award, Radio } from "lucide-react";
+import { useCallHistory } from "../hooks/useCallHistory";
+import type { StoredCallRecord } from "../../shared/utils/call-history-storage";
 
 // Spotify-skinned post-call insights. The album-grid metaphor maps onto
-// a call-history tile grid: each tile = one prospect call. The numbers
-// are illustrative placeholders sourced from the existing call history
-// shape; wire to a real store when the post-call summary persistence
-// layer lands.
+// a call-history tile grid: each tile = one prospect call. Data comes
+// from call-history-storage (localStorage, 30-day retention) via the
+// useCallHistory hook.
 
 interface CallSummary {
   id: string;
@@ -20,84 +21,39 @@ interface CallSummary {
   outcome: "won" | "next-step" | "follow-up" | "stalled";
 }
 
-// TODO(post-call-persistence): replace MOCK_CALLS with a real
-// usePostCallStore() selector once post-call summaries are persisted.
-// Until then, the Insights tab is gated behind VITE_ENABLE_INSIGHTS so
-// default installs don't see fabricated call history.
-const MOCK_CALLS: CallSummary[] = [
-  {
-    id: "c-1",
-    company: "Acme Cloud",
-    prospect: "Priya Patel · VP Sales",
-    dateLabel: "Today · 2:30 PM",
-    durationMin: 32,
-    sentiment: "positive",
-    sentimentScore: 82,
-    agendaCoverage: 95,
-    objectionsHandled: 3,
-    outcome: "next-step",
-  },
-  {
-    id: "c-2",
-    company: "Northwind Logistics",
-    prospect: "Marco Silva · CFO",
-    dateLabel: "Yesterday · 11:00 AM",
-    durationMin: 28,
-    sentiment: "neutral",
-    sentimentScore: 56,
-    agendaCoverage: 78,
-    objectionsHandled: 5,
-    outcome: "follow-up",
-  },
-  {
-    id: "c-3",
-    company: "Quantum Retail",
-    prospect: "Jordan Lee · CTO",
-    dateLabel: "Wed · 4:15 PM",
-    durationMin: 41,
-    sentiment: "positive",
-    sentimentScore: 71,
-    agendaCoverage: 88,
-    objectionsHandled: 2,
-    outcome: "won",
-  },
-  {
-    id: "c-4",
-    company: "Helios Energy",
-    prospect: "Sam Okafor · RevOps",
-    dateLabel: "Tue · 9:00 AM",
-    durationMin: 24,
-    sentiment: "negative",
-    sentimentScore: 32,
-    agendaCoverage: 60,
-    objectionsHandled: 7,
-    outcome: "stalled",
-  },
-  {
-    id: "c-5",
-    company: "Drift Mobile",
-    prospect: "Alex Mwangi · VP Sales",
-    dateLabel: "Tue · 3:00 PM",
-    durationMin: 19,
-    sentiment: "positive",
-    sentimentScore: 78,
-    agendaCoverage: 92,
-    objectionsHandled: 1,
-    outcome: "next-step",
-  },
-  {
-    id: "c-6",
-    company: "Brightline Labs",
-    prospect: "Mei Chen · CTO",
-    dateLabel: "Mon · 1:30 PM",
-    durationMin: 36,
-    sentiment: "neutral",
-    sentimentScore: 51,
-    agendaCoverage: 70,
-    objectionsHandled: 4,
-    outcome: "follow-up",
-  },
-];
+// Relative date label matching the panel's tile design.
+// Today: "Today · 2:30 PM" / Yesterday: "Yesterday · 11:00 AM" /
+// Within 7d: "Wed · 4:15 PM" / Older: "May 12 · 9:00 AM"
+function formatDateLabel(iso: string): string {
+  const d = new Date(iso);
+  if (!isFinite(d.getTime())) return "—";
+  const now = new Date();
+  const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  if (d.toDateString() === now.toDateString()) return `Today · ${time}`;
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (d.toDateString() === yesterday.toDateString()) return `Yesterday · ${time}`;
+  const diffDays = Math.floor((now.getTime() - d.getTime()) / (24 * 60 * 60 * 1000));
+  if (diffDays >= 0 && diffDays < 7) {
+    return `${d.toLocaleDateString([], { weekday: "short" })} · ${time}`;
+  }
+  return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} · ${time}`;
+}
+
+function toCallSummary(r: StoredCallRecord): CallSummary {
+  return {
+    id: r.id,
+    company: r.company,
+    prospect: r.prospect,
+    dateLabel: formatDateLabel(r.date),
+    durationMin: r.durationMin,
+    sentiment: r.sentiment,
+    sentimentScore: r.sentimentScore,
+    agendaCoverage: r.agendaCoverage,
+    objectionsHandled: r.objectionsHandled,
+    outcome: r.outcome,
+  };
+}
 
 const SENTIMENT_COLOR: Record<CallSummary["sentiment"], string> = {
   positive: "var(--signal-live)",        // spotify green
@@ -272,52 +228,94 @@ function HeroStat({ icon, label, value, sub }: {
   );
 }
 
-export function InsightsPanel() {
-  const stats = useMemo(() => {
-    const totalCalls = MOCK_CALLS.length;
-    const winRate = Math.round(
-      (MOCK_CALLS.filter((c) => c.outcome === "won" || c.outcome === "next-step").length / totalCalls) * 100
-    );
-    const avgSentiment = Math.round(
-      MOCK_CALLS.reduce((s, c) => s + c.sentimentScore, 0) / totalCalls
-    );
-    const totalObjections = MOCK_CALLS.reduce((s, c) => s + c.objectionsHandled, 0);
-    return { totalCalls, winRate, avgSentiment, totalObjections };
-  }, []);
-
+function EmptyState() {
   return (
-    <div className="space-y-3">
-      {/* Demo data banner — visible while the persistence layer is unwired
-          so previewers know the numbers below are illustrative. */}
+    <div
+      className="px-4 py-12 flex flex-col items-center text-center gap-3"
+      style={{
+        background: "var(--surface-1)",
+        border: "1px solid var(--line-2)",
+        borderRadius: 8,
+      }}
+    >
       <div
-        className="px-3 py-2 flex items-center gap-2"
+        className="flex items-center justify-center"
         style={{
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
           background: "var(--surface-2)",
-          border: "1px solid var(--line)",
-          borderLeft: "3px solid var(--signal-warn)",
-          color: "var(--ink-3)",
-          fontSize: 11,
-          borderRadius: 4,
+          color: "var(--signal-live)",
         }}
       >
-        <span
-          className="font-mono"
-          style={{
-            fontSize: 9,
-            fontWeight: 700,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "var(--signal-warn)",
-          }}
-        >
-          Demo
-        </span>
-        <span>
-          Showing example call data. Real post-call summaries appear here once
-          the persistence layer ships.
-        </span>
+        <Radio size={20} />
       </div>
+      <h3 className="font-bold" style={{ color: "var(--ink)", fontSize: 18, letterSpacing: "-0.02em" }}>
+        No calls yet.
+      </h3>
+      <p style={{ color: "var(--ink-3)", fontSize: 13, maxWidth: 320, lineHeight: 1.45 }}>
+        Start a Meeting Copilot session from the Copilot tab. Wingman will
+        save the post-call summary here automatically.
+      </p>
+      <p className="eyebrow" style={{ fontSize: 9, color: "var(--ink-5)" }}>
+        Call history retained for 30 days · stored locally
+      </p>
+    </div>
+  );
+}
 
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function InsightsPanel() {
+  const { records, empty } = useCallHistory();
+  const calls = useMemo(() => records.map(toCallSummary), [records]);
+
+  // "This Week" hero stats are computed from the 7-day slice; the Total Calls
+  // KPI tile shows the full 30-day count so reps see the broader picture too.
+  const stats = useMemo(() => {
+    const totalCalls = records.length;
+    const cutoff = Date.now() - WEEK_MS;
+    const thisWeek = records.filter((r) => {
+      const t = Date.parse(r.date);
+      return isFinite(t) && t >= cutoff;
+    });
+    const weekCount = thisWeek.length;
+    if (weekCount === 0) {
+      return { totalCalls, weekCount: 0, winRate: 0, avgSentiment: 0, totalObjections: 0 };
+    }
+    const winRate = Math.round(
+      (thisWeek.filter((r) => r.outcome === "won" || r.outcome === "next-step").length / weekCount) * 100,
+    );
+    const avgSentiment = Math.round(
+      thisWeek.reduce((s, r) => s + r.sentimentScore, 0) / weekCount,
+    );
+    const totalObjections = thisWeek.reduce((s, r) => s + r.objectionsHandled, 0);
+    return { totalCalls, weekCount, winRate, avgSentiment, totalObjections };
+  }, [records]);
+
+  if (empty) {
+    return (
+      <div className="space-y-3">
+        <div>
+          <div className="eyebrow mb-1">This Week</div>
+          <h2
+            className="font-bold"
+            style={{ color: "var(--ink)", fontSize: 24, lineHeight: 1.15, letterSpacing: "-0.03em" }}
+          >
+            Nothing to review yet.
+          </h2>
+          <p className="mt-1" style={{ color: "var(--ink-3)", fontSize: 13 }}>
+            Your post-call insights show up here after your first session.
+          </p>
+        </div>
+        <EmptyState />
+      </div>
+    );
+  }
+
+  const noCallsThisWeek = stats.weekCount === 0;
+  return (
+    <div className="space-y-3">
       {/* Eyebrow + hero */}
       <div>
         <div className="eyebrow mb-1">This Week</div>
@@ -325,38 +323,41 @@ export function InsightsPanel() {
           className="font-bold"
           style={{ color: "var(--ink)", fontSize: 24, lineHeight: 1.15, letterSpacing: "-0.03em" }}
         >
-          You closed it.
+          {noCallsThisWeek ? "Quiet week." : "You closed it."}
         </h2>
         <p className="mt-1" style={{ color: "var(--ink-3)", fontSize: 13 }}>
-          {stats.totalCalls} calls this week. {stats.winRate}% with a next step or won.
+          {noCallsThisWeek
+            ? `No sessions in the last 7 days. ${stats.totalCalls} ${stats.totalCalls === 1 ? "call" : "calls"} in the last 30 days.`
+            : `${stats.weekCount} ${stats.weekCount === 1 ? "call" : "calls"} this week. ${stats.winRate}% with a next step or won.`}
         </p>
       </div>
 
-      {/* Hero stats grid (4 KPIs) */}
+      {/* Hero stats grid (4 KPIs). Three are weekly; "Total calls" is the
+          full 30-day window so reps still see the broader history. */}
       <div className="grid grid-cols-2 gap-2">
         <HeroStat
           icon={<TrendingUp size={11} />}
           label="Win rate"
-          value={`${stats.winRate}%`}
-          sub="Won or next-step"
+          value={noCallsThisWeek ? "—" : `${stats.winRate}%`}
+          sub="This week · won or next-step"
         />
         <HeroStat
           icon={<Award size={11} />}
           label="Avg sentiment"
-          value={`${stats.avgSentiment}`}
-          sub="Across all calls"
+          value={noCallsThisWeek ? "—" : `${stats.avgSentiment}`}
+          sub="This week"
         />
         <HeroStat
           icon={<MessageCircle size={11} />}
           label="Objections handled"
           value={`${stats.totalObjections}`}
-          sub="This week"
+          sub="This week · resolved"
         />
         <HeroStat
           icon={<Clock size={11} />}
           label="Total calls"
           value={`${stats.totalCalls}`}
-          sub="All recorded"
+          sub="Last 30 days"
         />
       </div>
 
@@ -364,11 +365,12 @@ export function InsightsPanel() {
       <div className="pt-1">
         <div className="flex items-center justify-between mb-2">
           <div className="eyebrow">Recent calls</div>
+          {/* "See all" lands with #44 (full-history view). Disabled until then. */}
           <button
             type="button"
             disabled
             aria-label="See all calls (coming soon)"
-            title="Coming soon — wired with the post-call persistence layer"
+            title="Full-history view ships with #44"
             className="text-[11px] font-semibold cursor-not-allowed"
             style={{ color: "var(--signal-live)", opacity: 0.5 }}
           >
@@ -376,7 +378,7 @@ export function InsightsPanel() {
           </button>
         </div>
         <div className="grid grid-cols-1 gap-2">
-          {MOCK_CALLS.map((c) => (
+          {calls.map((c) => (
             <CallTile key={c.id} call={c} />
           ))}
         </div>
@@ -386,7 +388,7 @@ export function InsightsPanel() {
         className="text-center py-3"
         style={{ color: "var(--ink-5)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase" }}
       >
-        End of week · {stats.totalCalls} calls
+        {stats.totalCalls} {stats.totalCalls === 1 ? "call" : "calls"} stored · 30-day retention
       </div>
     </div>
   );

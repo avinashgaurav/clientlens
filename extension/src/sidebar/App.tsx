@@ -16,7 +16,6 @@ import { OnboardingChecklist } from "./components/OnboardingChecklist";
 import { ErrorBanner } from "./components/ErrorBanner";
 import { InsightsPanel } from "./components/InsightsPanel";
 import { isMeetingCopilotEnabled } from "../shared/meeting-copilot/feature-flag";
-import { isInsightsPanelEnabled } from "../shared/feature-flags";
 import { listKB } from "../shared/utils/kb-storage";
 import { FileText, BookOpen, Radio, BarChart3 } from "lucide-react";
 
@@ -63,9 +62,6 @@ export default function App() {
 
   const hasKBAccess = user.role === "admin" || user.role === "pmm" || user.role === "designer";
   const copilotOn = isMeetingCopilotEnabled();
-  // Insights tab is gated behind VITE_ENABLE_INSIGHTS — the panel renders
-  // mock call history today, so we don't surface it to default installs.
-  const insightsOn = isInsightsPanelEnabled();
 
   const tabs: TabDef[] = [
     {
@@ -100,18 +96,14 @@ export default function App() {
           },
         ]
       : []),
-    ...(insightsOn
-      ? [
-          {
-            id: "insights" as const,
-            label: "Insights",
-            icon: <BarChart3 size={12} />,
-            activeBg: "bg-orange",
-            activeText: "text-black",
-            skin: "insights" as const,
-          },
-        ]
-      : []),
+    {
+      id: "insights" as const,
+      label: "Insights",
+      icon: <BarChart3 size={12} />,
+      activeBg: "bg-orange",
+      activeText: "text-black",
+      skin: "insights" as const,
+    },
   ];
   const showTabs = tabs.length > 1;
 
@@ -204,7 +196,7 @@ export default function App() {
 
         {copilotOn && adminTab === "copilot" && <MeetingCopilotPanel />}
 
-        {insightsOn && adminTab === "insights" && <InsightsPanel />}
+        {adminTab === "insights" && <InsightsPanel />}
       </div>
     </div>
   );
