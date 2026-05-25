@@ -14,7 +14,6 @@ const STAGE_MAP: Record<string, GenerationProgress["stage"]> = {
 
 export function useEmailCouncil() {
   const {
-    emailInput,
     setIsGenerating,
     setGenerationProgress,
     setLastEmail,
@@ -22,6 +21,13 @@ export function useEmailCouncil() {
   } = useAppStore();
 
   const run = useCallback(async () => {
+    // Read emailInput at call time via getState() rather than capturing it
+    // in the useCallback closure. The form pattern is `setEmailInput(...);
+    // run();` — both calls inside the same handler, with no re-render
+    // between them. A closure-captured `emailInput` would still hold the
+    // value from the previous render, causing the council to run on stale
+    // inputs after the first submit.
+    const emailInput = useAppStore.getState().emailInput;
     if (!emailInput) {
       setError("Missing email input");
       return;
@@ -56,7 +62,8 @@ export function useEmailCouncil() {
     } finally {
       setIsGenerating(false);
     }
-  }, [emailInput, setIsGenerating, setGenerationProgress, setLastEmail, setError]);
+    // emailInput intentionally NOT in deps — read via getState() above.
+  }, [setIsGenerating, setGenerationProgress, setLastEmail, setError]);
 
   return { run };
 }

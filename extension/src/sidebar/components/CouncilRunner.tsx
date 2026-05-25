@@ -5,14 +5,19 @@ import { GenerationProgress } from "./GenerationProgress";
 import { ResearchBriefCard } from "./ResearchBriefCard";
 
 export function CouncilRunner() {
-  const { flowStep, generationProgress, isGenerating, researchBrief } = useAppStore();
+  const { flowStep, generationProgress, isGenerating, researchBrief, outputMode } = useAppStore();
   const { run } = useCouncil();
 
   useEffect(() => {
-    if (flowStep === "generating" && !isGenerating) {
+    // The pitch council auto-runs when the form transitions to "generating".
+    // The email and objection flows reuse CouncilRunner purely as a progress
+    // view — their own hooks (useEmailCouncil / useObjection) drive the run.
+    // The outputMode guard prevents a future refactor that sets flowStep =
+    // "generating" on a non-pitch flow from triggering the wrong council.
+    if (flowStep === "generating" && !isGenerating && outputMode === "pitch") {
       run();
     }
-  }, [flowStep, isGenerating, run]);
+  }, [flowStep, isGenerating, outputMode, run]);
 
   if (!generationProgress) return null;
   return (

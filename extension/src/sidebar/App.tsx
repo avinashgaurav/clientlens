@@ -11,6 +11,7 @@ import { KnowledgeBasePanel } from "./components/KnowledgeBasePanel";
 import { Header, openSettings } from "./components/Header";
 import { ModeSwitcher } from "./components/ModeSwitcher";
 import { ObjectionPanel } from "./components/ObjectionPanel";
+import { EmailComposer } from "./components/EmailComposer";
 import { MeetingCopilotPanel } from "./components/MeetingCopilotPanel";
 import { OnboardingChecklist } from "./components/OnboardingChecklist";
 import { ErrorBanner } from "./components/ErrorBanner";
@@ -175,6 +176,13 @@ export default function App() {
                 {flowStep === "preview" && <AssetPreview />}
                 {(flowStep === "generating" || isGenerating) && <CouncilRunner />}
                 {flowStep === "result" && lastResult && <ResultPanel result={lastResult} />}
+              </>
+            )}
+
+            {outputMode === "email" && (
+              <>
+                {isGenerating && <CouncilRunner />}
+                {!isGenerating && <EmailComposer />}
               </>
             )}
 

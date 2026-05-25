@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, Shield } from "lucide-react";
+import { FileText, Shield, Mail } from "lucide-react";
 import { useAppStore } from "../stores/app-store";
 import type { OutputMode } from "../../shared/types";
 
@@ -7,6 +7,7 @@ import type { OutputMode } from "../../shared/types";
 // inverted text. Sits flush in a hairline-bordered group on the cream canvas.
 const MODES: { id: OutputMode; label: string; icon: React.ReactNode }[] = [
   { id: "pitch", label: "Pitch", icon: <FileText size={12} /> },
+  { id: "email", label: "Email", icon: <Mail size={12} /> },
   { id: "objection", label: "Objection", icon: <Shield size={12} /> },
 ];
 
