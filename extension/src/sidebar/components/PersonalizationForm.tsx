@@ -115,7 +115,11 @@ export function PersonalizationForm() {
     try {
       const assets = await fetchBrandAssets(input.company_name);
       setBrandAssets(assets);
-      setFlowStep("preview");
+      // #91 smart-skip: if auto-fetch returned a real logo, jump straight
+      // to Generating. The Preview step exists so the rep can fix a broken
+      // auto-fetch (placeholder logo, wrong domain, off accent color) —
+      // if there's nothing to fix, the extra click is friction.
+      setFlowStep(assets.logo_source === "placeholder" ? "preview" : "generating");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch brand assets");
     } finally {

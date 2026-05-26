@@ -299,6 +299,20 @@ export function getCallRecord(id: string): StoredCallRecord | null {
   return listCallRecords().find((r) => r.id === id) ?? null;
 }
 
+// Remove a single record by id. Returns true if a record was removed,
+// false if no record with that id existed. Atomic — used by the sample-
+// data cleanup so demo entries can be wiped without affecting real
+// records. emitChange() fires so the InsightsPanel hook refreshes.
+export function removeCallRecord(id: string): boolean {
+  runMigrationOnce();
+  const existing = safeRead();
+  const next = existing.filter((r) => r.id !== id);
+  if (next.length === existing.length) return false;
+  safeWrite(next);
+  emitChange();
+  return true;
+}
+
 export function clearCallHistory(): void {
   try {
     localStorage.removeItem(CALL_HISTORY_KEY);

@@ -11,6 +11,7 @@ import {
 import { indexEntry, reindexAll, dropEntryFromIndex, onIndexProgress, runWikiLint } from "../../shared/utils/kb-indexer";
 import { computeWikiIndex } from "../../shared/utils/wiki-index";
 import { fetchUrlContent } from "../../shared/utils/url-fetcher";
+import { loadSampleData, hasSampleDataLoaded } from "../../shared/utils/sample-data";
 import type { KBEntry, KBIndexStatus, KBNamespace, WikiBuildStatus, WikiPage } from "../../shared/types";
 
 type Mode = "text" | "file" | "url" | "git";
@@ -44,7 +45,23 @@ export function KnowledgeBasePanel() {
     listKB().then(setEntries);
     // Re-pull on every indexer status change so the pill flips live.
     const off = onIndexProgress(() => { void listKB().then(setEntries); });
-    return () => { off(); };
+    // Re-pull on direct writes to chrome.storage.local — handles paths that
+    // skip the indexer entirely (sample-data fixtures, manual addKB calls
+    // from sibling panels, etc.). Without this the panel can show a stale
+    // empty list after demo data is loaded via the empty-state CTA.
+    const onStorageChanged = (
+      changes: Record<string, chrome.storage.StorageChange>,
+      area: string,
+    ) => {
+      if (area === "local" && "clientlens_kb" in changes) {
+        void listKB().then(setEntries);
+      }
+    };
+    try { chrome.storage?.onChanged?.addListener(onStorageChanged); } catch { /* non-extension env */ }
+    return () => {
+      off();
+      try { chrome.storage?.onChanged?.removeListener(onStorageChanged); } catch { /* noop */ }
+    };
   }, []);
 
   if (!user || user.role === "sales_rep" || user.role === "viewer") return null;
@@ -465,9 +482,9 @@ export function KnowledgeBasePanel() {
             )}
           </div>
         )}
-        {entries.length === 0 && (
-          <p className="text-xs text-slate-500 italic">Empty. Add the partner kit docs to get started.</p>
-        )}
+        {entries.length === 0 ? (
+          <KBEmptyState />
+        ) : (
         <ul className="space-y-1.5 max-h-60 overflow-y-auto">
           {entries.map((e) => {
             const isOpen = expanded.has(e.id);
@@ -534,6 +551,7 @@ export function KnowledgeBasePanel() {
             );
           })}
         </ul>
+        )}
       </div>
     </div>
   );
@@ -657,6 +675,72 @@ function WikiReader({ page }: { page: WikiPage }) {
             ))}
           </ul>
         </div>
+      )}
+    </div>
+  );
+}
+
+// #92: empty-state card shown when the KB has zero entries. Replaces the
+// previous one-line italic placeholder. Surfaces both the primary "add
+// entry" intent and the secondary "try sample data" path so first-time
+// reps don't sit on an empty surface wondering what to do.
+function KBEmptyState() {
+  const [loading, setLoading] = useState(false);
+  const [hasDemo, setHasDemo] = useState(false);
+  useEffect(() => {
+    hasSampleDataLoaded().then(setHasDemo).catch(() => setHasDemo(false));
+  }, []);
+  async function loadDemo() {
+    setLoading(true);
+    try {
+      await loadSampleData();
+      setHasDemo(true);
+      // Force a panel refresh — caller's useEffect on kbCount won't fire
+      // without a re-render trigger, but the parent reads listKB on mount
+      // and on KB-write events, so we let normal store-change propagation
+      // handle the UI update.
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <div
+      className="px-3 py-6 flex flex-col items-center text-center gap-2 my-2"
+      style={{
+        background: "var(--surface-1)",
+        border: "1px solid var(--line-2)",
+        borderRadius: 8,
+      }}
+    >
+      <div
+        className="flex items-center justify-center"
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: "50%",
+          background: "var(--surface-2)",
+          color: "var(--brand-orange)",
+        }}
+      >
+        <Database size={16} />
+      </div>
+      <h3 className="font-bold" style={{ color: "var(--ink)", fontSize: 14 }}>
+        Your sales playbook lives here
+      </h3>
+      <p style={{ color: "var(--ink-3)", fontSize: 12, maxWidth: 320, lineHeight: 1.45 }}>
+        The agent council uses these entries to ground every pitch. Add a doc,
+        paste a URL, or paste raw text via the form below.
+      </p>
+      {!hasDemo && (
+        <button
+          type="button"
+          onClick={loadDemo}
+          disabled={loading}
+          className="mt-1 text-[11px] font-semibold disabled:opacity-50"
+          style={{ color: "var(--brand-orange)", background: "transparent", border: "none" }}
+        >
+          {loading ? "Loading sample data…" : "Try Wingman with sample data →"}
+        </button>
       )}
     </div>
   );

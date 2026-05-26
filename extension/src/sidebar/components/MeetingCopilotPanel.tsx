@@ -452,11 +452,18 @@ export function MeetingCopilotPanel() {
         <ProviderChip />
       </div>
 
-      <div style={infoBox}>
-        Fill in the details below and click <strong style={{ color: "var(--ink)" }}>Start live copilot</strong>.
-        If a Google Meet tab is open, the on-screen transponder will attach to it automatically.
-        Otherwise the copilot runs in this panel and uses the mock transcript stream.
-      </div>
+      {/* #93: empty-state hero shown only on cold-start (no session, no call
+       * history at all). Once the rep has any call history OR is in a
+       * session, this drops out and the regular infoBox takes over. */}
+      {!session && history.length === 0 ? (
+        <CopilotEmptyState />
+      ) : (
+        <div style={infoBox}>
+          Fill in the details below and click <strong style={{ color: "var(--ink)" }}>Start live copilot</strong>.
+          If a Google Meet tab is open, the on-screen transponder will attach to it automatically.
+          Otherwise the copilot runs in this panel and uses the mock transcript stream.
+        </div>
+      )}
 
       {(() => {
         // #78: determine which path the rep has committed to. Priority order:
@@ -987,4 +994,76 @@ function summaryToMarkdown(
     lines.push(s.suggested_crm_note);
   }
   return lines.join("\n");
+}
+
+// #93: empty-state hero shown on cold-start of the Copilot tab — no
+// active session AND no call history at all. Replaces the technical
+// infoBox so first-time reps see a friendly intro instead of dense
+// "Start live copilot" instructions. CTA opens the sample-data toggle
+// (part of #95).
+function CopilotEmptyState() {
+  const [loading, setLoading] = useState(false);
+  const [hasDemo, setHasDemo] = useState(false);
+  useEffect(() => {
+    void import("../../shared/utils/sample-data").then((m) =>
+      m.hasSampleDataLoaded().then(setHasDemo).catch(() => setHasDemo(false)),
+    );
+  }, []);
+  async function loadDemo() {
+    setLoading(true);
+    try {
+      const m = await import("../../shared/utils/sample-data");
+      await m.loadSampleData();
+      setHasDemo(true);
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <div
+      className="px-3 py-6 flex flex-col items-center text-center"
+      style={{
+        background: "var(--surface-1)",
+        border: "1px solid var(--line-2)",
+        borderRadius: 8,
+        gap: 8,
+      }}
+    >
+      <div
+        className="flex items-center justify-center"
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: "50%",
+          background: "var(--surface-2)",
+          color: "var(--brand-orange)",
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="9" y="2" width="6" height="12" rx="3" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" y1="19" x2="12" y2="22" />
+        </svg>
+      </div>
+      <h3 className="font-bold" style={{ color: "var(--ink)", fontSize: 14, margin: 0 }}>
+        Wingman copilots your live meetings
+      </h3>
+      <p style={{ color: "var(--ink-3)", fontSize: 12, maxWidth: 320, lineHeight: 1.45, margin: 0 }}>
+        Connect Calendar or paste a meeting URL when you're ready. We'll listen
+        and coach you live, then summarize the call.
+      </p>
+      {!hasDemo && (
+        <button
+          type="button"
+          onClick={loadDemo}
+          disabled={loading}
+          className="text-[11px] font-semibold disabled:opacity-50"
+          style={{ color: "var(--brand-orange)", background: "transparent", border: "none", marginTop: 2 }}
+        >
+          {loading ? "Loading sample data…" : "Try Wingman with sample data →"}
+        </button>
+      )}
+    </div>
+  );
 }

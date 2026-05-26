@@ -16,6 +16,7 @@ import { ObjectionPanel } from "./components/ObjectionPanel";
 import { EmailComposer } from "./components/EmailComposer";
 import { MeetingCopilotPanel } from "./components/MeetingCopilotPanel";
 import { OnboardingChecklist } from "./components/OnboardingChecklist";
+import { SampleDataBanner } from "./components/SampleDataBanner";
 import { ErrorBanner } from "./components/ErrorBanner";
 import { InsightsPanel } from "./components/InsightsPanel";
 import { isMeetingCopilotEnabled } from "../shared/meeting-copilot/feature-flag";
@@ -193,6 +194,8 @@ export default function App() {
             onOpenSettings={openSettings}
           />
         )}
+
+        <SampleDataBanner />
 
         <OnboardingChecklist kbCount={kbCount} onOpenSettings={openSettings} />
 
