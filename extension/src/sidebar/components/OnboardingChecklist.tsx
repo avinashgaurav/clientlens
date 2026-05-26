@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { CheckCircle2, Circle, Sparkles, X } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Circle, Sparkles, X, ChevronDown } from "lucide-react";
 import { getSettings } from "../../shared/utils/settings-storage";
 
 interface Props {
@@ -17,6 +17,10 @@ export function OnboardingChecklist({ kbCount, onOpenSettings }: Props) {
       return false;
     }
   });
+  // When the rep collapses the completed pill, this stays false. The pill
+  // itself toggles back to the full card on click. Local state because the
+  // expansion is a UI affordance, not a setting worth persisting.
+  const [pillExpanded, setPillExpanded] = useState(false);
 
   const steps = useMemo(() => {
     const s = getSettings();
@@ -35,7 +39,25 @@ export function OnboardingChecklist({ kbCount, onOpenSettings }: Props) {
   }, [kbCount, onOpenSettings]);
 
   const remaining = steps.filter((s) => !s.done).length;
-  if (dismissed || remaining === 0) return null;
+  const allDone = remaining === 0;
+
+  // If a previously-complete state regresses (e.g. KB wiped, key removed), the
+  // checklist should reappear — clear the dismissal so the rep sees what's
+  // pending again.
+  useEffect(() => {
+    if (!allDone && dismissed) {
+      try {
+        localStorage.removeItem(DISMISS_KEY);
+      } catch {
+        /* ignore */
+      }
+      setDismissed(false);
+    }
+  }, [allDone, dismissed]);
+
+  // Hide entirely only when there's pending work AND the rep explicitly
+  // dismissed it. The complete-state pill is always visible (and small).
+  if (!allDone && dismissed) return null;
 
   function dismiss() {
     try {
@@ -46,18 +68,45 @@ export function OnboardingChecklist({ kbCount, onOpenSettings }: Props) {
     setDismissed(true);
   }
 
-  return (
-    <div className="border border-orange/40 bg-orange/5 p-3 relative">
+  // Compact pill — everything's done. Click expands to show what was checked.
+  if (allDone && !pillExpanded) {
+    return (
       <button
-        onClick={dismiss}
-        aria-label="Dismiss"
+        type="button"
+        onClick={() => setPillExpanded(true)}
+        aria-label="All set up — click to view checklist"
+        className="inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold border border-green/40 bg-green/5 text-green hover:bg-green/10"
+        style={{ borderRadius: 9999 }}
+      >
+        <CheckCircle2 size={12} />
+        Set up
+        <ChevronDown size={10} className="opacity-70" />
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className={`border p-3 relative ${
+        allDone ? "border-green/40 bg-green/5" : "border-orange/40 bg-orange/5"
+      }`}
+    >
+      <button
+        onClick={allDone ? () => setPillExpanded(false) : dismiss}
+        aria-label={allDone ? "Collapse" : "Dismiss"}
         className="absolute top-2 right-2 p-1 text-ink-4 hover:text-ink"
       >
         <X size={12} />
       </button>
       <div className="flex items-center gap-1.5 mb-2">
-        <Sparkles size={12} className="text-orange" />
-        <span className="text-[11px] font-semibold text-ink">Get set up</span>
+        {allDone ? (
+          <CheckCircle2 size={12} className="text-green" />
+        ) : (
+          <Sparkles size={12} className="text-orange" />
+        )}
+        <span className="text-[11px] font-semibold text-ink">
+          {allDone ? "You're set up" : "Get set up"}
+        </span>
         <span className="text-[10px] font-mono text-ink-4 ml-auto mr-4">
           {steps.length - remaining} / {steps.length}
         </span>

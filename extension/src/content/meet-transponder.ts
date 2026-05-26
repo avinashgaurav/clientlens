@@ -47,6 +47,10 @@ interface TransponderState {
   latest?: TranscriptSegment;
   transcript: TranscriptSegment[];
   lastFinalAt?: number; // Date.now ms
+  // #81: true when a transcript segment arrived in the last 5s. Drives the
+  // pulsing orange status dot in the header. Distinct from silenceWarning
+  // (which is a longer, user-visible "say something" prompt at ~60s).
+  streamActive?: boolean;
   silenceWarning?: boolean;
   input?: MeetingSessionInput;
   startedAt?: number;
@@ -118,6 +122,7 @@ function teardownOrphan() {
   teardownDone = true;
   try { observer.disconnect(); } catch { /* observer may not exist yet */ }
   if (silenceTimer) window.clearTimeout(silenceTimer);
+  if (streamActiveTimer) { window.clearTimeout(streamActiveTimer); streamActiveTimer = null; }
   stopTick();
   if (root) { try { root.remove(); } catch { /* noop */ } root = null; }
   if (promptEl) { try { promptEl.remove(); } catch { /* noop */ } promptEl = null; }
@@ -229,11 +234,30 @@ function css() {
   }
   #${ROOT_ID} .cl-head-btn:hover { color: #FFFFFF; }
   #${ROOT_ID} .cl-dot {
-    width: 8px; height: 8px; background: #50E3C2; display: inline-block;
-    margin-right: 8px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #888888; display: inline-block;
+    margin-right: 8px; vertical-align: middle;
+    transition: background-color 280ms ease;
   }
-  #${ROOT_ID}.idle .cl-dot { background: #666666; }
+  /* #81: hide the dot entirely in the idle state — the transponder is
+   * the vercel-mono surface; the dot is the single brand cue that signals
+   * "Wingman is actively listening." No session = no cue. */
+  #${ROOT_ID}.idle .cl-dot { display: none; }
   #${ROOT_ID}.error .cl-dot { background: #EE0000; }
+  /* Solid gray when a session is live but no transcript has arrived
+   * recently (mic muted, network hiccup, between utterances >5s). */
+  #${ROOT_ID}.listening .cl-dot { background: #888888; }
+  /* Pulsing orange when transcript segments are actively arriving
+   * (< 5s since the last final segment). Orange is the persistent
+   * brand cue per the design system. */
+  #${ROOT_ID}.listening.stream-active .cl-dot {
+    background: #F58549;
+    animation: cl-status-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes cl-status-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,133,73,0.5); }
+    50% { box-shadow: 0 0 0 5px rgba(245,133,73,0); }
+  }
   #${ROOT_ID} .cl-body {
     padding: 10px 12px; flex: 1;
     height: ${BODY_HEIGHT_DEFAULT}px;
@@ -750,7 +774,9 @@ function activeSuggestions(list: CoachSuggestion[]) {
 function render() {
   if (!root) return;
   if (!isExtensionAlive()) { teardownOrphan(); return; }
-  root.className = state.status;
+  // Includes "stream-active" only when transcript freshness is within 5s
+  // (driven by markStreamActive). Used by the .cl-dot status indicator.
+  root.className = state.status + (state.streamActive ? " stream-active" : "");
 
   const sent = state.sentiment;
   const trend = state.sentimentTrend;
@@ -921,7 +947,25 @@ function render() {
   // to sanitize. This eliminates the persistent-XSS surface previously
   // mitigated by escapeHtml audits.
 
+  // #81: status dot lives in the header. Visibility + color come from the
+  // root element's class (idle hides it, listening + stream-active = orange
+  // pulse, listening alone = gray). aria-label is set per state below.
+  const dotAriaLabel =
+    state.status === "idle"
+      ? "Wingman: idle"
+      : state.status === "error"
+        ? "Wingman: error"
+        : state.streamActive
+          ? "Wingman: listening"
+          : "Wingman: paused";
+  const dotEl = el("span", {
+    class: "cl-dot",
+    role: "status",
+    "aria-label": dotAriaLabel,
+  });
+
   const headEl = el("div", { class: "cl-head" },
+    dotEl,
     chipEl,
     el("span", { class: "cl-head-actions" },
       el("button", { class: "cl-head-btn", "data-action": "log",
@@ -1031,6 +1075,22 @@ function handleAsk() {
   } catch { teardownOrphan(); }
 }
 
+// #81: status-dot freshness timer. Flipped on each final transcript segment;
+// auto-clears 5s later so the dot drops back to solid gray when the stream
+// goes quiet. Kept separate from the silenceWarning machinery, which fires
+// on a longer cadence and surfaces a different UI affordance.
+const STREAM_ACTIVE_MS = 5000;
+let streamActiveTimer: number | null = null;
+function markStreamActive() {
+  state.streamActive = true;
+  if (streamActiveTimer) window.clearTimeout(streamActiveTimer);
+  streamActiveTimer = window.setTimeout(() => {
+    streamActiveTimer = null;
+    state.streamActive = false;
+    render();
+  }, STREAM_ACTIVE_MS);
+}
+
 function resetSilenceTimer() {
   if (silenceTimer) window.clearTimeout(silenceTimer);
   state.silenceWarning = false;
@@ -1078,6 +1138,8 @@ chrome.runtime.onMessage.addListener((msg) => {
     render();
   } else if (m.type === "MC_TRANSPONDER_CLOSE") {
     if (silenceTimer) window.clearTimeout(silenceTimer);
+    if (streamActiveTimer) { window.clearTimeout(streamActiveTimer); streamActiveTimer = null; }
+    state.streamActive = false;
     stopTick();
     if (root) { root.remove(); root = null; }
     // Re-enable the in-call prompt for any *future* call on this tab.
@@ -1135,6 +1197,9 @@ chrome.runtime.onMessage.addListener((msg) => {
         state.lastFinalAt = Date.now();
         resetSilenceTimer();
       }
+      // Any segment (final or not) keeps the status dot pulsing — interim
+      // segments are evidence the mic is live and the pipeline is processing.
+      markStreamActive();
     }
     render();
   } else if (m.type === "MC_KB_ANSWER") {

@@ -19,6 +19,7 @@ import {
   type StoredSessionSummary,
 } from "../../shared/utils/settings-storage";
 import { buildCallRecord, saveCallRecord } from "../../shared/utils/call-history-storage";
+import { ProviderChip } from "./ProviderChip";
 import { pushZohoNote, pushCustomTool } from "../../shared/utils/integrations";
 import { parsePastedInvite } from "../../shared/utils/meeting-parse";
 import { CopyButton } from "./CopyButton";
@@ -64,6 +65,16 @@ export function MeetingCopilotPanel() {
     } catch { return null; }
   });
   const [calendarBusy, setCalendarBusy] = useState(false);
+  // #78: once the rep has committed to one of the three onboarding paths
+  // (Calendar connected / paste filled / manual fields touched), collapse
+  // the other two behind a disclosure. Local state — resets when the rep
+  // navigates away and returns, which is the intended ergonomics.
+  // Also resets back to false when no path is committed (e.g. the rep
+  // disconnects calendar and clears all fields) so the default "show
+  // everything" UI returns instead of staying permanently expanded.
+  const [showAllPaths, setShowAllPaths] = useState(false);
+  // (The reset effect lives below, after companyName + pasteText are
+  // declared — see the useEffect that watches all three commit inputs.)
 
   async function handleConnectCalendar() {
     setCalendarBusy(true);
@@ -136,6 +147,19 @@ export function MeetingCopilotPanel() {
   const [pasteBusy, setPasteBusy] = useState(false);
   const [pasteStatus, setPasteStatus] = useState<{ ok: boolean; detail: string } | null>(null);
   const [showManualFields, setShowManualFields] = useState(true);
+
+  // #78 reset: if every commit input goes empty (rep cleared calendar +
+  // paste + company), drop showAllPaths so the panel returns to the
+  // default "all paths visible" state on its own — avoids the stuck-open
+  // state the reviewer flagged.
+  useEffect(() => {
+    if (!showAllPaths) return;
+    const stillCommitted =
+      !!calendarStatus?.connected ||
+      pasteText.trim().length > 30 ||
+      companyName.trim().length > 0;
+    if (!stillCommitted) setShowAllPaths(false);
+  }, [showAllPaths, calendarStatus?.connected, pasteText, companyName]);
 
   const [urlBusy, setUrlBusy] = useState(false);
   const [urlStatus, setUrlStatus] = useState<{ ok: boolean; detail: string } | null>(null);
@@ -415,12 +439,17 @@ export function MeetingCopilotPanel() {
 
   return (
     <div style={wrap}>
-      <div style={header}>
-        <span
-          className={isLive ? "signal-dot signal-dot--pulse" : "signal-dot"}
-          style={{ background: isLive ? "var(--signal-live)" : "var(--ink-5)" }}
-        />
-        <span style={kicker}>Meeting copilot {isLive ? "— live" : "— pre-call"}</span>
+      <div style={{ ...header, justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span
+            className={isLive ? "signal-dot signal-dot--pulse" : "signal-dot"}
+            style={{ background: isLive ? "var(--signal-live)" : "var(--ink-5)" }}
+          />
+          <span style={kicker}>Meeting copilot {isLive ? "— live" : "— pre-call"}</span>
+        </div>
+        {/* #82: provider chip for mid-call key-fail recovery. Switch among
+            configured providers without leaving the Copilot view. */}
+        <ProviderChip />
       </div>
 
       <div style={infoBox}>
@@ -429,34 +458,65 @@ export function MeetingCopilotPanel() {
         Otherwise the copilot runs in this panel and uses the mock transcript stream.
       </div>
 
-      <div style={calendarBox}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-          <div>
-            <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
-              Google Calendar {calendarStatus?.connected ? "· connected" : ""}
-            </div>
-            <div style={{ ...muted, fontSize: 11, marginTop: 2 }}>
-              {calendarStatus?.connected
-                ? `Auto-fills company, agenda, attendees from the matching invite. Manual fields below override.`
-                : `Connect once to auto-fill prospect/agenda from the calendar invite when you click Start copilot in Meet.`}
-            </div>
-            {calendarStatus?.error && (
-              <div style={{ ...muted, fontSize: 11, color: "var(--signal-error)", marginTop: 2 }}>
-                {calendarStatus.error}
+      {(() => {
+        // #78: determine which path the rep has committed to. Priority order:
+        // Calendar > Paste > Manual. If multiple are touched, the highest
+        // wins. While no path is committed (or the rep clicked "Show other
+        // ways"), every path renders.
+        const calendarCommitted = !!calendarStatus?.connected;
+        const pasteCommitted = pasteText.trim().length > 30;
+        const manualCommitted = companyName.trim().length > 0;
+        const committed = calendarCommitted
+          ? "calendar"
+          : pasteCommitted
+            ? "paste"
+            : manualCommitted
+              ? "manual"
+              : null;
+        const showCalendar = !committed || committed === "calendar" || showAllPaths;
+        const showPaste = !committed || committed === "paste" || showAllPaths;
+        return (
+          <>
+            {showCalendar && (
+              <div style={calendarBox}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600 }}>
+                      Google Calendar {calendarStatus?.connected ? "· connected" : ""}
+                    </div>
+                    <div style={{ ...muted, fontSize: 11, marginTop: 2 }}>
+                      {calendarStatus?.connected
+                        ? `Auto-fills company, agenda, attendees from the matching invite. Manual fields below override.`
+                        : `Connect once to auto-fill prospect/agenda from the calendar invite when you click Start copilot in Meet.`}
+                    </div>
+                    {calendarStatus?.error && (
+                      <div style={{ ...muted, fontSize: 11, color: "var(--signal-error)", marginTop: 2 }}>
+                        {calendarStatus.error}
+                      </div>
+                    )}
+                  </div>
+                  <button style={ghostBtn} onClick={handleConnectCalendar} disabled={calendarBusy}>
+                    {calendarBusy ? "…" : calendarStatus?.connected ? "Re-link" : "Connect"}
+                  </button>
+                </div>
               </div>
             )}
-          </div>
-          <button style={ghostBtn} onClick={handleConnectCalendar} disabled={calendarBusy}>
-            {calendarBusy ? "…" : calendarStatus?.connected ? "Re-link" : "Connect"}
-          </button>
-        </div>
-      </div>
+            {!showCalendar && (
+              <button
+                type="button"
+                onClick={() => setShowAllPaths(true)}
+                style={{ ...ghostBtn, fontSize: 11, padding: "6px 10px" }}
+              >
+                or connect Google Calendar →
+              </button>
+            )}
 
-      <div style={section}>
-        <div style={sectionHead}>
-          <span>Paste meeting URL or invite</span>
-          <span style={optional}>fastest path</span>
-        </div>
+            {showPaste && (
+              <div style={section}>
+                <div style={sectionHead}>
+                  <span>Paste meeting URL or invite</span>
+                  <span style={optional}>fastest path</span>
+                </div>
         <div style={muted}>
           Paste a calendar event URL, .ics body, or the raw invite text — we'll auto-fill prospect, title, notes, and agenda.
           A bare Meet URL alone won't have enough context, so include the invite body if you can.
@@ -490,7 +550,20 @@ export function MeetingCopilotPanel() {
             {pasteStatus.detail}
           </div>
         )}
-      </div>
+              </div>
+            )}
+            {!showPaste && (
+              <button
+                type="button"
+                onClick={() => setShowAllPaths(true)}
+                style={{ ...ghostBtn, fontSize: 11, padding: "6px 10px" }}
+              >
+                or paste a meeting URL / invite →
+              </button>
+            )}
+          </>
+        );
+      })()}
 
       {!isLive && !summary && history.length > 0 && (
         <div style={section}>
