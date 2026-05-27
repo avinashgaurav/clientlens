@@ -1,8 +1,38 @@
-# Project Wingman — Sales Copilot Chrome Extension
+<div align="center">
 
-An AI-powered Chrome extension that lives in your browser sidebar and helps B2B sales reps **generate personalized pitches, run live meeting copilots on Google Meet, handle objections, and push everything back to their CRM** — without juggling tabs.
+# Project Wingman
 
-Behind the sidebar sits a FastAPI backend with a multi-agent RAG pipeline, a Pinecone-backed knowledge base, Deepgram speech-to-text, and pluggable LLM providers (Anthropic / Gemini / Groq / OpenRouter / any OpenAI-compatible endpoint).
+**The AI sales copilot that lives in your browser sidebar.**
+
+Generate personalized pitches, copilot live Google Meet calls in real time, handle objections, and push it all back to your CRM — without ever switching tabs.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-4285F4)](https://developer.chrome.com/docs/extensions/mv3/intro/)
+[![React](https://img.shields.io/badge/React-18-61dafb)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-5-646cff)](https://vitejs.dev)
+[![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8)](https://tailwindcss.com)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com)
+[![BYOL](https://img.shields.io/badge/LLM-Bring%20Your%20Own%20Keys-F58549)](#configuration)
+
+</div>
+
+---
+
+> [!IMPORTANT]
+> **At a glance**
+>
+> | | |
+> |---|---|
+> | **What** | Chrome side-panel extension + FastAPI backend for B2B sales reps |
+> | **Surfaces** | Generate (pitch / email / objection) · Live Meeting Copilot · Post-call Insights · in-Meet transponder · popup launcher |
+> | **AI** | Multi-agent "council" (retrieval → ICP personalization → brand → fact-check) over a Pinecone RAG knowledge base |
+> | **LLMs** | Bring-your-own-keys — Anthropic · Gemini · Groq · OpenRouter · any OpenAI-compatible endpoint |
+> | **Privacy** | Local-first. The extension never holds an LLM key; keys live in the backend. Call data goes only to *your* configured provider, never to a Wingman server. |
+> | **License** | [MIT](LICENSE) |
+> | **Status** | Open beta |
+
+Behind the sidebar sits a FastAPI backend with a multi-agent RAG pipeline, a Pinecone-backed knowledge base, Deepgram speech-to-text, and pluggable LLM providers. The product is deliberately **bring-your-own-keys**: the extension talks to the backend over HTTPS, and the backend proxies to the provider of your choice.
 
 ---
 
@@ -18,6 +48,8 @@ Behind the sidebar sits a FastAPI backend with a multi-agent RAG pipeline, a Pin
 8. [Security model](#security-model)
 9. [Tech stack](#tech-stack)
 10. [Roadmap](#roadmap)
+11. [Contributing](#contributing)
+12. [License](#license)
 
 ---
 
@@ -464,7 +496,8 @@ The product handles OAuth tokens, transcripts, and an org-wide KB — security p
 
 ## Roadmap
 
-- **Email council UI surface** — backend agents + `useEmailCouncil` hook are already implemented; the sidebar tab + draft viewer + copy-to-clipboard flow are not yet wired
+- ~~Email council UI surface~~ — **shipped**: the Email mode (Generate tab) drives the council pipeline and renders a copy-ready draft
+- One-shot "what do I say" objection composer (replacing the 3-column council view)
 - Salesforce + HubSpot CRM connectors (parity with Zoho)
 - Microsoft Teams meeting copilot
 - On-device STT option (Whisper / faster-whisper) for privacy-sensitive deployments
@@ -483,3 +516,11 @@ PRs welcome. Before opening one:
 3. Run `cd extension && npm run build` to confirm the production bundle builds clean
 
 Bug reports and feature requests via GitHub Issues.
+
+---
+
+## License
+
+[MIT](LICENSE) © 2026 Avinash Gaurav.
+
+Free to use, modify, and distribute. The bring-your-own-keys model means you run it on your own LLM provider accounts — there's no Wingman-hosted service and no telemetry. See [`LICENSE`](LICENSE) for the full text.
