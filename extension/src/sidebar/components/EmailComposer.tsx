@@ -177,7 +177,7 @@ export function EmailComposer() {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Mail size={14} style={{ color: "var(--brand-orange)" }} />
-        <h2 className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+        <h2 className="text-sm display-heading" style={{ color: "var(--ink)" }}>
           Draft an email
         </h2>
       </div>

@@ -90,17 +90,21 @@ button { font: inherit; cursor: pointer; }
   transition: color 140ms ease;
 }
 .nav-links a:hover { color: #FFFFFF; }
+/* Ghost-outlined to match the strict SpaceX hero — the nav rides over the
+   black hero band, so a ghost pill reads more SpaceX than a filled-orange
+   mark. (The hero band itself still has two pills — this isn't strict
+   "single CTA per band"; it's the closest fit without dropping a link.) */
 .nav-cta {
-  background: #F58549;
-  color: #0A0A0A;
+  background: transparent;
+  color: #FFFFFF;
   padding: 8px 16px;
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 700;
-  border: none;
-  transition: filter 140ms ease, transform 140ms ease;
+  border: 1px solid rgba(255,255,255,0.4);
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
 }
-.nav-cta:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.nav-cta:hover { background: rgba(255,255,255,0.06); border-color: #FFFFFF; transform: translateY(-1px); }
 @media (max-width: 768px) {
   .nav-links { display: none; }
 }
@@ -142,20 +146,23 @@ button { font: inherit; cursor: pointer; }
 }
 .hero__headline {
   font-size: clamp(40px, 8vw, 96px);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 0.95;
-  letter-spacing: -0.04em;
+  /* SpaceX signature: uppercase D-DIN-Bold with POSITIVE tracking
+     (+1.6px @ 80px = +0.02em). D-DIN isn't web-available, so the existing
+     display family is uppercased with the positive tracking applied.
+     This overrides the earlier title-case softening on purpose — the
+     hero now reads as the strict SpaceX "aerospace" register. */
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: #FFFFFF;
   margin-bottom: 24px;
-  /* SpaceX is uppercase. Wingman softens to title case — uppercase at this
-     scale reads as 'aerospace' and we want 'sales operator'. */
 }
 .hero__headline em {
+  /* SpaceX uses no accent — black/white/photography only. The orange
+     gradient is dropped so the headline is pure white. */
   font-style: normal;
-  background: linear-gradient(90deg, #F58549 0%, #FFA070 50%, #F0EBDB 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #FFFFFF;
 }
 .hero__lede {
   font-size: clamp(16px, 1.8vw, 20px);
@@ -186,6 +193,21 @@ button { font: inherit; cursor: pointer; }
   border-color: rgba(255,255,255,0.4);
 }
 .btn-pill--ghost:hover { background: rgba(255,255,255,0.06); border-color: #FFFFFF; }
+
+/* SpaceX signature: "single ghost-outlined pill CTA per band, never
+   filled." Scoped to the hero — the filled-orange primary becomes a
+   ghost-outlined pill so the hero matches the strict SpaceX convention.
+   Other bands keep their filled CTAs. */
+.hero .btn-pill--primary {
+  background: transparent;
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.4);
+}
+.hero .btn-pill--primary:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: #FFFFFF;
+  filter: none;
+}
 
 .hero__stats {
   margin-top: 80px;
@@ -551,6 +573,16 @@ button { font: inherit; cursor: pointer; }
   font-size: 18px;
   color: rgba(255,255,255,0.7);
   margin-bottom: 40px;
+}
+/* SpaceX-echo band: ghost the filled-orange CTA to match the hero. */
+.cta .btn-pill--primary {
+  background: transparent;
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.4);
+}
+.cta .btn-pill--primary:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: #FFFFFF;
 }
 
 /* ─────────────────────────── Footer (Linear) ───────────────── */

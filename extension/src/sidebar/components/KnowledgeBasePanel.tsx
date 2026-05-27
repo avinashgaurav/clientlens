@@ -724,7 +724,7 @@ function KBEmptyState() {
       >
         <Database size={16} />
       </div>
-      <h3 className="font-bold" style={{ color: "var(--ink)", fontSize: 14 }}>
+      <h3 className="display-heading" style={{ color: "var(--ink)", fontSize: 14, margin: 0 }}>
         Your sales playbook lives here
       </h3>
       <p style={{ color: "var(--ink-3)", fontSize: 12, maxWidth: 320, lineHeight: 1.45 }}>

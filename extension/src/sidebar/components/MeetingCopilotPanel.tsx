@@ -1046,7 +1046,9 @@ function CopilotEmptyState() {
           <line x1="12" y1="19" x2="12" y2="22" />
         </svg>
       </div>
-      <h3 className="font-bold" style={{ color: "var(--ink)", fontSize: 14, margin: 0 }}>
+      {/* Renders at weight 400 by design — the live (Cursor) skin sets
+          --display-weight: 400 ("magazine voice, never bold"). Not a regression. */}
+      <h3 className="display-heading" style={{ color: "var(--ink)", fontSize: 14, margin: 0 }}>
         Wingman copilots your live meetings
       </h3>
       <p style={{ color: "var(--ink-3)", fontSize: 12, maxWidth: 320, lineHeight: 1.45, margin: 0 }}>

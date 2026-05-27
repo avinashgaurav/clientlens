@@ -252,7 +252,7 @@ function EmptyState() {
       >
         <Radio size={20} />
       </div>
-      <h3 className="font-bold" style={{ color: "var(--ink)", fontSize: 18, letterSpacing: "-0.02em" }}>
+      <h3 className="display-heading" style={{ color: "var(--ink)", fontSize: 18 }}>
         No calls yet.
       </h3>
       <p style={{ color: "var(--ink-3)", fontSize: 13, maxWidth: 320, lineHeight: 1.45 }}>
@@ -314,8 +314,8 @@ export function InsightsPanel() {
         <div>
           <div className="eyebrow mb-1">This Week</div>
           <h2
-            className="font-bold"
-            style={{ color: "var(--ink)", fontSize: 24, lineHeight: 1.15, letterSpacing: "-0.03em" }}
+            className="display-heading"
+            style={{ color: "var(--ink)", fontSize: 24, lineHeight: 1.15 }}
           >
             Nothing to review yet.
           </h2>
@@ -335,8 +335,8 @@ export function InsightsPanel() {
       <div>
         <div className="eyebrow mb-1">This Week</div>
         <h2
-          className="font-bold"
-          style={{ color: "var(--ink)", fontSize: 24, lineHeight: 1.15, letterSpacing: "-0.03em" }}
+          className="display-heading"
+          style={{ color: "var(--ink)", fontSize: 24, lineHeight: 1.15 }}
         >
           {noCallsThisWeek ? "Quiet week." : "You closed it."}
         </h2>
