@@ -177,7 +177,7 @@ export function PersonalizationForm() {
               className="w-full border border-line bg-surface-0 px-2 py-1.5 text-[11px] font-mono text-ink placeholder-ink-4 focus:outline-none focus:border-orange resize-y"
             />
             <div className="text-[10px] text-ink-4 mt-1 leading-snug">
-              Skip this and the orchestrator infers the doc shape from the page you're on, the persona, and KB hits.
+              Skip this and Wingman infers the doc shape from the page you're on, the persona, and KB hits.
             </div>
           </div>
         )}

@@ -19,7 +19,7 @@ export function ICPSelector() {
     <div className="border border-line bg-surface-1 p-3">
       <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.14em] text-ink-4 mb-2">
         <Users size={12} />
-        ICP Profile
+        Buyer persona
       </div>
 
       <div className="grid grid-cols-3 gap-1.5">

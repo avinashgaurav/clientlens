@@ -817,7 +817,7 @@ function render() {
   const confCls = conf == null ? "" : conf >= 0.7 ? "" : conf >= 0.45 ? "conf-med" : "conf-low";
   const confLabel = conf == null ? "" : conf >= 0.7 ? "high" : conf >= 0.45 ? "med" : "low";
   const confChipEl: HTMLElement | null = conf != null
-    ? el("span", { class: `cl-conf-chip ${confLabel}`, title: "Validator confidence" },
+    ? el("span", { class: `cl-conf-chip ${confLabel}`, title: "Fact-check confidence" },
         `${Math.round(conf * 100)}%`)
     : null;
 
