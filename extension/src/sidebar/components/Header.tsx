@@ -3,7 +3,7 @@ import { Settings } from "lucide-react";
 import { SettingsPanel } from "./SettingsPanel";
 import { UsageMeter } from "./UsageMeter";
 import { AdminGate } from "./AdminGate";
-import { ModelPicker } from "./ModelPicker";
+import { QuickSettings } from "./QuickSettings";
 import { isAdminUnlocked } from "../../shared/utils/settings-storage";
 
 interface OpenEventDetail {
@@ -73,8 +73,11 @@ export function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          <ModelPicker />
           <UsageMeter />
+          {/* #88: Quick Settings popover — canonical home for the
+              passcode-free controls (provider / model / deep research /
+              sample data). The full gear stays passcode-gated for keys. */}
+          <QuickSettings />
           <button
             onClick={requestOpenSettings}
             onMouseEnter={() => setSettingsHover(true)}

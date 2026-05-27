@@ -5,7 +5,7 @@ import { resolveLLMConfig } from "../../shared/agents/llm-client";
 
 export function ModelPicker() {
   const [open, setOpen] = useState(false);
-  const [_, force] = useState(0);
+  const [, force] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
   const stored = getStoredModel();
@@ -19,12 +19,13 @@ export function ModelPicker() {
   const label = activeOption?.label ?? (ok ? `${cfg.provider} · ${cfg.model}` : "no model");
 
   useEffect(() => {
+    if (!open) return;
     function onClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
-  }, []);
+  }, [open]);
 
   function pick(provider: typeof MODEL_CATALOG[number]["provider"], model: string) {
     setStoredModel({ provider, model });
