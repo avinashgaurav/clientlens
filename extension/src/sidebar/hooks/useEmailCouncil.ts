@@ -29,7 +29,7 @@ export function useEmailCouncil() {
     // inputs after the first submit.
     const emailInput = useAppStore.getState().emailInput;
     if (!emailInput) {
-      setError("Missing email input");
+      setError("Add the recipient and context, then draft again.");
       return;
     }
     setError(null);

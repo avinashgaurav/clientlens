@@ -28,7 +28,7 @@ export function useCouncil() {
 
   const run = useCallback(async () => {
     if (!personalization || !brandAssets) {
-      setError("Missing personalization input or brand assets");
+      setError("Fill the company and persona, then generate.");
       setFlowStep("form");
       return;
     }

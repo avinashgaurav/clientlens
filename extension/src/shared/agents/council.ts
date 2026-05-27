@@ -522,9 +522,12 @@ export async function* runCouncil(opts: {
 
     if (!councilPass) {
       const issues = agents.flatMap((a) => a.issues ?? []);
+      // Instructive error (voice.md): keep "council" (differentiator), name
+      // the fix. Most council failures are an empty/thin KB for this topic.
+      const detail = issues.slice(0, 3).join("; ");
       yield {
         type: "error",
-        message: `Council could not produce a draft. Issues: ${issues.slice(0, 3).join("; ")}`,
+        message: `The council couldn't ground a draft — add a KB entry covering this, then retry.${detail ? ` (${detail})` : ""}`,
       };
       return;
     }

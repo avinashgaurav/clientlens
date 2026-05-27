@@ -20,7 +20,7 @@ export function useObjection() {
 
   const run = useCallback(async () => {
     if (!objectionInput) {
-      setError("No objection text");
+      setError("Paste the prospect's objection first.");
       return;
     }
     setError(null);
