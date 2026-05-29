@@ -117,7 +117,8 @@ export type AgentName =
   | "retrieval"
   | "brand_compliance"
   | "icp_personalization"
-  | "validation";
+  | "validation"
+  | "respond"; // objection-council's respond agent (#84a)
 
 export interface AgentResult {
   agent: AgentName;

@@ -90,7 +90,14 @@ ${summarizeKB(used, 8)}
 Return JSON:
 {
   "summary": "...",          // one line — what's the objection really asking
-  "response": "...",         // 60-120 words, direct, usable as a reply
+  "response": "...",         // 60-120 words, direct, usable as a reply.
+                              // Inline [N] markers REQUIRED on every supporting
+                              // claim — [1] for citations[0], [2] for citations[1],
+                              // etc. The order of items in citations[] MUST match
+                              // the order of [N] markers in response; the renderer
+                              // resolves [N] by INDEX into citations[], not by
+                              // source_id, so a mismatch points a chip at the
+                              // wrong source. Use each marker at least once.
   "citations": [{"source_id": "...", "quote": "exact quote from sources"}],
   "confidence": 0.0          // 0-1 based on source coverage
 }`;
@@ -100,7 +107,8 @@ Return JSON:
 
   if (!parsed?.response) {
     return {
-      agent: "icp_personalization",
+      // #84a: corrected from "icp_personalization" (copy-paste from email-council).
+      agent: "respond",
       status: "fail",
       output: { error: "no response produced" },
       issues: ["Response agent returned empty"],
@@ -110,7 +118,7 @@ Return JSON:
   }
 
   return {
-    agent: "icp_personalization",
+    agent: "respond",
     status: "pass",
     output: { length: parsed.response.length, cites: parsed.citations?.length ?? 0 },
     confidence: parsed.confidence ?? 0.7,
