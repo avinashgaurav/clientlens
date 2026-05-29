@@ -98,16 +98,18 @@ A Google Meet companion that captures tab audio, transcribes it in real time, an
 - **CRM push** — one click to write the summary as a note in Zoho CRM under the prospect's record. Backed by RBAC-gated server-side OAuth (see [Security model](#security-model)).
 - **Calendar sync** — Google Calendar integration pre-populates upcoming meetings so the copilot is primed when the call starts.
 
-### 3. Objection Handling Council
+### 3. Objection Composer
 
-A separate council pipeline focused on the "the prospect just said X, what do I say?" loop.
+A purpose-built mid-call surface for "the prospect just said X, what do I say?"
 
-- Rep right-clicks any text on a page → context menu **"Project Wingman: Handle objection"**.
-- Council of three agents responds:
-  - **Counter Agent** — produces the direct rebuttal grounded in your KB.
-  - **Reframe Agent** — restates the objection in a way that pivots toward your differentiators.
-  - **Evidence Agent** — pulls 1-2 citation-ready case studies or numbers from the KB.
-- Output is a ranked, structured response set — copy the one that fits.
+- **Invoke two ways:** right-click any selected text on a page → context menu **"Project Wingman: Handle objection"**, OR open the Generate tab and pick Objection mode.
+- **2-agent pipeline:**
+  - **Retrieval Agent** — pulls the most relevant battlecard / case study / compliance entries from your KB.
+  - **Respond Agent** — drafts a 60–120 word grounded reply, emitting inline `[N]` citation markers tied to each cited claim.
+- **Composer renderer** — single card. Inline `[N]` chips render next to each supporting claim; hover shows the source quote in a tooltip, and screen readers announce the source + quote via `aria-label` on Tab focus. `Copy reply` strips the markers so paste-into-Slack stays clean.
+- **▾ Why this answer disclosure** — collapsed by default for mid-call use. Expands for post-call review, showing each citation with its source and exact quote.
+- **Parse-fail safety net** — if the LLM emits malformed markers (out-of-bounds, too many invalid), the renderer falls back to a flat citations card so the rep never sees a broken response. Telemetry tracks the fallback rate.
+- **Feature flag** — `clientlens_objection_composer_v2` in `chrome.storage.local` (default `true`). `?composer=v1` URL param forces the legacy renderer for one panel lifetime — useful for live debugging. Note: Chrome side panels reset to the manifest `default_path` on re-open, so URL params don't survive closing and reopening the panel. For a sticky override, use `chrome.storage.local.set({clientlens_objection_composer_v2: false})`.
 
 ### 4. Email Council
 
@@ -167,8 +169,10 @@ Critical operations are permission-gated:
 
 ### 9. Settings & Onboarding
 
-- **Onboarding Checklist** — five-step flow for new reps: pick provider, add KB content, set up CRM, configure team domain, run a test pitch.
-- **Admin Gate** — settings panel is protected by an SHA-256-hashed passcode stored in `localStorage`. Set once from the Admin tab, then required for sensitive ops (KB wipe, role changes, integration disconnects).
+- **Onboarding Checklist** — 3-step flow: add a model API key, connect one integration (optional), add at least one KB entry. Renders at the top of the panel while incomplete; once complete, collapses to a small "Set up" pill at the bottom so it stops eating real estate.
+- **Quick Settings popover** — a sliders icon in the header opens a passcode-free popover with the reps' most-changed settings: LLM provider, model, deep-research toggle, sample-data toggle. The full Settings panel stays behind the admin passcode.
+- **Sample data toggle** — one click loads 5 sample KB entries + 4 sample call records (prefix-tagged `demo_kb_*` / `demo_call_*`). Toggle off to remove them; real data is untouched. Useful for cold-start demoing without seeding real content.
+- **Admin Gate** — full Settings panel is protected by an SHA-256-hashed passcode stored in `localStorage`. Set once from the Admin tab, then required for sensitive ops (KB wipe, role changes, integration disconnects, API key changes).
 - **Integrations panel** — per-card config for Zoho CRM, Google Meet, Zoom (Meet/Zoom captured for parity; primary integration is Google Meet today).
 - **Mock mode** — `VITE_MOCK_MODE=true` short-circuits all LLM calls to canned responses for offline UI development.
 
@@ -471,6 +475,7 @@ The product handles OAuth tokens, transcripts, and an org-wide KB — security p
 - **Workspace gating** — only emails ending in `@${VITE_ALLOWED_DOMAIN}` can sign in. Configurable per deployment.
 - **Admin passcode** — Settings panel is gated by an SHA-256-hashed passcode. Sensitive ops (KB wipe, role edit, integration disconnect) require it.
 - **Audio handling** — tab audio is streamed to Deepgram via WebSocket and never persisted server-side beyond the live transcript buffer.
+- **Repository protection** — `main` is protected: no force-pushes, no deletion, linear history required (squash/rebase merges only). Admin enforcement is off so the maintainer can emergency-fix; required-PR-reviews is off because this is a solo-maintained repo.
 
 ---
 
@@ -497,13 +502,18 @@ The product handles OAuth tokens, transcripts, and an org-wide KB — security p
 ## Roadmap
 
 - ~~Email council UI surface~~ — **shipped**: the Email mode (Generate tab) drives the council pipeline and renders a copy-ready draft
-- One-shot "what do I say" objection composer (replacing the 3-column council view)
+- ~~One-shot "what do I say" objection composer~~ — **shipped**: inline `[N]` citation chips, `▾ Why this answer` disclosure, feature-flag gated, telemetry wired (#117 / #118 / #119)
+- Streamed objection response (`respondAgent` over `callStream`; needs an agent-contract refactor for the JSON trailer — non-trivial)
+- Move Objection out of the Generate-tab mode switcher (it's a mid-call workflow, not a Generate sub-mode) + keyboard shortcut for selected-text capture
+- Auto-end Live Meeting Copilot session when the Meet tab closes (saves the "rep forgot to click End" footgun)
 - Salesforce + HubSpot CRM connectors (parity with Zoho)
 - Microsoft Teams meeting copilot
 - On-device STT option (Whisper / faster-whisper) for privacy-sensitive deployments
 - Multi-tenant SaaS mode with org-level KB isolation
 - Slack integration for post-call summary delivery
 - Browser-side fine-tuning of the council validator on each org's historical wins/losses
+
+The backlog with concrete acceptance criteria lives in [#113 — workflow + UX audit backlog](https://github.com/avinashgaurav/project-wingman-sales-copilot/issues/113). Pick anything in any order; the items are largely independent.
 
 ---
 
