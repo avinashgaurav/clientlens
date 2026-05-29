@@ -494,6 +494,37 @@
   background-color: var(--surface-2);
 }
 
+/* ===================================================================
+ * CT1 — Live-mode typography bump
+ * ===================================================================
+ * Applied to surfaces that need one-handed mid-call glanceability:
+ *   - Copilot tab (always)
+ *   - Objection mode (gated on outputMode, see App.tsx:liveMode)
+ *
+ * Bumps Tailwind text utilities one step up to keep 360px-sidebar legible
+ * mid-call. Inline-style font sizes (notably MeetingCopilotPanel's style
+ * constants) are intentionally out of scope — overriding inline styles
+ * needs !important, which is brittle and breaks future inline tweaks. If
+ * those need bumping, do it at the source.
+ *
+ * `text-xs` (12px) → 13px
+ * `text-[11px]`    → 12px
+ * `text-[10px]`    → 11px
+ * line-height      → 1.55 (scoped to text utilities only — applying to
+ *                   the `[data-mode="live"]` element itself would inherit
+ *                   into ErrorBanner/SampleDataBanner and beat their
+ *                   intentional `leading-relaxed`/`leading-snug` classes
+ *                   via specificity + cascade order)
+ *
+ * NOTE: `data-mode` is a single-value attribute today. The only value
+ * ever written is "live" (see App.tsx:liveMode). Do not introduce
+ * Tailwind !important variants (e.g. `!text-xs`) on these surfaces —
+ * they would defeat the (0,2,0) specificity that lets these rules win.
+ */
+[data-mode="live"] .text-xs { font-size: 13px; line-height: 1.55; }
+[data-mode="live"] .text-\[11px\] { font-size: 12px; line-height: 1.55; }
+[data-mode="live"] .text-\[10px\] { font-size: 11px; line-height: 1.55; }
+
 /* Vercel mesh-gradient hero text fill — for landing page accent words */
 .gradient-text-vercel {
   background: linear-gradient(
