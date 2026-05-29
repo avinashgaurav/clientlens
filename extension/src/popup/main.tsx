@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 
-// Linear-skin popup. Deep dark canvas (#010102), 4-step surface ladder,
-// hairline borders, 1-2 action rows max. Brand orange survives as the
-// primary CTA so the popup still feels like Wingman.
+// Brand-skin popup (post-#87: linear skin dropped). Warm cream canvas
+// matching the default sidebar — popup is a brief launcher (<2s on screen)
+// and the cohesion with the surface the user is about to land on beats
+// the prior dark-popup theatre. Brand orange remains the primary CTA.
 
 // Type definitions kept inline to avoid pulling chrome.d.ts into the popup
 // build — the popup runs in MV3 extension context where these globals exist.
@@ -12,8 +13,8 @@ declare const chrome: any;
 const STYLES = {
   page: {
     padding: 16,
-    background: "#010102",
-    color: "#F7F8F8",
+    background: "#EEEFE9",   // brand surface-0 — warm cream
+    color: "#23251D",        // brand ink
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
     letterSpacing: "-0.02em",
   } as React.CSSProperties,
@@ -41,8 +42,8 @@ const STYLES = {
   brandName: {
     fontWeight: 700,
     fontSize: 14,
-    color: "#F7F8F8",
-    letterSpacing: "-0.03em",
+    color: "#23251D",           // brand ink
+    letterSpacing: "-0.025em",  // brand display tracking
   } as React.CSSProperties,
   brandEyebrow: {
     fontFamily: "'JetBrains Mono', monospace",
@@ -50,7 +51,7 @@ const STYLES = {
     fontWeight: 600,
     textTransform: "uppercase",
     letterSpacing: "0.14em",
-    color: "#62666D",
+    color: "#6A6C61",           // brand ink-4 (4.62:1 on cream — AA-small)
     marginTop: 4,
   } as React.CSSProperties,
 
@@ -73,14 +74,14 @@ const STYLES = {
     display: "flex", alignItems: "center", justifyContent: "space-between",
   }),
 
-  // Secondary action row — charcoal lift (Linear surface-1)
+  // Secondary action row — white card on cream (brand surface-1)
   secondaryRow: (hover: boolean): React.CSSProperties => ({
     width: "100%",
     marginTop: 8,
     padding: "10px 14px",
-    background: hover ? "#141516" : "#0F1011",
-    color: "#F7F8F8",
-    border: "1px solid #23252A",
+    background: hover ? "#FCFCFA" : "#FFFFFF",  // brand surface-1 / -2
+    color: "#23251D",                            // brand ink
+    border: "1px solid #BFC1B7",                 // brand line
     borderRadius: 8,
     cursor: "pointer",
     fontSize: 13,
@@ -95,7 +96,7 @@ const STYLES = {
   hint: {
     marginTop: 12,
     fontSize: 10,
-    color: "#62666D",
+    color: "#6A6C61",        // brand ink-4
     textAlign: "center" as const,
     fontFamily: "'JetBrains Mono', monospace",
     textTransform: "uppercase" as const,

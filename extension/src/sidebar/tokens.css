@@ -7,26 +7,23 @@
  * `bg-surface-1` resolves to a different hex depending on the `data-skin`
  * attribute on the nearest ancestor.
  *
- * Six skins are defined, one per surface in the revamp:
+ * Five skins are defined (linear dropped per #87 audit — popup adopts brand):
  *
- *   data-skin="brand"   → default sidebar chrome (pitch / KB / settings)
+ *   data-skin="brand"   → default sidebar chrome (pitch / KB / settings) +
+ *                            popup launcher
  *                            playful-but-dense PostHog: warm cream canvas,
  *                            white cards, pastel callout banners
  *
  *   data-skin="live"    → Live Meeting Copilot panel
- *                            cursor's marketing canvas (warm cream + orange)
- *                            plus the timeline-pastel palette for AI agent
- *                            stages (peach=thinking, mint=grep, blue=read,
- *                            lavender=edit, gold=done)
+ *                            base tokens converged with brand (per #87); only
+ *                            the timeline-pastel palette for AI agent stages
+ *                            (peach=thinking, mint=grep, blue=read,
+ *                            lavender=edit, gold=done) + display weight stays
+ *                            skin-distinct
  *
  *   data-skin="insights"   → Post-call Insights / call history
  *                            near-black surface ladder + spotify green,
  *                            heavy shadows on elevation, pill geometry
- *
- *   data-skin="linear"    → Extension popup
- *                            deepest dark canvas (#010102) + minimal chrome,
- *                            56px nav rows, lavender focus ring (mapped to
- *                            wingman orange for brand consistency)
  *
  *   data-skin="vercel"    → In-Meet transponder overlay
  *                            stark black/white precision, no chromatic
@@ -136,19 +133,20 @@
   --brand-orange-press: #C66224;
   --focus-ring: #C66224;
 
-  --surface-0: #F7F7F4;   /* warm cream — cursor canvas */
-  --surface-1: #FFFFFF;   /* white card */
-  --surface-2: #FAFAF7;   /* canvas-soft */
-  --surface-3: #E6E5E0;   /* soft surface */
-  --surface-4: #26251E;   /* warm near-black */
+  /* Surfaces + ink converged with brand per #87 audit. The Generate and
+   * Copilot tabs share canvas; only the timeline pastels + display weight
+   * remain skin-distinct so the live coach still has its magazine voice. */
+  --surface-0: #EEEFE9;   /* page canvas — warm cream (= brand) */
+  --surface-1: #FFFFFF;   /* white card (= brand) */
+  --surface-2: #FCFCFA;   /* warm-white doc card (= brand) */
+  --surface-3: #E5E7E0;   /* soft surface (= brand) */
+  --surface-4: #23251D;   /* inverted dark (= brand) */
 
-  --ink: #26251E;
-  --ink-2: #26251E;
-  --ink-3: #5A5852;
-  /* ink-4 darkened from #807D72 (4.12:1) to meet AA-normal on white card
-   * — eyebrow text uses var(--ink-4) at 11px, which counts as small text. */
-  --ink-4: #6A685E;       /* 5.59:1 on #FFFFFF */
-  --ink-5: #A09C92;       /* disabled — exempt from contrast per WCAG 1.4.3 */
+  --ink: #23251D;         /* = brand */
+  --ink-2: #33342D;       /* = brand */
+  --ink-3: #4D4F46;       /* = brand */
+  --ink-4: #6A6C61;       /* = brand, 4.62:1 on #EEEFE9, 5.34:1 on #FFFFFF */
+  --ink-5: #9B9C92;       /* = brand */
 
   --line: #E6E5E0;
   --line-2: #EFEEE8;
@@ -237,59 +235,6 @@
   /* Spotify display: tight section titles, bold. No strong tracking spec. */
   --display-tracking: -0.02em;
   --display-weight: 700;
-  --display-transform: none;
-}
-
-/* ===================================================================
- * LINEAR skin — Popup
- * ===================================================================
- * Deepest dark canvas in the catalog. Four-step surface ladder. Hairline
- * borders. Lavender focus accent — but Wingman orange remains the primary
- * CTA so the popup still reads as Wingman.
- */
-[data-skin="linear"] {
-  --brand-orange: #F58549;
-  --brand-orange-hover: #FFA070;
-  --brand-orange-press: #C66224;
-  --focus-ring: #F58549;  /* 7.56:1 on #0F1011 — passes AA */
-
-  --surface-0: #010102;   /* deepest dark — linear canvas */
-  --surface-1: #0F1011;   /* charcoal lift */
-  --surface-2: #141516;
-  --surface-3: #18191A;
-  --surface-4: #191A1B;
-
-  --ink: #F7F8F8;
-  --ink-2: #FFFFFF;
-  --ink-3: #D0D6E0;
-  --ink-4: #8A8F98;
-  --ink-5: #62666D;
-
-  --line: #23252A;
-  --line-2: #34343A;
-  --line-3: #3E3E44;
-
-  --accent-blue: #5E6AD2;          /* linear lavender */
-  --accent-blue-soft: #5E69D1;
-  --accent-green: #27A644;
-  --accent-green-soft: #1F8A65;
-  --accent-red: #F3727F;
-  --accent-red-soft: #6F1212;
-  --accent-purple: #5E6AD2;
-  --accent-purple-soft: #828FFF;
-
-  --signal-live: #27A644;
-  --signal-warn: #F7A501;
-  --signal-error: #F3727F;
-  --signal-info: #5E6AD2;
-
-  --shadow-1: 0 1px 2px rgba(0,0,0,0.4);
-  --shadow-2: 0 4px 16px rgba(0,0,0,0.6);
-  --shadow-card: none;
-
-  /* Linear display: aggressive negative tracking (-3px @ 80px = -0.0375em). */
-  --display-tracking: -0.0375em;
-  --display-weight: 600;
   --display-transform: none;
 }
 

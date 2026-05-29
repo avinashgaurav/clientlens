@@ -784,8 +784,10 @@ export function MeetingCopilotPanel() {
 }
 
 // Inline styles below reference CSS variables defined in tokens.css.
-// Because MeetingCopilotPanel renders inside data-skin="cursor", these
-// resolve to Cursor's warm cream canvas + timeline-pastel accent system.
+// Because MeetingCopilotPanel renders inside data-skin="live" (post-#87
+// convergence: base tokens match brand, only timeline pastels + display
+// weight stay skin-distinct), these resolve to the same warm cream canvas
+// as the Generate tab plus the timeline-pastel accent system for live agents.
 const wrap: React.CSSProperties = {
   background: "var(--surface-1)",
   border: "1px solid var(--line)",
