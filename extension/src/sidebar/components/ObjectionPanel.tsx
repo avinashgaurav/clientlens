@@ -1,25 +1,24 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Shield, Copy, ArrowLeft, Zap, AlertTriangle } from "lucide-react";
 import { useAppStore } from "../stores/app-store";
 import { useObjection } from "../hooks/useObjection";
+import { useObjectionComposerV2 } from "../hooks/useObjectionComposerV2";
 import type { ObjectionInput, ObjectionResponse } from "../../shared/types";
-import { parseCitationMarkers } from "../../shared/utils/objection-citations";
-
-// #84b: feature flag is a hardcoded constant in this PR. #84c replaces this
-// with a chrome.storage-backed hook + ?composer=v1 URL override. Keep the
-// legacy renderer compiled and reachable so a flag flip in 84c is one-line.
-//
-// NOTE FOR 84c: when this becomes a hook, the hook MUST be called at the
-// top of ObjectionPanel (React rules of hooks) — NOT inside the
-// `if (lastObjection)` branch. The constant version is safe in that
-// position only because constants aren't hooks.
-const COMPOSER_V2 = true;
+import { parseCitationMarkers, type ParsedResponse } from "../../shared/utils/objection-citations";
+import { track } from "../../shared/utils/telemetry";
 
 // Strip [N] markers when copying so reps paste a clean reply into
 // Slack/email. Markers are an in-product reasoning signal, not a deliverable.
 // Strips the marker + any trailing whitespace it introduced, but preserves
 // the whitespace that came BEFORE the marker (otherwise newlines and
 // inter-word spaces collapse).
+//
+// Edge: for adjacent markers like "text [1] [2] more", the first match's
+// `\s*` consumes the space between [1] and [2], so the output is
+// "text more" with one space (not two). This is acceptable for copy —
+// the prose still reads cleanly. If a future spec wants exact spacing
+// preservation, replace with a two-pass: strip markers first, then
+// collapse runs of whitespace to single spaces.
 function stripCitationMarkers(text: string): string {
   return text.replace(/\[\d+\]\s*/g, "").trimEnd();
 }
@@ -37,6 +36,21 @@ export function ObjectionPanel() {
   const [text, setText] = useState(objectionInput?.objection_text ?? "");
   const [competitor, setCompetitor] = useState(objectionInput?.competitor_hint ?? "");
   const [copied, setCopied] = useState(false);
+
+  // Hook MUST be called at the top of the component (React rules of hooks),
+  // unconditionally — see comment block in useObjectionComposerV2.ts.
+  const composerV2 = useObjectionComposerV2();
+
+  // Time-to-copy measurement: stamp when a new result lands; emit a
+  // timing event on copy. Reset stamp when the rep clicks "New objection".
+  const resultReadyAt = useRef<number | null>(null);
+  useEffect(() => {
+    if (lastObjection) {
+      resultReadyAt.current = Date.now();
+    } else {
+      resultReadyAt.current = null;
+    }
+  }, [lastObjection]);
 
   // Pick up context-menu captures routed via chrome.storage.session.
   useEffect(() => {
@@ -72,13 +86,27 @@ export function ObjectionPanel() {
 
   async function copyResponse() {
     if (!lastObjection) return;
-    await navigator.clipboard.writeText(stripCitationMarkers(lastObjection.response));
+    const cleanText = stripCitationMarkers(lastObjection.response);
+    await navigator.clipboard.writeText(cleanText);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+
+    // Telemetry: copy event + time-to-copy (if we know when result landed)
+    const confidencePct = Math.round(lastObjection.confidence * 100);
+    track({
+      name: "objection_response_copied",
+      props: { confidence_pct: confidencePct, chars: cleanText.length },
+    });
+    if (resultReadyAt.current) {
+      track({
+        name: "objection_time_to_copy_ms",
+        props: { ms: Date.now() - resultReadyAt.current, confidence_pct: confidencePct },
+      });
+    }
   }
 
   if (lastObjection) {
-    return COMPOSER_V2 ? (
+    return composerV2 ? (
       <ObjectionComposer
         result={lastObjection}
         objectionText={objectionInput?.objection_text ?? ""}
@@ -165,11 +193,31 @@ interface ResultProps {
 }
 
 function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: ResultProps) {
-  const parsed = useMemo(
+  const parsed: ParsedResponse = useMemo(
     () => parseCitationMarkers({ response: result.response, citations: result.citations }),
     [result.response, result.citations],
   );
   const confidencePct = Math.round(result.confidence * 100);
+
+  // Emit parse-fallback telemetry once per result. The reason types from
+  // ParsedResponse include "ok" / "ok_with_literals" which are NOT fallbacks —
+  // only emit for the four reason values that indicate degraded parsing.
+  useEffect(() => {
+    const fallbackReasons = ["no_markers", "out_of_bounds", "no_citations", "empty_response"] as const;
+    type FallbackReason = (typeof fallbackReasons)[number];
+    const isFallback = (r: ParsedResponse["reason"]): r is FallbackReason =>
+      (fallbackReasons as readonly string[]).includes(r);
+    if (isFallback(parsed.reason)) {
+      track({
+        name: "objection_parse_fallback",
+        props: {
+          reason: parsed.reason,
+          markers_detected: parsed.tokens.filter((t) => t.kind === "marker").length,
+          citation_count: result.citations.length,
+        },
+      });
+    }
+  }, [parsed.reason, parsed.tokens, result.citations.length]);
 
   return (
     <div className="space-y-3">
@@ -278,6 +326,14 @@ function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: Re
           <details
             className="mt-3 pt-3 group"
             style={{ borderTop: "1px solid var(--line-2)" }}
+            onToggle={(e) => {
+              if ((e.currentTarget as HTMLDetailsElement).open) {
+                track({
+                  name: "objection_disclosure_opened",
+                  props: { citation_count: result.citations.length },
+                });
+              }
+            }}
           >
             <summary
               className="cursor-pointer text-[11px] font-semibold flex items-center gap-1.5 list-none"
