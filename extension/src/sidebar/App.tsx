@@ -21,6 +21,7 @@ import { ErrorBanner } from "./components/ErrorBanner";
 import { InsightsPanel } from "./components/InsightsPanel";
 import { isMeetingCopilotEnabled } from "../shared/meeting-copilot/feature-flag";
 import { listKB } from "../shared/utils/kb-storage";
+import { getSettings } from "../shared/utils/settings-storage";
 import { FileText, BookOpen, Radio, BarChart3 } from "lucide-react";
 
 type AdminTab = "form" | "kb" | "copilot" | "insights";
@@ -155,6 +156,29 @@ export default function App() {
   // outputMode so the typography is correct from the first paint.
   const liveMode = adminTab === "copilot" || outputMode === "objection";
 
+  // #50 / 2.3: Onboarding completion state drives WHERE the checklist
+  // renders (top when incomplete = action, bottom when complete = reference).
+  // Computed here in App.tsx to avoid pulling internal component state
+  // out. DUPLICATION ALERT: this mirrors the step definitions inside
+  // OnboardingChecklist.tsx — if those change (e.g. a new required step is
+  // added), update this computation too. A future PR can extract a shared
+  // useOnboardingState() hook if the duplication becomes painful.
+  const [onboardingDone, setOnboardingDone] = useState(false);
+  useEffect(() => {
+    try {
+      const s = getSettings();
+      const keyOk =
+        !!s.geminiKey ||
+        !!s.anthropicKey ||
+        !!s.groqKey ||
+        (!!s.customBaseUrl && !!s.customModel);
+      const anyIntegration = Object.values(s.integrations).some((c) => c.connected);
+      setOnboardingDone(keyOk && anyIntegration && kbCount > 0);
+    } catch {
+      setOnboardingDone(false);
+    }
+  }, [kbCount]);
+
   return (
     // Outer chrome uses the brand skin — header, tab strip, error banner.
     // Active panel below swaps its data-skin per the active tab.
@@ -211,7 +235,12 @@ export default function App() {
 
         <SampleDataBanner />
 
-        <OnboardingChecklist kbCount={kbCount} onOpenSettings={openSettings} />
+        {/* #50 / 2.3: Onboarding checklist at TOP only while there's setup
+            work to do. Once complete it moves to the bottom (below the
+            scroll) as a small pill so it doesn't eat real estate. */}
+        {!onboardingDone && (
+          <OnboardingChecklist kbCount={kbCount} onOpenSettings={openSettings} />
+        )}
 
         {(!showTabs || adminTab === "form") && (
           <>
@@ -253,6 +282,14 @@ export default function App() {
         {copilotOn && adminTab === "copilot" && <MeetingCopilotPanel />}
 
         {adminTab === "insights" && <InsightsPanel />}
+
+        {/* Bottom render — only when setup is complete. Component drops
+            into pill-mode (#80) which is small + reference-grade, not
+            real-estate-eating. The component returns null if the user
+            explicitly dismissed it. */}
+        {onboardingDone && (
+          <OnboardingChecklist kbCount={kbCount} onOpenSettings={openSettings} />
+        )}
       </div>
     </div>
   );
