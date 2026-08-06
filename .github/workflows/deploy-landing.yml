@@ -1,15 +1,20 @@
 name: Deploy Landing Page
 
-# Deploys /landing/ (static HTML + CSS) to GitHub Pages on every push to
-# main. The extension build is untouched by this workflow — only the
-# /landing/ directory is published.
+# Publishes /landing/ to the `gh-pages` branch, which GitHub Pages serves
+# directly. The extension build is untouched: only /landing/ is published.
 #
-# One-time repo setup before this works:
-#   Settings → Pages → Source: "GitHub Actions"
+# Why not actions/deploy-pages: the Actions deployment queue killed 3 of 4
+# deploys on this repo. The action aborts with "Timeout reached, aborting!" after
+# 600s in deployment_queued / deployment_in_progress and then CANCELS the
+# deployment it created, leaving the site on the previous build. Its documented
+# `timeout` input does not help; run 31109092197 received `timeout: 1800000` and
+# still aborted at exactly 600s. Branch-based Pages builds do not use that queue
+# at all, so the failure mode is gone rather than waited out.
 #
-# Once enabled, the landing page is reachable at
-#   https://<owner>.github.io/<repo>/
-# (the URL appears in the Actions run summary after first deploy).
+# One-time repo setup (Settings -> Pages):
+#   Source: "Deploy from a branch", Branch: gh-pages, Folder: / (root)
+#
+# The gh-pages branch is generated. Never hand-edit it; edit landing/ on main.
 
 on:
   push:
@@ -17,54 +22,70 @@ on:
     paths:
       - "landing/**"
       - ".github/workflows/deploy-landing.yml"
-  # Manual trigger from Actions tab for ad-hoc deploys (e.g., after a
-  # landing-only hotfix on a non-main branch that you merged in).
   workflow_dispatch:
 
+# Only contents:write is needed now. No pages: write, no id-token: write.
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Coalesce overlapping deploys; never cancel an in-progress one so we
-# don't leave Pages in a half-published state. Group key is namespaced
-# to this repo so it doesn't collide with other Pages workflows in the
-# same org.
+# Serialise publishes so two runs cannot race the same branch. Never cancel an
+# in-flight one; a half-written gh-pages is worse than a slow deploy.
 concurrency:
   group: pages-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload landing artifact
-        uses: actions/upload-pages-artifact@v3
         with:
-          # Only ship the static landing folder. The extension build
-          # lives elsewhere and never touches Pages.
-          path: landing/
+          # Need the remote gh-pages ref to parent onto, so no shallow clone.
+          fetch-depth: 0
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          # actions/deploy-pages defaults to a 600000 ms (10 minute) timeout, and
-          # then CANCELS the deployment it created. Measured on this repo,
-          # GitHub's Pages backend has been taking 9 to 10+ minutes to move a
-          # deployment from in_progress to success:
-          #   deployment 5779001342  in_progress 12:04:42 -> success  12:13:45  (9m03s, passed)
-          #   deployment 5780729921  in_progress 13:52:45 -> timeout  14:02:54  (10m00s, failed)
-          # So the default sits right on the boundary and every run is a coin
-          # flip. 30 minutes gives the queue room without leaving a job hanging
-          # for an unreasonable time.
-          timeout: 1800000
+      - name: Publish landing/ to gh-pages
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Build the published tree with plumbing rather than by copying files
+          # around and deleting things. A scratch index keeps the working tree
+          # completely untouched.
+          GIT_INDEX_FILE="$(mktemp -u)"
+          export GIT_INDEX_FILE
+          git read-tree "HEAD:landing"
+
+          # .nojekyll makes Pages serve the files verbatim instead of running
+          # them through Jekyll, which would drop any path beginning with _.
+          blob="$(printf '' | git hash-object -w --stdin)"
+          git update-index --add --cacheinfo "100644,${blob},.nojekyll"
+
+          tree="$(git write-tree)"
+          unset GIT_INDEX_FILE
+
+          parent="$(git rev-parse --verify --quiet refs/remotes/origin/gh-pages || true)"
+
+          if [ -n "$parent" ] && [ "$(git rev-parse "${parent}^{tree}")" = "$tree" ]; then
+            echo "landing/ is byte-identical to what gh-pages already serves; nothing to publish."
+            exit 0
+          fi
+
+          msg="chore(pages): publish landing/ from ${GITHUB_SHA:0:7}"
+          if [ -n "$parent" ]; then
+            commit="$(git commit-tree "$tree" -p "$parent" -m "$msg")"
+          else
+            commit="$(git commit-tree "$tree" -m "$msg")"
+          fi
+
+          # Fast-forward, so no force push and no history rewrite.
+          git push origin "${commit}:refs/heads/gh-pages"
+          echo "published $commit to gh-pages"
+
+      - name: Where to look
+        run: |
+          echo "Pages serves the gh-pages branch."
+          echo "Site: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "A branch build usually appears within a minute or two."
