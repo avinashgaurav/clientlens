@@ -52,8 +52,19 @@ SUPABASE_PUBLISHABLE="$REPLY"
 ask "Backend URL" "http://localhost:8000"
 BACKEND_URL="$REPLY"
 
-ask "Chrome OAuth Client ID" "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+# OPTIONAL. Only Google Slides/Docs/Drive export and Calendar sync use
+# chrome.identity.getAuthToken, which reads this from the built manifest. It is
+# NOT needed to sign in (v1.0 provisions a local admin user) and not needed for
+# Zoho. Press Enter to skip; the rest of the product works without it.
+echo "  (optional, press Enter to skip: only needed for Google Slides/Drive export"
+echo "   and Calendar sync)"
+ask "Chrome OAuth Client ID" ""
 GOOGLE_CLIENT_ID="$REPLY"
+
+# Used to infer the rep's own company domain for team config. It does NOT gate
+# sign-in, despite what earlier docs claimed.
+ask "Your company domain (used for team config, blank = example.com)" ""
+ALLOWED_DOMAIN="$REPLY"
 
 echo
 echo "SECRET values (input hidden — paste at the prompt):"
@@ -90,7 +101,12 @@ OPENROUTER_TITLE=Project Wingman
 PINECONE_API_KEY=
 PINECONE_INDEX=clientlens
 
-# ── Google OAuth (only needed for Slides/Docs/Drive features; safe to leave blank) ──
+# ── Google OAuth (currently UNUSED by the backend) ────────────────────────────
+# These two settings exist in config.py but are read by no backend code. All
+# Google auth is client-side: Slides/Docs/Drive export and Calendar sync call
+# chrome.identity.getAuthToken(), which reads oauth2.client_id from the built
+# manifest (set VITE_GOOGLE_CLIENT_ID in extension/.env instead). Reserved for a
+# future server-side Google flow; leaving them blank changes nothing today.
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
@@ -98,6 +114,16 @@ GOOGLE_CLIENT_SECRET=
 BACKEND_URL=${BACKEND_URL}
 ALLOWED_ORIGINS=["chrome-extension://","http://localhost:3000"]
 JWT_SECRET=local-dev-only-not-used
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+# REQUIRED for v1.0 to function at all. Nothing in the extension creates a
+# Supabase session (signInWithGoogle exists but is never called), so with
+# dev_mode off, AuthMiddleware rejects every request and no LLM call succeeds.
+#
+# The consequence: this backend accepts every request as a stub sales_rep user
+# (admin endpoints stay gated). Bind it to localhost or keep it behind your own
+# network boundary. Do NOT deploy it to a public URL in this configuration.
+DEV_MODE=true
 EOF
 
 chmod 600 "$BACKEND_ENV"
@@ -118,7 +144,22 @@ VITE_LLM_PROVIDER=openrouter
 VITE_OPENROUTER_MODEL=openai/gpt-oss-20b:free
 
 # ── Backend ───────────────────────────────────────────────────────────────────
+# vite.config.ts also derives a host_permissions entry from this on https URLs,
+# replacing the your-backend.railway.app placeholder in the built manifest.
 VITE_BACKEND_URL=${BACKEND_URL}
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+# Must match DEV_MODE in backend/.env. Sends a stub bearer token instead of a
+# Supabase JWT. Required in v1.0: no code path creates a Supabase session.
+VITE_DEV_MODE=true
+
+# ── Google (optional) ─────────────────────────────────────────────────────────
+# Injected into the built manifest as oauth2.client_id. Only Slides/Docs/Drive
+# export and Calendar sync need it. Blank is fine.
+VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+
+# Company domain for team config. Does not gate sign-in.
+VITE_ALLOWED_DOMAIN=${ALLOWED_DOMAIN}
 
 # ── Supabase ──────────────────────────────────────────────────────────────────
 VITE_SUPABASE_URL=${SUPABASE_URL}
@@ -142,6 +183,10 @@ echo "  backend/.env     ${BACKEND_ENV}"
 echo "  extension/.env   ${EXT_ENV}"
 echo
 echo "Next:"
-echo "  1. Start backend:  cd backend && pip install -r requirements.txt && uvicorn main:app --reload"
-echo "  2. Build extension: cd extension && bun install && bun run build"
+echo "  1. Start backend:   cd backend && pip install -r requirements.txt && uvicorn main:app --reload"
+echo "  2. Build extension: cd extension && npm install && npm run dev"
 echo "  3. Load in Chrome:  chrome://extensions → Developer mode ON → Load unpacked → extension/dist/"
+echo
+echo "You do NOT need to hand-edit extension/manifest.json. The build injects your"
+echo "OAuth client ID and backend host into extension/dist/manifest.json from the"
+echo ".env files above. Verify with: bash scripts/lint-manifest.sh"

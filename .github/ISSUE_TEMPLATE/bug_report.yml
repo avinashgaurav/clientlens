@@ -1,0 +1,93 @@
+name: Bug report
+description: Something is broken. Setup failures count, and are especially useful.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Setup and first-run failures are the most valuable bug reports on this project, because the self-hosted path gets exercised on far fewer machines than it should. Do not feel bad about filing one.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what you expected instead.
+      placeholder: |
+        I clicked Start Live Mode after joining a Meet call. Nothing happened and the sidebar stayed on "Idle".
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Which surface
+      options:
+        - Setup / first run (env, backend, build, sign-in)
+        - Sidebar (Generate, pitch, email)
+        - Live Meeting Copilot (audio capture, transcript, coaching cues)
+        - In-Meet transponder overlay
+        - Objection composer
+        - Post-call insights / summary
+        - Knowledge base / RAG
+        - CRM push (Zoho)
+        - Settings / onboarding / admin
+        - Backend API
+        - Landing page or docs
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Fresh clone, ran scripts/setup_env.sh
+        2. Started backend on :8000, health check returns ok
+        3. npm run dev, loaded extension/dist unpacked
+        4. Clicked the extension icon, signed in
+        5. Joined a Meet call, clicked Start Live Mode
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output
+      description: >
+        Sidebar errors: right-click the side panel, Inspect. Service worker errors:
+        chrome://extensions, "service worker" link. Backend errors: the uvicorn
+        terminal. Redact keys and tokens before pasting.
+      render: text
+
+  - type: input
+    id: chrome-version
+    attributes:
+      label: Chrome version
+      placeholder: "e.g. 131.0.6778.86"
+
+  - type: dropdown
+    id: build-mode
+    attributes:
+      label: How did you build it
+      options:
+        - npm run dev (development)
+        - npm run build (production)
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: provider
+    attributes:
+      label: LLM provider and model
+      placeholder: "e.g. Gemini 2.0 Flash, or OpenRouter with llama-3.3-70b"
+
+  - type: checkboxes
+    id: manifest-check
+    attributes:
+      label: Sanity check for sign-in and backend issues
+      description: The single most common first-run failure. Skip if unrelated to your bug.
+      options:
+        - label: "`extension/dist/manifest.json` contains a real `oauth2.client_id`, not `YOUR_GOOGLE_CLIENT_ID`"
+        - label: "`bash scripts/lint-manifest.sh` reports clean"

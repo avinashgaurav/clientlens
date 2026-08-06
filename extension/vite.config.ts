@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 import { cpSync, existsSync, copyFileSync, readFileSync, writeFileSync } from "fs";
@@ -12,7 +12,47 @@ const DEV_LOCALHOST_HOSTS = [
   "http://localhost:11434/*",
 ];
 
-function copyStaticAssets(mode: string) {
+// The committed manifest is a TEMPLATE. These two placeholders are deployment-
+// specific, so they are filled in at build time from extension/.env rather than
+// committed. A fresh clone that skipped setup would otherwise ship
+// YOUR_GOOGLE_CLIENT_ID to chrome.identity.getAuthToken (Google sign-in fails
+// with a useless error) and leave the self-hoster's own backend absent from
+// host_permissions (every fetch to it blocked by MV3).
+const CLIENT_ID_PLACEHOLDER = "YOUR_GOOGLE_CLIENT_ID";
+const BACKEND_HOST_PLACEHOLDER = "https://your-backend.railway.app/*";
+
+// Hosts that must never appear in a production bundle's host_permissions, even
+// over https. Granting a shipped extension page-level access to the user's own
+// machine is the vulnerability issue #37 closed; re-introducing it through the
+// backend URL would be the same bug by a different route.
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]", "::1"]);
+
+/**
+ * `https://api.example.com/v1` -> `https://api.example.com/*`, or null if the
+ * URL cannot legitimately become a host permission.
+ *
+ * Two non-obvious rules:
+ *  - Chrome match patterns MUST NOT contain a port. `new URL().host` includes
+ *    one, so we use `hostname`. Emitting `https://host:8443/*` produces a
+ *    manifest Chrome refuses to load, which would brick the extension for
+ *    anyone whose backend runs on a non-default port.
+ *  - https on a loopback host still counts as localhost. Only explicit
+ *    development builds may reach the developer's machine, via
+ *    DEV_LOCALHOST_HOSTS. Any other mode is treated as a release.
+ */
+function hostPermissionFor(backendUrl: string, mode: string): string | null {
+  try {
+    const url = new URL(backendUrl);
+    if (url.protocol !== "https:") return null;
+    const hostname = url.hostname;
+    if (mode !== "development" && LOOPBACK_HOSTS.has(hostname)) return null;
+    return `https://${hostname}/*`;
+  } catch {
+    return null;
+  }
+}
+
+function copyStaticAssets(mode: string, env: Record<string, string>) {
   return {
     name: "copy-static-assets",
     closeBundle() {
@@ -21,14 +61,70 @@ function copyStaticAssets(mode: string) {
       const manifestPath = resolve(out, "manifest.json");
       cpSync(resolve(root, "manifest.json"), manifestPath);
 
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+      const hosts = new Set<string>(manifest.host_permissions || []);
+
+      // Real Google OAuth client ID, read from extension/.env.
+      const clientId = env.VITE_GOOGLE_CLIENT_ID?.trim();
+      if (clientId) {
+        manifest.oauth2 = { ...manifest.oauth2, client_id: clientId };
+      }
+
+      // Real backend host replaces the placeholder entry.
+      const backendHost = hostPermissionFor(env.VITE_BACKEND_URL?.trim() || "", mode);
+      if (backendHost) {
+        hosts.delete(BACKEND_HOST_PLACEHOLDER);
+        hosts.add(backendHost);
+      }
+
       if (mode === "development") {
         // Dev build: inject localhost host_permissions so unpacked extension
         // can talk to localhost:8000 (backend) and localhost:11434 (Ollama).
-        const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
-        const existing = new Set(manifest.host_permissions || []);
-        for (const h of DEV_LOCALHOST_HOSTS) existing.add(h);
-        manifest.host_permissions = Array.from(existing);
-        writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+        for (const h of DEV_LOCALHOST_HOSTS) hosts.add(h);
+        // A localhost backend needs no https host entry; drop the placeholder
+        // so the dev bundle does not advertise a host nobody owns.
+        if (!backendHost) hosts.delete(BACKEND_HOST_PLACEHOLDER);
+      }
+
+      manifest.host_permissions = Array.from(hosts);
+      writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+
+      // Two placeholders, two different severities.
+      //
+      // The backend host is fatal: without a matching host_permissions entry,
+      // MV3 blocks every fetch to the backend and nothing in the product works.
+      //
+      // The OAuth client ID is NOT fatal. It is only read by
+      // chrome.identity.getAuthToken, which only Google Slides/Docs/Drive export
+      // (background/google-writer.ts) and Calendar sync
+      // (meeting-copilot/integrations/google-calendar.ts) call. Sign-in does not
+      // depend on it: the sidebar provisions a local admin user, and Zoho uses
+      // launchWebAuthFlow, which builds its own auth URL. So a deployment that
+      // does not want Google export is legitimately fine without one.
+      // Anything that is not an explicit development build is treated as a
+      // release for validation purposes. Both npm scripts pin --mode, but a
+      // bare `vite build` or a custom mode string would otherwise skip both the
+      // localhost injection above and this check, silently emitting a manifest
+      // with unresolved placeholders and no error.
+      if (mode !== "development") {
+        if (manifest.host_permissions.includes(BACKEND_HOST_PLACEHOLDER)) {
+          throw new Error(
+            "host_permissions still contains " +
+              BACKEND_HOST_PLACEHOLDER +
+              ".\nSet VITE_BACKEND_URL in extension/.env to your https backend URL." +
+              "\nWithout it, MV3 blocks every request the extension makes to your backend.",
+          );
+        }
+        if (manifest.oauth2?.client_id?.includes(CLIENT_ID_PLACEHOLDER)) {
+          console.warn(
+            "\n[manifest] oauth2.client_id is unset (still " +
+              CLIENT_ID_PLACEHOLDER +
+              ").\n" +
+              "          Google Slides/Docs/Drive export and Calendar sync will not work.\n" +
+              "          Everything else, including pitch generation, live mode and Zoho, is unaffected.\n" +
+              "          Set VITE_GOOGLE_CLIENT_ID in extension/.env if you want those features.\n",
+          );
+        }
       }
 
       if (existsSync(resolve(root, "icons"))) {
@@ -73,7 +169,13 @@ function idempotentTransponder() {
 
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), copyStaticAssets(mode), idempotentTransponder()],
+  plugins: [
+    react(),
+    // Third arg "" loads every var, not just the VITE_ prefix, so the manifest
+    // transform can read values the client bundle never sees.
+    copyStaticAssets(mode, loadEnv(mode, __dirname, "")),
+    idempotentTransponder(),
+  ],
   build: {
     outDir: "dist",
     emptyOutDir: true,

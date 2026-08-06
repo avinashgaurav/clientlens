@@ -1,0 +1,16 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/avinashgaurav/project-wingman-sales-copilot/security/advisories/new
+    about: >
+      Do not file a public issue. This project handles OAuth tokens, call
+      transcripts, and an org-wide knowledge base. Report privately here.
+  - name: Setup help
+    url: https://github.com/avinashgaurav/project-wingman-sales-copilot#quick-start
+    about: >
+      Read the Quick Start first, especially the note that you never hand-edit
+      manifest.json. If it still fails, file a bug report; setup failures are
+      real bugs.
+  - name: Roadmap and backlog
+    url: https://github.com/avinashgaurav/project-wingman-sales-copilot/issues/113
+    about: The workflow and UX audit backlog, with acceptance criteria per item.

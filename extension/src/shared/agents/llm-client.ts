@@ -152,7 +152,17 @@ export async function backendJwt(): Promise<string> {
   const { data } = await supabase.auth.getSession();
   const token = data?.session?.access_token;
   if (!token) {
-    throw new Error("Sign in with Google to use Claude. The session is missing a Supabase JWT.");
+    // Do not tell the user to "sign in with Google": nothing in this codebase
+    // creates a Supabase session. signInWithGoogle() in shared/auth/google-sso.ts
+    // is exported but never called, and the sidebar provisions a local admin user
+    // instead. So with DEV_MODE off there is no path to a JWT and every backend
+    // call fails here. Point at the actual fix.
+    throw new Error(
+      "No backend session. Wingman v1.0 is single-user self-hosted and does not " +
+        "wire real auth yet: set DEV_MODE=true in backend/.env and VITE_DEV_MODE=true " +
+        "in extension/.env, then restart the backend and rebuild. Only do this on a " +
+        "backend that is not reachable from the public internet.",
+    );
   }
   return token;
 }

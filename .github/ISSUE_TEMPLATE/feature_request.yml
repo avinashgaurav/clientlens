@@ -1,0 +1,50 @@
+name: Feature request
+description: An idea for the product, or a sales workflow it should support.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Workflow feedback from people who actually run sales calls is worth more here than feature specs. If the honest version of this is "the coaching cue fires too late to be useful", file that.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the problem
+      description: Describe the moment in a real deal or call where today's behaviour falls short.
+      placeholder: |
+        Mid-call, when a prospect raises pricing, I have to select their words and right-click. In a live call I do not have the hands for that.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you want instead
+      description: Rough is fine. A description of the outcome beats a spec.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Live meeting copilot
+        - Pitch / email generation
+        - Objection handling
+        - Post-call insights
+        - Knowledge base / RAG
+        - CRM or meeting integrations
+        - Setup and self-hosting experience
+        - Security / privacy posture
+        - Something else
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checked-roadmap
+    attributes:
+      label: Before filing
+      options:
+        - label: I checked the README roadmap and issue #113 (the workflow and UX backlog)

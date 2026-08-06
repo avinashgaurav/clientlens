@@ -4,15 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#000000" />
-  <title>Project Wingman — Sales Copilot</title>
+  <title>Project Wingman: Open-Source Sales Copilot</title>
   <meta
     name="description"
-    content="An AI copilot that sits in your browser sidebar — pitch generation, live meeting coaching, objection handling, and post-call insights for B2B sales reps."
+    content="An open-source AI copilot that sits in your browser sidebar: pitch generation, live meeting coaching, objection handling, and post-call insights for B2B sales reps. MIT licensed, runs on your own LLM keys."
   />
-  <meta property="og:title" content="Project Wingman — Sales Copilot" />
-  <meta property="og:description" content="Pitch generation, live meeting coaching, objection handling, and post-call insights. Lives in your sidebar. Works on every deal." />
+  <meta property="og:title" content="Project Wingman: Open-Source Sales Copilot" />
+  <meta property="og:description" content="Live meeting coaching, grounded pitch generation, objection handling, and post-call insights. Open source, MIT licensed, and it runs on your own LLM keys. No Wingman server in the middle." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="og.png" />
+  <meta property="og:url" content="https://avinashgaurav.github.io/project-wingman-sales-copilot/" />
+  <meta property="og:image" content="https://avinashgaurav.github.io/project-wingman-sales-copilot/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Project Wingman: open-source sales copilot for your browser sidebar." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Project Wingman: Open-Source Sales Copilot" />
+  <meta name="twitter:description" content="Live meeting coaching, grounded pitch generation, objection handling. Open source, MIT licensed, runs on your own LLM keys." />
+  <meta name="twitter:image" content="https://avinashgaurav.github.io/project-wingman-sales-copilot/og.png" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,14 +44,14 @@
         <a href="#install">Install</a>
         <a href="https://github.com/avinashgaurav/project-wingman-sales-copilot">GitHub</a>
       </div>
-      <a class="nav-cta" href="#install">Install free</a>
+      <a class="nav-cta" href="#install">Open source</a>
     </div>
   </nav>
 
   <!-- ────────── HERO (SpaceX skin) ────────── -->
   <section id="hero" class="hero">
     <div class="container hero__inner">
-      <div class="hero__eyebrow">AI sales copilot · v1.0</div>
+      <div class="hero__eyebrow">Open-source AI sales copilot · MIT licensed</div>
       <h1 class="hero__headline">
         The copilot that<br />
         <em>closes deals with you</em>.
@@ -52,10 +60,12 @@
         Live coaching during the call. Pitch generation grounded in your knowledge base.
         Objection handling on tap. Post-call insights that actually feed your pipeline.
         Project Wingman sits in your Chrome sidebar and never asks you to switch tabs.
+        It is open source, you run it on your own infrastructure, and your calls go to
+        your LLM provider instead of ours. There is no Wingman server.
       </p>
       <div class="hero__cta-row">
         <a class="btn-pill btn-pill--primary" href="#install">
-          Install free
+          Run it yourself
           <span aria-hidden="true">→</span>
         </a>
         <a class="btn-pill btn-pill--ghost" href="#how">See how it works</a>
@@ -63,8 +73,8 @@
 
       <div class="hero__stats">
         <div>
-          <div class="hero__stat__value num">4×</div>
-          <div class="hero__stat__label">Faster pitch turnaround</div>
+          <div class="hero__stat__value num">MIT</div>
+          <div class="hero__stat__label">Licensed. Fork it, ship it, sell with it</div>
         </div>
         <div>
           <div class="hero__stat__value num">100%</div>
@@ -75,8 +85,8 @@
           <div class="hero__stat__label">Tabs to switch during a call</div>
         </div>
         <div>
-          <div class="hero__stat__value num">∞</div>
-          <div class="hero__stat__label">Objections handled</div>
+          <div class="hero__stat__value num">5</div>
+          <div class="hero__stat__label">ICP profiles tuned out of the box</div>
         </div>
       </div>
     </div>
@@ -85,7 +95,7 @@
   <!-- ────────── TRUST STRIP (Vercel skin) ────────── -->
   <section class="trust">
     <div class="container">
-      <div class="trust__label">Built for reps at every kind of company</div>
+      <div class="trust__label">Designed for B2B sales teams across</div>
       <div class="trust__row">
         <span class="trust__logo">SaaS</span>
         <span class="trust__logo">Fintech</span>
@@ -109,7 +119,7 @@
           <h2>Five agents coaching you in real time.</h2>
           <p>
             The second you join a Google Meet, Wingman starts listening. Five specialised
-            agents run on the rolling transcript — sentiment, agenda, coach, objection,
+            agents run on the rolling transcript: sentiment, agenda, coach, objection,
             and the validator that fact-checks every number you're about to say.
           </p>
           <ul class="feature__bullets">
@@ -127,7 +137,7 @@
             </li>
             <li>
               <span class="pill pill--edit">Objection</span>
-              <span>Three-agent council answers "they just said X, what do I say?"</span>
+              <span>Two-agent council answers "they just said X, what do I say?"</span>
             </li>
             <li>
               <span class="pill pill--done">Validator</span>
@@ -162,7 +172,7 @@
             <div class="mock-row">
               <span class="mock-row__time">14:32</span>
               <span class="mock-row__pill pill pill--edit">Objection</span>
-              <span class="mock-row__text">"Too expensive" — counter via case study #12 (Northwind, 4.2x ROI).</span>
+              <span class="mock-row__text">"Too expensive": counter via case study #12 (Northwind, 4.2x ROI).</span>
             </div>
             <div class="mock-row">
               <span class="mock-row__time">14:33</span>
@@ -182,7 +192,7 @@
         <div class="mesh-card">
           <div>
             <div class="mesh-card__eyebrow">Multi-agent pipeline</div>
-            <div class="mesh-card__heading">From "company name" to pitch deck in 38 seconds.</div>
+            <div class="mesh-card__heading">From "company name" to a fully sourced pitch deck in one pass.</div>
             <div class="mesh-card__copy">
               Retrieval → ICP personalization → brand compliance → fact-check validation.
               Every number cites a source from your KB. Banned hype words rejected automatically.
@@ -190,8 +200,8 @@
           </div>
           <div class="mesh-card__stat-row">
             <div>
-              <div class="mesh-card__stat__value num">38s</div>
-              <div class="mesh-card__stat__label">Avg pitch generation</div>
+              <div class="mesh-card__stat__value num">0</div>
+              <div class="mesh-card__stat__label">Unsourced numbers allowed</div>
             </div>
             <div>
               <div class="mesh-card__stat__value num">4</div>
@@ -208,7 +218,7 @@
           <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">02 · Pitch generation</div>
           <h2>Pitches grounded in your battle cards, never invented.</h2>
           <p>
-            Pick the ICP — CFO, CTO, VP Sales, RevOps, Generic — paste the prospect's site
+            Pick the ICP (CFO, CTO, VP Sales, RevOps, Generic), paste the prospect's site
             or LinkedIn, and the council does the rest. Output is presentation, one-pager,
             detailed doc, or analysis-style writeup. Every numeric claim cites a source_id.
             Validator rejects anything unsourced before it ever reaches you.
@@ -246,8 +256,8 @@
           <p>
             Every call ends with a structured summary: agenda coverage, sentiment timeline,
             objections raised, action items, sourced quotes. One click pushes it to Zoho as
-            a CRM note. Your Insights tab is the album-grid of every conversation you've had —
-            scannable, sortable, replayable.
+            a CRM note (Zoho today, HubSpot and Salesforce next on the roadmap). Your Insights
+            tab is the album-grid of every conversation you've had: scannable, sortable, replayable.
           </p>
           <ul class="feature__bullets">
             <li>
@@ -343,29 +353,33 @@
     <div class="container">
       <div class="how__heading">
         <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">From install to first close</div>
-        <h2>Three steps. Ten minutes. No tab switching.</h2>
+        <h2>Three steps. Your keys, your infrastructure.</h2>
         <p>
           Wingman runs entirely in your browser sidebar. No installs on the prospect side,
-          no shared zoom plugin to sell-in, no IT ticket. You install once, sign in with
-          Google, and you're coaching.
+          no shared zoom plugin to sell-in, no IT ticket. Because it is self-hosted, setup
+          is a developer task once: stand up the backend, plug in your own provider keys,
+          load the extension. There is no account to create and no login screen. v1.0 is
+          built for one rep running their own backend, not yet for a shared team deployment.
         </p>
       </div>
       <div class="how__grid">
         <div class="how__card">
           <div class="how__card__step">1</div>
-          <h3>Install the extension</h3>
+          <h3>Clone it and run the backend</h3>
           <p>
-            Drop the unpacked extension into Chrome (or grab it from the Web Store when we
-            ship). Sign in with your Google workspace account. The sidebar opens.
+            Clone the repo, run the setup script to generate your env files, and start the
+            FastAPI backend on your own machine or host. You need one LLM provider key to
+            begin. Gemini Flash has a free tier that is plenty.
           </p>
         </div>
         <div class="how__card">
           <div class="how__card__step">2</div>
-          <h3>Add your knowledge base</h3>
+          <h3>Load the extension, add your KB</h3>
           <p>
-            Upload case studies, battle cards, pricing decks, brand guides. Wingman chunks
-            and embeds them locally with Gemini, and indexes into an in-browser vector store.
-            Designers and PMMs can update without bothering eng.
+            Build the extension and load it unpacked in Chrome. A Web Store listing is
+            planned, not live yet. Then upload case studies, battle cards, pricing decks and
+            brand guides. Wingman chunks and embeds them with Gemini into an in-browser
+            vector store. Designers and PMMs can update it without bothering eng.
           </p>
         </div>
         <div class="how__card">
@@ -389,8 +403,9 @@
       </div>
       <h2>Stop juggling tabs.<br />Start closing deals.</h2>
       <p>
-        Wingman is open-source and runs entirely on infrastructure you control. Plug in
-        your own Anthropic, Gemini, Groq, or any OpenAI-compatible endpoint.
+        Wingman is open source and runs entirely on infrastructure you control. Plug in
+        your own Anthropic, Gemini, Groq, or any OpenAI-compatible endpoint. Try it, use it,
+        improve it: issues and pull requests are genuinely welcome, and the roadmap is public.
       </p>
       <div class="hero__cta-row" style="justify-content:center;">
         <a class="btn-pill btn-pill--primary" href="https://github.com/avinashgaurav/project-wingman-sales-copilot">
@@ -401,6 +416,11 @@
           Read the docs
         </a>
       </div>
+      <p>
+        A Chrome Web Store build is planned so reps do not need a developer to get started.
+        Want to know when it lands? <a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/subscription">Watch the repo</a>
+        and GitHub will tell you.
+      </p>
     </div>
   </section>
 
@@ -415,7 +435,7 @@
           </div>
           <p class="footer__tagline">
             An open-source sales copilot that runs on the LLM provider you already pay for.
-            Built by sales people who got tired of switching tabs.
+            Built solo and in the open by someone who got tired of switching tabs mid-call.
           </p>
         </div>
         <div class="footer__col">
@@ -441,6 +461,7 @@
           <ul>
             <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot">GitHub</a></li>
             <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/blob/main/README.md">README</a></li>
+            <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/blob/main/CONTRIBUTING.md">Contributing</a></li>
             <li><a href="https://github.com/avinashgaurav/project-wingman-sales-copilot/blob/main/LICENSE">License</a></li>
           </ul>
         </div>
