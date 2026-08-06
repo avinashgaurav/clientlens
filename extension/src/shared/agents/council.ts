@@ -270,7 +270,7 @@ async function icpPersonalizationAgent(
       : "Output is a CUSTOM DOC and the user did NOT describe it. AUTO-DETECT the right shape from the surrounding context: persona role, deal size, meeting stage, prospect research signals, and KB namespaces present. Pick ONE concrete shape (e.g. RFP response, security questionnaire reply, partner brief, exec memo, technical proposal) and execute it well. State the inferred shape in the first slide title.",
   };
 
-  const system = `You are the ICP Personalization Agent. Draft a ${icp.label}-tailored deck grounded ONLY in the cited sources. Use Project Wingman product facts verbatim (40 integrations, 14-day trial, ISO 27001 + SOC 2 Type II, <5 min setup, 14-day trial). Do NOT invent customer logos, savings figures, or quotes.
+  const system = `You are the ICP Personalization Agent. Draft a ${icp.label}-tailored deck grounded ONLY in the cited sources. Do NOT invent product facts, certifications, customer logos, savings figures, or quotes. Every factual and numeric claim must trace to a cited source; if the sources do not support a claim, omit it rather than approximating.
 
 FORMAT: ${format.replace(/_/g, " ")}. ${formatDirective[format]}
 
@@ -350,7 +350,10 @@ async function brandComplianceAgent(
     ...designSystem.map((e) => `DESIGN SYSTEM (${e.name}):\n${e.content.slice(0, 2000)}`),
   ].join("\n\n");
 
-  const fallbackVoice = `Project Wingman voice: direct, numbers-first, no hype. Avoid "revolutionary", "game-changing", "best-in-class", "world-class". Use "40 integrations", "14-day trial", "14-day trial", "read-only", "no agents".`;
+  // Voice guidance only. It must not carry product facts: any number here would
+  // reach the model with no source behind it, which is exactly what the
+  // validation agent exists to reject.
+  const fallbackVoice = `Project Wingman voice: direct, specific, no hype. Avoid "revolutionary", "game-changing", "best-in-class", "world-class", "synergy", "cutting-edge". Prefer a concrete sourced number over an adjective, and if the sources do not contain the number, leave it out entirely.`;
 
   const system = `You are the Brand Compliance Agent. Check the draft against Project Wingman voice and design system. Output strict JSON. ${KB_SAFETY_INSTRUCTION}`;
   const user = `GUIDANCE:
@@ -403,15 +406,10 @@ async function validationAgent(
   const user = `SOURCES (ground truth):
 ${summarizeKB(usedSources)}
 
-Baseline facts that are ALWAYS safe to use verbatim (from Project Wingman product):
-- 40 integrations across AWS + GCP + Azure
-- Slack, Jira and Google Drive integrations
-- A 14-day free trial
-- 30-day free pilot, pay-on-verified-savings
-- ISO 27001 + SOC 2 Type II
-- AES-256-GCM encryption, read-only IAM
-- <5 min to connect
-- Data residency: configurable
+The SOURCES above are the ONLY ground truth. There is no allowlist of claims that
+bypass this check: a validator that carries its own facts is not a validator.
+Certifications, compliance standards, savings percentages and pricing terms are
+claims like any other, and are "hallucinated" unless a cited source states them.
 
 DRAFT:
 ${JSON.stringify(draft.slides, null, 2)}

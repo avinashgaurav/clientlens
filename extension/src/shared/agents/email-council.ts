@@ -231,7 +231,9 @@ async function validationAgent(
   const user = `SOURCES:
 ${summarizeKB(used, 8)}
 
-Baseline facts always safe: 40 integrations; Slack, Jira and Google Drive integrations; a 14-day free trial; 14-day trial; ISO 27001 + SOC 2 Type II; read-only IAM.
+The SOURCES above are the only ground truth. No claim is exempt: certifications,
+compliance standards, savings percentages and pricing terms count as hallucinated
+unless a cited source states them.
 
 EMAIL:
 Subject: ${draft.subject}
