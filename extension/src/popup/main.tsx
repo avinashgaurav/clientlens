@@ -26,17 +26,9 @@ const STYLES = {
   } as React.CSSProperties,
   mark: {
     width: 32, height: 32,
-    background: "#F58549",
-    display: "flex", alignItems: "center", justifyContent: "center",
     flexShrink: 0,
-    borderRadius: 6,
-  } as React.CSSProperties,
-  markText: {
-    fontFamily: "'JetBrains Mono', monospace",
-    fontWeight: 800,
-    fontSize: 13,
-    color: "#0A0A0A",
-    letterSpacing: "-0.02em",
+    borderRadius: 7,
+    display: "block",
   } as React.CSSProperties,
   brand: { display: "flex", flexDirection: "column", lineHeight: 1 } as React.CSSProperties,
   brandName: {
@@ -128,9 +120,9 @@ function Popup() {
   return (
     <div style={STYLES.page}>
       <div style={STYLES.header}>
-        <div style={STYLES.mark}>
-          <span style={STYLES.markText}>PW</span>
-        </div>
+        {/* The mark is the shipped icon itself, so the popup can never drift
+            out of sync with the toolbar icon the way the old "PW" text did. */}
+        <img src="icons/icon128.png" alt="" width={32} height={32} style={STYLES.mark} />
         <div style={STYLES.brand}>
           <span style={STYLES.brandName}>Project Wingman</span>
           <span style={STYLES.brandEyebrow}>Sales Copilot</span>

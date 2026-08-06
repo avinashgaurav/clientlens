@@ -43,18 +43,15 @@ export function Header() {
         }}
       >
         <div className="flex items-center gap-2">
-          {/* Brand mark — orange square persists across every skin */}
-          <div
-            className="w-7 h-7 flex items-center justify-center"
-            style={{ background: "var(--brand-orange)", borderRadius: 4 }}
-          >
-            <span
-              className="font-mono font-bold"
-              style={{ fontSize: 11, color: "#0A0A0A", letterSpacing: "-0.02em" }}
-            >
-              PW
-            </span>
-          </div>
+          {/* Brand mark: the shipped icon itself, so the header can never drift
+              out of sync with the toolbar icon the way the old "PW" text did.
+              Persists across every skin. */}
+          <img
+            src="icons/icon128.png"
+            alt="Project Wingman"
+            className="w-7 h-7"
+            style={{ borderRadius: 6, display: "block", flexShrink: 0 }}
+          />
           <div className="flex flex-col leading-none">
             <span
               className="font-bold"
