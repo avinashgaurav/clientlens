@@ -57,3 +57,14 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # actions/deploy-pages defaults to a 600000 ms (10 minute) timeout, and
+          # then CANCELS the deployment it created. Measured on this repo,
+          # GitHub's Pages backend has been taking 9 to 10+ minutes to move a
+          # deployment from in_progress to success:
+          #   deployment 5779001342  in_progress 12:04:42 -> success  12:13:45  (9m03s, passed)
+          #   deployment 5780729921  in_progress 13:52:45 -> timeout  14:02:54  (10m00s, failed)
+          # So the default sits right on the boundary and every run is a coin
+          # flip. 30 minutes gives the queue room without leaving a job hanging
+          # for an unreasonable time.
+          timeout: 1800000
