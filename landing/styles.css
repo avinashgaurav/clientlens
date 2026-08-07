@@ -140,7 +140,10 @@ button { font: inherit; cursor: pointer; }
   width: 32px; height: 1px; background: #F58549;
 }
 .hero__headline {
-  font-size: clamp(40px, 8vw, 96px);
+  /* Was clamp(40px, 8vw, 96px). At 96px the headline ran to three lines and
+     filled the whole viewport, pushing the lede and both buttons below the
+     fold on a 1440x900 screen. Same uppercase register, sized to fit. */
+  font-size: clamp(38px, 6.2vw, 76px);
   font-weight: 700;
   line-height: 0.95;
   /* SpaceX signature: uppercase D-DIN-Bold with POSITIVE tracking
@@ -640,4 +643,18 @@ button { font: inherit; cursor: pointer; }
 }
 @media (max-width: 480px) {
   .album-grid { grid-template-columns: 1fr; }
+}
+
+/* ── small-screen legibility ───────────────────────────────────────────────
+   The uppercase mono labels are 11px, which is fine on a desktop but too tight
+   on a phone once letter-spacing is applied. Nudged to 12px below 640px. This
+   changes no colours, weights or layout. */
+@media (max-width: 640px) {
+  .hero__eyebrow,
+  .hero__stat__label,
+  .trust__label,
+  .eyebrow,
+  .mono {
+    font-size: 12px;
+  }
 }
