@@ -10,7 +10,7 @@ Generate personalized pitches, copilot live Google Meet calls in real time, hand
 [![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-4285F4)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![React](https://img.shields.io/badge/React-18-61dafb)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Vite-5-646cff)](https://vitejs.dev)
+[![Vite](https://img.shields.io/badge/Vite-8-646cff)](https://vitejs.dev)
 [![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8)](https://tailwindcss.com)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com)
 [![BYOL](https://img.shields.io/badge/LLM-Bring%20Your%20Own%20Keys-F58549)](#configuration)
@@ -30,7 +30,7 @@ Generate personalized pitches, copilot live Google Meet calls in real time, hand
 > | **LLMs** | Bring-your-own-keys — Anthropic · Gemini · Groq · OpenRouter · any OpenAI-compatible endpoint |
 > | **Privacy** | Local-first. The extension never holds an LLM key; keys live in the backend. Call data goes only to *your* configured provider, never to a Wingman server. |
 > | **License** | [MIT](LICENSE) |
-> | **Status** | v1.0, open beta. Self-hosted, load unpacked. No Chrome Web Store listing yet. |
+> | **Status** | [**v1.0.0**](https://github.com/avinashgaurav/project-wingman-sales-copilot/releases/tag/v1.0.0), open beta. Self-hosted, load unpacked. No Chrome Web Store listing yet. |
 > | **Auth** | **Not wired.** Single-user by design today: the sidebar provisions a local admin and the backend runs in `DEV_MODE`. Keep the backend off the public internet. See [Security model](#security-model). |
 
 Behind the sidebar sits a FastAPI backend with a multi-agent RAG pipeline, a Pinecone-backed knowledge base, Deepgram speech-to-text, and pluggable LLM providers. The product is deliberately **bring-your-own-keys**: the extension talks to the backend over HTTPS, and the backend proxies to the provider of your choice.
@@ -284,10 +284,34 @@ project-wingman-sales-copilot/
 │   │   └── migrations/                 # 001_initial, 002_llm_usage
 │   └── scripts/                        # test_openrouter, run_tests.sh
 │
+├── landing/                            # Static site, published to GitHub Pages
+│   ├── index.html                      # Deployed from the gh-pages branch, not
+│   ├── styles.css                      #   from Actions: see .github/workflows
+│   ├── favicon.svg                     # The mark, generated
+│   └── og.png                          # Social share card, generated
+│
+├── docs/
+│   ├── ux/                             # UX audits + skin fidelity notes
+│   └── launch/                         # Product Hunt launch material
+│       ├── product-hunt-kit.md         # Tagline, description, first comment, replies
+│       ├── demo-video-script.md        # 45-60s shot list
+│       ├── screenshot-checklist.md     # The six shots + a verified setup recipe
+│       ├── launch-checklist.md         # What is done vs what still needs a human
+│       └── assets/                     # Thumbnail, social card, gallery cards
+│
 ├── scripts/
 │   ├── setup_env.sh                    # Interactive .env generator
-│   └── lint-manifest.sh                # Pre-release manifest placeholder lint
+│   ├── lint-manifest.sh                # Pre-release manifest lint (reads dist/)
+│   ├── make_brand_assets.py            # Single source of truth for the identity:
+│   │                                   #   icons, favicon, og card, thumbnail
+│   └── make_gallery_cards.py           # Product Hunt gallery cards
 │
+├── .github/
+│   ├── workflows/deploy-landing.yml    # Publishes landing/ to gh-pages
+│   ├── ISSUE_TEMPLATE/                 # Bug + feature templates
+│   └── pull_request_template.md
+│
+├── CONTRIBUTING.md
 └── README.md
 ```
 
@@ -459,6 +483,19 @@ Set `VITE_MOCK_MODE=true` to develop the UI without burning LLM credits. All age
 
 Note: in this codebase mock mode still routes through the FastAPI backend's `/api/v1/llm/complete` endpoint (the backend has its own mock branch). Pure offline UI dev with no backend running is not yet supported.
 
+### Regenerating brand assets
+
+Every visual identity asset comes from one script, so the toolbar icon, the site favicon, the nav and footer marks, the share card and the Product Hunt thumbnail cannot drift apart:
+
+```bash
+python3 scripts/make_brand_assets.py     # icons, icon.svg, favicon.svg, og.png, thumbnail, social card
+python3 scripts/make_gallery_cards.py    # Product Hunt gallery cards
+```
+
+Requires Pillow. Small icon sizes are not scaled from one master: the glow tightens and the chevron thickens as the canvas shrinks, because a 16px icon inheriting the 128px blur loses its silhouette. Edit `TUNING` in the script if you change the mark.
+
+The popup and sidebar render `icons/icon128.png` directly rather than re-typing a text mark, which is how the product previously ended up showing three different identities at once.
+
 ### Type checking
 
 ```bash
@@ -528,7 +565,7 @@ The product handles OAuth tokens, transcripts, and an org-wide KB — security p
 |---|---|
 | Extension UI | React 18, TypeScript 5, Tailwind CSS 3, Zustand |
 | Extension runtime | Chrome Manifest V3, Service Worker, Offscreen API, AudioWorklet |
-| Build | Vite 5 |
+| Build | Vite 8 (rolldown), `@vitejs/plugin-react` 6 |
 | Backend framework | FastAPI, Pydantic v2 (Python 3.11) |
 | LLM providers | Anthropic Claude, Google Gemini, Groq (Llama 3.3 70B), OpenRouter (any model), any OpenAI-compatible endpoint |
 | Embeddings | Gemini `text-embedding-004` |
@@ -547,6 +584,7 @@ The product handles OAuth tokens, transcripts, and an org-wide KB — security p
 - ~~Email council UI surface~~ — **shipped**: the Email mode (Generate tab) drives the council pipeline and renders a copy-ready draft
 - ~~One-shot "what do I say" objection composer~~ — **shipped**: inline `[N]` citation chips, `▾ Why this answer` disclosure, feature-flag gated, telemetry wired (#117 / #118 / #119)
 - **Wire real authentication (top priority).** Call `signInWithGoogle()` on first run instead of provisioning a local admin, exchange the Google identity for a Supabase session so `backendJwt()` stops needing the `DEV_MODE` bypass, and make the `rbac/roles.py` matrix actually constrain callers. Until this lands, a shared team deployment is not safe and the backend must stay off the public internet.
+- **Error boundary around the side panel** ([#129](https://github.com/avinashgaurav/project-wingman-sales-copilot/issues/129)). A single render error currently unmounts the whole panel to a blank surface, which is indistinguishable from a broken install. Worth closing before any Web Store listing
 - Streamed objection response (`respondAgent` over `callStream`; needs an agent-contract refactor for the JSON trailer — non-trivial)
 - Move Objection out of the Generate-tab mode switcher (it's a mid-call workflow, not a Generate sub-mode) + keyboard shortcut for selected-text capture
 - Auto-end Live Meeting Copilot session when the Meet tab closes (saves the "rep forgot to click End" footgun)
@@ -563,13 +601,23 @@ The backlog with concrete acceptance criteria lives in [#113 — workflow + UX a
 
 ## Contributing
 
-PRs welcome. Before opening one:
+PRs welcome, including small ones. [**`CONTRIBUTING.md`**](CONTRIBUTING.md) has the full guide: local setup, the two things that trip everyone up, what to put in a PR, and an honest list of what I will probably say no to.
 
-1. Run `npm run type-check` and `npm run lint` in `extension/`
-2. Run `bash scripts/lint-manifest.sh` to ensure no placeholder strings
-3. Run `cd extension && npm run build` to confirm the production bundle builds clean
+The short version. Before opening a PR:
 
-Bug reports and feature requests via GitHub Issues.
+```bash
+cd extension
+npm run type-check      # tsc --noEmit
+npm run lint            # eslint src
+npm run build           # fails on unresolved manifest placeholders
+cd .. && bash scripts/lint-manifest.sh
+```
+
+There is no CI on this repo yet, so those four are on you.
+
+**Where to start:** [#113](https://github.com/avinashgaurav/project-wingman-sales-copilot/issues/113) is the workflow and UX backlog with acceptance criteria, and the items are largely independent. Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should.
+
+Bug reports and feature requests go through the issue templates. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman-sales-copilot/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman-sales-copilot/security/advisories/new) instead. This project handles OAuth tokens, call transcripts and an org-wide knowledge base.
 
 ---
 
