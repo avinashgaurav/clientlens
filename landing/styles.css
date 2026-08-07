@@ -1,643 +1,221 @@
-/*
- * Project Wingman — Landing Page Styles
- * ======================================
- * Multi-skin page layered as bands:
- *   1. Hero band       → SpaceX (pure black, uppercase D-DIN substitute, ghost pill CTA)
- *   2. Trust strip     → Vercel (white canvas, monochrome logo wall)
- *   3. Feature bands   → Vercel + Cursor + Spotify (skin per band)
- *   4. How-it-works    → PostHog (cream canvas, white cards)
- *   5. Closing CTA     → SpaceX echo (black, ghost pill)
- *   6. Footer          → Linear (deep-dark minimal)
- *
- * One file, no build step, no dependencies. Token vocabulary inlined.
- */
+/* Project Wingman landing page.
+   One system, taken from the product mark: navy field, orange glow, white
+   chevron. The previous version stitched together seven different companies'
+   design languages (SpaceX hero, Vercel strip, Cursor feature, Spotify grid,
+   PostHog steps, Linear footer), which is why it read as a moodboard. */
 
-/* ─────────────────────────── Reset ─────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+:root {
+  --void: #0B0E17;
+  --field: #0E111C;
+  --panel: #151A28;
+  --panel-2: #1B2133;
+  --line: #262C3E;
+  --ink: #FFFFFF;
+  --dim: #9096AA;
+  /* #7B84A0 rather than something dimmer: this carries real body copy
+     (the hero note, the rejected-claim line, the footer), and anything
+     darker fails WCAG AA at 4.5:1 on both the field and the panels. */
+  --faint: #7B84A0;
+  --accent: #F58549;
+  --accent-dim: rgba(245, 133, 73, 0.14);
+  --ok: #4ADE80;
+
+  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --max: 1080px;
+  --r: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation: none !important; transition: none !important; }
+}
+
 body {
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-feature-settings: 'cv11', 'ss03', 'ss01';
-  letter-spacing: -0.02em;
-  background: #000000;
-  color: #FFFFFF;
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
-img, svg { display: block; max-width: 100%; }
-a { color: inherit; text-decoration: none; }
-button { font: inherit; cursor: pointer; }
 
-.mono { font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; }
-.num { font-variant-numeric: tabular-nums; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 
-/* ─────────────────────────── Layout ─────────────────────────── */
-.container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 24px; }
-.band { padding: 96px 0; position: relative; }
-@media (max-width: 768px) { .band { padding: 64px 0; } }
-@media (max-width: 480px) { .band { padding: 48px 0; } }
+/* ── type ─────────────────────────────────────────────────────────────────── */
 
-.eyebrow {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 11px;
-  font-weight: 600;
+h1, h2, h3 { line-height: 1.05; letter-spacing: -0.035em; font-weight: 800; }
+h1 { font-size: clamp(42px, 7.2vw, 82px); }
+h2 { font-size: clamp(30px, 4.4vw, 46px); letter-spacing: -0.03em; }
+h3 { font-size: 19px; letter-spacing: -0.02em; font-weight: 700; }
+
+.mono {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: rgba(255,255,255,0.5);
-}
-.eyebrow--light { color: #888888; }
-
-/* ─────────────────────────── Top nav (Vercel-style on dark) ─── */
-.topnav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  height: 64px;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.topnav__inner {
-  height: 100%; display: flex; align-items: center; justify-content: space-between;
-}
-.brand { display: flex; align-items: center; gap: 10px; }
-/* The mark is the favicon SVG itself, so nav, footer, browser tab and the
-   shipped extension icon can never drift apart. */
-.brand__mark {
-  width: 28px; height: 28px;
-  display: block;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-.brand__name {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #FFFFFF;
-}
-.nav-links {
-  display: flex; align-items: center; gap: 28px;
-}
-.nav-links a {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.7);
-  transition: color 140ms ease;
-}
-.nav-links a:hover { color: #FFFFFF; }
-/* Ghost-outlined to match the strict SpaceX hero — the nav rides over the
-   black hero band, so a ghost pill reads more SpaceX than a filled-orange
-   mark. (The hero band itself still has two pills — this isn't strict
-   "single CTA per band"; it's the closest fit without dropping a link.) */
-.nav-cta {
-  background: transparent;
-  color: #FFFFFF;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  font-size: 13px;
-  font-weight: 700;
-  border: 1px solid rgba(255,255,255,0.4);
-  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
-}
-.nav-cta:hover { background: rgba(255,255,255,0.06); border-color: #FFFFFF; transform: translateY(-1px); }
-@media (max-width: 768px) {
-  .nav-links { display: none; }
 }
 
-/* ─────────────────────────── HERO (SpaceX) ─────────────────── */
-.hero {
-  background: #000000;
-  min-height: 100vh;
-  padding: 160px 0 96px;
-  position: relative;
-  display: flex; align-items: center;
-  overflow: hidden;
+.accent { color: var(--accent); }
+.dim { color: var(--dim); }
+
+/* ── nav ──────────────────────────────────────────────────────────────────── */
+
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(14, 17, 28, 0.82);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
 }
+.nav__in {
+  display: flex; align-items: center; gap: 16px;
+  height: 62px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand__mark { width: 28px; height: 28px; display: block; border-radius: 7px; flex-shrink: 0; }
+.brand__name { font-weight: 700; letter-spacing: -0.03em; font-size: 16px; }
+.nav__spacer { flex: 1; }
+.nav a.nav__link {
+  color: var(--dim); text-decoration: none; font-size: 14.5px; font-weight: 500;
+}
+.nav a.nav__link:hover { color: var(--ink); }
+@media (max-width: 620px) { .nav__link { display: none; } }
+
+/* ── buttons ──────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 20px; border-radius: 8px;
+  font-size: 15px; font-weight: 600; text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: var(--accent); color: #10131C; }
+.btn--primary:hover { background: #FF9861; }
+.btn--ghost { border-color: var(--line); color: var(--ink); }
+.btn--ghost:hover { border-color: var(--faint); background: var(--panel); }
+.btn--sm { padding: 9px 15px; font-size: 14px; }
+
+/* ── hero ─────────────────────────────────────────────────────────────────── */
+
+.hero { position: relative; padding: 104px 0 96px; overflow: hidden; }
 .hero::before {
-  /* Atmospheric backdrop — radial wash centred near top-right.
-     SpaceX uses photography here; we use a tonal radial wash so the
-     page reads cinematic without a hero image asset to maintain. */
-  content: "";
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 80% 30%, rgba(245,133,73,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(42,68,148,0.18) 0%, transparent 60%);
+  content: ""; position: absolute; inset: auto auto -46% -18%;
+  width: 900px; height: 900px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(245,133,73,0.30) 0%, rgba(245,133,73,0.08) 44%, transparent 70%);
   pointer-events: none;
 }
-.hero__inner { position: relative; z-index: 1; max-width: 1100px; }
-.hero__eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #F58549;
-  margin-bottom: 24px;
-  display: flex; align-items: center; gap: 12px;
+.hero > * { position: relative; }
+.hero__tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--dim); margin-bottom: 26px;
 }
-.hero__eyebrow::before {
-  content: ""; display: inline-block;
-  width: 32px; height: 1px; background: #F58549;
+.hero__tag b { color: var(--accent); font-weight: 600; }
+.hero h1 { max-width: 15ch; }
+.hero__sub {
+  font-size: clamp(18px, 2.2vw, 21px); color: var(--dim);
+  max-width: 54ch; margin: 24px 0 34px;
 }
-.hero__headline {
-  font-size: clamp(40px, 8vw, 96px);
-  font-weight: 700;
-  line-height: 0.95;
-  /* SpaceX signature: uppercase D-DIN-Bold with POSITIVE tracking
-     (+1.6px @ 80px = +0.02em). D-DIN isn't web-available, so the existing
-     display family is uppercased with the positive tracking applied.
-     This overrides the earlier title-case softening on purpose — the
-     hero now reads as the strict SpaceX "aerospace" register. */
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: #FFFFFF;
-  margin-bottom: 24px;
-}
-.hero__headline em {
-  /* SpaceX uses no accent — black/white/photography only. The orange
-     gradient is dropped so the headline is pure white. */
-  font-style: normal;
-  color: #FFFFFF;
-}
-.hero__lede {
-  font-size: clamp(16px, 1.8vw, 20px);
-  line-height: 1.5;
-  color: rgba(255,255,255,0.7);
-  max-width: 640px;
-  margin-bottom: 40px;
-}
-.hero__cta-row {
-  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-}
-.btn-pill {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 14px 28px;
-  border-radius: 9999px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  border: 1px solid transparent;
-  transition: filter 140ms ease, transform 140ms ease, background 140ms ease;
-}
-.btn-pill--primary {
-  background: #F58549; color: #0A0A0A;
-}
-.btn-pill--primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
-.btn-pill--ghost {
-  background: transparent; color: #FFFFFF;
-  border-color: rgba(255,255,255,0.4);
-}
-.btn-pill--ghost:hover { background: rgba(255,255,255,0.06); border-color: #FFFFFF; }
+.hero__cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero__note { margin-top: 22px; color: var(--faint); font-size: 14px; }
 
-/* SpaceX signature: "single ghost-outlined pill CTA per band, never
-   filled." Scoped to the hero — the filled-orange primary becomes a
-   ghost-outlined pill so the hero matches the strict SpaceX convention.
-   Other bands keep their filled CTAs. */
-.hero .btn-pill--primary {
-  background: transparent;
-  color: #FFFFFF;
-  border-color: rgba(255,255,255,0.4);
-}
-.hero .btn-pill--primary:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: #FFFFFF;
-  filter: none;
-}
+/* ── generic section ──────────────────────────────────────────────────────── */
 
-.hero__stats {
-  margin-top: 80px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
-  padding-top: 40px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-.hero__stat__value {
-  font-size: 36px; font-weight: 800; line-height: 1;
-  letter-spacing: -0.03em;
-  color: #FFFFFF;
-  font-variant-numeric: tabular-nums;
-}
-.hero__stat__label {
-  margin-top: 8px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: rgba(255,255,255,0.5);
-}
-@media (max-width: 768px) {
-  .hero__stats { grid-template-columns: repeat(2, 1fr); }
-}
+.sec { padding: 84px 0; border-top: 1px solid var(--line); }
+.sec__label { color: var(--accent); margin-bottom: 18px; }
+.sec__lead { color: var(--dim); max-width: 58ch; margin-top: 18px; font-size: 18px; }
 
-/* ─────────────────────────── Trust strip (Vercel) ──────────── */
-.trust {
-  background: #FAFAFA;
-  color: #4D4D4D;
-  padding: 48px 0;
-  border-top: 1px solid #EBEBEB;
-  border-bottom: 1px solid #EBEBEB;
-}
-.trust__label {
-  text-align: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #888888;
-  margin-bottom: 24px;
-}
-.trust__row {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 48px;
-  opacity: 0.7;
-}
-.trust__logo {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #171717;
-  font-family: 'Inter', sans-serif;
-}
+/* ── the loop: three beats ────────────────────────────────────────────────── */
 
-/* ─────────────────────────── FEATURE 1 — Live copilot (Cursor) */
-.feature-cursor {
-  background: #F7F7F4;
-  color: #26251E;
+.beats { display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr); margin-top: 44px; }
+@media (max-width: 800px) { .beats { grid-template-columns: 1fr; } }
+.beat {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 26px 24px 28px;
 }
-.feature__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: center;
-}
-.feature__copy h2 {
-  font-size: clamp(28px, 4vw, 48px);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  margin-bottom: 16px;
-}
-.feature__copy p {
-  font-size: 18px;
-  line-height: 1.5;
-  color: #5A5852;
-  margin-bottom: 16px;
-}
-.feature__bullets {
-  list-style: none; padding: 0; margin: 24px 0 0;
-}
-.feature__bullets li {
-  padding: 12px 0;
-  border-top: 1px solid #E6E5E0;
-  display: flex; align-items: flex-start; gap: 12px;
-  font-size: 15px;
-  line-height: 1.5;
-}
-.feature__bullets li:last-child { border-bottom: 1px solid #E6E5E0; }
-.feature__bullets .pill {
-  flex-shrink: 0;
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 9999px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #26251E;
-}
-.pill--thinking { background: #DFA88F; }
-.pill--grep { background: #9FC9A2; }
-.pill--read { background: #9FBBE0; }
-.pill--edit { background: #C0A8DD; }
-.pill--done { background: #C08532; color: #FFFFFF; }
+.beat__when { color: var(--accent); margin-bottom: 14px; }
+.beat p { color: var(--dim); font-size: 15.5px; margin-top: 8px; }
 
-/* Cursor-style mock IDE/sidebar card */
-.mock-sidebar {
-  background: #FFFFFF;
-  border: 1px solid #E6E5E0;
-  border-radius: 12px;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 12px 40px rgba(38,37,30,0.06);
-}
-.mock-sidebar__head {
-  background: #FAFAF7;
-  border-bottom: 1px solid #E6E5E0;
-  padding: 12px 16px;
-  display: flex; align-items: center; gap: 8px;
-  font-size: 12px;
-}
-.mock-sidebar__dot {
-  width: 8px; height: 8px; border-radius: 9999px; background: #1F8A65;
-  box-shadow: 0 0 0 3px rgba(31,138,101,0.2);
-}
-.mock-sidebar__body { padding: 20px; }
-.mock-row {
-  display: flex; gap: 12px; align-items: flex-start;
-  padding: 12px 0;
-  border-bottom: 1px solid #EFEEE8;
-  font-size: 13px;
-  line-height: 1.5;
-}
-.mock-row:last-child { border-bottom: none; }
-.mock-row__time {
-  flex-shrink: 0;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: #807D72;
-  width: 48px;
-}
-.mock-row__pill { flex-shrink: 0; }
-.mock-row__text { color: #26251E; }
+/* ── agents ───────────────────────────────────────────────────────────────── */
 
-/* ─────────────────────────── FEATURE 2 — Pitch (Vercel mesh) ─ */
-.feature-vercel {
-  background: #FFFFFF;
-  color: #171717;
-  position: relative;
+.agents { display: grid; gap: 12px; margin-top: 40px; }
+.agent {
+  display: grid; grid-template-columns: 128px 1fr; gap: 22px; align-items: center;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 16px 20px;
 }
-.feature-vercel .feature__grid { grid-template-columns: 1fr 1fr; }
-.feature-vercel .feature__copy p { color: #4D4D4D; }
+@media (max-width: 640px) {
+  .agent { grid-template-columns: 1fr; gap: 8px; }
+}
+.agent__tag {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em;
+  color: var(--accent); background: var(--accent-dim);
+  padding: 6px 0; border-radius: 5px; text-align: center;
+}
+.agent__what { font-size: 16px; }
 
-.mesh-card {
-  position: relative;
-  background: #171717;
-  color: #FFFFFF;
-  border-radius: 16px;
-  padding: 32px;
-  overflow: hidden;
-  min-height: 360px;
-  display: flex; flex-direction: column; justify-content: space-between;
-}
-.mesh-card::before {
-  content: "";
-  position: absolute; inset: -40%;
-  background:
-    radial-gradient(circle at 30% 30%, #007CF0 0%, transparent 35%),
-    radial-gradient(circle at 70% 30%, #00DFD8 0%, transparent 35%),
-    radial-gradient(circle at 30% 70%, #7928CA 0%, transparent 35%),
-    radial-gradient(circle at 70% 70%, #FF0080 0%, transparent 35%);
-  filter: blur(60px);
-  opacity: 0.35;
-  z-index: 0;
-}
-.mesh-card > * { position: relative; z-index: 1; }
-.mesh-card__eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.14em;
-  color: rgba(255,255,255,0.6);
-  margin-bottom: 8px;
-}
-.mesh-card__heading {
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 16px;
-}
-.mesh-card__copy {
-  font-size: 14px;
-  line-height: 1.5;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 24px;
-}
-.mesh-card__stat-row {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.12);
-}
-.mesh-card__stat__value {
-  font-size: 24px; font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.mesh-card__stat__label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(255,255,255,0.5);
-  margin-top: 4px;
-}
+/* ── receipt (the citation demo) ──────────────────────────────────────────── */
 
-/* ─────────────────────────── FEATURE 3 — Insights (Spotify) ── */
-.feature-spotify {
-  background: #121212;
-  color: #FFFFFF;
+.receipt {
+  margin-top: 40px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 28px 26px;
 }
-.feature-spotify .feature__copy p { color: #B3B3B3; }
-.feature-spotify .feature__bullets li { border-color: #2A2A2A; }
-.feature-spotify .feature__bullets li:last-child { border-bottom-color: #2A2A2A; }
-.feature-spotify .pill { background: #1ED760; color: #0A0A0A; }
+.receipt__line { font-size: clamp(17px, 2vw, 21px); line-height: 1.55; }
+.chip {
+  display: inline-block; background: var(--accent); color: #10131C;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px; vertical-align: 2px; margin-left: 4px;
+}
+.receipt__src {
+  margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line);
+  font-family: var(--mono); font-size: 12.5px; color: var(--dim); line-height: 1.7;
+}
+.receipt__src b { color: var(--ok); font-weight: 500; }
+.receipt__killed { margin-top: 10px; color: var(--faint); }
+.receipt__killed s { color: var(--faint); }
 
-.album-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-.album-tile {
-  background: #181818;
-  border-radius: 8px;
-  padding: 16px;
-  transition: background 200ms ease, transform 200ms ease;
-  cursor: pointer;
-  box-shadow: rgba(0,0,0,0.3) 0px 8px 8px;
-}
-.album-tile:hover { background: #1F1F1F; transform: translateY(-2px); }
-.album-tile__art {
-  position: relative;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #252525 0%, #1F1F1F 100%);
-  border-radius: 4px;
-  margin-bottom: 12px;
-  display: flex; align-items: flex-end;
-  padding: 12px;
-}
-.album-tile__play {
-  position: absolute; bottom: 12px; right: 12px;
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: #1ED760;
-  color: #000000;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  box-shadow: rgba(0,0,0,0.5) 0px 8px 24px;
-}
-.album-tile__company { font-size: 16px; font-weight: 700; }
-.album-tile__prospect { font-size: 12px; color: #B3B3B3; margin-top: 2px; }
-.album-tile__bar {
-  margin-top: 12px;
-  height: 4px; background: #2A2A2A; border-radius: 9999px;
-  overflow: hidden;
-}
-.album-tile__bar__fill {
-  height: 100%; background: #1ED760;
-}
-.album-tile__meta {
-  margin-top: 8px;
-  display: flex; justify-content: space-between;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: #7C7C7C;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
+/* ── honest list ──────────────────────────────────────────────────────────── */
 
-/* ─────────────────────────── How it works (PostHog) ────────── */
-.how {
-  background: #EEEFE9;
-  color: #23251D;
+.honest { display: grid; gap: 14px; margin-top: 40px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 800px) { .honest { grid-template-columns: 1fr; } }
+.honest__item {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 18px 20px;
 }
-.how__heading {
-  text-align: center;
-  margin-bottom: 64px;
-}
-.how__heading h2 {
-  font-size: clamp(32px, 5vw, 56px);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-  margin-bottom: 16px;
-}
-.how__heading p {
-  font-size: 18px;
-  color: #4D4F46;
-  max-width: 640px;
-  margin: 0 auto;
-}
-.how__grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-.how__card {
-  background: #FFFFFF;
-  border: 1px solid #BFC1B7;
-  border-radius: 6px;
-  padding: 32px 24px;
-  position: relative;
-}
-.how__card__step {
-  position: absolute; top: -16px; left: 24px;
-  width: 32px; height: 32px;
-  background: #F58549;
-  color: #0A0A0A;
-  border-radius: 6px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  font-weight: 800;
-}
-.how__card h3 {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 16px 0 12px;
-}
-.how__card p {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #4D4F46;
-}
+.honest__x { color: var(--accent); font-family: var(--mono); font-size: 15px; line-height: 1.5; }
+.honest__item p { font-size: 15.5px; color: var(--dim); }
+.honest__item b { color: var(--ink); font-weight: 600; }
 
-/* ─────────────────────────── Closing CTA (SpaceX echo) ─────── */
-.cta {
-  background: #000000;
-  color: #FFFFFF;
-  text-align: center;
-  padding: 128px 0;
-  position: relative;
-  overflow: hidden;
-}
-.cta::before {
-  content: "";
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(245,133,73,0.2) 0%, transparent 60%);
-}
-.cta__inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 0 24px; }
-.cta h2 {
-  font-size: clamp(36px, 6vw, 72px);
-  font-weight: 800;
-  line-height: 1.0;
-  letter-spacing: -0.04em;
-  margin-bottom: 24px;
-}
-.cta p {
-  font-size: 18px;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 40px;
-}
-/* SpaceX-echo band: ghost the filled-orange CTA to match the hero. */
-.cta .btn-pill--primary {
-  background: transparent;
-  color: #FFFFFF;
-  border-color: rgba(255,255,255,0.4);
-}
-.cta .btn-pill--primary:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: #FFFFFF;
-}
+/* ── close ────────────────────────────────────────────────────────────────── */
 
-/* ─────────────────────────── Footer (Linear) ───────────────── */
-.footer {
-  background: #010102;
-  color: #8A8F98;
-  padding: 64px 0 32px;
-  border-top: 1px solid #23252A;
+.close { padding: 104px 0 96px; text-align: center; position: relative; overflow: hidden; }
+.close::before {
+  content: ""; position: absolute; inset: -60% -20% auto -20%;
+  height: 760px; background: radial-gradient(ellipse at center, rgba(245,133,73,0.16), transparent 62%);
+  pointer-events: none;
 }
-.footer__grid {
-  display: grid;
-  grid-template-columns: 2fr repeat(3, 1fr);
-  gap: 48px;
-  margin-bottom: 48px;
-}
-.footer__col h4 {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #F7F8F8;
-  margin-bottom: 16px;
-}
-.footer__col ul { list-style: none; padding: 0; }
-.footer__col li { margin-bottom: 10px; }
-.footer__col a {
-  font-size: 14px;
-  color: #8A8F98;
-  transition: color 140ms ease;
-}
-.footer__col a:hover { color: #F7F8F8; }
-.footer__brand {
-  margin-bottom: 16px;
-  display: flex; align-items: center; gap: 10px;
-}
-.footer__tagline {
-  font-size: 13px;
-  color: #62666D;
-  line-height: 1.5;
-  max-width: 280px;
-}
-.footer__legal {
-  padding-top: 24px;
-  border-top: 1px solid #23252A;
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 12px;
-  color: #62666D;
-}
-@media (max-width: 768px) {
-  .footer__grid { grid-template-columns: 1fr 1fr; }
-  .footer__legal { flex-direction: column; gap: 12px; }
-}
+.close > * { position: relative; }
+.close h2 { max-width: 18ch; margin: 0 auto; }
+.close__sub { color: var(--dim); margin: 22px auto 32px; max-width: 46ch; }
+.close__cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.close__note { margin-top: 26px; color: var(--faint); font-size: 14px; }
+.close__note a { color: var(--dim); }
 
-/* ─────────────────────────── Responsive feature grids ──────── */
-@media (max-width: 900px) {
-  .feature__grid { grid-template-columns: 1fr !important; gap: 32px; }
-  .how__grid { grid-template-columns: 1fr; }
-  .album-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 480px) {
-  .album-grid { grid-template-columns: 1fr; }
-}
+/* ── footer ───────────────────────────────────────────────────────────────── */
+
+.foot { border-top: 1px solid var(--line); padding: 30px 0 44px; }
+.foot__in { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.foot a { color: var(--dim); text-decoration: none; font-size: 14px; }
+.foot a:hover { color: var(--ink); }
+.foot__spacer { flex: 1; }
+.foot__legal { color: var(--faint); font-size: 13px; }
+
+a { color: var(--accent); }
+::selection { background: var(--accent); color: #10131C; }
