@@ -92,6 +92,29 @@ export default function App() {
     }
   }, [user, setUser]);
 
+  // Onboarding completeness. MUST stay above the early return below: React
+  // requires an identical hook sequence on every render, and this state used to
+  // sit ~70 lines further down, after `if (!user) return null`. The first render
+  // has no user, so it bailed early and ran 8 hooks; the effect above then set
+  // the local user, and the re-render reached 10. React threw "Rendered more
+  // hooks than during the previous render" and, with no error boundary, the
+  // whole side panel rendered blank on first open.
+  const [onboardingDone, setOnboardingDone] = useState(false);
+  useEffect(() => {
+    try {
+      const s = getSettings();
+      const keyOk =
+        !!s.geminiKey ||
+        !!s.anthropicKey ||
+        !!s.groqKey ||
+        (!!s.customBaseUrl && !!s.customModel);
+      const anyIntegration = Object.values(s.integrations).some((c) => c.connected);
+      setOnboardingDone(keyOk && anyIntegration && kbCount > 0);
+    } catch {
+      setOnboardingDone(false);
+    }
+  }, [kbCount]);
+
   if (!user) return null;
 
   const hasKBAccess = user.role === "admin" || user.role === "pmm" || user.role === "designer";
@@ -158,26 +181,12 @@ export default function App() {
 
   // #50 / 2.3: Onboarding completion state drives WHERE the checklist
   // renders (top when incomplete = action, bottom when complete = reference).
-  // Computed here in App.tsx to avoid pulling internal component state
-  // out. DUPLICATION ALERT: this mirrors the step definitions inside
+  // The `onboardingDone` state and its effect live above the `if (!user)`
+  // early return, because hooks may not sit below a conditional return.
+  // DUPLICATION ALERT: that computation mirrors the step definitions inside
   // OnboardingChecklist.tsx — if those change (e.g. a new required step is
-  // added), update this computation too. A future PR can extract a shared
+  // added), update it too. A future PR can extract a shared
   // useOnboardingState() hook if the duplication becomes painful.
-  const [onboardingDone, setOnboardingDone] = useState(false);
-  useEffect(() => {
-    try {
-      const s = getSettings();
-      const keyOk =
-        !!s.geminiKey ||
-        !!s.anthropicKey ||
-        !!s.groqKey ||
-        (!!s.customBaseUrl && !!s.customModel);
-      const anyIntegration = Object.values(s.integrations).some((c) => c.connected);
-      setOnboardingDone(keyOk && anyIntegration && kbCount > 0);
-    } catch {
-      setOnboardingDone(false);
-    }
-  }, [kbCount]);
 
   return (
     // Outer chrome uses the brand skin — header, tab strip, error banner.
