@@ -217,6 +217,49 @@ def make_og() -> None:
     print(f"wrote {OG_PATH.relative_to(REPO)} ({W}x{H}, {OG_PATH.stat().st_size/1024:.0f} KB)")
 
 
+def make_github_social() -> None:
+    """GitHub repo social preview. GitHub renders these at 1280x640 and crops
+    anything else, so a square icon would be letterboxed. Kept text-light because
+    the card is often shown small in a Slack or X unfurl."""
+    sans = find_font("Inter.ttf", "HelveticaNeue.ttc", "Helvetica.ttc")
+    mono = find_font("JetBrainsMono-Regular.ttf", "JetBrainsMono.ttf", "Menlo.ttc")
+    W, H = 1280, 640
+
+    img = Image.new("RGB", (W, H), NAVY_BOT)
+    d = ImageDraw.Draw(img)
+    for y in range(H):
+        t = y / (H - 1)
+        d.line([(0, y), (W, y)],
+               fill=tuple(round(NAVY_TOP[c] + (NAVY_BOT[c] - NAVY_TOP[c]) * t) for c in range(3)))
+    glow = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(glow).ellipse([-160, H - 300, 660, H + 320], fill=120)
+    glow = glow.filter(ImageFilter.GaussianBlur(150))
+    img = Image.composite(Image.new("RGB", (W, H), ORANGE), img, glow.point(lambda v: v // 2))
+    d = ImageDraw.Draw(img)
+
+    m = render_mark(104)
+    img.paste(m, (80, 118), m)
+
+    d.text((80, 256), "Project Wingman", font=load(sans, 68, "Bold"), fill=WHITE)
+    d.text((80, 340), "Open-source AI sales copilot for your browser sidebar.",
+           font=load(sans, 29, "Regular"), fill=DIM)
+
+    rail_y = H - 108
+    d.line([(80, rail_y), (W - 80, rail_y)], fill=RULE, width=1)
+    rail = load(mono, 19)
+    x = 80
+    for i, fact in enumerate(["MIT LICENSED", "BRING YOUR OWN KEYS", "NO WINGMAN SERVER"]):
+        d.text((x, rail_y + 32), fact, font=rail, fill=WHITE if i == 0 else DIM)
+        x += d.textlength(fact, font=rail) + 44
+        if i < 2:
+            d.text((x - 28, rail_y + 32), "·", font=rail, fill=RULE)
+
+    p = REPO / "docs" / "launch" / "assets" / "github-social-1280x640.png"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    img.save(p, "PNG", optimize=True)
+    print(f"wrote {p.relative_to(REPO)} ({W}x{H}, {p.stat().st_size/1024:.0f} KB)")
+
+
 def make_thumbnail() -> None:
     """Product Hunt thumbnail: the mark, full bleed, with the wordmark under it."""
     S = 240
@@ -243,6 +286,7 @@ def main() -> None:
     write_svg(FAVICON_PATH, 32, 52)  # heavier stroke so it survives 16px rendering
     make_og()
     make_thumbnail()
+    make_github_social()
 
 
 if __name__ == "__main__":
