@@ -62,6 +62,14 @@ All of that is now stated plainly: the security section leads with it, the RBAC 
 ## BLOCKERS still open, and only you can close them
 
 - [ ] **BLOCKER: record the demo video.** See [`demo-video-script.md`](demo-video-script.md). 45 to 60 seconds, shot list included. This needs a configured extension in a real Meet call with a second participant, which is why it cannot be produced for you. It matters more than everything else on this list combined.
+
+  > **The launch film does not close this.** `assets/launch-video.mp4` is a 31s designed
+  > brand film: the sidebar in it is the landing page's `.mock-sidebar` markup rebuilt and
+  > animated, not a screen recording of a real call. It is the right asset for the README
+  > header, social posts, and the PH gallery *behind* real screenshots. It is the wrong
+  > asset for proving the product works, and a viewer who looks closely will read it as a
+  > mockup, which is exactly the trust cost `product-hunt-kit.md` warns about for the
+  > gallery cards. The real capture is still required.
 - [ ] **BLOCKER: capture the six product screenshots.** See [`screenshot-checklist.md`](screenshot-checklist.md). Shots 1, 2, and 3 are the minimum: live coaching, the citation hover, and the post-call summary.
 - [ ] **BLOCKER: rebuild `extension/dist` with your own `.env`.** The pre-launch verification pass built it with throwaway test values. Run `bash scripts/setup_env.sh`, then `cd extension && npm run dev`, then confirm `bash scripts/lint-manifest.sh` is clean.
 - [ ] **BLOCKER: do one real end-to-end run on a clean machine or profile**, following the Quick Start exactly as written, and fix whatever it surfaces. The whole point of fixing the manifest chain is that this now works; verify it rather than trusting it.
@@ -70,12 +78,27 @@ All of that is now stated plainly: the security section leads with it, the RBAC 
 
 Every CTA on the landing page points at the repo, so this is your real landing page.
 
-- [ ] **Add repo topics.** Currently none, which costs you all of GitHub's own discovery: `sales`, `ai`, `chrome-extension`, `sales-enablement`, `llm`, `rag`, `open-source`, `fastapi`, `react`, `manifest-v3`.
-- [ ] **Upload a social preview image** in Settings, so shared repo links render a card. `landing/og.png` works, or generate a repo-specific variant. There is no API for this; it is a manual upload.
-- [ ] **Cut a `v1.0.0` release** with tag and notes. A repo with zero releases reads as unfinished, and the tag gives people something citable.
-- [ ] **Enable Discussions.** Launch-day questions that are not bugs need somewhere to go that is not your issue tracker.
-- [ ] **Put a screenshot or GIF at the top of the README**, above the Table of Contents. Right now the first visual is a badge row.
-- [ ] **Triage the 2 open issues** so a visitor does not land on something stale.
+Re-verified against the live repo via the GitHub API. Most of this section is now closed:
+
+- [x] **Repo topics added.** Eleven are live: `ai`, `chrome-extension`, `fastapi`, `llm`,
+      `manifest-v3`, `open-source`, `rag`, `react`, `sales`, `sales-enablement`, `self-hosted`.
+- [x] **`v1.0.0` release cut**, tagged 2026-08-07.
+- [x] **Discussions enabled.**
+- [x] **Description and homepage set**, homepage pointing at the Pages site, which returns 200.
+- [x] **A visual sits at the top of the README.** The launch film's poster frame, linked to the
+      mp4, now sits directly under the badge row. Replace it with a real screen capture once you
+      have one: see the caveat under the demo-video blocker.
+- [ ] **Upload a social preview image** in Settings, so shared repo links render a card.
+      `landing/og.png` works. There is no API for this, so it cannot be verified from here
+      either: check Settings → General → Social preview yourself.
+- [ ] **Triage the 4 open issues** (#102, #113, #123, #129) so a visitor does not land on
+      something stale. #102 dates from May. All four are labelled and none read as abandoned,
+      so this is presentation rather than hygiene.
+
+**Cold-start note, not on the original list:** the repo is at **0 stars, 0 watchers, 0 forks**.
+PH traffic will land on a repo with no social proof, which measurably dents conversion. Nothing
+to fix dishonestly here, but it argues for telling a handful of people the day before so the
+page is not at absolute zero when the first stranger arrives.
 
 ## Copy and content, worth doing but not blocking
 

@@ -48,6 +48,17 @@ They are deliberately typographic and diagrammatic rather than imitation UI. Fak
 
 **Order them behind your real screenshots.** PH convention is that image 1 shows actual product. Once you have the three shots from `screenshot-checklist.md`, the running order should be: live coaching screenshot, citation hover screenshot, `03-citations.png`, post-call summary screenshot, `02-live-copilot.png`, `05-open-source.png`. Use `01-hero.png` only if you want a title card at the front.
 
+### The launch film
+
+`assets/launch-video.mp4` is a 31s designed film (1920x1080, h264, 6.8MB) with narration, covering: positioning, the live call, the five agents, the citation-hover proof beat, the numbers, and the lockup. `assets/launch-video-poster.jpg` is its poster, and is also baked as frame 0 so Slack, X and Discord pick the intended thumbnail.
+
+Where it goes:
+
+- **Yes:** the README header, social posts, the landing page, and the PH gallery *after* the real screenshots.
+- **No:** the PH video slot as a substitute for the demo recording, and not gallery image 1.
+
+The reason is the same one that governs the cards above. The sidebar in the film is the landing page's `.mock-sidebar` markup rebuilt and animated, so it is imitation UI, and imitation UI reads as a mockup the moment anyone looks closely. The film is honest as a brand piece and misleading as evidence. Record the real thing from [`demo-video-script.md`](demo-video-script.md) and let that carry the product slot; the film is what makes the page look finished around it.
+
 ## Links
 
 - **Website:** the GitHub Pages landing page
