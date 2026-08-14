@@ -1,3 +1,9 @@
+# PEP 604 unions (`str | None`) are evaluated at def time without this, which
+# raises TypeError on Python 3.9. Dependencies resolve fine on stock macOS
+# Python, so the failure lands at import rather than at install, which is much
+# more confusing than it needs to be.
+from __future__ import annotations
+
 import os
 import re
 import uuid

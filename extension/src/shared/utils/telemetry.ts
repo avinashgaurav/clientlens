@@ -38,6 +38,15 @@ export type TelemetryEvent =
   | {
       name: "objection_time_to_copy_ms";
       props: { ms: number; confidence_pct: number };
+    }
+  | {
+      // #129. Deliberately carries no message body: a render error can
+      // interpolate values that came from a KB entry or a transcript, and this
+      // util is explicitly not for anything where PII matters. The error name
+      // groups failures and the event count gives the fallback rate, which is
+      // what the issue needed. The operator still sees the full message on screen.
+      name: "sidebar_error_boundary";
+      props: { error_name: string; message_chars: number; component_stack_depth: number };
     };
 
 interface BufferedEvent {
