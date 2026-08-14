@@ -56,7 +56,27 @@ bash backend/scripts/run_tests.sh           # All tests
 python3 backend/scripts/test_openrouter.py  # OpenRouter integration sanity check
 ```
 
+### The two build modes, and which one you want
+
+This trips people up, so it is worth stating plainly before the commands.
+
+| | `npm run dev` | `npm run build` |
+|---|---|---|
+| Vite mode | `development` | `production` |
+| Backend it can reach | `http://localhost:8000` (and Ollama on `11434`) | a public **https** host only |
+| `host_permissions` | localhost entries injected at build time | localhost never granted |
+| Use it for | **self-hosting v1.0**, and any local development | a Chrome Web Store bundle |
+
+**If you are self-hosting, you want `npm run dev`, and that is not a workaround.** v1.0 assumes one rep running the backend on their own machine, so a local backend is the supported shape. The Quick Start uses `npm run dev` for exactly this reason.
+
+A release build deliberately **cannot** be produced against a local backend. `hostPermissionFor` in `extension/vite.config.ts` rejects any non-https URL, and outside development mode it also rejects loopback hosts, because granting a shipped extension access to the user's own machine is the vulnerability [issue #37](https://github.com/avinashgaurav/project-wingman-sales-copilot/issues/37) closed. Point `VITE_BACKEND_URL` at `http://localhost:8000` and run `npm run build`, and the build refuses with the reason and the suggested fix rather than emitting a broken manifest.
+
+> [!WARNING]
+> A release bundle needs a publicly reachable backend, and **until authentication is wired, a public backend is not safe to expose**: anyone who finds it can spend your LLM budget and read your knowledge base. Read [Security model](security.md) before you deploy one. Wiring auth is the top roadmap item precisely because it is what unlocks this path.
+
 ### Building for release
+
+Only once you have a public https backend:
 
 ```bash
 cd extension && npm run build               # vite build --mode production

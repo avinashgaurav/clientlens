@@ -66,12 +66,33 @@ if grep -q "your-backend.railway.app" "$BUILT"; then
 fi
 
 # A production bundle granting page access to the developer's own machine is a
-# real vulnerability, not a nit. Dev builds inject these on purpose.
+# real vulnerability, not a nit. Dev builds inject these on purpose, which is why
+# this is only an error for a release bundle.
+#
+# The manifest alone cannot tell the two apart, so vite writes the mode to
+# dist/.build-mode. A missing file is treated as a release, so the check fails
+# closed: an older or hand-assembled dist is still held to release rules.
+BUILD_MODE="unknown"
+if [ -f "extension/dist/.build-mode" ]; then
+  BUILD_MODE="$(tr -d '[:space:]' < extension/dist/.build-mode)"
+fi
+
 if grep -qE '"http://localhost:[0-9]+/\*"' "$BUILT"; then
-  echo "lint-manifest: $BUILT grants localhost host_permissions." >&2
-  echo "                Expected in a dev build (npm run dev), never in a release." >&2
-  echo "                For a release bundle use: npm run build" >&2
-  FAIL=1
+  if [ "$BUILD_MODE" = "development" ]; then
+    echo "lint-manifest: NOTE, $BUILT grants localhost host_permissions."
+    echo "                Correct for a dev build, which is how v1.0 is self-hosted."
+    echo "                A release bundle (npm run build) never gets them."
+  else
+    echo "lint-manifest: $BUILT grants localhost host_permissions." >&2
+    if [ "$BUILD_MODE" = "unknown" ]; then
+      echo "                No extension/dist/.build-mode, so this is treated as a" >&2
+      echo "                release. Rebuild with npm run dev or npm run build." >&2
+    else
+      echo "                Never legitimate in a $BUILD_MODE build." >&2
+    fi
+    echo "                For a local backend use: npm run dev" >&2
+    FAIL=1
+  fi
 fi
 
 if [ "$FAIL" -eq 0 ]; then

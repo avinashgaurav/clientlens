@@ -60,7 +60,7 @@ export function track<E extends TelemetryEvent>(event: E): void {
   // Console sink — visible in the extension's DevTools / service-worker logs.
   // Prefixed with `[wingman:telemetry]` so it's grep-able.
   try {
-    // eslint-disable-next-line no-console
+     
     console.debug(`[wingman:telemetry] ${event.name}`, event.props);
   } catch {
     /* noop */

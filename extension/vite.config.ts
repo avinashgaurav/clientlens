@@ -28,8 +28,15 @@ const BACKEND_HOST_PLACEHOLDER = "https://your-backend.railway.app/*";
 const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]", "::1"]);
 
 /**
- * `https://api.example.com/v1` -> `https://api.example.com/*`, or null if the
- * URL cannot legitimately become a host permission.
+ * `https://api.example.com/v1` -> `https://api.example.com/*`, or null plus the
+ * reason it cannot legitimately become a host permission.
+ *
+ * Returning the *reason* rather than a bare null is the whole point: a release
+ * build that rejects the URL has to be able to say which of the four rules the
+ * URL broke. The previous version returned null for all of them, so a developer
+ * whose `.env` said `http://localhost:8000` was told to "set VITE_BACKEND_URL
+ * to your https backend URL" when they had already set it, with no hint that a
+ * local backend means they wanted `npm run dev` instead.
  *
  * Two non-obvious rules:
  *  - Chrome match patterns MUST NOT contain a port. `new URL().host` includes
@@ -40,16 +47,54 @@ const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]", ":
  *    development builds may reach the developer's machine, via
  *    DEV_LOCALHOST_HOSTS. Any other mode is treated as a release.
  */
-function hostPermissionFor(backendUrl: string, mode: string): string | null {
-  try {
-    const url = new URL(backendUrl);
-    if (url.protocol !== "https:") return null;
-    const hostname = url.hostname;
-    if (mode !== "development" && LOOPBACK_HOSTS.has(hostname)) return null;
-    return `https://${hostname}/*`;
-  } catch {
-    return null;
+type BackendUrlVerdict = {
+  host: string | null;
+  /** null when host is set. Otherwise a one-line reason, no trailing period. */
+  reason: string | null;
+  /** True when the URL names the developer's own machine, in any protocol. */
+  isLocal: boolean;
+};
+
+function diagnoseBackendUrl(backendUrl: string, mode: string): BackendUrlVerdict {
+  if (!backendUrl) {
+    return { host: null, reason: "VITE_BACKEND_URL is not set in extension/.env", isLocal: false };
   }
+
+  let url: URL;
+  try {
+    url = new URL(backendUrl);
+  } catch {
+    return {
+      host: null,
+      reason: `VITE_BACKEND_URL is not a valid URL: ${backendUrl}`,
+      isLocal: false,
+    };
+  }
+
+  const hostname = url.hostname;
+  const isLocal = LOOPBACK_HOSTS.has(hostname);
+
+  if (url.protocol !== "https:") {
+    return {
+      host: null,
+      reason:
+        `VITE_BACKEND_URL uses ${url.protocol}//, but MV3 host permissions must be https ` +
+        `(got ${backendUrl})`,
+      isLocal,
+    };
+  }
+
+  if (mode !== "development" && isLocal) {
+    return {
+      host: null,
+      reason:
+        `VITE_BACKEND_URL points at the loopback host ${hostname}, which a release bundle ` +
+        "must never be granted (issue #37)",
+      isLocal,
+    };
+  }
+
+  return { host: `https://${hostname}/*`, reason: null, isLocal };
 }
 
 function copyStaticAssets(mode: string, env: Record<string, string>) {
@@ -71,7 +116,8 @@ function copyStaticAssets(mode: string, env: Record<string, string>) {
       }
 
       // Real backend host replaces the placeholder entry.
-      const backendHost = hostPermissionFor(env.VITE_BACKEND_URL?.trim() || "", mode);
+      const backend = diagnoseBackendUrl(env.VITE_BACKEND_URL?.trim() || "", mode);
+      const backendHost = backend.host;
       if (backendHost) {
         hosts.delete(BACKEND_HOST_PLACEHOLDER);
         hosts.add(backendHost);
@@ -88,6 +134,14 @@ function copyStaticAssets(mode: string, env: Record<string, string>) {
 
       manifest.host_permissions = Array.from(hosts);
       writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+
+      // Stamp the build mode beside the manifest, not inside it: Chrome warns on
+      // unknown top-level manifest keys, and this is tooling metadata rather
+      // than part of the extension. lint-manifest.sh reads it to tell a dev
+      // build's deliberate localhost grant apart from the same grant leaking
+      // into a release, which it otherwise cannot distinguish from the manifest
+      // alone. Absent file means "assume release", so the check fails closed.
+      writeFileSync(resolve(out, ".build-mode"), mode + "\n");
 
       // Two placeholders, two different severities.
       //
@@ -108,12 +162,42 @@ function copyStaticAssets(mode: string, env: Record<string, string>) {
       // with unresolved placeholders and no error.
       if (mode !== "development") {
         if (manifest.host_permissions.includes(BACKEND_HOST_PLACEHOLDER)) {
-          throw new Error(
-            "host_permissions still contains " +
-              BACKEND_HOST_PLACEHOLDER +
-              ".\nSet VITE_BACKEND_URL in extension/.env to your https backend URL." +
-              "\nWithout it, MV3 blocks every request the extension makes to your backend.",
-          );
+          // Name the actual rule that was broken, then route the developer to
+          // the build mode that fits their deployment. A local backend is not a
+          // misconfiguration to be corrected, it is the supported v1.0 shape,
+          // and it needs `npm run dev` rather than a different URL.
+          const lines = [
+            "Release build refused: host_permissions still contains " + BACKEND_HOST_PLACEHOLDER + ".",
+            "",
+            "Reason: " + (backend.reason || "VITE_BACKEND_URL could not be resolved") + ".",
+            "",
+          ];
+
+          if (backend.isLocal) {
+            lines.push(
+              "That looks like a local backend, which is the supported shape for v1.0.",
+              "A release bundle may not reach your own machine: granting a shipped",
+              "extension access to localhost is the vulnerability issue #37 closed.",
+              "",
+              "So you almost certainly want the development build instead:",
+              "",
+              "    npm run dev        # unpacked, talks to http://localhost:8000",
+              "",
+              "Use `npm run build` only once you have a public https backend. Note that",
+              "until authentication is wired, a public backend is not safe to expose:",
+              "see docs/security.md before deploying one.",
+            );
+          } else {
+            lines.push(
+              "Set VITE_BACKEND_URL in extension/.env to your public https backend,",
+              "for example https://api.yourdomain.com. Without a matching host",
+              "permission, MV3 blocks every request the extension makes to it.",
+              "",
+              "If you are self-hosting against a local backend, use `npm run dev`.",
+            );
+          }
+
+          throw new Error(lines.join("\n"));
         }
         if (manifest.oauth2?.client_id?.includes(CLIENT_ID_PLACEHOLDER)) {
           console.warn(

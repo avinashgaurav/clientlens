@@ -69,6 +69,8 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 
 > [!NOTE]
 > **You never hand-edit `extension/manifest.json`.** It is a template with two deliberate placeholders. The build injects your OAuth client ID and backend host from `.env` into `extension/dist/manifest.json`. A production build fails if the backend host is unresolved, and warns if the client ID is missing (that one is optional: only Google Slides/Drive export and Calendar sync read it).
+>
+> **Use `npm run dev`, not `npm run build`.** Self-hosting v1.0 against a local backend is the supported shape, and only the dev build may reach `localhost`. A release build requires a public https backend, which is not safe to expose until authentication is wired. [The two build modes](docs/development.md#the-two-build-modes-and-which-one-you-want) explains why.
 
 **[Every config variable →](docs/configuration.md)** · **[Development guide →](docs/development.md)**
 

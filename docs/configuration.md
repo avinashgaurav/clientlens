@@ -8,7 +8,7 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 
 | Variable | Purpose | Required |
 |---|---|---|
-| `VITE_BACKEND_URL` | FastAPI backend base URL | Yes |
+| `VITE_BACKEND_URL` | FastAPI backend base URL. `http://localhost:8000` for the normal v1.0 self-hosted setup, which requires the dev build (`npm run dev`). A **release** build (`npm run build`) requires a public **https** URL and rejects loopback hosts: see [the two build modes](development.md#the-two-build-modes-and-which-one-you-want) | Yes |
 | `VITE_SUPABASE_URL` | Supabase project URL | Yes |
 | `VITE_SUPABASE_ANON_KEY` | Supabase publishable (anon) key | Yes |
 | `VITE_DEV_MODE` | Must be `true` in v1.0, and must match `DEV_MODE` in `backend/.env`. Sends a stub bearer instead of a Supabase JWT. Without it every backend call fails | Yes |

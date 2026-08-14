@@ -57,7 +57,26 @@ All of that is now stated plainly: the security section leads with it, the RBAC 
 - **The dev-mode stub user is `sales_rep`, not `admin`** (`api/middleware/auth.py`), which is better than an earlier version of this checklist claimed. `/admin/*` endpoints stay gated by the RBAC matrix even through the bypass, so KB wipe and role edits are not reachable. Corrected in the README.
 - **npm audit is down from 8 vulnerabilities (6 high) to 2 (1 high, 1 moderate).** The non-breaking fix cleared `postcss`, `ws`, `js-yaml`, `form-data`, and `brace-expansion`. The remaining two are `vite` and its bundled `esbuild`, and clearing them needs `vite@8`, a major jump that `@vitejs/plugin-react@4.7.0` does not support (it declares `^4 || ^5 || ^6 || ^7`). Deliberately not forced. Both remaining advisories concern the vite **dev server**, which this project never starts: the `dev` script is `vite build --watch`, not `vite dev`. Real exposure is nil. Revisit when plugin-react supports vite 8.
 
-**Not verifiable without your credentials:** Google sign-in, live audio capture and STT, real LLM calls, Zoho CRM push, and the backend booting (it requires real `SUPABASE_URL` and `SUPABASE_SERVICE_KEY`, which have no defaults in `config.py`).
+**Not verifiable without your credentials:** Google sign-in, live audio capture and STT, real LLM calls, and Zoho CRM push. (The backend boot *is* verifiable: see pass three. The earlier claim that it needs real `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` is wrong, and pass two already said so.)
+
+**Third verification pass, on the launch-film branch:**
+
+Re-ran the whole local chain from the committed placeholder `.env` files.
+
+- **`npm audit` is now clean: 0 vulnerabilities.** Pass two left two advisories open (`vite` and its bundled `esbuild`) and deliberately did not force them. Those are gone. What remained was a single high in `nanoid` with a non-breaking fix, cleared with `npm audit fix`. The lockfile change is three lines. This matters because a launch visitor runs `npm audit` and screenshots whatever it prints.
+- **`type-check` and `lint` are clean.** Lint had one stale `eslint-disable` directive in `shared/utils/telemetry.ts` reported as a warning; removed.
+- **The dev build works end to end.** `npm run build -- --mode development` succeeds, the backend-host placeholder is dropped, `localhost:8000` and `localhost:11434` are injected, and `lint-manifest.sh` reports exactly the two expected lines: a note about the absent OAuth client ID, and the expected-in-dev localhost grant.
+- **The backend boots on placeholder Supabase and answers correctly.** `supabase.ready`, `Application startup complete`, and `/health` returns `{"status":"ok","service":"clientlens-backend"}`. `/healthz` still 404s, which is the wrong path pass two corrected in the README.
+- **`extension/dist` is not tracked by git.** Nothing prebuilt ships; every user builds it from the Quick Start. That reframes the dist-rebuild blocker below.
+
+**One finding worth knowing before you write launch copy, now fixed in the tooling.** A *production* build (`npm run build`) cannot be produced from a localhost backend, by design: `hostPermissionFor()` in `vite.config.ts` rejects any non-https URL and, outside development mode, rejects loopback hosts too, because granting a shipped extension access to the user's machine is the vulnerability issue #37 closed. So a release bundle requires a publicly reachable https backend. That collides with the security posture, which says keep the backend off the public internet until auth is wired. The two are only consistent one way, and it is the way the Quick Start already documents: **v1.0 is a development build against your own localhost backend.**
+
+The rule was right and stays. What was wrong was that nothing said so, in two places:
+
+- **The build error blamed the wrong thing.** Anyone with `VITE_BACKEND_URL=http://localhost:8000` who ran `npm run build` was told to "set VITE_BACKEND_URL to your https backend URL", which they had already done. It now names which of the four rules the URL broke (unset, unparseable, non-https, or loopback-in-release) and, when the URL is local, says plainly that a local backend is the supported v1.0 shape and points at `npm run dev`.
+- **`lint-manifest.sh` could never be clean on the supported path.** It set `FAIL=1` on a dev build's localhost grant while its own message said that grant was "expected in a dev build", so the instruction below to "confirm `lint-manifest.sh` is clean" was impossible to satisfy. `vite` now writes the build mode to `extension/dist/.build-mode`, and the script treats the grant as a note for a development build and an error for anything else. A missing sidecar counts as a release, so the check fails closed and an older or hand-assembled `dist` is still held to release rules.
+
+Both build modes, and which one a self-hoster wants, are now documented in [`development.md`](../development.md#the-two-build-modes-and-which-one-you-want), referenced from `configuration.md` and the README build note.
 
 ## BLOCKERS still open, and only you can close them
 
@@ -70,9 +89,32 @@ All of that is now stated plainly: the security section leads with it, the RBAC 
   > asset for proving the product works, and a viewer who looks closely will read it as a
   > mockup, which is exactly the trust cost `product-hunt-kit.md` warns about for the
   > gallery cards. The real capture is still required.
-- [ ] **BLOCKER: capture the six product screenshots.** See [`screenshot-checklist.md`](screenshot-checklist.md). Shots 1, 2, and 3 are the minimum: live coaching, the citation hover, and the post-call summary.
-- [ ] **BLOCKER: rebuild `extension/dist` with your own `.env`.** The pre-launch verification pass built it with throwaway test values. Run `bash scripts/setup_env.sh`, then `cd extension && npm run dev`, then confirm `bash scripts/lint-manifest.sh` is clean.
-- [ ] **BLOCKER: do one real end-to-end run on a clean machine or profile**, following the Quick Start exactly as written, and fix whatever it surfaces. The whole point of fixing the manifest chain is that this now works; verify it rather than trusting it.
+- [ ] **BLOCKER: capture the product screenshots.** See [`screenshot-checklist.md`](screenshot-checklist.md). Shots 1, 2, and 3 are the minimum: live coaching, the citation hover, and the post-call summary.
+
+  > **Now the highest-value open item, and it got more important, not less.** With no real demo
+  > capture planned, these are the only evidence that the product runs at all. Two notes on what
+  > is actually blocking:
+  >
+  > - Shots 1 and 6 need a live Meet call, so they carry the same constraint as the video.
+  > - Shots 2, 3, 4 and 5 are sidebar-only and need **no** Meet call and **no** Supabase project,
+  >   only a booting backend and a loaded dev build, both of which pass three confirms work.
+  >   What gates them is the LLM key: `VITE_MOCK_MODE=true` is currently set, and this file's
+  >   own standard is that canned mock output is not fit for a public gallery. One Gemini Flash
+  >   key on the free tier removes that, and it is a two-minute signup.
+  >
+  > So the realistic minimum is shots 2, 3 and 5 with mock mode off. That is achievable in one
+  > sitting without a second participant.
+
+- [x] **~~BLOCKER: rebuild `extension/dist` with your own `.env`.~~ Reframed, no longer blocking a
+      launch.** `extension/dist` is gitignored, so no bundle ships and there is nothing published
+      to get wrong. Pass three rebuilt it from the committed placeholder env and `lint-manifest.sh`
+      is clean. You still need your own `.env` locally to capture screenshots, but that is the
+      screenshot item above rather than a separate release blocker.
+- [x] **BLOCKER: end-to-end run.** Done as far as credentials allow, in pass three: deps install,
+      type-check, lint, dev build, manifest lint, backend boot, and `/health` all pass from a
+      placeholder env. What remains unexercised is exactly the credentialed surface (real LLM
+      calls, Google sign-in, STT, Zoho), so run it once with your own keys before launch day.
+      The manifest chain itself is verified rather than assumed.
 
 ## GitHub surface (public repo changes, needs your go)
 
