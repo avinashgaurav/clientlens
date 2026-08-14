@@ -253,27 +253,29 @@ export function KnowledgeBasePanel() {
       (mode === "git" && gitUrl.trim()));
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-4">
+    <div className="bg-[var(--surface-1)] border border-[var(--line-2)] rounded-xl p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Database size={14} className="text-violet-400" />
-          <h3 className="text-sm font-semibold text-slate-100">Knowledge Base</h3>
+          <Database size={14} className="text-[var(--brand-orange)]" />
+          <h3 className="text-sm font-semibold text-[var(--ink)]">Knowledge Base</h3>
         </div>
-        <span className="text-[10px] text-slate-500 uppercase tracking-wide">{user.role}</span>
+        <span className="text-[10px] text-[var(--ink-4)] uppercase tracking-wide">{user.role}</span>
       </div>
 
-      <p className="text-[11px] text-slate-500 -mt-2">
+      <p className="text-[11px] text-[var(--ink-4)] -mt-2">
         Source of truth for the agent council. Everything generated is grounded here.
       </p>
 
       {/* Mode tabs */}
-      <div className="grid grid-cols-4 gap-1 bg-slate-800/50 rounded-lg p-1">
+      <div className="grid grid-cols-4 gap-1 bg-[var(--surface-2)] rounded-lg p-1">
         {(["text", "file", "url", "git"] as Mode[]).map((m) => (
           <button
             key={m}
             onClick={() => setMode(m)}
             className={`py-1.5 rounded-md text-[11px] font-medium transition-colors ${
-              mode === m ? "bg-slate-700 text-white" : "text-slate-400 hover:text-slate-200"
+              mode === m
+                ? "bg-[var(--surface-3)] text-[var(--ink)]"
+                : "text-[var(--ink-4)] hover:text-[var(--ink-2)]"
             }`}
           >
             {m === "text" && "Paste"}
@@ -286,7 +288,7 @@ export function KnowledgeBasePanel() {
 
       {/* Namespace */}
       <label className="block space-y-1">
-        <span className="text-xs text-slate-300 font-medium">Category</span>
+        <span className="text-xs text-[var(--ink-3)] font-medium">Category</span>
         <select
           value={namespace}
           onChange={(e) => setNamespace(e.target.value as KBNamespace | "")}
@@ -301,8 +303,8 @@ export function KnowledgeBasePanel() {
 
       {/* Name */}
       <label className="block space-y-1">
-        <span className="text-xs text-slate-300 font-medium">
-          Name {mode === "file" && <span className="text-slate-500">(optional — uses filename)</span>}
+        <span className="text-xs text-[var(--ink-3)] font-medium">
+          Name {mode === "file" && <span className="text-[var(--ink-4)]">(optional — uses filename)</span>}
         </span>
         <input
           type="text"
@@ -315,7 +317,7 @@ export function KnowledgeBasePanel() {
 
       {mode === "text" && (
         <label className="block space-y-1">
-          <span className="text-xs text-slate-300 font-medium">Content</span>
+          <span className="text-xs text-[var(--ink-3)] font-medium">Content</span>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -328,7 +330,7 @@ export function KnowledgeBasePanel() {
 
       {mode === "url" && (
         <label className="block space-y-1">
-          <span className="text-xs text-slate-300 font-medium">URL</span>
+          <span className="text-xs text-[var(--ink-3)] font-medium">URL</span>
           <input
             type="url"
             value={url}
@@ -336,7 +338,7 @@ export function KnowledgeBasePanel() {
             placeholder="https://clientlens.com/…"
             className="input"
           />
-          <span className="block text-[10px] text-slate-500 leading-snug mt-1">
+          <span className="block text-[10px] text-[var(--ink-4)] leading-snug mt-1">
             Page content is fetched and cleaned in your browser. Capped at 200KB. Sites that block bots may return empty — paste as text instead if so.
           </span>
         </label>
@@ -344,16 +346,16 @@ export function KnowledgeBasePanel() {
 
       {mode === "file" && (
         <label className="block space-y-1">
-          <span className="text-xs text-slate-300 font-medium">Files <span className="text-slate-500">(multiple OK)</span></span>
+          <span className="text-xs text-[var(--ink-3)] font-medium">Files <span className="text-[var(--ink-4)]">(multiple OK)</span></span>
           <input
             type="file"
             accept=".txt,.md,.markdown,.csv,.json,.pdf,.docx,.pptx,.xlsx,.html"
             onChange={handleFile}
             disabled={!namespace || busy}
             multiple
-            className="block w-full text-xs text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-slate-700 file:bg-slate-800 file:text-slate-200 file:text-xs file:font-medium hover:file:bg-slate-700 file:cursor-pointer cursor-pointer"
+            className="block w-full text-xs text-[var(--ink-3)] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-[var(--line)] file:bg-[var(--surface-2)] file:text-[var(--ink-2)] file:text-xs file:font-medium hover:file:bg-[var(--surface-3)] file:cursor-pointer cursor-pointer"
           />
-          <span className="block text-[10px] text-slate-500">
+          <span className="block text-[10px] text-[var(--ink-4)]">
             .txt / .md / .csv / .json parsed in-browser. .pdf / .docx / .pptx stored and parsed by backend.
           </span>
         </label>
@@ -362,7 +364,7 @@ export function KnowledgeBasePanel() {
       {mode === "git" && (
         <div className="space-y-1.5">
           <label className="block space-y-1">
-            <span className="text-xs text-slate-300 font-medium">Git repo URL</span>
+            <span className="text-xs text-[var(--ink-3)] font-medium">Git repo URL</span>
             <input
               type="url"
               value={gitUrl}
@@ -373,7 +375,7 @@ export function KnowledgeBasePanel() {
           </label>
           <div className="grid grid-cols-2 gap-1.5">
             <label className="block space-y-1">
-              <span className="text-xs text-slate-300 font-medium">Branch</span>
+              <span className="text-xs text-[var(--ink-3)] font-medium">Branch</span>
               <input
                 type="text"
                 value={gitBranch}
@@ -383,7 +385,7 @@ export function KnowledgeBasePanel() {
               />
             </label>
             <label className="block space-y-1">
-              <span className="text-xs text-slate-300 font-medium">Subpath <span className="text-slate-500">(opt)</span></span>
+              <span className="text-xs text-[var(--ink-3)] font-medium">Subpath <span className="text-[var(--ink-4)]">(opt)</span></span>
               <input
                 type="text"
                 value={gitPath}
@@ -393,9 +395,9 @@ export function KnowledgeBasePanel() {
               />
             </label>
           </div>
-          <div className="flex items-start gap-1.5 bg-amber-900/20 border border-amber-700/40 rounded px-2 py-1.5">
-            <AlertTriangle size={11} className="text-amber-400 mt-0.5 shrink-0" />
-            <span className="block text-[10px] text-amber-200 leading-snug">
+          <div className="flex items-start gap-1.5 bg-[var(--surface-2)] border border-[var(--signal-warn)] rounded px-2 py-1.5">
+            <AlertTriangle size={11} className="text-[var(--signal-warn)] mt-0.5 shrink-0" />
+            <span className="block text-[10px] text-[var(--ink-3)] leading-snug">
               Backend git indexer is not live yet. Entry will save but agents will skip it until a sync runs.
             </span>
           </div>
@@ -406,7 +408,7 @@ export function KnowledgeBasePanel() {
         <button
           onClick={mode === "text" ? handleAddText : mode === "url" ? handleAddUrl : handleAddGit}
           disabled={!canSubmit || busy}
-          className="w-full py-2 bg-violet-600 hover:bg-violet-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold rounded-lg text-xs transition-all flex items-center justify-center gap-1.5"
+          className="w-full py-2 bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] disabled:bg-[var(--surface-3)] disabled:text-[var(--ink-5)] text-[#0A0A0A] font-semibold rounded-lg text-xs transition-all flex items-center justify-center gap-1.5"
         >
           {mode === "text" ? <FileText size={12} /> : mode === "url" ? <Link2 size={12} /> : <GitBranch size={12} />}
           Add to KB
@@ -414,22 +416,22 @@ export function KnowledgeBasePanel() {
       )}
 
       {flash && (
-        <div className="flex items-center gap-1.5 text-emerald-400 text-xs">
+        <div className="flex items-center gap-1.5 text-[var(--ink-3)] text-xs">
           <Check size={12} /> {flash}
         </div>
       )}
 
       {/* Existing entries */}
-      <div className="pt-3 border-t border-slate-800 space-y-2">
+      <div className="pt-3 border-t border-[var(--line-2)] space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wide text-slate-500">
+          <span className="text-[10px] uppercase tracking-wide text-[var(--ink-4)]">
             {entries.length} entries · {entries.filter((e) => e.index_status === "ready").length}/{entries.filter((e) => e.content).length} indexed · {wikiIndex.ready_pages} wiki pages
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={handleReindexAll}
               disabled={busy || entries.length === 0}
-              className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-violet-300 disabled:text-slate-600 transition-colors"
+              className="flex items-center gap-1 text-[10px] text-[var(--ink-4)] hover:text-[var(--ink)] disabled:text-[var(--ink-5)] transition-colors"
               title="Re-embed any entries that aren't indexed yet"
             >
               <RefreshCw size={10} /> Re-index
@@ -437,7 +439,7 @@ export function KnowledgeBasePanel() {
             <button
               onClick={handleLintWiki}
               disabled={busy || wikiIndex.ready_pages < 2}
-              className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-amber-300 disabled:text-slate-600 transition-colors"
+              className="flex items-center gap-1 text-[10px] text-[var(--ink-4)] hover:text-[var(--ink)] disabled:text-[var(--ink-5)] transition-colors"
               title="Re-audit the whole wiki for contradictions across pages"
             >
               <Zap size={10} /> Lint wiki
@@ -448,33 +450,33 @@ export function KnowledgeBasePanel() {
         {/* Cross-cutting wiki signals — only shown when there's actually
             something interesting to surface. */}
         {(wikiIndex.contradictions.length > 0 || wikiIndex.concepts.length > 0) && (
-          <div className="bg-slate-800/30 border border-slate-800 rounded-lg p-2 space-y-1.5">
+          <div className="bg-[var(--surface-2)] border border-[var(--line-2)] rounded-lg p-2 space-y-1.5">
             {wikiIndex.contradictions.length > 0 && (
               <div className="flex items-start gap-1.5">
-                <AlertTriangle size={11} className="text-amber-400 mt-0.5 shrink-0" />
-                <div className="text-[10px] text-amber-200 leading-snug">
+                <AlertTriangle size={11} className="text-[var(--signal-warn)] mt-0.5 shrink-0" />
+                <div className="text-[10px] text-[var(--ink-3)] leading-snug">
                   <span className="font-medium">{wikiIndex.contradictions.length} cross-page contradiction{wikiIndex.contradictions.length === 1 ? "" : "s"}.</span>{" "}
                   {wikiIndex.contradictions.slice(0, 2).map((c, i) => (
-                    <span key={i} className="block text-slate-400 mt-0.5">
+                    <span key={i} className="block text-[var(--ink-4)] mt-0.5">
                       “{c.entry_name}” ↔ “{c.with_entry_name ?? "—"}”: {c.note}
                     </span>
                   ))}
                   {wikiIndex.contradictions.length > 2 && (
-                    <span className="block text-slate-500 mt-0.5">+{wikiIndex.contradictions.length - 2} more</span>
+                    <span className="block text-[var(--ink-4)] mt-0.5">+{wikiIndex.contradictions.length - 2} more</span>
                   )}
                 </div>
               </div>
             )}
             {wikiIndex.concepts.length > 0 && (
               <div className="flex items-start gap-1.5">
-                <BookOpen size={11} className="text-violet-300 mt-0.5 shrink-0" />
-                <div className="text-[10px] text-slate-300 leading-snug">
-                  <span className="text-slate-500">Top concepts:</span>{" "}
+                <BookOpen size={11} className="text-[var(--brand-orange)] mt-0.5 shrink-0" />
+                <div className="text-[10px] text-[var(--ink-3)] leading-snug">
+                  <span className="text-[var(--ink-4)]">Top concepts:</span>{" "}
                   {wikiIndex.concepts.slice(0, 6).map((c, i) => (
                     <span key={c.name}>
                       {i > 0 ? ", " : ""}
-                      <span className="text-violet-200">{c.name}</span>
-                      <span className="text-slate-500"> ({c.entry_ids.length})</span>
+                      <span className="text-[var(--ink-3)]">{c.name}</span>
+                      <span className="text-[var(--ink-4)]"> ({c.entry_ids.length})</span>
                     </span>
                   ))}
                 </div>
@@ -492,31 +494,31 @@ export function KnowledgeBasePanel() {
             return (
               <li
                 key={e.id}
-                className="bg-slate-800/40 border border-slate-800 rounded-lg px-2.5 py-2"
+                className="bg-[var(--surface-2)] border border-[var(--line-2)] rounded-lg px-2.5 py-2"
               >
                 <div className="flex items-start gap-2">
                   <button
                     onClick={() => hasWiki && toggleExpanded(e.id)}
                     disabled={!hasWiki}
-                    className="shrink-0 mt-0.5 text-slate-500 hover:text-violet-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="shrink-0 mt-0.5 text-[var(--ink-4)] hover:text-[var(--ink)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                     aria-label={isOpen ? "Collapse" : "Expand"}
                     title={hasWiki ? (isOpen ? "Collapse wiki" : "Expand wiki") : "Wiki not built yet"}
                   >
                     {isOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                   </button>
                   <div className="shrink-0 mt-0.5">
-                    {e.source_type === "file" && <Upload size={12} className="text-slate-400" />}
-                    {e.source_type === "url" && <Link2 size={12} className="text-slate-400" />}
-                    {e.source_type === "text" && <FileText size={12} className="text-slate-400" />}
-                    {e.source_type === "git" && <GitBranch size={12} className="text-slate-400" />}
+                    {e.source_type === "file" && <Upload size={12} className="text-[var(--ink-4)]" />}
+                    {e.source_type === "url" && <Link2 size={12} className="text-[var(--ink-4)]" />}
+                    {e.source_type === "text" && <FileText size={12} className="text-[var(--ink-4)]" />}
+                    {e.source_type === "git" && <GitBranch size={12} className="text-[var(--ink-4)]" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-slate-200 font-medium truncate">{e.name}</p>
-                    <p className="text-[10px] text-slate-500">
+                    <p className="text-xs text-[var(--ink-2)] font-medium truncate">{e.name}</p>
+                    <p className="text-[10px] text-[var(--ink-4)]">
                       {namespaceLabel(e.namespace)} · {e.uploaded_by_role}
                     </p>
                     {e.status !== "ready" && (
-                      <p className="text-[10px] text-amber-400 flex items-center gap-1 mt-0.5">
+                      <p className="text-[10px] text-[var(--ink-3)] flex items-center gap-1 mt-0.5">
                         <AlertTriangle size={10} /> {e.status_reason || "pending"}
                       </p>
                     )}
@@ -527,12 +529,12 @@ export function KnowledgeBasePanel() {
                       </p>
                     )}
                     {e.wiki_page?.tldr && (
-                      <p className="text-[10px] text-slate-300 leading-snug mt-1 italic">
+                      <p className="text-[10px] text-[var(--ink-3)] leading-snug mt-1 italic">
                         {e.wiki_page.tldr}
                       </p>
                     )}
                     {!isOpen && e.wiki_page?.contradictions && e.wiki_page.contradictions.length > 0 && (
-                      <p className="text-[10px] text-amber-300 mt-1 flex items-start gap-1">
+                      <p className="text-[10px] text-[var(--ink-3)] mt-1 flex items-start gap-1">
                         <AlertTriangle size={10} className="mt-0.5 shrink-0" />
                         <span>Conflicts with “{e.wiki_page.contradictions[0].with_entry_name ?? "—"}”: {e.wiki_page.contradictions[0].note}</span>
                       </p>
@@ -540,7 +542,7 @@ export function KnowledgeBasePanel() {
                   </div>
                   <button
                     onClick={() => handleRemove(e.id)}
-                    className="shrink-0 text-slate-500 hover:text-red-400 transition-colors"
+                    className="shrink-0 text-[var(--ink-4)] hover:text-[var(--signal-error)] transition-colors"
                     aria-label="Remove"
                   >
                     <Trash2 size={12} />
@@ -559,52 +561,52 @@ export function KnowledgeBasePanel() {
 
 function IndexStatusPill({ status, chunks, error }: { status?: KBIndexStatus; chunks?: number; error?: string }) {
   if (!status || status === "pending") {
-    return <span className="text-slate-500 flex items-center gap-1"><Sparkles size={9} /> Awaiting index</span>;
+    return <span className="text-[var(--ink-4)] flex items-center gap-1"><Sparkles size={9} /> Awaiting index</span>;
   }
   if (status === "indexing") {
-    return <span className="text-violet-300 flex items-center gap-1"><Loader2 size={9} className="animate-spin" /> Indexing…</span>;
+    return <span className="text-[var(--ink-3)] flex items-center gap-1"><Loader2 size={9} className="animate-spin" /> Indexing…</span>;
   }
   if (status === "failed") {
-    return <span className="text-red-400 flex items-center gap-1" title={error}><AlertTriangle size={9} /> Index failed</span>;
+    return <span className="text-[var(--signal-error)] flex items-center gap-1" title={error}><AlertTriangle size={9} /> Index failed</span>;
   }
-  return <span className="text-emerald-400 flex items-center gap-1"><Check size={9} /> Indexed{chunks ? ` · ${chunks} chunk${chunks === 1 ? "" : "s"}` : ""}</span>;
+  return <span className="text-[var(--ink-3)] flex items-center gap-1"><Check size={9} /> Indexed{chunks ? ` · ${chunks} chunk${chunks === 1 ? "" : "s"}` : ""}</span>;
 }
 
 function WikiStatusPill({ status, error }: { status?: WikiBuildStatus; error?: string }) {
   if (!status || status === "pending") {
-    return <span className="text-slate-500 flex items-center gap-1"><BookOpen size={9} /> Wiki queued</span>;
+    return <span className="text-[var(--ink-4)] flex items-center gap-1"><BookOpen size={9} /> Wiki queued</span>;
   }
   if (status === "building") {
-    return <span className="text-violet-300 flex items-center gap-1"><Loader2 size={9} className="animate-spin" /> Wiki…</span>;
+    return <span className="text-[var(--ink-3)] flex items-center gap-1"><Loader2 size={9} className="animate-spin" /> Wiki…</span>;
   }
   if (status === "failed") {
-    return <span className="text-red-400 flex items-center gap-1" title={error}><AlertTriangle size={9} /> Wiki failed</span>;
+    return <span className="text-[var(--signal-error)] flex items-center gap-1" title={error}><AlertTriangle size={9} /> Wiki failed</span>;
   }
-  return <span className="text-violet-200 flex items-center gap-1"><BookOpen size={9} /> Wiki ready</span>;
+  return <span className="text-[var(--ink-3)] flex items-center gap-1"><BookOpen size={9} /> Wiki ready</span>;
 }
 
 function WikiReader({ page }: { page: WikiPage }) {
   return (
-    <div className="mt-2 ml-5 pl-3 border-l border-slate-700/60 space-y-2.5">
+    <div className="mt-2 ml-5 pl-3 border-l border-[var(--line)] space-y-2.5">
       <div className="flex items-center gap-2 text-[10px]">
-        <span className="text-violet-300 font-medium uppercase tracking-wide">{page.type.replace(/_/g, " ")}</span>
-        <span className="text-slate-600">·</span>
+        <span className="text-[var(--ink-3)] font-medium uppercase tracking-wide">{page.type.replace(/_/g, " ")}</span>
+        <span className="text-[var(--ink-5)]">·</span>
         <span className={
-          page.confidence === "high" ? "text-emerald-400" :
-          page.confidence === "low" ? "text-amber-400" : "text-slate-400"
+          page.confidence === "high" ? "text-[var(--ink-3)]" :
+          page.confidence === "low" ? "text-[var(--ink-3)]" : "text-[var(--ink-4)]"
         }>{page.confidence} confidence</span>
         {page.generated_at && (
           <>
-            <span className="text-slate-600">·</span>
-            <span className="text-slate-500">{new Date(page.generated_at).toLocaleDateString()}</span>
+            <span className="text-[var(--ink-5)]">·</span>
+            <span className="text-[var(--ink-4)]">{new Date(page.generated_at).toLocaleDateString()}</span>
           </>
         )}
       </div>
 
       {page.body_markdown && (
         <div>
-          <div className="text-[9px] uppercase tracking-wide text-slate-500 mb-1">Body</div>
-          <pre className="text-[11px] text-slate-300 leading-relaxed whitespace-pre-wrap font-sans bg-slate-900/40 rounded p-2 max-h-64 overflow-y-auto">
+          <div className="text-[9px] uppercase tracking-wide text-[var(--ink-4)] mb-1">Body</div>
+          <pre className="text-[11px] text-[var(--ink-3)] leading-relaxed whitespace-pre-wrap font-sans bg-[var(--surface-1)] rounded p-2 max-h-64 overflow-y-auto">
             {page.body_markdown}
           </pre>
         </div>
@@ -612,10 +614,10 @@ function WikiReader({ page }: { page: WikiPage }) {
 
       {page.concepts.length > 0 && (
         <div>
-          <div className="text-[9px] uppercase tracking-wide text-slate-500 mb-1">Concepts</div>
+          <div className="text-[9px] uppercase tracking-wide text-[var(--ink-4)] mb-1">Concepts</div>
           <div className="flex flex-wrap gap-1">
             {page.concepts.map((c) => (
-              <span key={c} className="text-[10px] text-violet-200 bg-violet-900/30 border border-violet-800/40 rounded px-1.5 py-0.5">{c}</span>
+              <span key={c} className="text-[10px] text-[var(--ink-3)] bg-[var(--surface-3)] border border-[var(--line)] rounded px-1.5 py-0.5">{c}</span>
             ))}
           </div>
         </div>
@@ -623,10 +625,10 @@ function WikiReader({ page }: { page: WikiPage }) {
 
       {page.tags.length > 0 && (
         <div>
-          <div className="text-[9px] uppercase tracking-wide text-slate-500 mb-1">Tags</div>
+          <div className="text-[9px] uppercase tracking-wide text-[var(--ink-4)] mb-1">Tags</div>
           <div className="flex flex-wrap gap-1">
             {page.tags.map((t) => (
-              <span key={t} className="text-[10px] text-slate-300 bg-slate-800/60 border border-slate-700 rounded px-1.5 py-0.5">{t}</span>
+              <span key={t} className="text-[10px] text-[var(--ink-3)] bg-[var(--surface-2)] border border-[var(--line)] rounded px-1.5 py-0.5">{t}</span>
             ))}
           </div>
         </div>
@@ -634,11 +636,11 @@ function WikiReader({ page }: { page: WikiPage }) {
 
       {page.claims.length > 0 && (
         <div>
-          <div className="text-[9px] uppercase tracking-wide text-slate-500 mb-1">Claims</div>
+          <div className="text-[9px] uppercase tracking-wide text-[var(--ink-4)] mb-1">Claims</div>
           <ul className="space-y-1">
             {page.claims.map((c, i) => (
-              <li key={i} className="text-[11px] text-slate-300 leading-snug flex items-start gap-1.5">
-                <span className="text-[9px] text-slate-500 uppercase mt-0.5 shrink-0 w-14">{c.kind}</span>
+              <li key={i} className="text-[11px] text-[var(--ink-3)] leading-snug flex items-start gap-1.5">
+                <span className="text-[9px] text-[var(--ink-4)] uppercase mt-0.5 shrink-0 w-14">{c.kind}</span>
                 <span>{c.text}</span>
               </li>
             ))}
@@ -648,12 +650,12 @@ function WikiReader({ page }: { page: WikiPage }) {
 
       {page.data_gaps.length > 0 && (
         <div>
-          <div className="text-[9px] uppercase tracking-wide text-slate-500 mb-1 flex items-center gap-1">
+          <div className="text-[9px] uppercase tracking-wide text-[var(--ink-4)] mb-1 flex items-center gap-1">
             <HelpCircle size={9} /> Data gaps
           </div>
           <ul className="space-y-0.5">
             {page.data_gaps.map((g, i) => (
-              <li key={i} className="text-[11px] text-amber-200/90 leading-snug">• {g}</li>
+              <li key={i} className="text-[11px] text-[var(--ink-3)] leading-snug">• {g}</li>
             ))}
           </ul>
         </div>
@@ -661,16 +663,16 @@ function WikiReader({ page }: { page: WikiPage }) {
 
       {page.contradictions.length > 0 && (
         <div>
-          <div className="text-[9px] uppercase tracking-wide text-amber-400 mb-1 flex items-center gap-1">
+          <div className="text-[9px] uppercase tracking-wide text-[var(--ink-3)] mb-1 flex items-center gap-1">
             <AlertTriangle size={9} /> Contradictions ({page.contradictions.length})
           </div>
           <ul className="space-y-1.5">
             {page.contradictions.map((c, i) => (
-              <li key={i} className="text-[11px] text-slate-300 bg-amber-900/10 border border-amber-800/30 rounded p-1.5 leading-snug">
-                <div className="text-amber-300 mb-0.5">vs. “{c.with_entry_name ?? c.with_entry_id}”</div>
-                <div className="text-slate-400"><span className="text-slate-500">this:</span> {c.my_claim}</div>
-                <div className="text-slate-400"><span className="text-slate-500">other:</span> {c.their_claim}</div>
-                <div className="text-slate-300 mt-0.5 italic">{c.note}</div>
+              <li key={i} className="text-[11px] text-[var(--ink-3)] bg-[var(--surface-2)] border border-[var(--signal-warn)] rounded p-1.5 leading-snug">
+                <div className="text-[var(--ink-3)] mb-0.5">vs. “{c.with_entry_name ?? c.with_entry_id}”</div>
+                <div className="text-[var(--ink-4)]"><span className="text-[var(--ink-4)]">this:</span> {c.my_claim}</div>
+                <div className="text-[var(--ink-4)]"><span className="text-[var(--ink-4)]">other:</span> {c.their_claim}</div>
+                <div className="text-[var(--ink-3)] mt-0.5 italic">{c.note}</div>
               </li>
             ))}
           </ul>

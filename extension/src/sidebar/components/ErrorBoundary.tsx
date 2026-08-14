@@ -106,7 +106,11 @@ export class ErrorBoundary extends React.Component<Props, State> {
           style={{
             letterSpacing: "0.12em",
             background: "var(--brand-orange)",
-            color: "var(--surface-0)",
+            // Near-black, not a light token: cream on brand-orange is 2.18:1 and
+            // white is 2.52:1, both failing AA. This matches the house pattern for
+            // text on orange (ObjectionPanel copy button, MeetingCopilotPanel
+            // primaryBtn) at roughly 7:1.
+            color: "#0A0A0A",
           }}
         >
           <RotateCcw size={12} />

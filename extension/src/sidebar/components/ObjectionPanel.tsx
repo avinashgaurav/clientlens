@@ -128,26 +128,26 @@ export function ObjectionPanel() {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Shield size={14} className="text-violet-400" />
-        <h2 className="text-sm font-semibold text-slate-100">Handle an objection</h2>
+        <Shield size={14} className="text-[var(--brand-orange)]" />
+        <h2 className="text-sm font-semibold text-[var(--ink)]">Handle an objection</h2>
       </div>
 
-      <p className="text-[11px] text-slate-500">
+      <p className="text-[11px] text-[var(--ink-4)]">
         Paste the prospect's objection, or right-click any selected text on a page and pick
-        <span className="text-slate-300"> "Project Wingman: Handle objection"</span>.
+        <span className="text-[var(--ink-3)]"> "Project Wingman: Handle objection"</span>.
       </p>
 
       {objectionInput?.source_url && (
-        <div className="flex items-start gap-2 bg-slate-900/60 border border-slate-800 rounded px-3 py-2">
-          <AlertTriangle size={11} className="text-cyan-400 mt-0.5 shrink-0" />
-          <p className="text-[10px] text-slate-400 truncate">
-            Captured from: <span className="text-slate-300">{objectionInput.source_title || objectionInput.source_url}</span>
+        <div className="flex items-start gap-2 bg-[var(--surface-1)] border border-[var(--line-2)] rounded px-3 py-2">
+          <AlertTriangle size={11} className="text-[var(--signal-info)] mt-0.5 shrink-0" />
+          <p className="text-[10px] text-[var(--ink-4)] truncate">
+            Captured from: <span className="text-[var(--ink-3)]">{objectionInput.source_title || objectionInput.source_url}</span>
           </p>
         </div>
       )}
 
       <label className="block space-y-1">
-        <span className="text-xs text-slate-400">Objection</span>
+        <span className="text-xs text-[var(--ink-4)]">Objection</span>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -158,14 +158,14 @@ export function ObjectionPanel() {
       </label>
 
       <label className="block space-y-1">
-        <span className="text-xs text-slate-400">Competitor hint <span className="text-slate-500">(optional)</span></span>
+        <span className="text-xs text-[var(--ink-4)]">Competitor hint <span className="text-[var(--ink-4)]">(optional)</span></span>
         <input value={competitor} onChange={(e) => setCompetitor(e.target.value)} placeholder="cast.ai" className="input" />
       </label>
 
       <button
         onClick={handleSubmit}
         disabled={!text.trim() || isGenerating}
-        className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+        className="w-full py-2.5 bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] disabled:bg-[var(--surface-3)] disabled:text-[var(--ink-5)] text-[#0A0A0A] font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
       >
         <Zap size={14} /> Get grounded response
       </button>
@@ -438,38 +438,38 @@ function CitationChip({
 function LegacyObjectionResult({ result, objectionText, copied, onBack, onCopy }: ResultProps) {
   return (
     <div className="space-y-3">
-      <button onClick={onBack} className="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1">
+      <button onClick={onBack} className="text-xs text-[var(--ink-4)] hover:text-[var(--ink-2)] flex items-center gap-1">
         <ArrowLeft size={12} /> New objection
       </button>
 
-      <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 space-y-2">
-        <span className="text-[10px] uppercase tracking-wide text-slate-500">Objection</span>
-        <p className="text-xs text-slate-400 italic">"{objectionText}"</p>
+      <div className="bg-[var(--surface-1)] border border-[var(--line-2)] rounded-xl p-3 space-y-2">
+        <span className="text-[10px] uppercase tracking-wide text-[var(--ink-4)]">Objection</span>
+        <p className="text-xs text-[var(--ink-4)] italic">"{objectionText}"</p>
       </div>
 
-      <div className="bg-violet-900/20 border border-violet-700/40 rounded-xl p-3 space-y-2">
+      <div className="bg-[var(--surface-3)] border border-[var(--brand-orange)] rounded-xl p-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] uppercase tracking-wide text-violet-300">Grounded response</span>
-          <span className="text-[10px] text-slate-400">conf {Math.round(result.confidence * 100)}%</span>
+          <span className="text-[10px] uppercase tracking-wide text-[var(--ink-3)]">Grounded response</span>
+          <span className="text-[10px] text-[var(--ink-4)]">conf {Math.round(result.confidence * 100)}%</span>
         </div>
         {result.summary && (
-          <p className="text-[11px] text-slate-400 italic">{result.summary}</p>
+          <p className="text-[11px] text-[var(--ink-4)] italic">{result.summary}</p>
         )}
-        <p className="text-xs text-slate-100 whitespace-pre-wrap leading-relaxed">{result.response}</p>
+        <p className="text-xs text-[var(--ink)] whitespace-pre-wrap leading-relaxed">{result.response}</p>
       </div>
 
       {result.citations.length > 0 && (
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 space-y-1.5">
-          <span className="text-[10px] uppercase tracking-wide text-slate-500">Citations ({result.citations.length})</span>
+        <div className="bg-[var(--surface-1)] border border-[var(--line-2)] rounded-xl p-3 space-y-1.5">
+          <span className="text-[10px] uppercase tracking-wide text-[var(--ink-4)]">Citations ({result.citations.length})</span>
           {result.citations.slice(0, 4).map((c, i) => (
-            <p key={i} className="text-[10px] text-slate-400">
-              <span className="text-slate-500">{c.source_id}:</span> "{c.quote}"
+            <p key={i} className="text-[10px] text-[var(--ink-4)]">
+              <span className="text-[var(--ink-4)]">{c.source_id}:</span> "{c.quote}"
             </p>
           ))}
         </div>
       )}
 
-      <button onClick={onCopy} className="w-full py-2 rounded-lg text-xs font-medium bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center gap-1.5">
+      <button onClick={onCopy} className="w-full py-2 rounded-lg text-xs font-medium bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-hover)] text-[#0A0A0A] flex items-center justify-center gap-1.5">
         <Copy size={12} /> {copied ? "Copied" : "Copy response"}
       </button>
     </div>
