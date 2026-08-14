@@ -27,3 +27,6 @@ build/
 *.log
 npm-debug.log*
 .gstack/
+
+# /brag composition workspace (video itself lives in docs/launch/assets)
+brag-output/
