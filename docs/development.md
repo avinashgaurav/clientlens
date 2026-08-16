@@ -26,8 +26,7 @@ Note: in this codebase mock mode still routes through the FastAPI backend's `/ap
 Every visual identity asset comes from one script, so the toolbar icon, the site favicon, the nav and footer marks, the share card and the Product Hunt thumbnail cannot drift apart:
 
 ```bash
-python3 scripts/make_brand_assets.py     # icons, icon.svg, favicon.svg, og.png, thumbnail, social card
-python3 scripts/make_gallery_cards.py    # Product Hunt gallery cards
+python3 scripts/make_brand_assets.py     # icons, icon.svg, favicon.svg, og.png, repo social card
 ```
 
 Requires Pillow. Small icon sizes are not scaled from one master: the glow tightens and the chevron thickens as the canvas shrinks, because a 16px icon inheriting the 128px blur loses its silhouette. Edit `TUNING` in the script if you change the mark.

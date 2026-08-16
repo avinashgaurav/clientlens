@@ -11,7 +11,7 @@ Writes:
     extension/icons/icon.svg              512px master, gradients and glow intact
     landing/favicon.svg                   same mark, site favicon
     landing/og.png                        1200x630 social share card
-    docs/launch/assets/ph-thumbnail-240.png
+    landing/github-social-1280x640.png    repo social preview (Settings > General)
 
 Requires Pillow, plus the Inter and JetBrains Mono fonts for the share card
 (it falls back to Helvetica, with slightly different metrics).
@@ -33,7 +33,6 @@ REPO = Path(__file__).resolve().parent.parent
 ICON_DIR = REPO / "extension" / "icons"
 OG_PATH = REPO / "landing" / "og.png"
 FAVICON_PATH = REPO / "landing" / "favicon.svg"
-THUMB_PATH = REPO / "docs" / "launch" / "assets" / "ph-thumbnail-240.png"
 
 # ── palette ───────────────────────────────────────────────────────────────────
 NAVY_TOP = (20, 24, 38)
@@ -254,25 +253,10 @@ def make_github_social() -> None:
         if i < 2:
             d.text((x - 28, rail_y + 32), "·", font=rail, fill=RULE)
 
-    p = REPO / "docs" / "launch" / "assets" / "github-social-1280x640.png"
+    p = REPO / "landing" / "github-social-1280x640.png"
     p.parent.mkdir(parents=True, exist_ok=True)
     img.save(p, "PNG", optimize=True)
     print(f"wrote {p.relative_to(REPO)} ({W}x{H}, {p.stat().st_size/1024:.0f} KB)")
-
-
-def make_thumbnail() -> None:
-    """Product Hunt thumbnail: the mark, full bleed, with the wordmark under it."""
-    S = 240
-    img = Image.new("RGB", (S, S), NAVY_BOT)
-    m = render_mark(S)
-    img.paste(m, (0, 0), m)
-    d = ImageDraw.Draw(img)
-    label = load(find_font("JetBrainsMono-Regular.ttf", "JetBrainsMono.ttf", "Menlo.ttc"), 15)
-    text = "WINGMAN"
-    d.text(((S - d.textlength(text, font=label)) / 2, S - 42), text, font=label, fill=WHITE)
-    THUMB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    img.save(THUMB_PATH, "PNG", optimize=True)
-    print(f"wrote {THUMB_PATH.relative_to(REPO)} ({S}x{S})")
 
 
 def main() -> None:
@@ -285,7 +269,6 @@ def main() -> None:
     write_svg(ICON_DIR / "icon.svg", 512, 44)
     write_svg(FAVICON_PATH, 32, 52)  # heavier stroke so it survives 16px rendering
     make_og()
-    make_thumbnail()
     make_github_social()
 
 

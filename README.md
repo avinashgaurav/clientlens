@@ -14,12 +14,6 @@ Live coaching during Google Meet calls, pitch generation grounded in your own kn
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com)
 [![BYOL](https://img.shields.io/badge/LLM-Bring%20Your%20Own%20Keys-F58549)](docs/configuration.md)
 
-<br />
-
-[![Project Wingman: a 31-second overview](docs/launch/assets/launch-video-poster.jpg)](docs/launch/assets/launch-video.mp4)
-
-*↑ Click for the 31-second overview. Five agents on a live call, every number traced to a source.*
-
 </div>
 
 ---

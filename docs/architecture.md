@@ -106,23 +106,17 @@ project-wingman-sales-copilot/
 │   ├── index.html                      # Deployed from the gh-pages branch, not
 │   ├── styles.css                      #   from Actions: see .github/workflows
 │   ├── favicon.svg                     # The mark, generated
-│   └── og.png                          # Social share card, generated
+│   ├── og.png                          # Social share card, generated
+│   └── github-social-1280x640.png      # Repo social preview, generated
 │
 ├── docs/
-│   ├── ux/                             # UX audits + skin fidelity notes
-│   └── launch/                         # Product Hunt launch material
-│       ├── product-hunt-kit.md         # Tagline, description, first comment, replies
-│       ├── demo-video-script.md        # 45-60s shot list
-│       ├── screenshot-checklist.md     # The six shots + a verified setup recipe
-│       ├── launch-checklist.md         # What is done vs what still needs a human
-│       └── assets/                     # Thumbnail, social card, gallery cards
+│   └── ux/                             # UX audits + skin fidelity notes
 │
 ├── scripts/
 │   ├── setup_env.sh                    # Interactive .env generator
 │   ├── lint-manifest.sh                # Pre-release manifest lint (reads dist/)
-│   ├── make_brand_assets.py            # Single source of truth for the identity:
-│   │                                   #   icons, favicon, og card, thumbnail
-│   └── make_gallery_cards.py           # Product Hunt gallery cards
+│   └── make_brand_assets.py            # Single source of truth for the identity:
+│                                       #   icons, favicon, og card, social card
 │
 ├── .github/
 │   ├── workflows/deploy-landing.yml    # Publishes landing/ to gh-pages
