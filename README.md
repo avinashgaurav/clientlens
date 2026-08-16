@@ -7,7 +7,7 @@
 Live coaching during Google Meet calls, pitch generation grounded in your own knowledge base, and objection handling on tap. Runs on your LLM keys, on your infrastructure. There is no Wingman server.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.0.0-F58549)](https://github.com/avinashgaurav/project-wingman-sales-copilot/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/release-v1.0.0-F58549)](https://github.com/avinashgaurav/project-wingman/releases/tag/v1.0.0)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-4285F4)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![React](https://img.shields.io/badge/React-18-61dafb)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff)](https://vitejs.dev)
@@ -47,8 +47,8 @@ Worth knowing before you invest an evening in it:
 Prerequisites: Node 20+, Python 3.11+ (`brew install python@3.11`), a Supabase project (free tier is fine), and one LLM provider key. Gemini Flash has a generous free tier.
 
 ```bash
-git clone https://github.com/avinashgaurav/project-wingman-sales-copilot.git
-cd project-wingman-sales-copilot
+git clone https://github.com/avinashgaurav/project-wingman.git
+cd project-wingman
 
 bash scripts/setup_env.sh          # writes backend/.env and extension/.env
 
@@ -90,12 +90,12 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 ## Roadmap
 
 1. **Wire real authentication.** Everything else is downstream of this: it is what gates a shared team deployment.
-2. [An error boundary around the panel](https://github.com/avinashgaurav/project-wingman-sales-copilot/issues/129), so a render error cannot blank the surface.
+2. [An error boundary around the panel](https://github.com/avinashgaurav/project-wingman/issues/129), so a render error cannot blank the surface.
 3. Salesforce and HubSpot connectors, Microsoft Teams copilot.
 4. On-device STT (Whisper) for privacy-sensitive deployments.
 5. Multi-tenant mode with org-level KB isolation.
 
-The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/project-wingman-sales-copilot/issues/113). Items are largely independent, so pick any of them in any order.
+The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/project-wingman/issues/113). Items are largely independent, so pick any of them in any order.
 
 ## Contributing
 
@@ -106,7 +106,7 @@ cd extension && npm run type-check && npm run lint && npm run build
 cd .. && bash scripts/lint-manifest.sh
 ```
 
-Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman-sales-copilot/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman-sales-copilot/security/advisories/new).
+Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman/security/advisories/new).
 
 ## License
 
