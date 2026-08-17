@@ -18,7 +18,7 @@ import type { AgendaItem } from "../types";
 // simple extraction task; no reason to burn the full model on it.
 const FAST_MODELS: Partial<Record<LLMProvider, string>> = {
   anthropic: "claude-haiku-4-5-20251001",
-  gemini: "gemini-2.0-flash-lite",
+  gemini: "gemini-3.6-flash",
   groq: "llama-3.1-8b-instant",
   openrouter: "openai/gpt-oss-20b:free",
 };

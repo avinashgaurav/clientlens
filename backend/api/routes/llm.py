@@ -392,8 +392,24 @@ async def _stream_anthropic(req: LLMRequest, user_id: str) -> AsyncIterator[byte
 # Allowlist of Gemini model IDs that are valid for `_gemini_url` interpolation.
 # Rejecting anything else prevents a caller from steering the outbound URL via
 # a crafted model string (path traversal / SSRF-adjacent risk on Google's API).
+#
+# Two generations are listed on purpose. Google restricted the 1.5 and 2.0 model
+# families to accounts that had already used them, so a key created today gets
+# 404 "no longer available to new users" on every one of them. They stay in the
+# allowlist because an existing key still works, and removing them would break
+# deployments that are running fine. New deployments need a 2.5-or-later name.
 _ALLOWED_GEMINI_MODELS: frozenset[str] = frozenset({
-    # Chat / generateContent
+    # Chat / generateContent — the only name verified working on a key created
+    # today. Everything below it 404s as "no longer available to new users".
+    "gemini-3.6-flash",
+    # Chat / generateContent — existing keys only
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-pro",
+    "gemini-flash-latest",
+    "gemini-flash-lite-latest",
+    "gemini-pro-latest",
+    # Chat / generateContent — legacy, existing keys only (404 for new keys)
     "gemini-2.0-flash",
     "gemini-2.0-flash-exp",
     "gemini-2.0-flash-thinking-exp",
@@ -403,6 +419,7 @@ _ALLOWED_GEMINI_MODELS: frozenset[str] = frozenset({
     "gemini-1.5-pro",
     "gemini-1.0-pro",
     # Embeddings
+    "gemini-embedding-001",
     "text-embedding-004",
     "embedding-001",
 })

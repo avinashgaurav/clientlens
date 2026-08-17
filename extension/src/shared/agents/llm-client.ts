@@ -25,8 +25,13 @@ const ANTHROPIC_MODEL = "claude-opus-4-7";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 const OLLAMA_MODEL = "llama3.1:8b";
 const OLLAMA_BASE = "http://localhost:11434";
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-3.6-flash";
 const GEMINI_EMBED_MODEL = "text-embedding-004"; // 768 dims, free tier
+// NOT bumped to gemini-embedding-001 alongside the chat model: that returns
+// 3072 dims by default against a store provisioned for a different size, so it
+// is an index migration rather than a rename. Embeddings were not testable
+// here (a new Gemini key cannot call anything), so this stays until someone
+// with a working key can verify it.
 // OpenRouter model IDs are namespaced (`vendor/model[:tag]`). Default to a
 // free-tier Llama; users override via Settings or the ModelPicker.
 const OPENROUTER_MODEL = "meta-llama/llama-3.3-70b-instruct:free";

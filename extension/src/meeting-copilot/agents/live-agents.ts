@@ -48,7 +48,9 @@ function liveWindow(transcript: TranscriptSegment[]): string {
 // and shares a different rate-limit bucket from the main model.
 const LIVE_MODELS: Record<LLMProvider, string | undefined> = {
   anthropic: "claude-haiku-4-5-20251001",
-  gemini: "gemini-2.0-flash-lite",
+  // gemini-3.6-flash is the only Gemini name a key created today can call; the
+  // 2.x and 1.5 families 404 with "no longer available to new users".
+  gemini: "gemini-3.6-flash",
   groq: "llama-3.1-8b-instant",
   openrouter: "openai/gpt-oss-20b:free",  // 8B had ~256 token cap on free tier; GPT-OSS 20B returns complete JSON
   ollama: undefined,   // user's local model

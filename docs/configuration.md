@@ -27,7 +27,7 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `SUPABASE_SERVICE_KEY` | Supabase service-role key | Yes |
 | `JWT_SECRET` | Secret for JWT signing/verification | Yes |
 | `ANTHROPIC_API_KEY` | Anthropic Claude key | If used |
-| `GEMINI_API_KEY` | Google Gemini key | If used |
+| `GEMINI_API_KEY` | Google Gemini key. On a key created today only `gemini-3.6-flash` works; the 1.5, 2.0 and 2.5 families return `404 no longer available to new users` and are absent from the API's model list | If used |
 | `GROQ_API_KEY` | Groq key | If used |
 | `OPENROUTER_API_KEY` | OpenRouter key | If used |
 | `OPENROUTER_REFERER` | URL shown on openrouter.ai/activity | Optional |
