@@ -658,3 +658,15 @@ button { font: inherit; cursor: pointer; }
     font-size: 12px;
   }
 }
+
+/* ── Product Hunt badge, right corner of the hero CTA row ────────────────────
+   .hero__cta-row is already flex, so margin-left:auto pushes the badge to the
+   container's right edge while keeping it vertically centred on the same line
+   as "Run it yourself" / "See how it works".
+   The row already wraps, so below 720px the badge drops to its own line and the
+   auto margin is cleared, otherwise it would sit right-aligned and orphaned. */
+.ph-badge { margin-left: auto; display: inline-block; line-height: 0; }
+.ph-badge img { display: block; width: 250px; height: 54px; }
+@media (max-width: 720px) {
+  .ph-badge { margin-left: 0; margin-top: 8px; }
+}
