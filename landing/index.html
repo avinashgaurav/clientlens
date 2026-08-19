@@ -28,6 +28,7 @@
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
   />
+  <script>document.documentElement.classList.add("has-js");</script>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -354,6 +355,46 @@
     </div>
   </section>
 
+  <!-- ────────── SEE IT (real screenshots, in the order a rep meets them) ────────── -->
+  <section id="see" class="band see reveal">
+    <div class="container">
+      <div class="see__head">
+        <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">Poke around</div>
+        <h2>Every screen, in order.</h2>
+        <p>
+          Real screenshots, not mockups, following the path a rep actually takes:
+          load your material, draft the pitch, take the calls, read the week.
+        </p>
+      </div>
+
+      <div class="see__tabs" role="tablist" aria-label="Product screens">
+        <button class="see__tab is-active" role="tab" aria-selected="true"  data-shot="knowledge"><span>01</span> Load your material</button>
+        <button class="see__tab" role="tab" aria-selected="false" data-shot="pitch"><span>02</span> Draft the pitch</button>
+        <button class="see__tab" role="tab" aria-selected="false" data-shot="calls"><span>03</span> Take the calls</button>
+        <button class="see__tab" role="tab" aria-selected="false" data-shot="insights"><span>04</span> Read the week</button>
+      </div>
+
+      <div class="see__stage">
+        <figure class="see__panel is-active" role="tabpanel" data-shot="knowledge">
+          <img src="img/1-knowledge.png" alt="Knowledge base: five entries, five of five indexed, one case study expanded." loading="lazy" width="1080" height="720" />
+          <figcaption><strong>Load your material.</strong> Case studies and battle cards, indexed and chunked. Every citation later resolves to one of these.</figcaption>
+        </figure>
+        <figure class="see__panel" role="tabpanel" data-shot="pitch" hidden>
+          <img src="img/2-pitch.png" alt="Pitch setup: live meeting mode on, five output formats." loading="lazy" width="1080" height="720" />
+          <figcaption><strong>Draft the pitch.</strong> Pick a format and a buyer persona. Live meeting mode is on for the call itself.</figcaption>
+        </figure>
+        <figure class="see__panel" role="tabpanel" data-shot="calls" hidden>
+          <img src="img/3-calls.png" alt="Call history: four calls with sentiment and agenda coverage." loading="lazy" width="1080" height="720" />
+          <figcaption><strong>Take the calls.</strong> Each one lands here with sentiment and how much of the agenda you actually covered.</figcaption>
+        </figure>
+        <figure class="see__panel" role="tabpanel" data-shot="insights" hidden>
+          <img src="img/4-insights.png" alt="Insights: win rate, average sentiment, objections handled, total calls." loading="lazy" width="1080" height="720" />
+          <figcaption><strong>Read the week.</strong> Win rate, sentiment and every objection you handled, without writing a note.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
   <!-- ────────── HOW IT WORKS (PostHog skin) ────────── -->
   <section id="how" class="band how">
     <div class="container">
@@ -469,5 +510,46 @@
       </div>
     </div>
   </footer>
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll(".see__tab");
+      var panels = document.querySelectorAll(".see__panel");
+      if (!tabs.length) return;
+      function show(name) {
+        tabs.forEach(function (t) {
+          var on = t.dataset.shot === name;
+          t.classList.toggle("is-active", on);
+          t.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels.forEach(function (p) {
+          var on = p.dataset.shot === name;
+          p.hidden = !on; p.classList.toggle("is-active", on);
+        });
+      }
+      tabs.forEach(function (t) {
+        t.addEventListener("click", function () { show(t.dataset.shot); });
+        t.addEventListener("keydown", function (e) {
+          if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+          e.preventDefault();
+          var l = Array.prototype.slice.call(tabs), i = l.indexOf(t);
+          var n = l[(i + (e.key === "ArrowRight" ? 1 : l.length - 1)) % l.length];
+          n.focus(); show(n.dataset.shot);
+        });
+      });
+    })();
+    (function () {
+      var els = document.querySelectorAll(".reveal");
+      if (!els.length) return;
+      function showAll() { els.forEach(function (e) { e.classList.add("is-in"); }); }
+      if (!("IntersectionObserver" in window)) return showAll();
+      var io = new IntersectionObserver(function (en) {
+        en.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add("is-in"); io.unobserve(x.target); } });
+      }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+      els.forEach(function (e) { io.observe(e); });
+      requestAnimationFrame(function () {
+        els.forEach(function (e) { if (e.getBoundingClientRect().top < innerHeight) e.classList.add("is-in"); });
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -670,3 +670,81 @@ button { font: inherit; cursor: pointer; }
 @media (max-width: 720px) {
   .ph-badge { margin-left: 0; margin-top: 8px; }
 }
+
+/* ═══ v2: the one added section. Nothing above this line was changed. ═══
+   Screenshots are capped hard. The raw captures are tall sidebar portraits, and
+   dropping one into a feature column made the section three times its designed
+   height and wrecked the page rhythm. So they live only here, cropped to their
+   informative region and constrained by the stage rather than by their own size. */
+.see { background: #08080A; }
+.see__head { max-width: 620px; margin-bottom: 36px; }
+.see__head h2 { font-size: clamp(28px,3.6vw,42px); font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-bottom: 12px; }
+.see__head p { color: rgba(255,255,255,0.56); font-size: 16px; line-height: 1.6; }
+
+.see__tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.see__tab {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.62); background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 9999px;
+  padding: 9px 15px; cursor: pointer;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+.see__tab:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.see__tab.is-active { color: #0A0A0A; background: #F58549; border-color: #F58549; font-weight: 600; }
+.see__tab:focus-visible { outline: 2px solid #F58549; outline-offset: 3px; }
+
+/* Fixed stage height: switching tabs must never move the page, and no
+   screenshot may dictate the section's size. */
+.see__stage {
+  height: 560px; background: #0D0D10;
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 14px;
+  padding: 24px; display: flex; align-items: center; justify-content: center;
+}
+.see__panel { margin: 0; height: 100%; width: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; }
+.see__panel[hidden] { display: none; }
+.see__panel img {
+  /* A real, visible boundary. The letterbox canvas is gone, so this border is
+     the thing that makes each screenshot read as a framed object rather than
+     bleeding into the stage. Height is capped so the tall pitch shot cannot
+     dominate, and object-fit is unnecessary because each file is cropped tight. */
+  width: auto; height: auto;
+  max-width: min(100%, 760px); max-height: 400px;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 10px;
+  background: #0B0C10;
+  box-shadow: 0 22px 55px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.5);
+  display: block;
+}
+.see__panel figcaption { text-align: center; font-size: 14px; line-height: 1.5;
+  color: rgba(255,255,255,0.55); max-width: 560px; }
+.see__panel figcaption strong { color: #fff; font-weight: 600; }
+.see__panel.is-active { animation: shotIn 240ms ease both; }
+@keyframes shotIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 640px) {
+  .see__stage { height: 440px; padding: 14px; }
+  .see__panel img { max-height: 300px; }
+  .see__tab { font-size: 10px; padding: 8px 12px; }
+}
+
+/* Reveal is scoped to .has-js so content is never hidden when JS is absent. */
+.has-js .reveal { opacity: 0; transform: translateY(16px); transition: opacity 600ms ease, transform 600ms ease; }
+.has-js .reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .has-js .reveal, .has-js .reveal.is-in { opacity: 1; transform: none; transition: none; }
+  .see__panel.is-active { animation: none; }
+}
+
+/* Numbered step chips in the tabs, so the order reads as a sequence. */
+.see__tab span {
+  color: #F58549; margin-right: 7px; font-weight: 700;
+}
+.see__tab.is-active span { color: rgba(0,0,0,0.55); }
+
+/* The closing CTA's trailing paragraph sat flush against the button row.
+   .cta p carries margin-bottom only, which the FIRST paragraph uses to clear the
+   buttons; the one after them had nothing above it. Same bug exists on the live
+   page. Scoped to last-of-type so the lede above the buttons is unaffected. */
+.cta__inner > p:last-of-type { margin-top: 30px; margin-bottom: 0; }
