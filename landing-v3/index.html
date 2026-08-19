@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#08090C" />
+  <title>Project Wingman: Open-Source Sales Copilot</title>
+  <meta name="description" content="An open-source AI copilot that sits in your browser sidebar: pitch generation, live meeting coaching, objection handling, and post-call insights for B2B sales reps. MIT licensed, runs on your own LLM keys." />
+  <meta property="og:title" content="Project Wingman: Open-Source Sales Copilot" />
+  <meta property="og:description" content="Live meeting coaching, grounded pitch generation, objection handling, and post-call insights. Open source, MIT licensed, and it runs on your own LLM keys. No Wingman server in the middle." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://avinashgaurav.github.io/project-wingman/" />
+  <meta property="og:image" content="https://avinashgaurav.github.io/project-wingman/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Project Wingman: Open-Source Sales Copilot" />
+  <meta name="twitter:image" content="https://avinashgaurav.github.io/project-wingman/og.png" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" />
+  <script>document.documentElement.classList.add("has-js");</script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a class="brand" href="#top">
+      <img src="favicon.svg" alt="" width="26" height="26" />
+      <span>Project Wingman</span>
+    </a>
+    <div class="nav__links">
+      <a href="#flow">How it works</a>
+      <a href="#agents">The agents</a>
+      <a href="#honest">Limits</a>
+      <a href="#install">Install</a>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="https://github.com/avinashgaurav/project-wingman">GitHub</a>
+  </div>
+</nav>
+
+<!-- ══════════════ HERO ══════════════ -->
+<header class="hero" id="top">
+  <div class="wrap hero__in">
+    <p class="kicker"><span class="dot"></span> Open-source AI sales copilot · MIT licensed</p>
+    <h1>The copilot that<br /><em>closes deals with you.</em></h1>
+    <p class="lede">
+      Live coaching during the call, pitches grounded in your own knowledge base, and
+      objections answered on the spot. It sits in your Chrome sidebar and runs on your
+      own keys. There is no Wingman server.
+    </p>
+    <div class="row">
+      <a class="btn btn--primary" href="#install">Run it yourself <span aria-hidden="true">→</span></a>
+      <a class="btn btn--ghost" href="#flow">See the screens</a>
+      <a class="ph" href="https://www.producthunt.com/products/project-wingman?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-project-wingman" target="_blank" rel="noopener noreferrer">
+        <img alt="Project Wingman - The copilot that closes deals with you. | Product Hunt" width="230" height="50" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1225749&amp;theme=dark&amp;t=1787045425257" />
+      </a>
+    </div>
+
+    <figure class="frame frame--hero reveal">
+      <div class="frame__bar"><span></span><span></span><span></span><em>Chrome side panel</em></div>
+      <img src="img/4-insights.png" alt="Wingman's Insights tab: win rate, average sentiment, objections handled and total calls." width="1080" height="720" />
+    </figure>
+  </div>
+</header>
+
+<!-- ══════════════ NUMBERS ══════════════ -->
+<section class="band band--tight nums">
+  <div class="wrap nums__in reveal">
+    <div><b>5</b><span>agents on every call</span></div>
+    <div><b>0</b><span>unsourced numbers allowed</span></div>
+    <div><b>100%</b><span>your own LLM keys</span></div>
+    <div><b>MIT</b><span>fork it, ship it, sell with it</span></div>
+  </div>
+</section>
+
+<!-- ══════════════ THE FLOW ══════════════ -->
+<section class="band" id="flow">
+  <div class="wrap">
+    <div class="head reveal">
+      <p class="kicker">Poke around</p>
+      <h2>Every screen, in the order you meet them.</h2>
+      <p class="sub">Real screenshots, not mockups. This is the whole loop, from loading your material to reading your week.</p>
+    </div>
+
+    <div class="step reveal">
+      <div class="step__txt">
+        <p class="num">01</p>
+        <h3>Load your material.</h3>
+        <p>
+          Paste case studies and battle cards, drop in files, point it at a URL or a git repo.
+          Each entry is indexed and chunked, and every citation later resolves back to one of them.
+        </p>
+        <ul class="ticks">
+          <li>Categories keep sources separated by purpose</li>
+          <li>PMMs can keep it current without bothering engineering</li>
+          <li>Nothing is generated from material you did not give it</li>
+        </ul>
+      </div>
+      <figure class="frame">
+        <div class="frame__bar"><span></span><span></span><span></span><em>Knowledge base</em></div>
+        <img src="img/1-knowledge.png" alt="Knowledge base with five entries, five of five indexed." loading="lazy" width="1080" height="720" />
+      </figure>
+    </div>
+
+    <div class="step step--flip reveal">
+      <div class="step__txt">
+        <p class="num">02</p>
+        <h3>Draft the pitch.</h3>
+        <p>
+          Pick an output format and the role you are selling to. A four-agent council does
+          retrieval, personalisation, brand compliance and fact-checking in one pass.
+        </p>
+        <ul class="ticks">
+          <li>Five formats, from slide cards to a dense exec one-pager</li>
+          <li>Buyer personas tuned for CFO, CTO, COO, VP Sales and more</li>
+          <li>Anything uncited is rejected before it reaches you</li>
+        </ul>
+      </div>
+      <figure class="frame">
+        <div class="frame__bar"><span></span><span></span><span></span><em>Generate · Pitch</em></div>
+        <img src="img/2-pitch.png" alt="Pitch setup with output formats and live meeting mode on." loading="lazy" width="1080" height="720" />
+      </figure>
+    </div>
+
+    <div class="step reveal">
+      <div class="step__txt">
+        <p class="num">03</p>
+        <h3>Take the calls.</h3>
+        <p>
+          Join a Google Meet and the sidebar starts listening. Afterwards each call lands here
+          with its sentiment and how much of your agenda you actually covered.
+        </p>
+        <ul class="ticks">
+          <li>Sortable by date, sentiment, coverage or outcome</li>
+          <li>One click pushes the summary into Zoho</li>
+          <li>Nothing to install on the prospect's side</li>
+        </ul>
+      </div>
+      <figure class="frame">
+        <div class="frame__bar"><span></span><span></span><span></span><em>Insights · All calls</em></div>
+        <img src="img/3-calls.png" alt="Call history: four calls with sentiment and agenda coverage." loading="lazy" width="1080" height="720" />
+      </figure>
+    </div>
+
+    <div class="step step--flip reveal">
+      <div class="step__txt">
+        <p class="num">04</p>
+        <h3>Read the week.</h3>
+        <p>
+          Win rate, average sentiment and every objection you handled, without writing a note.
+          The loop closes itself.
+        </p>
+        <ul class="ticks">
+          <li>Agenda coverage and sentiment trended across each call</li>
+          <li>Objections with the source citation that backed the answer</li>
+          <li>Action items with an owner and a due date</li>
+        </ul>
+      </div>
+      <figure class="frame">
+        <div class="frame__bar"><span></span><span></span><span></span><em>Insights · This week</em></div>
+        <img src="img/4-insights.png" alt="Insights showing win rate, sentiment, objections handled." loading="lazy" width="1080" height="720" />
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ AGENTS ══════════════ -->
+<section class="band band--alt" id="agents">
+  <div class="wrap">
+    <div class="head reveal">
+      <p class="kicker">During the call</p>
+      <h2>Five agents, one transcript.</h2>
+      <p class="sub">They run on the live transcript while you talk. The last one exists to stop you saying a number you cannot back.</p>
+    </div>
+    <div class="agents reveal">
+      <div class="agent"><p class="tag">Sentiment</p><p>Reads the prospect's tone as the call moves, so you know when to soften and when to push.</p></div>
+      <div class="agent"><p class="tag">Agenda</p><p>Tracks what you have covered against the plan, and warns you when discovery has not happened.</p></div>
+      <div class="agent"><p class="tag">Coach</p><p>Surfaces the next-best sentence the moment the prospect pushes back.</p></div>
+      <div class="agent"><p class="tag">Objection</p><p>Answers "they just said X, what do I say?" with a two-agent council.</p></div>
+      <div class="agent agent--hero"><p class="tag tag--hot">Fact-check</p><p>Audits every number against your knowledge base. Anything uncited is rejected before you see it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ GROUNDED ══════════════ -->
+<section class="band grounded">
+  <div class="wrap grounded__in reveal">
+    <p class="kicker">Grounded, not generated</p>
+    <h2>Every number traces back to a source.</h2>
+    <blockquote>
+      <p>“Cut onboarding time by a third”<span class="cite">1</span></p>
+      <cite>source: acme-case-study.pdf</cite>
+    </blockquote>
+    <p class="sub">
+      A dedicated validation agent checks each claim against the sources actually retrieved from
+      your knowledge base. Hover an inline citation and you get the exact quote it came from.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════ HONEST LIMITS ══════════════ -->
+<section class="band band--alt" id="honest">
+  <div class="wrap">
+    <div class="head reveal">
+      <p class="kicker">Before you invest an evening</p>
+      <h2>What this is not, yet.</h2>
+      <p class="sub">Worth knowing up front rather than discovering at the end. All of this is in the README too.</p>
+    </div>
+    <div class="limits reveal">
+      <div><p class="tag tag--warn">No Web Store listing</p><p>Load unpacked. Setup is a developer task today.</p></div>
+      <div><p class="tag tag--warn">Auth is not wired</p><p>v1.0 assumes one rep on their own backend. Keep it off the public internet.</p></div>
+      <div><p class="tag tag--warn">Zoho only</p><p>HubSpot and Salesforce are on the roadmap.</p></div>
+      <div><p class="tag tag--warn">Google Meet only</p><p>Teams and Zoom are not wired end to end yet.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ INSTALL ══════════════ -->
+<section class="band" id="install">
+  <div class="wrap install__in">
+    <div class="head reveal">
+      <p class="kicker">From clone to first call</p>
+      <h2>Three steps, your infrastructure.</h2>
+      <p class="sub">Node 20+, Python 3.11+, and one LLM provider key. A Groq or Gemini free tier is enough to evaluate the whole thing.</p>
+    </div>
+    <pre class="code reveal"><code>git clone https://github.com/avinashgaurav/project-wingman.git
+cd project-wingman
+
+bash scripts/setup_env.sh          <span class="c"># writes backend/.env and extension/.env</span>
+
+cd backend &amp;&amp; python3.11 -m venv venv &amp;&amp; source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+
+cd ../extension &amp;&amp; npm install &amp;&amp; npm run dev</code></pre>
+    <p class="sub reveal">Then load <code class="inl">extension/dist/</code> at <code class="inl">chrome://extensions</code> with Developer mode on. There is no sign-in step.</p>
+  </div>
+</section>
+
+<!-- ══════════════ CTA ══════════════ -->
+<section class="cta">
+  <div class="wrap cta__in reveal">
+    <p class="kicker">Bring your own keys · MIT licensed · No SaaS lock-in</p>
+    <h2>Stop juggling tabs.<br />Start closing deals.</h2>
+    <p class="lede">
+      Open source, on infrastructure you control, with Anthropic, Gemini, Groq or anything
+      OpenAI-compatible behind it. Try it, use it, improve it.
+    </p>
+    <div class="row row--center">
+      <a class="btn btn--primary" href="https://github.com/avinashgaurav/project-wingman">Get it on GitHub <span aria-hidden="true">→</span></a>
+      <a class="btn btn--ghost" href="https://github.com/avinashgaurav/project-wingman#quick-start">Read the docs</a>
+    </div>
+    <p class="fine">
+      A Web Store build is coming, so reps will not need a developer.
+      <a href="https://github.com/avinashgaurav/project-wingman/subscription">Watch the repo</a> to hear when.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div>
+      <a class="brand" href="#top"><img src="favicon.svg" alt="" width="26" height="26" /><span>Project Wingman</span></a>
+      <p>An open-source sales copilot that runs on the provider you already pay for. Built solo, in the open.</p>
+    </div>
+    <div class="foot__cols">
+      <div>
+        <h4>Product</h4>
+        <a href="#flow">How it works</a>
+        <a href="#agents">The agents</a>
+        <a href="#install">Install</a>
+      </div>
+      <div>
+        <h4>Docs</h4>
+        <a href="https://github.com/avinashgaurav/project-wingman#quick-start">Quick start</a>
+        <a href="https://github.com/avinashgaurav/project-wingman/blob/main/docs/configuration.md">Configuration</a>
+        <a href="https://github.com/avinashgaurav/project-wingman/blob/main/docs/security.md">Security</a>
+      </div>
+      <div>
+        <h4>Project</h4>
+        <a href="https://github.com/avinashgaurav/project-wingman">GitHub</a>
+        <a href="https://github.com/avinashgaurav/project-wingman/blob/main/CONTRIBUTING.md">Contributing</a>
+        <a href="https://github.com/avinashgaurav/project-wingman/issues">Issues</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap foot__legal">
+    <span>© Project Wingman · MIT licensed</span>
+    <a href="https://github.com/avinashgaurav/project-wingman/releases/tag/v1.0.0">v1.0.0</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll(".reveal");
+    if (!els.length) return;
+    function all() { els.forEach(function (e) { e.classList.add("in"); }); }
+    if (!("IntersectionObserver" in window)) return all();
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.04 });
+    els.forEach(function (e) { io.observe(e); });
+    requestAnimationFrame(function () {
+      els.forEach(function (e) { if (e.getBoundingClientRect().top < innerHeight) e.classList.add("in"); });
+    });
+  })();
+</script>
+</body>
+</html>

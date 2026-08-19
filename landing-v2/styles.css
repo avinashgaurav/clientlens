@@ -1,0 +1,750 @@
+/*
+ * Project Wingman — Landing Page Styles
+ * ======================================
+ * Multi-skin page layered as bands:
+ *   1. Hero band       → SpaceX (pure black, uppercase D-DIN substitute, ghost pill CTA)
+ *   2. Trust strip     → Vercel (white canvas, monochrome logo wall)
+ *   3. Feature bands   → Vercel + Cursor + Spotify (skin per band)
+ *   4. How-it-works    → PostHog (cream canvas, white cards)
+ *   5. Closing CTA     → SpaceX echo (black, ghost pill)
+ *   6. Footer          → Linear (deep-dark minimal)
+ *
+ * One file, no build step, no dependencies. Token vocabulary inlined.
+ */
+
+/* ─────────────────────────── Reset ─────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv11', 'ss03', 'ss01';
+  letter-spacing: -0.02em;
+  background: #000000;
+  color: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+
+.mono { font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ─────────────────────────── Layout ─────────────────────────── */
+.container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.band { padding: 96px 0; position: relative; }
+@media (max-width: 768px) { .band { padding: 64px 0; } }
+@media (max-width: 480px) { .band { padding: 48px 0; } }
+
+.eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.5);
+}
+.eyebrow--light { color: #888888; }
+
+/* ─────────────────────────── Top nav (Vercel-style on dark) ─── */
+.topnav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 64px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.topnav__inner {
+  height: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+/* The mark is the favicon SVG itself, so nav, footer, browser tab and the
+   shipped extension icon can never drift apart. */
+.brand__mark {
+  width: 28px; height: 28px;
+  display: block;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.brand__name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #FFFFFF;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 28px;
+}
+.nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.7);
+  transition: color 140ms ease;
+}
+.nav-links a:hover { color: #FFFFFF; }
+/* Ghost-outlined to match the strict SpaceX hero — the nav rides over the
+   black hero band, so a ghost pill reads more SpaceX than a filled-orange
+   mark. (The hero band itself still has two pills — this isn't strict
+   "single CTA per band"; it's the closest fit without dropping a link.) */
+.nav-cta {
+  background: transparent;
+  color: #FFFFFF;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.4);
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+.nav-cta:hover { background: rgba(255,255,255,0.06); border-color: #FFFFFF; transform: translateY(-1px); }
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+}
+
+/* ─────────────────────────── HERO (SpaceX) ─────────────────── */
+.hero {
+  background: #000000;
+  min-height: 100vh;
+  padding: 160px 0 96px;
+  position: relative;
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+.hero::before {
+  /* Atmospheric backdrop — radial wash centred near top-right.
+     SpaceX uses photography here; we use a tonal radial wash so the
+     page reads cinematic without a hero image asset to maintain. */
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 30%, rgba(245,133,73,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(42,68,148,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero__inner { position: relative; z-index: 1; max-width: 1100px; }
+.hero__eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #F58549;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero__eyebrow::before {
+  content: ""; display: inline-block;
+  width: 32px; height: 1px; background: #F58549;
+}
+.hero__headline {
+  /* Was clamp(40px, 8vw, 96px). At 96px the headline ran to three lines and
+     filled the whole viewport, pushing the lede and both buttons below the
+     fold on a 1440x900 screen. Same uppercase register, sized to fit. */
+  font-size: clamp(38px, 6.2vw, 76px);
+  font-weight: 700;
+  line-height: 0.95;
+  /* SpaceX signature: uppercase D-DIN-Bold with POSITIVE tracking
+     (+1.6px @ 80px = +0.02em). D-DIN isn't web-available, so the existing
+     display family is uppercased with the positive tracking applied.
+     This overrides the earlier title-case softening on purpose — the
+     hero now reads as the strict SpaceX "aerospace" register. */
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  margin-bottom: 24px;
+}
+.hero__headline em {
+  /* SpaceX uses no accent — black/white/photography only. The orange
+     gradient is dropped so the headline is pure white. */
+  font-style: normal;
+  color: #FFFFFF;
+}
+.hero__lede {
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.5;
+  color: rgba(255,255,255,0.7);
+  max-width: 640px;
+  margin-bottom: 40px;
+}
+.hero__cta-row {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.btn-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
+  transition: filter 140ms ease, transform 140ms ease, background 140ms ease;
+}
+.btn-pill--primary {
+  background: #F58549; color: #0A0A0A;
+}
+.btn-pill--primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.btn-pill--ghost {
+  background: transparent; color: #FFFFFF;
+  border-color: rgba(255,255,255,0.4);
+}
+.btn-pill--ghost:hover { background: rgba(255,255,255,0.06); border-color: #FFFFFF; }
+
+/* SpaceX signature: "single ghost-outlined pill CTA per band, never
+   filled." Scoped to the hero — the filled-orange primary becomes a
+   ghost-outlined pill so the hero matches the strict SpaceX convention.
+   Other bands keep their filled CTAs. */
+.hero .btn-pill--primary {
+  background: transparent;
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.4);
+}
+.hero .btn-pill--primary:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: #FFFFFF;
+  filter: none;
+}
+
+.hero__stats {
+  margin-top: 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.hero__stat__value {
+  font-size: 36px; font-weight: 800; line-height: 1;
+  letter-spacing: -0.03em;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums;
+}
+.hero__stat__label {
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.5);
+}
+@media (max-width: 768px) {
+  .hero__stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ─────────────────────────── Trust strip (Vercel) ──────────── */
+.trust {
+  background: #FAFAFA;
+  color: #4D4D4D;
+  padding: 48px 0;
+  border-top: 1px solid #EBEBEB;
+  border-bottom: 1px solid #EBEBEB;
+}
+.trust__label {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #888888;
+  margin-bottom: 24px;
+}
+.trust__row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 48px;
+  opacity: 0.7;
+}
+.trust__logo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #171717;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ─────────────────────────── FEATURE 1 — Live copilot (Cursor) */
+.feature-cursor {
+  background: #F7F7F4;
+  color: #26251E;
+}
+.feature__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.feature__copy h2 {
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+.feature__copy p {
+  font-size: 18px;
+  line-height: 1.5;
+  color: #5A5852;
+  margin-bottom: 16px;
+}
+.feature__bullets {
+  list-style: none; padding: 0; margin: 24px 0 0;
+}
+.feature__bullets li {
+  padding: 12px 0;
+  border-top: 1px solid #E6E5E0;
+  display: flex; align-items: flex-start; gap: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.feature__bullets li:last-child { border-bottom: 1px solid #E6E5E0; }
+.feature__bullets .pill {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #26251E;
+}
+.pill--thinking { background: #DFA88F; }
+.pill--grep { background: #9FC9A2; }
+.pill--read { background: #9FBBE0; }
+.pill--edit { background: #C0A8DD; }
+.pill--done { background: #C08532; color: #FFFFFF; }
+
+/* Cursor-style mock IDE/sidebar card */
+.mock-sidebar {
+  background: #FFFFFF;
+  border: 1px solid #E6E5E0;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(38,37,30,0.06);
+}
+.mock-sidebar__head {
+  background: #FAFAF7;
+  border-bottom: 1px solid #E6E5E0;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px;
+}
+.mock-sidebar__dot {
+  width: 8px; height: 8px; border-radius: 9999px; background: #1F8A65;
+  box-shadow: 0 0 0 3px rgba(31,138,101,0.2);
+}
+.mock-sidebar__body { padding: 20px; }
+.mock-row {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #EFEEE8;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mock-row:last-child { border-bottom: none; }
+.mock-row__time {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #807D72;
+  width: 48px;
+}
+.mock-row__pill { flex-shrink: 0; }
+.mock-row__text { color: #26251E; }
+
+/* ─────────────────────────── FEATURE 2 — Pitch (Vercel mesh) ─ */
+.feature-vercel {
+  background: #FFFFFF;
+  color: #171717;
+  position: relative;
+}
+.feature-vercel .feature__grid { grid-template-columns: 1fr 1fr; }
+.feature-vercel .feature__copy p { color: #4D4D4D; }
+
+.mesh-card {
+  position: relative;
+  background: #171717;
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 32px;
+  overflow: hidden;
+  min-height: 360px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.mesh-card::before {
+  content: "";
+  position: absolute; inset: -40%;
+  background:
+    radial-gradient(circle at 30% 30%, #007CF0 0%, transparent 35%),
+    radial-gradient(circle at 70% 30%, #00DFD8 0%, transparent 35%),
+    radial-gradient(circle at 30% 70%, #7928CA 0%, transparent 35%),
+    radial-gradient(circle at 70% 70%, #FF0080 0%, transparent 35%);
+  filter: blur(60px);
+  opacity: 0.35;
+  z-index: 0;
+}
+.mesh-card > * { position: relative; z-index: 1; }
+.mesh-card__eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 8px;
+}
+.mesh-card__heading {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.mesh-card__copy {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 24px;
+}
+.mesh-card__stat-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.mesh-card__stat__value {
+  font-size: 24px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mesh-card__stat__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.5);
+  margin-top: 4px;
+}
+
+/* ─────────────────────────── FEATURE 3 — Insights (Spotify) ── */
+.feature-spotify {
+  background: #121212;
+  color: #FFFFFF;
+}
+.feature-spotify .feature__copy p { color: #B3B3B3; }
+.feature-spotify .feature__bullets li { border-color: #2A2A2A; }
+.feature-spotify .feature__bullets li:last-child { border-bottom-color: #2A2A2A; }
+.feature-spotify .pill { background: #1ED760; color: #0A0A0A; }
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.album-tile {
+  background: #181818;
+  border-radius: 8px;
+  padding: 16px;
+  transition: background 200ms ease, transform 200ms ease;
+  cursor: pointer;
+  box-shadow: rgba(0,0,0,0.3) 0px 8px 8px;
+}
+.album-tile:hover { background: #1F1F1F; transform: translateY(-2px); }
+.album-tile__art {
+  position: relative;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #252525 0%, #1F1F1F 100%);
+  border-radius: 4px;
+  margin-bottom: 12px;
+  display: flex; align-items: flex-end;
+  padding: 12px;
+}
+.album-tile__play {
+  position: absolute; bottom: 12px; right: 12px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #1ED760;
+  color: #000000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  box-shadow: rgba(0,0,0,0.5) 0px 8px 24px;
+}
+.album-tile__company { font-size: 16px; font-weight: 700; }
+.album-tile__prospect { font-size: 12px; color: #B3B3B3; margin-top: 2px; }
+.album-tile__bar {
+  margin-top: 12px;
+  height: 4px; background: #2A2A2A; border-radius: 9999px;
+  overflow: hidden;
+}
+.album-tile__bar__fill {
+  height: 100%; background: #1ED760;
+}
+.album-tile__meta {
+  margin-top: 8px;
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #7C7C7C;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* ─────────────────────────── How it works (PostHog) ────────── */
+.how {
+  background: #EEEFE9;
+  color: #23251D;
+}
+.how__heading {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.how__heading h2 {
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin-bottom: 16px;
+}
+.how__heading p {
+  font-size: 18px;
+  color: #4D4F46;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.how__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.how__card {
+  background: #FFFFFF;
+  border: 1px solid #BFC1B7;
+  border-radius: 6px;
+  padding: 32px 24px;
+  position: relative;
+}
+.how__card__step {
+  position: absolute; top: -16px; left: 24px;
+  width: 32px; height: 32px;
+  background: #F58549;
+  color: #0A0A0A;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 800;
+}
+.how__card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 16px 0 12px;
+}
+.how__card p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4D4F46;
+}
+
+/* ─────────────────────────── Closing CTA (SpaceX echo) ─────── */
+.cta {
+  background: #000000;
+  color: #FFFFFF;
+  text-align: center;
+  padding: 128px 0;
+  position: relative;
+  overflow: hidden;
+}
+.cta::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(245,133,73,0.2) 0%, transparent 60%);
+}
+.cta__inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 0 24px; }
+.cta h2 {
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.04em;
+  margin-bottom: 24px;
+}
+.cta p {
+  font-size: 18px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 40px;
+}
+/* SpaceX-echo band: ghost the filled-orange CTA to match the hero. */
+.cta .btn-pill--primary {
+  background: transparent;
+  color: #FFFFFF;
+  border-color: rgba(255,255,255,0.4);
+}
+.cta .btn-pill--primary:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: #FFFFFF;
+}
+
+/* ─────────────────────────── Footer (Linear) ───────────────── */
+.footer {
+  background: #010102;
+  color: #8A8F98;
+  padding: 64px 0 32px;
+  border-top: 1px solid #23252A;
+}
+.footer__grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 48px;
+  margin-bottom: 48px;
+}
+.footer__col h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #F7F8F8;
+  margin-bottom: 16px;
+}
+.footer__col ul { list-style: none; padding: 0; }
+.footer__col li { margin-bottom: 10px; }
+.footer__col a {
+  font-size: 14px;
+  color: #8A8F98;
+  transition: color 140ms ease;
+}
+.footer__col a:hover { color: #F7F8F8; }
+.footer__brand {
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.footer__tagline {
+  font-size: 13px;
+  color: #62666D;
+  line-height: 1.5;
+  max-width: 280px;
+}
+.footer__legal {
+  padding-top: 24px;
+  border-top: 1px solid #23252A;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px;
+  color: #62666D;
+}
+@media (max-width: 768px) {
+  .footer__grid { grid-template-columns: 1fr 1fr; }
+  .footer__legal { flex-direction: column; gap: 12px; }
+}
+
+/* ─────────────────────────── Responsive feature grids ──────── */
+@media (max-width: 900px) {
+  .feature__grid { grid-template-columns: 1fr !important; gap: 32px; }
+  .how__grid { grid-template-columns: 1fr; }
+  .album-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .album-grid { grid-template-columns: 1fr; }
+}
+
+/* ── small-screen legibility ───────────────────────────────────────────────
+   The uppercase mono labels are 11px, which is fine on a desktop but too tight
+   on a phone once letter-spacing is applied. Nudged to 12px below 640px. This
+   changes no colours, weights or layout. */
+@media (max-width: 640px) {
+  .hero__eyebrow,
+  .hero__stat__label,
+  .trust__label,
+  .eyebrow,
+  .mono {
+    font-size: 12px;
+  }
+}
+
+/* ── Product Hunt badge, right corner of the hero CTA row ────────────────────
+   .hero__cta-row is already flex, so margin-left:auto pushes the badge to the
+   container's right edge while keeping it vertically centred on the same line
+   as "Run it yourself" / "See how it works".
+   The row already wraps, so below 720px the badge drops to its own line and the
+   auto margin is cleared, otherwise it would sit right-aligned and orphaned. */
+.ph-badge { margin-left: auto; display: inline-block; line-height: 0; }
+.ph-badge img { display: block; width: 250px; height: 54px; }
+@media (max-width: 720px) {
+  .ph-badge { margin-left: 0; margin-top: 8px; }
+}
+
+/* ═══ v2: the one added section. Nothing above this line was changed. ═══
+   Screenshots are capped hard. The raw captures are tall sidebar portraits, and
+   dropping one into a feature column made the section three times its designed
+   height and wrecked the page rhythm. So they live only here, cropped to their
+   informative region and constrained by the stage rather than by their own size. */
+.see { background: #08080A; }
+.see__head { max-width: 620px; margin-bottom: 36px; }
+.see__head h2 { font-size: clamp(28px,3.6vw,42px); font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-bottom: 12px; }
+.see__head p { color: rgba(255,255,255,0.56); font-size: 16px; line-height: 1.6; }
+
+.see__tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.see__tab {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.62); background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10); border-radius: 9999px;
+  padding: 9px 15px; cursor: pointer;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+.see__tab:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.see__tab.is-active { color: #0A0A0A; background: #F58549; border-color: #F58549; font-weight: 600; }
+.see__tab:focus-visible { outline: 2px solid #F58549; outline-offset: 3px; }
+
+/* Fixed stage height: switching tabs must never move the page, and no
+   screenshot may dictate the section's size. */
+.see__stage {
+  height: 560px; background: #0D0D10;
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 14px;
+  padding: 24px; display: flex; align-items: center; justify-content: center;
+}
+.see__panel { margin: 0; height: 100%; width: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; }
+.see__panel[hidden] { display: none; }
+.see__panel img {
+  /* A real, visible boundary. The letterbox canvas is gone, so this border is
+     the thing that makes each screenshot read as a framed object rather than
+     bleeding into the stage. Height is capped so the tall pitch shot cannot
+     dominate, and object-fit is unnecessary because each file is cropped tight. */
+  width: auto; height: auto;
+  max-width: min(100%, 760px); max-height: 400px;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 10px;
+  background: #0B0C10;
+  box-shadow: 0 22px 55px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.5);
+  display: block;
+}
+.see__panel figcaption { text-align: center; font-size: 14px; line-height: 1.5;
+  color: rgba(255,255,255,0.55); max-width: 560px; }
+.see__panel figcaption strong { color: #fff; font-weight: 600; }
+.see__panel.is-active { animation: shotIn 240ms ease both; }
+@keyframes shotIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 640px) {
+  .see__stage { height: 440px; padding: 14px; }
+  .see__panel img { max-height: 300px; }
+  .see__tab { font-size: 10px; padding: 8px 12px; }
+}
+
+/* Reveal is scoped to .has-js so content is never hidden when JS is absent. */
+.has-js .reveal { opacity: 0; transform: translateY(16px); transition: opacity 600ms ease, transform 600ms ease; }
+.has-js .reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .has-js .reveal, .has-js .reveal.is-in { opacity: 1; transform: none; transition: none; }
+  .see__panel.is-active { animation: none; }
+}
+
+/* Numbered step chips in the tabs, so the order reads as a sequence. */
+.see__tab span {
+  color: #F58549; margin-right: 7px; font-weight: 700;
+}
+.see__tab.is-active span { color: rgba(0,0,0,0.55); }
+
+/* The closing CTA's trailing paragraph sat flush against the button row.
+   .cta p carries margin-bottom only, which the FIRST paragraph uses to clear the
+   buttons; the one after them had nothing above it. Same bug exists on the live
+   page. Scoped to last-of-type so the lede above the buttons is unaffected. */
+.cta__inner > p:last-of-type { margin-top: 30px; margin-bottom: 0; }
