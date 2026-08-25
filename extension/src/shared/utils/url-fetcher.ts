@@ -6,7 +6,7 @@
  * so cross-origin fetches work without the backend.
  */
 
-const MAX_TEXT_BYTES = 200_000; // 200KB of text — keeps localStorage healthy
+const MAX_TEXT_BYTES = 200_000; // 200KB of text, keeps localStorage healthy
 const FETCH_TIMEOUT_MS = 15_000;
 
 export interface FetchedUrlContent {
@@ -59,7 +59,7 @@ export async function fetchUrlContent(url: string): Promise<FetchedUrlContent> {
   try {
     parsed = new URL(trimmed);
   } catch {
-    throw new Error("Not a valid URL — include https://");
+    throw new Error("Not a valid URL: include https://");
   }
   if (!/^https?:$/i.test(parsed.protocol)) {
     throw new Error("Only http(s) URLs are supported");
@@ -90,7 +90,7 @@ export async function fetchUrlContent(url: string): Promise<FetchedUrlContent> {
   }
 
   if (!text.trim()) {
-    throw new Error("Page returned no readable text. Some sites block fetchers — paste the content as text instead.");
+    throw new Error("Page returned no readable text. Some sites block fetchers, paste the content as text instead.");
   }
 
   let truncated = false;

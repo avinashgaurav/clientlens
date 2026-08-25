@@ -1,5 +1,5 @@
 """
-Agent 3 — ICP Personalization Agent
+Agent 3: ICP Personalization Agent
 
 Adapts content structure, tone, and component selection
 to the specific ICP role and target company.
@@ -15,14 +15,14 @@ ICP_RULES = {
         "lead_with": ["ROI metrics", "cost savings", "payback period", "financial risk reduction"],
         "avoid": ["technical jargon", "architecture diagrams", "implementation complexity"],
         "preferred_blocks": ["metric_block", "comparison_table", "cta_block"],
-        "tone": "executive, numbers-first, concise — assume limited time",
+        "tone": "executive, numbers-first, concise, assume limited time",
         "slide_structure": ["Problem/Cost", "Our Solution", "ROI Summary", "Customer Proof", "Next Step"],
     },
     "cto": {
         "lead_with": ["architecture overview", "integration points", "security posture", "scalability"],
         "avoid": ["vague claims", "marketing language", "unsupported metrics"],
         "preferred_blocks": ["architecture_block", "bullet_list", "comparison_table"],
-        "tone": "technical, precise, evidence-based — respect engineering intelligence",
+        "tone": "technical, precise, evidence-based, respect engineering intelligence",
         "slide_structure": ["Problem Statement", "Technical Architecture", "Integration Map", "Security & Compliance", "Proof of Work", "Next Step"],
     },
     "coo": {
@@ -43,7 +43,7 @@ ICP_RULES = {
         "lead_with": ["strategic value", "market differentiation", "growth impact", "competitive moat"],
         "avoid": ["granular technical detail", "minor operational metrics"],
         "preferred_blocks": ["title_block", "metric_block", "quote_block", "cta_block"],
-        "tone": "visionary, strategic, high-signal — 3 ideas maximum per slide",
+        "tone": "visionary, strategic, high-signal, 3 ideas maximum per slide",
         "slide_structure": ["The Opportunity", "Why Now", "Our Differentiation", "Traction", "The Ask"],
     },
 }
@@ -55,7 +55,7 @@ Your job is to restructure and rewrite content specifically for the target ICP r
 RULES:
 1. Follow the ICP content rules exactly
 2. Reorganize slides to match the ICP's mental model
-3. Emphasize what matters to this persona — deprioritize the rest
+3. Emphasize what matters to this persona, deprioritize the rest
 4. Adapt tone as specified (do NOT change facts)
 5. Use ONLY approved component types from the Design System
 

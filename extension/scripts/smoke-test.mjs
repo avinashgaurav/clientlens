@@ -47,7 +47,7 @@ await build({
 
 // --- Fake Gemini endpoint ---------------------------------------------------
 const AGENT_RESPONSES = [
-  // Call 1 — retrieval
+  // Call 1: retrieval
   JSON.stringify({
     relevant_source_ids: ["kb-1"],
     citations: [
@@ -57,7 +57,7 @@ const AGENT_RESPONSES = [
     ],
     missing_info: [],
   }),
-  // Call 2 — ICP personalization
+  // Call 2: ICP personalization
   JSON.stringify({
     slides: [
       { index: 0, title: "ClientLens for Acme CFO", components: [{ type: "text_block", content: "40 integrations · 14-day trial · 14-day trial" }] },
@@ -65,9 +65,9 @@ const AGENT_RESPONSES = [
       { index: 2, title: "Commercial", components: [{ type: "text_block", content: "Flat monthly pricing." }] },
     ],
   }),
-  // Call 3 — brand compliance
+  // Call 3: brand compliance
   JSON.stringify({ pass: true, violations: [], tone_score: 0.9 }),
-  // Call 4 — validation
+  // Call 4: validation
   JSON.stringify({ grounded: true, claims: [], hallucinations: [] }),
 ];
 
@@ -149,11 +149,11 @@ const done = events.find((e) => e.type === "done");
 const agentEvents = events.filter((e) => e.type === "agent");
 const errorEvent = events.find((e) => e.type === "error");
 
-console.log("\n— council events —");
+console.log("\n[council events]");
 for (const e of events) {
   if (e.type === "stage") console.log(`  stage    ${e.stage}: ${e.message}`);
   else if (e.type === "agent") console.log(`  agent    ${e.result.agent} → ${e.result.status}`);
-  else if (e.type === "retry") console.log(`  retry    attempt ${e.attempt} — ${e.reason}`);
+  else if (e.type === "retry") console.log(`  retry    attempt ${e.attempt}, ${e.reason}`);
   else if (e.type === "done") console.log(`  done     ${e.pipeline.final_output.slides.length} slides`);
   else if (e.type === "error") console.log(`  error    ${e.message}`);
 }
@@ -169,7 +169,7 @@ const checks = [
   ["hallucination_check clean", done?.pipeline?.metadata?.hallucination_check === "clean"],
 ];
 
-console.log("\n— council checks —");
+console.log("\n[council checks]");
 for (const [name, pass] of checks) {
   console.log(`${pass ? "✅" : "❌"} ${name}`);
   if (!pass) failed++;
@@ -218,7 +218,7 @@ const emailDone = emailEvents.find((e) => e.type === "done");
 const emailError = emailEvents.find((e) => e.type === "error");
 const emailAgents = emailEvents.filter((e) => e.type === "agent");
 
-console.log("\n— email council events —");
+console.log("\n[email council events]");
 for (const e of emailEvents) {
   if (e.type === "stage") console.log(`  stage    ${e.stage}: ${e.message}`);
   else if (e.type === "agent") console.log(`  agent    ${e.result.agent} → ${e.result.status}`);
@@ -235,7 +235,7 @@ const emailChecks = [
   ["email: sources_used tracked", emailDone?.pipeline?.metadata?.sources_used?.[0] === "kb-1"],
 ];
 
-console.log("\n— email checks —");
+console.log("\n[email checks]");
 for (const [name, pass] of emailChecks) {
   console.log(`${pass ? "✅" : "❌"} ${name}`);
   if (!pass) failed++;
@@ -275,7 +275,7 @@ const objDone = objEvents.find((e) => e.type === "done");
 const objError = objEvents.find((e) => e.type === "error");
 const objAgents = objEvents.filter((e) => e.type === "agent");
 
-console.log("\n— objection council events —");
+console.log("\n[objection council events]");
 for (const e of objEvents) {
   if (e.type === "stage") console.log(`  stage    ${e.stage}: ${e.message}`);
   else if (e.type === "agent") console.log(`  agent    ${e.result.agent} → ${e.result.status}`);
@@ -290,7 +290,7 @@ const objChecks = [
   ["objection: citations present", (objDone?.response?.citations?.length ?? 0) > 0],
 ];
 
-console.log("\n— objection checks —");
+console.log("\n[objection checks]");
 for (const [name, pass] of objChecks) {
   console.log(`${pass ? "✅" : "❌"} ${name}`);
   if (!pass) failed++;

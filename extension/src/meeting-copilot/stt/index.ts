@@ -6,7 +6,7 @@ import type { SttProvider } from "./types";
 
 /**
  * Fetch a short-lived Deepgram temp key from the backend proxy.
- * DEEPGRAM_API_KEY lives in backend .env only — never bundled into the
+ * DEEPGRAM_API_KEY lives in backend .env only, never bundled into the
  * extension. Token TTL is 60 s; Deepgram holds the WebSocket open once
  * authenticated so one token per session is sufficient.
  */
@@ -17,7 +17,7 @@ async function fetchDeepgramToken(): Promise<string | null> {
       headers: { Authorization: `Bearer ${jwt}` },
     });
     if (!res.ok) {
-      console.warn("[stt] backend /stt/token returned", res.status, "— mock fallback");
+      console.warn("[stt] backend /stt/token returned", res.status, "(mock fallback)");
       return null;
     }
     const data = await res.json() as { token?: string };
@@ -28,7 +28,7 @@ async function fetchDeepgramToken(): Promise<string | null> {
   }
 }
 
-// Async factory — was sync before; callers that used createSttProvider()
+// Async factory: was sync before; callers that used createSttProvider()
 // must now await it. Audio controller updated accordingly.
 export async function createSttProvider(): Promise<SttProvider> {
   const which = getSttProvider();
@@ -36,14 +36,14 @@ export async function createSttProvider(): Promise<SttProvider> {
   if (which === "deepgram") {
     const token = await fetchDeepgramToken();
     if (!token) {
-      console.warn("[stt] no Deepgram token available — using mock STT");
+      console.warn("[stt] no Deepgram token available: using mock STT");
       return new MockSttProvider();
     }
     return new DeepgramSttProvider(token);
   }
 
   if (which === "assemblyai") {
-    console.warn("[stt] assemblyai not implemented — using mock");
+    console.warn("[stt] assemblyai not implemented: using mock");
     return new MockSttProvider();
   }
 

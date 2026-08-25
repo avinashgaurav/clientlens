@@ -27,7 +27,7 @@ interface CallSummary {
 // Within 7d: "Wed · 4:15 PM" / Older: "May 12 · 9:00 AM"
 function formatDateLabel(iso: string): string {
   const d = new Date(iso);
-  if (!isFinite(d.getTime())) return "—";
+  if (!isFinite(d.getTime())) return "n/a";
   const now = new Date();
   const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   if (d.toDateString() === now.toDateString()) return `Today · ${time}`;
@@ -81,7 +81,7 @@ function CallTile({ call }: { call: CallSummary }) {
         boxShadow: "var(--shadow-card)",
       }}
     >
-      {/* "Album art" header — gradient block + circular play button */}
+      {/* "Album art" header: gradient block + circular play button */}
       <div
         className="relative w-full aspect-[4/3] flex items-end p-2 mb-1"
         style={{
@@ -301,7 +301,7 @@ export function InsightsPanel() {
   }, [records]);
 
   // Drill-in to the full-history table (#44). CallHistoryTable handles its
-  // own empty state, so we don't gate this on `!empty` — a mid-session prune
+  // own empty state, so we don't gate this on `!empty`, a mid-session prune
   // shows "No calls" inside the table instead of silently teleporting the
   // user back to the grid empty state.
   if (viewMode === "table") {
@@ -353,13 +353,13 @@ export function InsightsPanel() {
         <HeroStat
           icon={<TrendingUp size={11} />}
           label="Win rate"
-          value={noCallsThisWeek ? "—" : `${stats.winRate}%`}
+          value={noCallsThisWeek ? "n/a" : `${stats.winRate}%`}
           sub="This week · won or next-step"
         />
         <HeroStat
           icon={<Award size={11} />}
           label="Avg sentiment"
-          value={noCallsThisWeek ? "—" : `${stats.avgSentiment}`}
+          value={noCallsThisWeek ? "n/a" : `${stats.avgSentiment}`}
           sub="This week"
         />
         <HeroStat

@@ -1,12 +1,12 @@
 /**
- * AudioWorklet processor — replaces the deprecated ScriptProcessorNode.
+ * AudioWorklet processor: replaces the deprecated ScriptProcessorNode.
  *
  * Runs in the AudioWorklet thread (separate from the main thread). Receives
  * one-channel Float32 PCM from the input bus and forwards it to the offscreen
  * document via the MessagePort. The offscreen doc then downsamples to 16kHz
  * and calls stt.pushAudio().
  *
- * This file is intentionally plain JS (no imports) — AudioWorklet processor
+ * This file is intentionally plain JS (no imports), AudioWorklet processor
  * scripts run in a restricted AudioWorkletGlobalScope that does not have
  * access to browser APIs. It is served verbatim by the extension (not bundled
  * by Vite) and loaded via:

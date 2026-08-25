@@ -15,8 +15,8 @@ Usage:
     export OPENROUTER_TITLE="Project Wingman"
 
 Exit codes:
-    0  — both /complete and /stream paths returned valid responses
-    1  — key missing or test failed
+    0: both /complete and /stream paths returned valid responses
+    1: key missing or test failed
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct:free"
 
 
 def make_headers(api_key: str, referer: str, title: str) -> dict:
-    """Same headers the FastAPI proxy sends — incl. OpenRouter app attribution."""
+    """Same headers the FastAPI proxy sends: incl. OpenRouter app attribution."""
     return {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -160,7 +160,7 @@ def test_stream(client: httpx.Client, headers: dict, model: str) -> bool:
 
     total_ms = int((time.perf_counter() - started) * 1000)
     if delta_count == 0:
-        print("  no delta chunks received — stream broke")
+        print("  no delta chunks received: stream broke")
         return False
 
     print(f"  request_id={request_id}")

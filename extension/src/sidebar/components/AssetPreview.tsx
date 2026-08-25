@@ -166,7 +166,7 @@ export function AssetPreview() {
           />
         </div>
         <p className="text-[10px] text-slate-500">
-          Sampled from the logo. Used for accents only — Project Wingman brand stays dominant.
+          Sampled from the logo. Used for accents only, Project Wingman brand stays dominant.
         </p>
       </div>
 
@@ -175,7 +175,7 @@ export function AssetPreview() {
         disabled={!brandAssets.logo_url}
         className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
       >
-        <Check size={14} /> Looks right — run agent council
+        <Check size={14} /> Looks right: run agent council
       </button>
     </div>
   );

@@ -16,7 +16,7 @@ import type { EmailIntent } from "../../shared/types";
  * Intent picker exposes the full EmailIntent union from shared/types so
  * users can drive every intent the backend agent supports (intro,
  * follow_up, post_call, objection, close, custom). The issue mentions
- * "Cold intro / Follow-up / Re-engage" as the headline trio — those map
+ * "Cold intro / Follow-up / Re-engage" as the headline trio, those map
  * to intro / follow_up / post_call. The remaining three are listed below
  * the divider so the primary three stay visually surfaced.
  */
@@ -36,7 +36,7 @@ const PRIMARY_INTENTS: IntentOption[] = [
 const SECONDARY_INTENTS: IntentOption[] = [
   { value: "objection", label: "Objection response", hint: "Address a specific concern they raised." },
   { value: "close", label: "Closing nudge", hint: "Late-stage push toward signature." },
-  { value: "custom", label: "Custom", hint: "Free-form prompt — use the instruction field." },
+  { value: "custom", label: "Custom", hint: "Free-form prompt, use the instruction field." },
 ];
 
 const ALL_INTENTS = [...PRIMARY_INTENTS, ...SECONDARY_INTENTS];
@@ -80,7 +80,7 @@ export function EmailComposer() {
             <ArrowLeft size={12} /> New email
           </button>
           {/* Single "Copy email" affordance covers subject + body in one
-              paste — matches Gmail/Outlook's compose flow. Placed in the
+              paste: matches Gmail/Outlook's compose flow. Placed in the
               top action row (not the Subject card) so users don't mistake
               it for a "copy subject only" button. */}
           <CopyButton text={subjectAndBody} label="Copy email" />
@@ -187,7 +187,7 @@ export function EmailComposer() {
         a grounded email with subject, body, and a suggested CTA.
       </p>
 
-      {/* Intent pill row — primary 3 */}
+      {/* Intent pill row: primary 3 */}
       <div>
         <span className="eyebrow mb-1 block" style={{ fontSize: 9, color: "var(--ink-4)" }}>
           Intent
@@ -216,7 +216,7 @@ export function EmailComposer() {
           })}
         </div>
 
-        {/* Secondary intents — exposed as a dropdown so the pill row stays
+        {/* Secondary intents: exposed as a dropdown so the pill row stays
             visually clean while still letting power users hit objection /
             close / custom. */}
         <label className="mt-2 flex items-center gap-2 text-[11px]" style={{ color: "var(--ink-4)" }}>

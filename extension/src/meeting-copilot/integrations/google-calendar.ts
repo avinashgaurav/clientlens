@@ -21,7 +21,7 @@ async function getToken(opts?: { interactive?: boolean }): Promise<string> {
 /** Pull the calendar event whose hangoutLink/description references this Meet
  *  URL. Used to auto-seed session input (company / agenda / attendees) when
  *  the rep starts the copilot from inside a Meet tab. Returns null if there's
- *  no token (calendar not connected) or no match — caller falls back to
+ *  no token (calendar not connected) or no match, caller falls back to
  *  Meet-tab DOM heuristics. Always non-interactive: never prompt mid-call. */
 export async function findCurrentMeetingFromCalendar(meetUrl: string): Promise<CalendarEvent | null> {
   let token: string;
@@ -30,7 +30,7 @@ export async function findCurrentMeetingFromCalendar(meetUrl: string): Promise<C
   const meetCode = meetUrl.match(/meet\.google\.com\/([a-z-]+)/i)?.[1];
   if (!meetCode) return null;
 
-  // Look 2h back / 8h forward — covers running-late and back-to-back.
+  // Look 2h back / 8h forward: covers running-late and back-to-back.
   const timeMin = new Date(Date.now() - 2 * 3600 * 1000).toISOString();
   const timeMax = new Date(Date.now() + 8 * 3600 * 1000).toISOString();
   const params = new URLSearchParams({
@@ -89,7 +89,7 @@ export async function connectCalendarInteractive(): Promise<{ ok: boolean; email
     });
     if (!infoRes.ok) return { ok: false, error: `Google userinfo ${infoRes.status}` };
     const info = (await infoRes.json()) as { email?: string; name?: string };
-    // Also verify calendar access by listing one event — confirms the
+    // Also verify calendar access by listing one event, confirms the
     // calendar scope was actually granted.
     const calRes = await fetch(`${BASE}/users/me/calendarList?maxResults=1`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -129,7 +129,7 @@ interface RawEvent {
 }
 
 /**
- * List upcoming calendar events. Always non-interactive — if the user hasn't
+ * List upcoming calendar events. Always non-interactive, if the user hasn't
  * connected calendar (or the cached token has expired), this returns an empty
  * list rather than popping Chrome's OAuth dialog mid-call. The UI should drive
  * interactive auth from a clear opt-in surface (e.g. Settings → Connect

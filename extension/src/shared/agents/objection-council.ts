@@ -1,7 +1,7 @@
 /**
- * Objection handling — lightweight 2-agent pipeline.
- *   1. Retrieval — scoped to battlecard, case_studies, security_compliance
- *   2. Respond   — returns a concise grounded response with citations
+ * Objection handling: lightweight 2-agent pipeline.
+ *   1. Retrieval: scoped to battlecard, case_studies, security_compliance
+ *   2. Respond: returns a concise grounded response with citations
  *
  * Called from the context menu on highlighted text anywhere (email, Slack, etc.).
  */
@@ -89,10 +89,10 @@ ${summarizeKB(used, 8)}
 
 Return JSON:
 {
-  "summary": "...",          // one line — what's the objection really asking
+  "summary": "...",          // one line, what's the objection really asking
   "response": "...",         // 60-120 words, direct, usable as a reply.
                               // Inline [N] markers REQUIRED on every supporting
-                              // claim — [1] for citations[0], [2] for citations[1],
+                              // claim: [1] for citations[0], [2] for citations[1],
                               // etc. The order of items in citations[] MUST match
                               // the order of [N] markers in response; the renderer
                               // resolves [N] by INDEX into citations[], not by

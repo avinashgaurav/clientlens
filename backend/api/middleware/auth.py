@@ -11,7 +11,7 @@ log = structlog.get_logger()
 UNPROTECTED_PATHS = {"/health", "/api/v1/llm/health", "/docs", "/openapi.json"}
 
 # Local-dev stub user injected when DEV_MODE=true.
-# Role is intentionally "sales_rep" (not "admin") — the bypass is for auth
+# Role is intentionally "sales_rep" (not "admin"), the bypass is for auth
 # plumbing only, not for privilege escalation. Flip to "admin" locally if you
 # need to test admin endpoints, but never leave it elevated in a shared env.
 _DEV_USER = {

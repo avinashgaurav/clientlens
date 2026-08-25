@@ -1,5 +1,5 @@
 /**
- * Deep research agent — pre-council phase.
+ * Deep research agent: pre-council phase.
  *
  * Steps:
  *   1. Fetch prospect homepage HTML (proxy via service worker to bypass CORS).
@@ -117,7 +117,7 @@ export async function runResearch(opts: {
     const brief: ResearchBrief = {
       company_name: companyName,
       domain,
-      one_liner: description || `${companyName} — homepage unreachable, research limited`,
+      one_liner: description || `${companyName}, homepage unreachable, research limited`,
       tech_signals: [],
       named_customers: [],
       pain_signals: [],
@@ -174,7 +174,7 @@ Return JSON:
 
 export function briefToPrompt(brief: ResearchBrief): string {
   const lines = [
-    `RESEARCH BRIEF — ${brief.company_name} (${brief.domain})`,
+    `RESEARCH BRIEF: ${brief.company_name} (${brief.domain})`,
     `One-liner: ${brief.one_liner}`,
     brief.industry ? `Industry: ${brief.industry}` : null,
     brief.size_signal ? `Size signal: ${brief.size_signal}` : null,

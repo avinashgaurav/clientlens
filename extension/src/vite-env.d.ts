@@ -22,7 +22,7 @@ interface ImportMetaEnv {
   readonly VITE_ZOHO_CLIENT_ID?: string;
   readonly VITE_ZOHO_CLIENT_SECRET?: string;
   readonly VITE_ZOHO_REDIRECT_URI?: string;
-  readonly VITE_ZOHO_DC?: string;               // "com" | "in" | "eu" — Zoho data center
+  readonly VITE_ZOHO_DC?: string;               // "com" | "in" | "eu", Zoho data center
   readonly VITE_GOOGLE_CALENDAR_CLIENT_ID?: string;
 }
 

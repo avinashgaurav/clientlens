@@ -1,4 +1,4 @@
-# Skin fidelity audit — tokens.css vs design-md sources
+# Skin fidelity audit: tokens.css vs design-md sources
 
 **Status:** reference doc. Captures how faithfully each of the 6 surface skins matches its source `DESIGN.md` in the awesome-design-md corpus (`~/Desktop/Personal/wingman-revamp/design-md/design-md/<brand>/`).
 
@@ -6,7 +6,7 @@
 
 ## The persistent intentional deviation
 
-Every skin overrides its source brand's native accent with **Wingman orange `#F58549`** as the CTA / brand mark. This is a deliberate product decision from PR #40 — the orange is the one thread that ties all 6 surfaces back to Wingman. It is NOT a fidelity bug. Each source brand's native accent is still present in the skin as a non-CTA token (e.g. PostHog's `#f7a501` lives as `--accent-yellow`, Linear's lavender as `--accent-blue`).
+Every skin overrides its source brand's native accent with **Wingman orange `#F58549`** as the CTA / brand mark. This is a deliberate product decision from PR #40, the orange is the one thread that ties all 6 surfaces back to Wingman. It is NOT a fidelity bug. Each source brand's native accent is still present in the skin as a non-CTA token (e.g. PostHog's `#f7a501` lives as `--accent-yellow`, Linear's lavender as `--accent-blue`).
 
 ## Per-skin color fidelity
 

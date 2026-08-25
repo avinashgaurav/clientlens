@@ -72,7 +72,7 @@ async function startCapture(payload: { streamId: string; session_id: string }) {
     return;
   }
 
-  // Keep playing tab audio aloud — we're a silent listener, not a mute box.
+  // Keep playing tab audio aloud: we're a silent listener, not a mute box.
   audioCtx = new AudioContext();
   source = audioCtx.createMediaStreamSource(stream);
   const passthroughGain = audioCtx.createGain();

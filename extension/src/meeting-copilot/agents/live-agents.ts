@@ -1,7 +1,7 @@
 // Three lightweight live agents that run against the rolling transcript:
-//   1. Sentiment — tone/engagement snapshot.
-//   2. Agenda tracker — marks items covered as they come up.
-//   3. Coach — suggests "say next" / "avoid" / objection handling.
+//   1. Sentiment: tone/engagement snapshot.
+//   2. Agenda tracker: marks items covered as they come up.
+//   3. Coach: suggests "say next" / "avoid" / objection handling.
 //
 // Each agent is a pure function over (session state, KB) that returns
 // an incremental update. Orchestration cadence lives in live-orchestrator.ts.
@@ -31,7 +31,7 @@ function rollingWindow(transcript: TranscriptSegment[]): string {
   return joined.length > WINDOW_CHARS ? joined.slice(-WINDOW_CHARS) : joined;
 }
 
-// Tight window for live coach + sentiment — last 5 final segments only,
+// Tight window for live coach + sentiment, last 5 final segments only,
 // hard-capped at 800 chars so the prompt stays small even if someone
 // monologues. Council/email path still uses the full rollingWindow.
 function liveWindow(transcript: TranscriptSegment[]): string {
@@ -66,7 +66,7 @@ function liveModelOverride(): { provider: LLMProvider; model: string } | undefin
 }
 
 function safeJson<T>(raw: string): T | null {
-  // Strip markdown code fences — models sometimes wrap JSON even when told not to.
+  // Strip markdown code fences: models sometimes wrap JSON even when told not to.
   // Handle both single-line (```json{...}```) and multi-line variants.
   const trimmed = raw
     .trim()
@@ -107,7 +107,7 @@ async function callLLM(system: string, user: string, maxTokens = 500): Promise<s
 }
 
 // Fast-tier LLM call for live agents. Uses Haiku/flash-lite/8B etc.
-// `onDelta` (optional) streams partial text as tokens arrive — used by the
+// `onDelta` (optional) streams partial text as tokens arrive, used by the
 // coach to render a live "thinking" preview in the transponder.
 async function callLiveLLM(
   system: string,
@@ -305,7 +305,7 @@ Each suggestion:
   "title": "short label shown on the transponder (<= 6 words)",
   "body": "what to actually say or do (1-2 short sentences)",
   "urgency": "low|medium|high",
-  "rationale": "one short sentence naming the trigger from the transcript — e.g. 'Prospect hesitated when timeline came up'",
+  "rationale": "one short sentence naming the trigger from the transcript, e.g. 'Prospect hesitated when timeline came up'",
   "sources": [{"kb_entry_id": "...", "quote": "..."}]
 }
 Rules:
@@ -313,7 +313,7 @@ Rules:
 - Only urgent suggestions (high) if the prospect just raised an objection or a buying signal.
 - Quote KB entries verbatim when grounding an answer.
 - Never invent facts. If KB does not support a claim, skip.
-- ALWAYS include a rationale — the rep needs to know *why* you raised this.`;
+- ALWAYS include a rationale: the rep needs to know *why* you raised this.`;
 
 export async function runCoachAgent(
   session: MeetingSession,
@@ -339,7 +339,7 @@ export async function runCoachAgent(
 Pending agenda: ${JSON.stringify(pending.map((p) => p.title))}
 Last sentiment: ${lastSentiment ? JSON.stringify(lastSentiment) : "none"}
 
-KB wiki map (titles + tldrs — use to know what we have, not for quoting):
+KB wiki map (titles + tldrs: use to know what we have, not for quoting):
 ${JSON.stringify(wikiMap.toc)}
 Top concepts: ${JSON.stringify(wikiMap.top_concepts)}
 
@@ -383,7 +383,7 @@ Produce JSON only.`;
   const triggerId = session.transcript[session.transcript.length - 1]?.id;
 
   if (!parsed?.suggestions?.length) {
-    // JSON parse failed — try to salvage a plain-text nudge so the rep sees
+    // JSON parse failed: try to salvage a plain-text nudge so the rep sees
     // *something* rather than a blank card.
     const fallback = firstSentenceFallback(raw);
     if (!fallback) return [];
@@ -396,7 +396,7 @@ Produce JSON only.`;
       created_at: lastTs,
       expires_at: lastTs + 45_000,
       trigger_segment_id: triggerId,
-      rationale: "LLM returned malformed JSON — salvaged first sentence.",
+      rationale: "LLM returned malformed JSON, salvaged first sentence.",
     }];
   }
 
@@ -440,7 +440,7 @@ export interface LiveValidationOutcome {
   suggestion: CoachSuggestion | null;
 }
 
-// Cache validator verdicts by suggestion hash for 30s — the coach re-fires
+// Cache validator verdicts by suggestion hash for 30s, the coach re-fires
 // on every final segment and tends to produce identical nudges two ticks in
 // a row. Without this we pay ~300 tokens + a round-trip per duplicate.
 const VALIDATOR_CACHE = new Map<string, { outcome: LiveValidationOutcome; ts: number }>();
@@ -483,7 +483,7 @@ export async function runLiveCouncilValidator(
   const cached = getCachedVerdict(suggestion);
   if (cached) return cached;
 
-  // Validator needs grounding for the *suggestion* — pull KB chunks that
+  // Validator needs grounding for the *suggestion*: pull KB chunks that
   // semantically match the suggestion's body, not just whatever the coach
   // happened to cite. This catches over-promises that aren't supported.
   const validatorQuery = `${suggestion.title}\n${suggestion.body}`;
@@ -510,7 +510,7 @@ Review the suggestion. JSON only.`;
       issues: ["validator_unavailable"],
       suggestion: lowRisk ? { ...suggestion, confidence: 0.2 } : null,
     };
-    // Don't cache validator_unavailable — we want to retry next call.
+    // Don't cache validator_unavailable, we want to retry next call.
     return outcome;
   }
   const parsed = safeJson<{
@@ -557,7 +557,7 @@ Review the suggestion. JSON only.`;
   return outcome;
 }
 
-// Agent registry — surfaces the live council in the UI and debug logs.
+// Agent registry: surfaces the live council in the UI and debug logs.
 export const LIVE_COUNCIL_AGENTS = [
   { id: "live_sentiment", label: "Sentiment Agent" },
   { id: "live_agenda_tracker", label: "Agenda Tracker" },
@@ -592,20 +592,20 @@ export async function runLiveKbAsk(
   const user = `Question: ${q}\n\nKB:\n${JSON.stringify(kbJson)}\n\nJSON only.`;
 
   // Mid-call latency: use a small fast model (8B) on a separate OpenRouter
-  // rate-limit pool from the coach (20B). KB output is ≤350 tokens — no
+  // rate-limit pool from the coach (20B). KB output is ≤350 tokens, no
   // truncation risk at 8B. X-Priority header routes through the user lane
   // on the backend (separate semaphore, no gap wait).
   void session;
   const cfg = resolveLLMConfig(liveModelOverride());
   const provider = "error" in cfg ? "openrouter" : cfg.provider;
-  // Force a fast small model for KB asks — separate rate pool from coach.
+  // Force a fast small model for KB asks, separate rate pool from coach.
   const KB_FAST_MODEL = "meta-llama/llama-3.1-8b-instruct:free";
   let raw = "";
   try {
     const jwt = await backendJwt();
     const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {
       method: "POST",
-      signal,  // AbortSignal — cancelled when rep asks a new question
+      signal,  // AbortSignal: cancelled when rep asks a new question
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${jwt}`,

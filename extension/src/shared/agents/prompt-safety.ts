@@ -21,7 +21,7 @@
  *  3. Content sanitization. Strip control chars and a small set of
  *     well-known prompt-injection markers (`[INST]`, `<|im_start|>`, plain
  *     `system:` / `assistant:` lines, `### Instruction`, etc.). Not a
- *     guarantee — adversarial inputs evolve — but raises the bar for the
+ *     guarantee: adversarial inputs evolve, but raises the bar for the
  *     casual cases.
  *
  *  4. Length cap per entry. Already enforced by callers; we restate the

@@ -48,7 +48,7 @@ _UNSAFE_FILENAME_CHARS = re.compile(r"[\x00-\x1f\x7f/\\]")
 
 # File extensions that are safe to preserve in the storage path so Supabase
 # Storage can infer the correct MIME type for downloads (closes #35). Anything
-# not in this allowlist gets the path written without an extension — better
+# not in this allowlist gets the path written without an extension, better
 # to lose MIME hinting than to let a poisoned filename smuggle in a script
 # extension (".html", ".svg", ".php", etc.). Lowercase only.
 _ALLOWED_EXTENSIONS: frozenset[str] = frozenset({
@@ -57,14 +57,14 @@ _ALLOWED_EXTENSIONS: frozenset[str] = frozenset({
     "png", "jpg", "jpeg", "webp",
 })
 
-# Single dot, then 1-10 ASCII alnum chars — sized for real-world extensions.
+# Single dot, then 1-10 ASCII alnum chars, sized for real-world extensions.
 _EXT_RE = re.compile(r"\.([a-zA-Z0-9]{1,10})$")
 
 
 def _safe_filename(raw: str | None) -> str:
     """
     Sanitize a user-supplied filename for safe use in logs + DB metadata.
-    The sanitized form is NEVER used as part of a storage path — only the
+    The sanitized form is NEVER used as part of a storage path, only the
     server-generated `file_id` lives in the path (see `upload_asset`).
     """
     if not raw:
@@ -73,7 +73,7 @@ def _safe_filename(raw: str | None) -> str:
     base = PurePosixPath(raw.replace("\\", "/")).name or "unknown"
     # Strip control chars + remaining separators.
     cleaned = _UNSAFE_FILENAME_CHARS.sub("_", base).strip(". ") or "unknown"
-    # Length cap — DB columns + log lines should not blow up on huge names.
+    # Length cap: DB columns + log lines should not blow up on huge names.
     return cleaned[:255]
 
 
@@ -82,7 +82,7 @@ def _safe_extension(raw: str | None) -> str:
     Pull an allowlisted, lowercase extension from a user-supplied filename.
     Returns "" if the extension is missing, unrecognized, or not in the
     allowlist. The returned value (including leading dot if non-empty) is
-    safe to concatenate into a storage path — it has no path separators and
+    safe to concatenate into a storage path, it has no path separators and
     is bounded to a known-safe set.
     """
     if not raw:
@@ -151,7 +151,7 @@ async def upload_asset(
             },
         )
 
-    # Record in DB — sanitized name as display label, file_id as the storage key.
+    # Record in DB: sanitized name as display label, file_id as the storage key.
     supabase_client().table("assets").insert({
         "id": file_id,
         "name": safe_name,

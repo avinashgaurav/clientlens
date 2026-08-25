@@ -3,8 +3,8 @@ import { Radio, Info } from "lucide-react";
 import { useAppStore } from "../stores/app-store";
 
 const EXPLAINER =
-  "Turn this on while you're on a live call. The pitch adapts to what's happening — " +
-  "objections the prospect raised, priorities they mentioned — instead of starting from scratch. " +
+  "Turn this on while you're on a live call. The pitch adapts to what's happening, " +
+  "objections the prospect raised, priorities they mentioned, instead of starting from scratch. " +
   "Leave it off when you're prepping before the call.";
 
 export function LiveModeToggle() {

@@ -26,9 +26,9 @@ import { CopyButton } from "./CopyButton";
 import type { MeetingPostCallSummary } from "../../shared/types";
 
 // Three onboarding paths into a copilot session, in priority order:
-//   1. Connect Google Calendar — auto-fills from the matching invite.
-//   2. Paste meeting URL / invite text — LLM extracts company/agenda/notes.
-//   3. Fill the form manually — fallback when the paste yields nothing.
+//   1. Connect Google Calendar: auto-fills from the matching invite.
+//   2. Paste meeting URL / invite text, LLM extracts company/agenda/notes.
+//   3. Fill the form manually: fallback when the paste yields nothing.
 // All three populate the same downstream state, so live agents don't care
 // which path the user took.
 
@@ -50,7 +50,7 @@ export function MeetingCopilotPanel() {
   const summary = useMeetingCopilotStore((s) => s.lastSummary);
 
   const [kbEntries, setKbEntries] = useState<KBEntry[]>([]);
-  // AbortController for the current in-flight KB ask — aborted when a new
+  // AbortController for the current in-flight KB ask, aborted when a new
   // question arrives so zombie fetches don't queue up on the backend.
   const currentKbAskController = useRef<AbortController | null>(null);
   const company = useAppStore((s) => s.company);
@@ -67,14 +67,14 @@ export function MeetingCopilotPanel() {
   const [calendarBusy, setCalendarBusy] = useState(false);
   // #78: once the rep has committed to one of the three onboarding paths
   // (Calendar connected / paste filled / manual fields touched), collapse
-  // the other two behind a disclosure. Local state — resets when the rep
+  // the other two behind a disclosure. Local state, resets when the rep
   // navigates away and returns, which is the intended ergonomics.
   // Also resets back to false when no path is committed (e.g. the rep
   // disconnects calendar and clears all fields) so the default "show
   // everything" UI returns instead of staying permanently expanded.
   const [showAllPaths, setShowAllPaths] = useState(false);
   // (The reset effect lives below, after companyName + pasteText are
-  // declared — see the useEffect that watches all three commit inputs.)
+  // declared: see the useEffect that watches all three commit inputs.)
 
   async function handleConnectCalendar() {
     setCalendarBusy(true);
@@ -122,7 +122,7 @@ export function MeetingCopilotPanel() {
         currentKbAskController.current = new AbortController();
         const signal = currentKbAskController.current.signal;
         void runLiveKbAsk(question, currentSession, kbEntries, signal).then((ans) => {
-          if (signal.aborted) return; // stale — new question already in flight
+          if (signal.aborted) return; // stale: new question already in flight
           const out = { ...ans, id: askId };
           chrome.runtime.sendMessage({ type: "MC_KB_ANSWER", payload: out }).catch(() => { /* noop */ });
           const tabId = currentSession.tab_id;
@@ -150,7 +150,7 @@ export function MeetingCopilotPanel() {
 
   // #78 reset: if every commit input goes empty (rep cleared calendar +
   // paste + company), drop showAllPaths so the panel returns to the
-  // default "all paths visible" state on its own — avoids the stuck-open
+  // default "all paths visible" state on its own, avoids the stuck-open
   // state the reviewer flagged.
   useEffect(() => {
     if (!showAllPaths) return;
@@ -175,7 +175,7 @@ export function MeetingCopilotPanel() {
     setUrlStatus(null);
     try {
       const parsed = await parsePastedInvite(
-        `This is a meeting link the rep is about to join. From the URL alone, infer whatever you can about the meeting — calendar event ID, Zoom/Meet platform, anything in the slug. Do not invent company or agenda details that aren't visible in the URL. URL: ${url}`,
+        `This is a meeting link the rep is about to join. From the URL alone, infer whatever you can about the meeting, calendar event ID, Zoom/Meet platform, anything in the slug. Do not invent company or agenda details that aren't visible in the URL. URL: ${url}`,
       );
       const filled: string[] = [];
       if (parsed.company_name && !companyName.trim()) { setCompanyName(parsed.company_name); filled.push("company"); }
@@ -185,7 +185,7 @@ export function MeetingCopilotPanel() {
       if (filled.length === 0) {
         setUrlStatus({
           ok: false,
-          detail: "Bare meeting URLs usually don't carry context. Fill the fields below — the URL is still saved as call context.",
+          detail: "Bare meeting URLs usually don't carry context. Fill the fields below, the URL is still saved as call context.",
         });
       } else {
         setUrlStatus({ ok: true, detail: `Filled ${filled.join(", ")} from the URL. Edit anything you want, then start.` });
@@ -213,7 +213,7 @@ export function MeetingCopilotPanel() {
       if (filled.length === 0) {
         setPasteStatus({
           ok: false,
-          detail: "Couldn't extract anything from that. If it's just a Meet/Calendar URL, paste the invite body too — or fill the fields manually.",
+          detail: "Couldn't extract anything from that. If it's just a Meet/Calendar URL, paste the invite body too, or fill the fields manually.",
         });
         setShowManualFields(true);
       } else {
@@ -273,7 +273,7 @@ export function MeetingCopilotPanel() {
       if (!meetTab?.id) {
         setTransponderStatus({
           ok: false,
-          detail: "No Google Meet tab open. Open one and click Start again — copilot still runs in this panel.",
+          detail: "No Google Meet tab open. Open one and click Start again, copilot still runs in this panel.",
         });
         return;
       }
@@ -303,7 +303,7 @@ export function MeetingCopilotPanel() {
 
     // 2) Inject the content script (Chrome doesn't auto-inject into tabs that
     //    were already open when the extension was reloaded). Then retry with
-    //    a few short delays — listener registration is async after injection.
+    //    a few short delays: listener registration is async after injection.
     let injectErr: unknown = null;
     try {
       await chrome.scripting.executeScript({
@@ -445,7 +445,7 @@ export function MeetingCopilotPanel() {
             className={isLive ? "signal-dot signal-dot--pulse" : "signal-dot"}
             style={{ background: isLive ? "var(--signal-live)" : "var(--ink-5)" }}
           />
-          <span style={kicker}>Meeting copilot {isLive ? "— live" : "— pre-call"}</span>
+          <span style={kicker}>Meeting copilot {isLive ? "· live" : "· pre-call"}</span>
         </div>
         {/* #82: provider chip for mid-call key-fail recovery. Switch among
             configured providers without leaving the Copilot view. */}
@@ -525,7 +525,7 @@ export function MeetingCopilotPanel() {
                   <span style={optional}>fastest path</span>
                 </div>
         <div style={muted}>
-          Paste a calendar event URL, .ics body, or the raw invite text — we'll auto-fill prospect, title, notes, and agenda.
+          Paste a calendar event URL, .ics body, or the raw invite text, we'll auto-fill prospect, title, notes, and agenda.
           A bare Meet URL alone won't have enough context, so include the invite body if you can.
         </div>
         <textarea
@@ -580,16 +580,16 @@ export function MeetingCopilotPanel() {
               <button
                 key={h.id}
                 style={historyChip}
-                title={`${h.headline}\n— saved ${new Date(h.saved_at).toLocaleString()}`}
+                title={`${h.headline}\nSaved ${new Date(h.saved_at).toLocaleString()}`}
                 onClick={() => {
                   setCompanyName(h.company);
                   setPersonaRole(h.persona);
                   setMeetingNotes(h.summary_markdown);
                 }}
               >
-                <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600, textAlign: "left" }}>{h.company || "—"}</div>
+                <div style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600, textAlign: "left" }}>{h.company || "n/a"}</div>
                 <div style={{ fontSize: 10, color: "var(--ink-4)", textAlign: "left", marginTop: 2 }}>
-                  {h.persona || "—"}
+                  {h.persona || "n/a"}
                 </div>
                 <div style={{ fontSize: 10, color: "var(--signal-live)", marginTop: 4, textAlign: "left", lineHeight: 1.3 }}>
                   {h.headline.slice(0, 60)}{h.headline.length > 60 ? "…" : ""}
@@ -639,7 +639,7 @@ export function MeetingCopilotPanel() {
             />
             <textarea
               style={{ ...input, marginTop: 6, minHeight: 72, resize: "vertical" }}
-              placeholder="Any context you want the copilot to know — last call outcome, objections raised, key stakeholders, CRM notes you want to paste in."
+              placeholder="Any context you want the copilot to know, last call outcome, objections raised, key stakeholders, CRM notes you want to paste in."
               value={meetingNotes}
               onChange={(e) => setMeetingNotes(e.target.value)}
             />
@@ -955,8 +955,8 @@ function summaryToMarkdown(
   const lines: string[] = [];
   lines.push(`# ${s.headline}`);
   lines.push("");
-  lines.push(`**Company:** ${company || "—"}`);
-  lines.push(`**Persona:** ${persona || "—"}`);
+  lines.push(`**Company:** ${company || "n/a"}`);
+  lines.push(`**Persona:** ${persona || "n/a"}`);
   lines.push(`**Generated:** ${new Date(s.generated_at).toLocaleString()}`);
   lines.push("");
   if (s.what_went_well.length) {
@@ -976,12 +976,12 @@ function summaryToMarkdown(
   }
   if (s.action_items.length) {
     lines.push("## Action items");
-    s.action_items.forEach((a) => lines.push(`- [${a.owner}] ${a.text}${a.due ? ` — due ${a.due}` : ""}`));
+    s.action_items.forEach((a) => lines.push(`- [${a.owner}] ${a.text}${a.due ? `: due ${a.due}` : ""}`));
     lines.push("");
   }
   if (s.agenda_coverage?.length) {
     lines.push("## Agenda coverage");
-    s.agenda_coverage.forEach((a) => lines.push(`- ${a.status.toUpperCase()} — ${a.item}`));
+    s.agenda_coverage.forEach((a) => lines.push(`- ${a.status.toUpperCase()}: ${a.item}`));
     lines.push("");
   }
   if (s.suggested_followup_email) {
@@ -998,7 +998,7 @@ function summaryToMarkdown(
   return lines.join("\n");
 }
 
-// #93: empty-state hero shown on cold-start of the Copilot tab — no
+// #93: empty-state hero shown on cold-start of the Copilot tab, no
 // active session AND no call history at all. Replaces the technical
 // infoBox so first-time reps see a friendly intro instead of dense
 // "Start live copilot" instructions. CTA opens the sample-data toggle
@@ -1048,7 +1048,7 @@ function CopilotEmptyState() {
           <line x1="12" y1="19" x2="12" y2="22" />
         </svg>
       </div>
-      {/* Renders at weight 400 by design — the live (Cursor) skin sets
+      {/* Renders at weight 400 by design, the live (Cursor) skin sets
           --display-weight: 400 ("magazine voice, never bold"). Not a regression. */}
       <h3 className="display-heading" style={{ color: "var(--ink)", fontSize: 14, margin: 0 }}>
         Wingman copilots your live meetings

@@ -93,7 +93,7 @@ project-wingman/
 │   │   ├── brand_compliance_agent.py
 │   │   └── validation_agent.py
 │   ├── rag/                            # Pinecone client + embedding helpers
-│   ├── rbac/                           # roles.py — permission matrix
+│   ├── rbac/                           # roles.py: permission matrix
 │   ├── api/
 │   │   ├── routes/                     # generate, llm, stt, zoho, assets, admin, auth
 │   │   └── middleware/                 # JWT auth middleware

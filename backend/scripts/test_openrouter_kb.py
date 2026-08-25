@@ -20,8 +20,8 @@ Usage:
     export KB_RULES_PATH="./sample_kb/FAQ.md"
 
 Exit codes:
-    0  — all queries returned valid responses referencing KB content
-    1  — key missing, KB file missing, or any query failed
+    0, all queries returned valid responses referencing KB content
+    1: key missing, KB file missing, or any query failed
 """
 
 from __future__ import annotations
@@ -231,7 +231,7 @@ def call_openrouter(
 
 
 def parse_json_envelope(text: str) -> Optional[dict]:
-    """Mirror extractJson<T>() — try fenced block first, then balanced-brace scan."""
+    """Mirror extractJson<T>(): try fenced block first, then balanced-brace scan."""
     if not text:
         return None
     fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, flags=re.DOTALL)
@@ -317,7 +317,7 @@ def main() -> int:
             print(f"\n── Q{i}: {q['question']!r}")
             retrieved = retrieve(q["question"], chunks, k=4)
             if not retrieved:
-                print("  retrieval returned 0 chunks — query may be off-topic")
+                print("  retrieval returned 0 chunks: query may be off-topic")
                 continue
             print(f"  retrieved {len(retrieved)} chunks (top score={retrieved[0][1]})")
             for j, (c, s) in enumerate(retrieved):

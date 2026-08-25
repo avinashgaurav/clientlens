@@ -51,7 +51,7 @@ export function AdminGate({ open, onUnlock, onClose }: Props) {
     }
   }
 
-  // Modal backdrop uses pure black (#000) — `bg-black` resolves to our brand
+  // Modal backdrop uses pure black (#000): `bg-black` resolves to our brand
   // black token (#0A0A0A) after the Tailwind rename, slightly lighter than
   // intended for an overlay. Closes #23.
   return (
@@ -69,7 +69,7 @@ export function AdminGate({ open, onUnlock, onClose }: Props) {
         <form onSubmit={handleSubmit} className="p-3 space-y-2">
           <p className="text-[11px] text-ink-3 leading-relaxed">
             {mode === "set"
-              ? "Settings are gated behind an admin passcode. Set one now — you'll need it to change providers, API keys, or integrations later."
+              ? "Settings are gated behind an admin passcode. Set one now, you'll need it to change providers, API keys, or integrations later."
               : "Enter the admin passcode to open Settings."}
           </p>
           <input

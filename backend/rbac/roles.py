@@ -1,12 +1,12 @@
 """
-RBAC — Role definitions and permission checks.
+RBAC: Role definitions and permission checks.
 
 Roles:
-  admin       — full access
-  designer    — can manage Design System assets
-  pmm         — can manage Brand Voice & Tone
-  sales_rep   — can generate and use content
-  viewer      — read-only
+  admin: full access
+  designer: can manage Design System assets
+  pmm: can manage Brand Voice & Tone
+  sales_rep: can generate and use content
+  viewer: read-only
 """
 
 from enum import Enum
@@ -53,7 +53,7 @@ PERMISSIONS: dict[str, list[Role]] = {
     # Admin panel
     "admin:access": [Role.ADMIN, Role.DESIGNER, Role.PMM],
 
-    # CRM integration — minting Zoho OAuth tokens with full CRM scope.
+    # CRM integration: minting Zoho OAuth tokens with full CRM scope.
     # Restricted to roles that push notes to CRM. Closes #34.
     "crm:connect": [Role.ADMIN, Role.SALES_REP],
 }

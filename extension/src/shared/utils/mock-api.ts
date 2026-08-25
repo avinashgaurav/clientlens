@@ -4,7 +4,7 @@
  * Toggle via VITE_MOCK_MODE=true in .env.local
  *
  * Note: as of issue #1, Anthropic calls go through the backend proxy
- * (`/api/v1/llm/complete`) — not direct from the extension. Mock mode requires
+ * (`/api/v1/llm/complete`), not direct from the extension. Mock mode requires
  * the backend to be reachable at VITE_BACKEND_URL.
  */
 
@@ -120,7 +120,7 @@ Industry: ${request.company.industry ?? "Technology"}
 ICP Role: ${request.icp_role.toUpperCase()}
 Use Case: ${request.use_case || "Cloud cost optimization"}
 Action: ${request.action_type}
-Live Mode: ${request.live_mode ? "YES — keep it concise" : "No"}
+Live Mode: ${request.live_mode ? "YES, keep it concise" : "No"}
 
 Generate slides tailored to the ${request.icp_role} persona at ${request.company.name}.`;
 }

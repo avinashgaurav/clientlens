@@ -11,7 +11,7 @@ export function CouncilRunner() {
   useEffect(() => {
     // The pitch council auto-runs when the form transitions to "generating".
     // The email and objection flows reuse CouncilRunner purely as a progress
-    // view — their own hooks (useEmailCouncil / useObjection) drive the run.
+    // view, their own hooks (useEmailCouncil / useObjection) drive the run.
     // The outputMode guard prevents a future refactor that sets flowStep =
     // "generating" on a non-pitch flow from triggering the wrong council.
     if (flowStep === "generating" && !isGenerating && outputMode === "pitch") {

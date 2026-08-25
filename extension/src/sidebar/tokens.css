@@ -1,5 +1,5 @@
 /*
- * Project Wingman — Multi-Surface Design Token System
+ * Project Wingman: Multi-Surface Design Token System
  * =====================================================
  *
  * This file defines CSS variables for every brand surface. Tailwind tokens
@@ -7,7 +7,7 @@
  * `bg-surface-1` resolves to a different hex depending on the `data-skin`
  * attribute on the nearest ancestor.
  *
- * Five skins are defined (linear dropped per #87 audit — popup adopts brand):
+ * Five skins are defined (linear dropped per #87 audit, popup adopts brand):
  *
  *   data-skin="brand"   → default sidebar chrome (pitch / KB / settings) +
  *                            popup launcher
@@ -50,37 +50,37 @@
  */
 
 /* ===================================================================
- * BASE / DEFAULT — PostHog skin
+ * BASE / DEFAULT: PostHog skin
  * ===================================================================
  * The default skin (no data-skin attribute or data-skin="brand").
  * Playful-but-dense. Warm cream canvas. White cards. Uppercase eyebrows.
  */
 :root,
 [data-skin="brand"] {
-  /* Brand mark — Wingman orange, persistent across every skin */
+  /* Brand mark: Wingman orange, persistent across every skin */
   --brand-orange: #F58549;
   --brand-orange-hover: #E07539;
   --brand-orange-press: #C66224;
-  /* Focus ring color — gated per skin to meet WCAG 2.4.11 (≥ 3:1 vs the
+  /* Focus ring color: gated per skin to meet WCAG 2.4.11 (≥ 3:1 vs the
    * adjacent surface). Brand orange #F58549 only hits 2.52:1 vs white;
    * the press shade #C66224 lands at 4.06:1. Dark skins keep #F58549. */
   --focus-ring: #C66224;
 
   /* Surfaces */
-  --surface-0: #EEEFE9;   /* page canvas — warm cream */
-  --surface-1: #FFFFFF;   /* white card on cream — the dominant card surface */
+  --surface-0: #EEEFE9;   /* page canvas, warm cream */
+  --surface-1: #FFFFFF;   /* white card on cream, the dominant card surface */
   --surface-2: #FCFCFA;   /* warm-white doc card */
-  --surface-3: #E5E7E0;   /* soft surface — button-secondary, sub-nav */
-  --surface-4: #23251D;   /* inverted dark — code block on cream */
+  --surface-3: #E5E7E0;   /* soft surface, button-secondary, sub-nav */
+  --surface-4: #23251D;   /* inverted dark, code block on cream */
 
   /* Text */
   --ink: #23251D;         /* headlines, near-black olive-charcoal */
-  --ink-2: #33342D;       /* charcoal — emphasized body */
-  --ink-3: #4D4F46;       /* body — default paragraph */
+  --ink-2: #33342D;       /* charcoal, emphasized body */
+  --ink-3: #4D4F46;       /* body, default paragraph */
   /* ink-4 darkened from #6C6E63 (4.49:1 on cream surface-0) to clear AA-small
-   * (≥4.5:1) — the .eyebrow class consumes var(--ink-4) at 11px. */
+   * (≥4.5:1), the .eyebrow class consumes var(--ink-4) at 11px. */
   --ink-4: #6A6C61;       /* 4.62:1 on #EEEFE9, 5.34:1 on #FFFFFF */
-  --ink-5: #9B9C92;       /* ash — disabled (exempt per WCAG 1.4.3) */
+  --ink-5: #9B9C92;       /* ash, disabled (exempt per WCAG 1.4.3) */
 
   /* Lines */
   --line: #BFC1B7;
@@ -116,7 +116,7 @@
 }
 
 /* ===================================================================
- * CURSOR skin — Live Meeting Copilot panel
+ * CURSOR skin: Live Meeting Copilot panel
  * ===================================================================
  * Warm cream canvas with timeline-pastel accents for live AI agent
  * stages. The five timeline colors map to Wingman's live agents:
@@ -136,7 +136,7 @@
   /* Surfaces + ink converged with brand per #87 audit. The Generate and
    * Copilot tabs share canvas; only the timeline pastels + display weight
    * remain skin-distinct so the live coach still has its magazine voice. */
-  --surface-0: #EEEFE9;   /* page canvas — warm cream (= brand) */
+  --surface-0: #EEEFE9;   /* page canvas, warm cream (= brand) */
   --surface-1: #FFFFFF;   /* white card (= brand) */
   --surface-2: #FCFCFA;   /* warm-white doc card (= brand) */
   --surface-3: #E5E7E0;   /* soft surface (= brand) */
@@ -152,12 +152,12 @@
   --line-2: #EFEEE8;
   --line-3: #CFCDC4;
 
-  /* Cursor timeline pastels — the gem of this skin */
-  --timeline-thinking: #DFA88F;   /* peach — sentiment */
-  --timeline-grep: #9FC9A2;       /* mint — agenda */
-  --timeline-read: #9FBBE0;       /* blue — coach */
-  --timeline-edit: #C0A8DD;       /* lavender — objection */
-  --timeline-done: #C08532;       /* gold — validator */
+  /* Cursor timeline pastels, the gem of this skin */
+  --timeline-thinking: #DFA88F;   /* peach, sentiment */
+  --timeline-grep: #9FC9A2;       /* mint, agenda */
+  --timeline-read: #9FBBE0;       /* blue, coach */
+  --timeline-edit: #C0A8DD;       /* lavender, objection */
+  --timeline-done: #C08532;       /* gold, validator */
 
   --accent-blue: #9FBBE0;
   --accent-blue-soft: #E8F0F8;
@@ -177,14 +177,14 @@
   --shadow-2: 0 4px 16px rgba(38,37,30,0.08);
   --shadow-card: none;
 
-  /* Cursor display: magazine voice — weight 400, never bold; -0.03em. */
+  /* Cursor display: magazine voice, weight 400, never bold; -0.03em. */
   --display-tracking: -0.03em;
   --display-weight: 400;
   --display-transform: none;
 }
 
 /* ===================================================================
- * SPOTIFY skin — Post-call Insights view
+ * SPOTIFY skin: Post-call Insights view
  * ===================================================================
  * Near-black immersive ladder. Spotify green as functional signal only.
  * Pill geometry. Heavy shadows on elevation. Album-grid metaphor →
@@ -194,7 +194,7 @@
   --brand-orange: #F58549;
   --brand-orange-hover: #FFA070;
   --brand-orange-press: #C66224;
-  --focus-ring: #F58549;  /* 7.05:1 on #181818 — passes AA */
+  --focus-ring: #F58549;  /* 7.05:1 on #181818, passes AA */
 
   --surface-0: #121212;   /* deepest */
   --surface-1: #181818;   /* card */
@@ -239,7 +239,7 @@
 }
 
 /* ===================================================================
- * VERCEL skin — In-Meet transponder overlay + landing body
+ * VERCEL skin: In-Meet transponder overlay + landing body
  * ===================================================================
  * Stark monochrome. White canvas, black ink. Pill buttons. Multi-color
  * mesh gradients reserved for hero / feature accents (not the transponder).
@@ -262,7 +262,7 @@
   /* ink-4 darkened from #888888 (3.54:1) to clear AA-normal at small sizes
    * (eyebrow uses var(--ink-4) at 11px). */
   --ink-4: #737373;       /* 4.74:1 on #FAFAFA */
-  --ink-5: #A1A1A1;       /* disabled — exempt from contrast per WCAG 1.4.3 */
+  --ink-5: #A1A1A1;       /* disabled, exempt from contrast per WCAG 1.4.3 */
 
   --line: #EBEBEB;
   --line-2: #A1A1A1;
@@ -305,17 +305,17 @@
 }
 
 /* ===================================================================
- * SPACEX skin — Landing page hero band
+ * SPACEX skin: Landing page hero band
  * ===================================================================
  * Pure black canvas. White display type uppercase with positive tracking.
- * Single ghost-outlined pill CTA per band. No accent colors — the
+ * Single ghost-outlined pill CTA per band. No accent colors, the
  * imagery does the chromatic work.
  */
 [data-skin="spacex"] {
   --brand-orange: #F58549;
   --brand-orange-hover: #FFA070;
   --brand-orange-press: #C66224;
-  --focus-ring: #F58549;  /* 7.86:1 on #0A0A0A — passes AAA */
+  --focus-ring: #F58549;  /* 7.86:1 on #0A0A0A, passes AAA */
 
   --surface-0: #000000;
   --surface-1: #0A0A0A;
@@ -354,7 +354,7 @@
    * substitutes its display family uppercased with this tracking.
    *
    * NOTE: --display-transform: uppercase here is DOCUMENTATION-ONLY for
-   * the extension. No sidebar surface sets data-skin="spacex" — the
+   * the extension. No sidebar surface sets data-skin="spacex", the
    * landing hero applies uppercase directly via .hero__headline, not
    * .display-heading. If a future spacex-skinned in-extension surface
    * uses .display-heading it WILL uppercase; that's intended, not a bug. */
@@ -368,7 +368,7 @@
  * ===================================================================
  */
 
-/* Uppercase eyebrow label — PostHog, Cursor, Vercel all use it */
+/* Uppercase eyebrow label: PostHog, Cursor, Vercel all use it */
 .eyebrow {
   font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
   font-size: 11px;
@@ -379,7 +379,7 @@
   color: var(--ink-4);
 }
 
-/* Display heading — consumes the per-skin type signature tokens so a
+/* Display heading: consumes the per-skin type signature tokens so a
  * heading rendered under any data-skin picks up that brand's tracking /
  * weight / case treatment automatically. Linear/Vercel get negative
  * tracking, Cursor goes weight-400 (magazine voice), SpaceX goes
@@ -393,7 +393,7 @@
   text-transform: var(--display-transform, none);
 }
 
-/* Signal-light dot — for live agent indicators (live/insights skins).
+/* Signal-light dot: for live agent indicators (live/insights skins).
  * Uses color-mix() for the translucent halo (Chrome 111+, March 2023).
  * Chrome extensions ride Chrome's auto-update so this is fine; if you're
  * porting these tokens to a non-extension surface with older browser
@@ -420,7 +420,7 @@
   }
 }
 
-/* Cursor "agent thinking" shimmer — for Live Meeting Copilot loading states */
+/* Cursor "agent thinking" shimmer: for Live Meeting Copilot loading states */
 .shimmer-cursor {
   background: linear-gradient(
     90deg,
@@ -437,11 +437,11 @@
   100% { background-position: -200% 0; }
 }
 
-/* Skin crossfade — smooth transition between data-skin palettes.
+/* Skin crossfade: smooth transition between data-skin palettes.
  *
  * Tab switches in the sidebar swap `data-skin` (brand → live → insights),
  * which flips the variable values descendant elements consume. Without a
- * transition, the canvas snaps between warm-cream to near-black — jarring.
+ * transition, the canvas snaps between warm-cream to near-black, jarring.
  *
  * Wrapped in @layer base so Tailwind's @layer utilities (e.g.
  * `transition-all duration-500` on the generation-progress bar) keeps
@@ -463,7 +463,7 @@
   }
 }
 
-/* Focus-visible ring — UNLAYERED on purpose. Tailwind utilities live in
+/* Focus-visible ring: UNLAYERED on purpose. Tailwind utilities live in
  * @layer utilities, which would otherwise win the cascade and let a class
  * like `focus:outline-none` defeat this rule. Unlayered styles take
  * precedence over layered styles at any specificity.
@@ -485,7 +485,7 @@
   outline-offset: 2px;
 }
 
-/* Spotify play-tile hover scale — for Insights tiles */
+/* Spotify play-tile hover scale: for Insights tiles */
 .tile-album {
   transition: transform 200ms ease, background-color 200ms ease;
 }
@@ -495,7 +495,7 @@
 }
 
 /* ===================================================================
- * CT1 — Live-mode typography bump
+ * CT1: Live-mode typography bump
  * ===================================================================
  * Applied to surfaces that need one-handed mid-call glanceability:
  *   - Copilot tab (always)
@@ -503,14 +503,14 @@
  *
  * Bumps Tailwind text utilities one step up to keep 360px-sidebar legible
  * mid-call. Inline-style font sizes (notably MeetingCopilotPanel's style
- * constants) are intentionally out of scope — overriding inline styles
+ * constants) are intentionally out of scope: overriding inline styles
  * needs !important, which is brittle and breaks future inline tweaks. If
  * those need bumping, do it at the source.
  *
  * `text-xs` (12px) → 13px
  * `text-[11px]`    → 12px
  * `text-[10px]`    → 11px
- * line-height      → 1.55 (scoped to text utilities only — applying to
+ * line-height      → 1.55 (scoped to text utilities only, applying to
  *                   the `[data-mode="live"]` element itself would inherit
  *                   into ErrorBanner/SampleDataBanner and beat their
  *                   intentional `leading-relaxed`/`leading-snug` classes
@@ -518,14 +518,14 @@
  *
  * NOTE: `data-mode` is a single-value attribute today. The only value
  * ever written is "live" (see App.tsx:liveMode). Do not introduce
- * Tailwind !important variants (e.g. `!text-xs`) on these surfaces —
+ * Tailwind !important variants (e.g. `!text-xs`) on these surfaces,
  * they would defeat the (0,2,0) specificity that lets these rules win.
  */
 [data-mode="live"] .text-xs { font-size: 13px; line-height: 1.55; }
 [data-mode="live"] .text-\[11px\] { font-size: 12px; line-height: 1.55; }
 [data-mode="live"] .text-\[10px\] { font-size: 11px; line-height: 1.55; }
 
-/* Vercel mesh-gradient hero text fill — for landing page accent words */
+/* Vercel mesh-gradient hero text fill: for landing page accent words */
 .gradient-text-vercel {
   background: linear-gradient(
     90deg,

@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config}
  *
- * Project Wingman — Multi-Surface Token Bridge.
+ * Project Wingman: Multi-Surface Token Bridge.
  * ===============================================
  *
  * Every color token below resolves to a CSS variable defined in
@@ -53,10 +53,10 @@ export default {
       },
       colors: {
         // ─────────────────────────────────────────────────────────────
-        // CSS-variable backed tokens — these are the canonical names.
+        // CSS-variable backed tokens, these are the canonical names.
         // ─────────────────────────────────────────────────────────────
 
-        // Brand mark — persists across every skin
+        // Brand mark: persists across every skin
         orange: "var(--brand-orange)",
         "orange-hover": "var(--brand-orange-hover)",
         "orange-press": "var(--brand-orange-press)",
@@ -106,7 +106,7 @@ export default {
           "purple-soft": "var(--accent-purple-soft)",
         },
 
-        // Cursor timeline pastels — maps to Wingman's live agent stages
+        // Cursor timeline pastels: maps to Wingman's live agent stages
         timeline: {
           thinking: "var(--timeline-thinking, #DFA88F)",
           grep: "var(--timeline-grep, #9FC9A2)",
@@ -123,7 +123,7 @@ export default {
         cream: "var(--ink)",
 
         // ─────────────────────────────────────────────────────────────
-        // V1 brand-bridge remaps — preserved so existing component
+        // V1 brand-bridge remaps: preserved so existing component
         // classes (bg-slate-800, text-slate-400 etc.) still resolve to
         // surface/ink tokens automatically.
         // ─────────────────────────────────────────────────────────────
@@ -177,7 +177,7 @@ export default {
         },
       },
       boxShadow: {
-        // Skin-aware elevation — each skin's tokens.css defines these.
+        // Skin-aware elevation, each skin's tokens.css defines these.
         skin: "var(--shadow-1)",
         "skin-lifted": "var(--shadow-2)",
         card: "var(--shadow-card)",

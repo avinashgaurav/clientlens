@@ -1,13 +1,13 @@
-# #83 — Inline Generate Preview into Form (investigation)
+# #83: Inline Generate Preview into Form (investigation)
 
 **Status:** investigation, no code change yet. Decision needed before implementation.
 
 ## TL;DR
 
-Killing the Preview step entirely (Option A from the issue) is **wrong** — Preview today is the brand-asset editor, not a vestigial confirmation. The reasonable paths are:
+Killing the Preview step entirely (Option A from the issue) is **wrong**, Preview today is the brand-asset editor, not a vestigial confirmation. The reasonable paths are:
 
-- **Option B** — Collapse Preview into Form: render the brand-assets block inline at the bottom of `PersonalizationForm`, submit goes straight to Generating.
-- **Option C** (new, not in the issue) — Smart skip: only show Preview when auto-fetch returns a placeholder logo. Happy path skips Preview; slow path keeps it for human correction.
+- **Option B**: Collapse Preview into Form: render the brand-assets block inline at the bottom of `PersonalizationForm`, submit goes straight to Generating.
+- **Option C** (new, not in the issue), Smart skip: only show Preview when auto-fetch returns a placeholder logo. Happy path skips Preview; slow path keeps it for human correction.
 
 Recommendation: **Option C** for the most ergonomic happy path. Option B is acceptable if simplicity matters more than per-call clicks.
 
@@ -33,9 +33,9 @@ If we remove Preview, the rep loses:
 - Domain override (`acme.co.in` rescues from `acme.com` 404s)
 - Accent color tweak
 
-Auto-fetch failure rate isn't tiny — `logo_source === "placeholder"` is hit whenever Clearbit-style lookup misses (small Indian/EU companies, non-`.com` TLDs, brand-new sites). Killing Preview means those reps either generate a logo-less deck or kill the run mid-Generating.
+Auto-fetch failure rate isn't tiny: `logo_source === "placeholder"` is hit whenever Clearbit-style lookup misses (small Indian/EU companies, non-`.com` TLDs, brand-new sites). Killing Preview means those reps either generate a logo-less deck or kill the run mid-Generating.
 
-## Option B — collapse into Form
+## Option B: collapse into Form
 
 Rendered shape:
 
@@ -67,13 +67,13 @@ Pros:
 - Mental model: "the form has all the inputs; submit means I'm done."
 
 Cons:
-- Long form on small viewports — sidebar at 360px width gets dense.
+- Long form on small viewports: sidebar at 360px width gets dense.
 - Auto-fetch on blur is non-obvious; reps may type → wait → wonder what's happening.
 - The `isPlaceholder` warning needs to be inline + dismissable so it doesn't block submit when the rep accepts the placeholder.
 
-Estimated work: 1 day. Touches `PersonalizationForm.tsx` (inline the asset block), `App.tsx` (remove preview-step routing), `AssetPreview.tsx` (becomes `BrandAssetsBlock.tsx` or similar), `app-store.ts` (drop `"preview"` from `FlowStep`), `useCouncil.ts` (no changes — already triggers off `flowStep === "generating"`).
+Estimated work: 1 day. Touches `PersonalizationForm.tsx` (inline the asset block), `App.tsx` (remove preview-step routing), `AssetPreview.tsx` (becomes `BrandAssetsBlock.tsx` or similar), `app-store.ts` (drop `"preview"` from `FlowStep`), `useCouncil.ts` (no changes, already triggers off `flowStep === "generating"`).
 
-## Option C — smart skip
+## Option C: smart skip
 
 Keep `AssetPreview` as a component, but only route to it when auto-fetch returned a placeholder. Happy path goes Form → Generating; placeholder path goes Form → Preview → Generating.
 
@@ -85,7 +85,7 @@ Mechanics:
 
 Pros:
 - Happy path is one click shorter.
-- Slow path still gets the full editor — no regression in failure recovery.
+- Slow path still gets the full editor: no regression in failure recovery.
 - `flowStep` machine unchanged.
 - Smallest diff of the three options.
 
@@ -93,11 +93,11 @@ Cons:
 - Slightly magical: rep doesn't know whether they'll see Preview or not.
 - The "Tweak brand assets" escape hatch from Generating is new UI surface (skip if not building it now).
 
-Estimated work: 0.5 day. Touches `PersonalizationForm.tsx` only — add the conditional `setFlowStep` after `fetchBrandAssets` resolves.
+Estimated work: 0.5 day. Touches `PersonalizationForm.tsx` only, add the conditional `setFlowStep` after `fetchBrandAssets` resolves.
 
 ## Recommendation
 
-**Option C.** Smallest diff, no regression, biggest happy-path win. The "magic" concern is real but mitigated by the existing back button on Preview — reps who want to see brand assets always can hit Back from Generating (already exists).
+**Option C.** Smallest diff, no regression, biggest happy-path win. The "magic" concern is real but mitigated by the existing back button on Preview, reps who want to see brand assets always can hit Back from Generating (already exists).
 
 Option B is the runner-up if you want to simplify the `flowStep` machine permanently. Pick B if there's a separate desire to slim the state enum.
 

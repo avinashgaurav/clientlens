@@ -1,5 +1,5 @@
 /**
- * Semantic chunker — splits raw KB text on paragraph → sentence → word
+ * Semantic chunker: splits raw KB text on paragraph → sentence → word
  * boundaries with a small overlap between chunks. Each chunk is a coherent
  * thought of bounded size, suitable for embedding and cosine retrieval.
  *

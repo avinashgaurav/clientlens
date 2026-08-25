@@ -105,7 +105,7 @@ export async function connectZoho(): Promise<ZohoTokens> {
   const code = params.get("code");
 
   if (!expectedState || !returnedState || expectedState !== returnedState) {
-    throw new Error("Zoho OAuth state mismatch — possible CSRF. Aborting.");
+    throw new Error("Zoho OAuth state mismatch: possible CSRF. Aborting.");
   }
   if (!code) throw new Error("No auth code from Zoho");
 
@@ -271,7 +271,7 @@ export async function lookupContext(opts: { attendeeEmails?: string[]; companyNa
     if (ctx.account_id) {
       // Use dot notation to search by the related account's ID.
       // Plain `Account_Name:equals:{id}` searches the display name string,
-      // not the foreign key — it would always return zero results.
+      // not the foreign key, it would always return zero results.
       const q = encodeURIComponent(`(Account_Name.id:equals:${ctx.account_id})`);
       const deals = await zohoGet<{ data?: { id: string; Deal_Name: string; Stage?: string; Amount?: number }[] }>(
         `/Deals/search?criteria=${q}`,

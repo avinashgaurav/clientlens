@@ -49,7 +49,7 @@ class ZohoExchangeRequest(BaseModel):
     # OAuth `state` parameter forwarded from the extension. Primary CSRF
     # defense is client-side: the extension verifies the returned state
     # matches the one it stored before launchWebAuthFlow. We accept it here
-    # for audit logging — missing values flag legacy / non-compliant
+    # for audit logging: missing values flag legacy / non-compliant
     # callers and let an operator find old / replayed flows in structured
     # logs. Closes #21.
     state: str | None = None

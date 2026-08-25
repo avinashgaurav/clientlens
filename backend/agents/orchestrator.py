@@ -80,7 +80,7 @@ class AgentOrchestrator:
         if validation_result.status == "fail":
             yield {
                 "type": "error",
-                "message": "Validation failed — content may contain hallucinations: " + str(validation_result.issues),
+                "message": "Validation failed, content may contain hallucinations: " + str(validation_result.issues),
             }
             return
 

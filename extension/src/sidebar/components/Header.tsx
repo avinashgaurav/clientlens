@@ -71,7 +71,7 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <UsageMeter />
-          {/* #88: Quick Settings popover — canonical home for the
+          {/* #88: Quick Settings popover, canonical home for the
               passcode-free controls (provider / model / deep research /
               sample data). The full gear stays passcode-gated for keys. */}
           <QuickSettings />
@@ -84,7 +84,7 @@ export function Header() {
               color: settingsHover ? "var(--brand-orange)" : "var(--ink-4)",
               background: settingsHover ? "var(--surface-2)" : "transparent",
             }}
-            title="Settings — admin passcode required"
+            title="Settings: admin passcode required"
             aria-label="Settings"
           >
             <Settings size={14} />

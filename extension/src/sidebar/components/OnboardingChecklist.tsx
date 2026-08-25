@@ -42,7 +42,7 @@ export function OnboardingChecklist({ kbCount, onOpenSettings }: Props) {
   const allDone = remaining === 0;
 
   // If a previously-complete state regresses (e.g. KB wiped, key removed), the
-  // checklist should reappear — clear the dismissal so the rep sees what's
+  // checklist should reappear: clear the dismissal so the rep sees what's
   // pending again.
   useEffect(() => {
     if (!allDone && dismissed) {
@@ -68,13 +68,13 @@ export function OnboardingChecklist({ kbCount, onOpenSettings }: Props) {
     setDismissed(true);
   }
 
-  // Compact pill — everything's done. Click expands to show what was checked.
+  // Compact pill: everything's done. Click expands to show what was checked.
   if (allDone && !pillExpanded) {
     return (
       <button
         type="button"
         onClick={() => setPillExpanded(true)}
-        aria-label="All set up — click to view checklist"
+        aria-label="All set up: click to view checklist"
         className="inline-flex items-center gap-1.5 px-2 py-1 text-[11px] font-semibold border border-green/40 bg-green/5 text-green hover:bg-green/10"
         style={{ borderRadius: 9999 }}
       >

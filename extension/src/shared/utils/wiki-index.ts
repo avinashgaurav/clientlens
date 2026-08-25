@@ -1,5 +1,5 @@
 /**
- * Wiki index — derived view over the KB. Pure function, no storage of its
+ * Wiki index: derived view over the KB. Pure function, no storage of its
  * own; recompute on demand whenever we need:
  *   - "which entries mention concept X?" → cross-references
  *   - aggregate contradiction list → KB panel surface

@@ -11,7 +11,7 @@ interface GoogleUserInfo {
   email: string;
   name: string;
   picture?: string;
-  hd?: string; // hosted domain — present only for Workspace accounts
+  hd?: string; // hosted domain, present only for Workspace accounts
 }
 
 async function getGoogleToken(interactive: boolean): Promise<string> {

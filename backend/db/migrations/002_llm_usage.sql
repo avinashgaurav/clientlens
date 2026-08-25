@@ -1,4 +1,4 @@
--- Migration 002 — LLM proxy usage logging
+-- Migration 002: LLM proxy usage logging
 -- Run in Supabase SQL editor after 001_initial_schema.sql
 
 -- ── llm_usage ────────────────────────────────────────────────────────────────
@@ -33,4 +33,4 @@ alter table llm_usage enable row level security;
 create policy "users_read_own_llm_usage" on llm_usage
   for select using (auth.uid() = user_id);
 
--- Admins read all (service key bypass — no policy needed for write).
+-- Admins read all (service key bypass, no policy needed for write).

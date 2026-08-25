@@ -2,18 +2,18 @@ import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 
 // Brand-skin popup (post-#87: linear skin dropped). Warm cream canvas
-// matching the default sidebar — popup is a brief launcher (<2s on screen)
+// matching the default sidebar: popup is a brief launcher (<2s on screen)
 // and the cohesion with the surface the user is about to land on beats
 // the prior dark-popup theatre. Brand orange remains the primary CTA.
 
 // Type definitions kept inline to avoid pulling chrome.d.ts into the popup
-// build — the popup runs in MV3 extension context where these globals exist.
+// build, the popup runs in MV3 extension context where these globals exist.
 declare const chrome: any;
 
 const STYLES = {
   page: {
     padding: 16,
-    background: "#EEEFE9",   // brand surface-0 — warm cream
+    background: "#EEEFE9",   // brand surface-0, warm cream
     color: "#23251D",        // brand ink
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
     letterSpacing: "-0.02em",
@@ -43,11 +43,11 @@ const STYLES = {
     fontWeight: 600,
     textTransform: "uppercase",
     letterSpacing: "0.14em",
-    color: "#6A6C61",           // brand ink-4 (4.62:1 on cream — AA-small)
+    color: "#6A6C61",           // brand ink-4 (4.62:1 on cream, AA-small)
     marginTop: 4,
   } as React.CSSProperties,
 
-  // Primary action row — orange pill button (Wingman brand mark)
+  // Primary action row: orange pill button (Wingman brand mark)
   primaryBtn: (hover: boolean): React.CSSProperties => ({
     width: "100%",
     padding: "10px 14px",
@@ -66,7 +66,7 @@ const STYLES = {
     display: "flex", alignItems: "center", justifyContent: "space-between",
   }),
 
-  // Secondary action row — white card on cream (brand surface-1)
+  // Secondary action row: white card on cream (brand surface-1)
   secondaryRow: (hover: boolean): React.CSSProperties => ({
     width: "100%",
     marginTop: 8,

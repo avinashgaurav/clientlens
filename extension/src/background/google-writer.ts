@@ -1,5 +1,5 @@
 /**
- * Google Slides / Docs API writer — runs in the service worker, which is
+ * Google Slides / Docs API writer: runs in the service worker, which is
  * where chrome.identity + stored OAuth tokens live.
  *
  * Strategy: preserve the master deck's design. Replace text in existing
@@ -26,7 +26,7 @@ export interface WriteResult {
 async function getToken(interactive = true): Promise<string> {
   return new Promise((resolve, reject) => {
     if (!chrome.identity?.getAuthToken) {
-      reject(new Error("chrome.identity unavailable — set oauth2.client_id in manifest"));
+      reject(new Error("chrome.identity unavailable: set oauth2.client_id in manifest"));
       return;
     }
     chrome.identity.getAuthToken({ interactive }, (token) => {

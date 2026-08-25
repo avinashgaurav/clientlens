@@ -1,4 +1,4 @@
--- ClientLens – Sales Copilot — Initial Schema
+-- ClientLens – Sales Copilot: Initial Schema
 -- Run in Supabase SQL editor
 
 -- ── User Profiles ─────────────────────────────────────────────────────────────
@@ -102,7 +102,7 @@ create policy "users_read_own" on user_profiles
   for select using (auth.uid() = id);
 
 -- Admins can read all profiles (via service key bypass in backend)
--- Service key bypasses RLS — all writes from backend use service key
+-- Service key bypasses RLS, all writes from backend use service key
 
 -- Users can read published DS + brand voice
 create policy "all_read_design_system" on design_systems

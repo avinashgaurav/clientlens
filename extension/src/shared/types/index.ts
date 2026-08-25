@@ -203,7 +203,7 @@ export type KBSourceType = "text" | "file" | "url" | "git";
 export type KBStatus = "ready" | "pending_parse" | "error";
 
 // Lifecycle of the embedding/chunk pipeline for a single entry.
-// Independent of the parse status above — an entry can be parse-ready but
+// Independent of the parse status above, an entry can be parse-ready but
 // still un-indexed (e.g. on legacy installs before vector retrieval shipped).
 export type KBIndexStatus = "pending" | "indexing" | "ready" | "failed";
 
@@ -216,7 +216,7 @@ export interface KBChunk {
 
 // ─── Wiki layer (Karpathy-style ingest-time knowledge compilation) ───────────
 //
-// Every KB entry has an optional WikiPage — a structured, LLM-generated view
+// Every KB entry has an optional WikiPage, a structured, LLM-generated view
 // of the source. Contradictions across entries are detected at ingest, not
 // at query time. The live coach reads TLDRs + concepts (cheap map of the KB)
 // and only drills to chunks when a question warrants it.
@@ -234,7 +234,7 @@ export type WikiConfidence = "high" | "medium" | "low";
 
 export interface WikiClaim {
   text: string;
-  // Loose taxonomy — used to weight contradiction checks (metric vs metric is
+  // Loose taxonomy: used to weight contradiction checks (metric vs metric is
   // worth flagging; positioning vs positioning often isn't).
   kind: "metric" | "positioning" | "customer" | "capability" | "pricing" | "other";
 }
@@ -264,7 +264,7 @@ export interface WikiPage {
 
 export type WikiBuildStatus = "pending" | "building" | "ready" | "failed";
 
-// Computed view — derived from the full entry list, never persisted on its
+// Computed view: derived from the full entry list, never persisted on its
 // own. Built by computeWikiIndex().
 export interface WikiIndex {
   total_pages: number;
@@ -333,7 +333,7 @@ export interface PersonalizationInput {
   pain_points?: string;
   pitch_format?: PitchFormat;
   /**
-   * Free-form hint when pitch_format = "custom_doc". Optional — when blank,
+   * Free-form hint when pitch_format = "custom_doc". Optional, when blank,
    * the orchestrator infers the doc shape from the surrounding context
    * (open tab, persona, pain points, KB hits).
    */
@@ -517,7 +517,7 @@ export interface CoachSuggestion {
   trigger_segment_id?: string;
   dismissed?: boolean;
   acted_on?: boolean;
-  // Trust layer — filled by council validator and the coach prompt.
+  // Trust layer: filled by council validator and the coach prompt.
   rationale?: string;      // why the coach raised this ("prospect hesitated on timeline")
   confidence?: number;     // 0..1 from validator; drives visual treatment
 }

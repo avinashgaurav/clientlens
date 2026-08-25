@@ -1,13 +1,13 @@
 /**
- * Agent Council — 4 agents + final vote.
+ * Agent Council: 4 agents + final vote.
  * Nothing leaves this pipeline unless the council approves.
  *
  * Pipeline:
- *   1. Retrieval          — pulls relevant KB chunks
- *   2. ICP Personalization — rewrites to nearest ICP rules
- *   3. Brand Compliance    — enforces Project Wingman voice + design system
- *   4. Fact / Validation   — every claim must trace to KB
- *   5. Council vote        — all 4 must pass; else regenerate or flag
+ *   1. Retrieval: pulls relevant KB chunks
+ *   2. ICP Personalization: rewrites to nearest ICP rules
+ *   3. Brand Compliance: enforces Project Wingman voice + design system
+ *   4. Fact / Validation, every claim must trace to KB
+ *   5. Council vote, all 4 must pass; else regenerate or flag
  */
 
 import type {
@@ -54,7 +54,7 @@ function matchICP(role: string): ICPProfile {
       if (hit) return hit;
     }
   }
-  // default to CFO — safest executive framing
+  // default to CFO: safest executive framing
   return ICP_PROFILES.find((p) => p.role === "cfo")!;
 }
 
@@ -62,7 +62,7 @@ function filterKB(kb: KBEntry[], input: PersonalizationInput): KBEntry[] {
   // Only ready entries contribute text; pending entries are cited by name only.
   const ready = kb.filter((e) => e.status === "ready");
 
-  // Stage priority — if stage is set, bias toward relevant namespaces.
+  // Stage priority, if stage is set, bias toward relevant namespaces.
   const stagePriority: Record<string, string[]> = {
     discovery: ["product_overview", "industry_pages", "case_studies"],
     tech_deep_dive: ["security_compliance", "battlecard", "product_overview"],
@@ -111,7 +111,7 @@ export function extractJson<T>(text: string): T | null {
   const candidates: string[] = [];
   if (fenced?.[1]) candidates.push(fenced[1].trim());
 
-  // Handle array-root responses like [{...}] — common from Groq/OpenRouter free models.
+  // Handle array-root responses like [{...}]: common from Groq/OpenRouter free models.
   // Unwrap the first element if it matches the expected shape.
   const arrayStart = text.indexOf("[");
   const objectStart = text.indexOf("{");
@@ -172,7 +172,7 @@ async function callLLM(
   return client.call(system, user, maxTokens);
 }
 
-// ─── Agent 1 — Retrieval ──────────────────────────────────────────────────────
+// ─── Agent 1: Retrieval ──────────────────────────────────────────────────────
 
 interface RetrievalOutput {
   relevant_source_ids: string[];
@@ -236,7 +236,7 @@ Return JSON:
   };
 }
 
-// ─── Agent 2 — ICP Personalization ────────────────────────────────────────────
+// ─── Agent 2: ICP Personalization ────────────────────────────────────────────
 
 interface DraftOutput {
   slides: SlideContent[];
@@ -258,7 +258,7 @@ async function icpPersonalizationAgent(
   const customHint = input.pitch_format_custom_hint?.trim();
   const formatDirective: Record<string, string> = {
     on_screen_ppt:
-      "Output is for an on-screen slide deck projected during a live call. Every slide has a 6-word max headline, 3 short bullet lines, and a single takeaway. No dense paragraphs — a reader must absorb each slide in under 5 seconds.",
+      "Output is for an on-screen slide deck projected during a live call. Every slide has a 6-word max headline, 3 short bullet lines, and a single takeaway. No dense paragraphs, a reader must absorb each slide in under 5 seconds.",
     one_pager:
       "Output is a single one-pager executive summary. Produce 4 tight sections (Problem, Why us, Proof, Next step). Each section is 2-3 sentences, scannable in 60 seconds, no bullet lists.",
     detailed_doc:
@@ -266,7 +266,7 @@ async function icpPersonalizationAgent(
     analysis:
       "Output is a data-led analysis. Lead with a headline metric. Include tables / pills of comparisons, an ROI calculation if inputs allow, competitive positioning vs the named competitor, and a risk section. No marketing puffery.",
     custom_doc: customHint
-      ? `Output is a CUSTOM DOC. The user described it as: "${customHint}". Match that doc shape exactly — infer section headings, length, tone, and structure from that description. Use the persona, KB hits, and any prospect research as supporting evidence.`
+      ? `Output is a CUSTOM DOC. The user described it as: "${customHint}". Match that doc shape exactly, infer section headings, length, tone, and structure from that description. Use the persona, KB hits, and any prospect research as supporting evidence.`
       : "Output is a CUSTOM DOC and the user did NOT describe it. AUTO-DETECT the right shape from the surrounding context: persona role, deal size, meeting stage, prospect research signals, and KB namespaces present. Pick ONE concrete shape (e.g. RFP response, security questionnaire reply, partner brief, exec memo, technical proposal) and execute it well. State the inferred shape in the first slide title.",
   };
 
@@ -281,18 +281,18 @@ Lead with: ${icp.content_rules.lead_with.join(", ")}
 Avoid: ${icp.content_rules.avoid.join(", ")}
 Tone: ${icp.content_rules.tone}
 
-TARGET: ${input.company_name} — persona "${input.persona_role}"
+TARGET: ${input.company_name}, persona "${input.persona_role}"
 Stage: ${input.meeting_stage ?? "discovery"} · Deal: ${input.deal_size} · Clouds: ${input.clouds?.join(", ") ?? "AWS+GCP+Azure"}
 Region: ${input.region ?? "n/a"} · Competitor: ${input.competitor ?? "n/a"}
-Pain points: ${input.pain_points ?? "(none provided — infer from industry)"}
+Pain points: ${input.pain_points ?? "(none provided, infer from industry)"}
 Desired format: ${format.replace(/_/g, " ")}${customHint ? `\nCustom doc hint: ${customHint}` : ""}
 
 Brand accent (target): ${brandAssets.primary_color}
-${brief ? `\nPROSPECT RESEARCH (use this to personalize — pattern-match to their actual tech stack / pain signals):\n${briefToPrompt(brief)}\n` : ""}
-SOURCES (use ONLY these — cite source_id on each claim):
+${brief ? `\nPROSPECT RESEARCH (use this to personalize, pattern-match to their actual tech stack / pain signals):\n${briefToPrompt(brief)}\n` : ""}
+SOURCES (use ONLY these: cite source_id on each claim):
 ${summarizeKB(usedSources)}
 
-Output JSON (COMPACT — every character counts, keep content tight):
+Output JSON (COMPACT, every character counts, keep content tight):
 {
   "slides": [
     {
@@ -329,7 +329,7 @@ Produce 3 slides. Keep each slide title ≤10 words, content ≤50 words, speake
   };
 }
 
-// ─── Agent 3 — Brand Compliance ───────────────────────────────────────────────
+// ─── Agent 3: Brand Compliance ───────────────────────────────────────────────
 
 interface BrandCheck {
   pass: boolean;
@@ -386,7 +386,7 @@ tone_score is 0–1. Flag any banned words, invented customer names, or off-bran
   };
 }
 
-// ─── Agent 4 — Fact / Validation ──────────────────────────────────────────────
+// ─── Agent 4: Fact / Validation ──────────────────────────────────────────────
 
 interface FactCheck {
   grounded: boolean;
@@ -424,7 +424,7 @@ Return JSON:
   const text = await callLLM(client, system, user, 2000);
   const parsed = extractJson<FactCheck>(text) ?? { grounded: true, claims: [], hallucinations: [] };
 
-  // "warning" instead of "fail" — flagged items are often legitimate KB content
+  // "warning" instead of "fail": flagged items are often legitimate KB content
   // the retrieval agent didn't select, not actual hallucinations. Hard "fail"
   // here was blocking every pitch even when ICP output was perfectly usable.
   const status = parsed.hallucinations.length > 0 ? "warning" : "pass";
@@ -473,7 +473,7 @@ export async function* runCouncil(opts: {
         brief = b;
         yield { type: "research", brief: b };
       } catch (err) {
-        // Non-fatal — continue without brief
+        // Non-fatal: continue without brief
         yield { type: "stage", stage: "research", message: `Research skipped: ${err instanceof Error ? err.message : String(err)}` };
       }
     }
@@ -512,7 +512,7 @@ export async function* runCouncil(opts: {
     yield { type: "stage", stage: "generating", message: "Council vote…" };
 
     const agents = [retrieval, icpResult, brandResult, validationResult];
-    // Accept "warning" from validation — only hard "fail" on any agent blocks output.
+    // Accept "warning" from validation: only hard "fail" on any agent blocks output.
     // Previously requiring validationResult === "pass" caused the retry loop to
     // always fire (validation rarely returns "pass" on first attempt with free
     // models), doubling the LLM call count and making it look like agents re-ran.
@@ -525,7 +525,7 @@ export async function* runCouncil(opts: {
       const detail = issues.slice(0, 3).join("; ");
       yield {
         type: "error",
-        message: `The council couldn't ground a draft — add a KB entry covering this, then retry.${detail ? ` (${detail})` : ""}`,
+        message: `The council couldn't ground a draft, add a KB entry covering this, then retry.${detail ? ` (${detail})` : ""}`,
       };
       return;
     }

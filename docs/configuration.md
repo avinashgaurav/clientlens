@@ -4,7 +4,7 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 
 ## Configuration
 
-### `extension/.env` (Vite — public, baked into bundle)
+### `extension/.env` (Vite: public, baked into bundle)
 
 | Variable | Purpose | Required |
 |---|---|---|
@@ -19,7 +19,7 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `VITE_GEMINI_MODEL` | Override default Gemini model | No |
 | `VITE_OPENROUTER_MODEL` | Override default OpenRouter model | No |
 
-### `backend/.env` (server-side — never bundled)
+### `backend/.env` (server-side, never bundled)
 
 | Variable | Purpose | Required |
 |---|---|---|
@@ -63,6 +63,6 @@ The check is **fail-open**: if the Supabase query for today's usage errors, call
 
 `tabCapture` is declared under `optional_permissions` in `manifest.json`, so the scary "Record content of your screen" warning does not appear at install time. Chrome prompts for it the first time the rep clicks **Start Live Mode**.
 
-**Edge case:** Live Mode can also auto-start when joining a Meet call if the rep has previously enabled "Don't ask again". On a brand-new install, that auto-start fires before the user has clicked anything — Chrome will not grant the permission without a user-gesture. The auto-start will silently bail; the next manual click on **Start Live Mode** prompts and grants normally. Once granted, all future auto-starts work.
+**Edge case:** Live Mode can also auto-start when joining a Meet call if the rep has previously enabled "Don't ask again". On a brand-new install, that auto-start fires before the user has clicked anything, Chrome will not grant the permission without a user-gesture. The auto-start will silently bail; the next manual click on **Start Live Mode** prompts and grants normally. Once granted, all future auto-starts work.
 
 If you want auto-start to "just work" from install, have new reps click the Live Mode toggle once after install to grant the permission proactively.

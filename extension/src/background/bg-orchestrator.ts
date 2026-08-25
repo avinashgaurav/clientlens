@@ -26,7 +26,7 @@ import {
 import { computeSentimentTrend, computeAgendaPacing, rejectionFromOutcome } from "../meeting-copilot/agents/live-helpers";
 import { findCurrentMeetingFromCalendar } from "../meeting-copilot/integrations/google-calendar";
 
-// Background "tick" intervals — these are the *fallback* cadence when nothing
+// Background "tick" intervals, these are the *fallback* cadence when nothing
 // new is being said. The moment a final transcript segment lands we also
 // schedule an immediate coach + sentiment refresh (debounced) so Say-this /
 // Avoid feel live, not 15-second-stale.
@@ -35,7 +35,7 @@ const AGENDA_INTERVAL_MS = 30_000;
 const COACH_INTERVAL_MS = 15_000;
 
 // Don't fire more than once per ~2.5s per agent, even if the prospect is
-// rattling off short sentences — gives the LLM time to return and avoids
+// rattling off short sentences: gives the LLM time to return and avoids
 // stomping on an in-flight call with another one.
 const LIVE_COACH_MIN_GAP_MS = 2_500;
 const LIVE_SENTIMENT_MIN_GAP_MS = 4_000;
@@ -43,7 +43,7 @@ const LIVE_SENTIMENT_MIN_GAP_MS = 4_000;
 const LIVE_TRIGGER_DEBOUNCE_MS = 350;
 
 // Surface an error banner on the transponder only after this many back-to-back
-// agent failures — a single transient timeout shouldn't scare the rep mid-call.
+// agent failures, a single transient timeout shouldn't scare the rep mid-call.
 const AGENT_ERROR_THRESHOLD = 3;
 // Keep the "thinking…" pulse visible for ~200ms after the suggestion lands so
 // the rep sees a visual anchor instead of an instant cut.
@@ -95,7 +95,7 @@ function emptySession(id: string, tabId: number, meetingTitle?: string): Meeting
   };
 }
 
-// Domains we treat as the rep's own org or generic personal mail — these
+// Domains we treat as the rep's own org or generic personal mail, these
 // attendees are not the prospect, so we shouldn't infer the company from them.
 // The rep's own domain is read from VITE_ALLOWED_DOMAIN (same var as auth).
 const _repDomain = (import.meta.env.VITE_ALLOWED_DOMAIN as string | undefined)?.toLowerCase().trim() || "example.com";
@@ -157,7 +157,7 @@ function mirrorToTab(payload: Record<string, unknown>) {
 }
 
 // Normalize an LLM error into a short sentence for the banner. Full error
-// messages can be multi-line — we just want "API key invalid" or "Quota hit".
+// messages can be multi-line, we just want "API key invalid" or "Quota hit".
 function friendlyErr(err: unknown): string {
   if (err instanceof Error) return err.message.split("\n")[0].slice(0, 140);
   return String(err).slice(0, 140);
@@ -224,7 +224,7 @@ export function startBgOrchestrator(args: {
   // Fire-and-forget: try to enrich the session from Google Calendar. If the
   // user hasn't connected calendar (no cached token) this returns null and we
   // stay with the bare meeting_title. The user can always open the sidebar
-  // and fill in fields manually — those override what we seeded here.
+  // and fill in fields manually, those override what we seeded here.
   if (args.meetingUrl) {
     void findCurrentMeetingFromCalendar(args.meetingUrl)
       .then((event) => {
@@ -240,7 +240,7 @@ export function startBgOrchestrator(args: {
         if (inferred.agenda.length) active.session.agenda = inferred.agenda;
         mirrorToTab({ input: active.session.input, agenda: active.session.agenda });
       })
-      .catch(() => { /* calendar not connected — silent fallback */ });
+      .catch(() => { /* calendar not connected, silent fallback */ });
   }
 
   active.timers.push(schedule(() => void runSentimentTick(), SENTIMENT_INTERVAL_MS));
@@ -315,7 +315,7 @@ async function runCoachTick(): Promise<void> {
       noteAgentError("coach", err);
       return;
     }
-    // Validate suggestions in parallel — independent calls, no need to chain.
+    // Validate suggestions in parallel: independent calls, no need to chain.
     const outcomes = await Promise.all(
       suggestions.map((s) => runLiveCouncilValidator(s, active!.session, kb)),
     );
@@ -331,7 +331,7 @@ async function runCoachTick(): Promise<void> {
         mirrorToTab({ rejection });
         continue;
       }
-      // Dedup against suggestions we've already shown — the live trigger fires
+      // Dedup against suggestions we've already shown, the live trigger fires
       // often, and the LLM tends to repeat the same nudge two ticks in a row.
       const existing = active.session.suggestions;
       const dup = existing.some(
@@ -344,7 +344,7 @@ async function runCoachTick(): Promise<void> {
   } finally {
     if (active) {
       active.coachInFlight = false;
-      // 200ms linger on the thinking pulse — feels anchored rather than glitchy.
+      // 200ms linger on the thinking pulse: feels anchored rather than glitchy.
       setTimeout(() => { if (active) mirrorToTab({ thinking: null }); }, THINKING_LINGER_MS);
       if (active.coachPending) {
         active.coachPending = false;
@@ -364,7 +364,7 @@ function scheduleLiveTrigger(): void {
     if (!active) return;
     const now = Date.now();
     // If a call is in-flight (common with Opus, ~5-9s), runCoachTick/runSentimentTick
-    // will set the *Pending flag and re-fire on completion — don't gate on
+    // will set the *Pending flag and re-fire on completion, don't gate on
     // inFlight here, otherwise the call gets dropped and we never catch up.
     if (active.coachInFlight || now - active.lastCoachAt >= LIVE_COACH_MIN_GAP_MS) {
       void runCoachTick();
@@ -394,7 +394,7 @@ export function bgAppendTranscript(seg: TranscriptSegment): void {
   } else {
     t.push(seg);
   }
-  // Only fire live coach on FINAL segments — partial/interim text mutates
+  // Only fire live coach on FINAL segments, partial/interim text mutates
   // every few hundred ms and would burn LLM calls. Final means the speaker
   // paused, which is exactly when fresh coaching is most useful.
   if (seg.is_final && seg.text?.trim()) scheduleLiveTrigger();

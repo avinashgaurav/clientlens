@@ -10,7 +10,7 @@ NAMESPACES = ["product_docs", "case_studies", "metrics", "brand_guidelines", "co
 async def init_vector_store():
     """Initialize Pinecone index on startup. Creates if not exists.
 
-    Skips entirely when PINECONE_API_KEY is not set — local dev path. Embeddings
+    Skips entirely when PINECONE_API_KEY is not set, local dev path. Embeddings
     are stubbed elsewhere so RAG search returns nothing useful anyway; this just
     keeps boot clean instead of logging a noisy init_failed warning.
     """

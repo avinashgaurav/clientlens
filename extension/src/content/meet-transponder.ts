@@ -1,5 +1,5 @@
 // Transponder overlay for Google Meet. Injected only on meet.google.com.
-// Vanilla DOM — content scripts run in their own world without React.
+// Vanilla DOM: content scripts run in their own world without React.
 // Renders as a floating pill below the rep's self-view tile. Position is
 // draggable; state persists to chrome.storage.local.
 
@@ -59,7 +59,7 @@ interface TransponderState {
   collapsed?: boolean;
   showLog?: boolean;
   expanded?: boolean;
-  // Live "thinking" preview — streamed text while the coach LLM is generating.
+  // Live "thinking" preview: streamed text while the coach LLM is generating.
   // Cleared when the structured suggestion lands.
   thinking?: { kind: "coach"; text: string } | null;
   // Ask-KB thread. Each entry is a question the rep typed during the call;
@@ -84,14 +84,14 @@ const DOCK_KEY = "clientlens.transponder.dock";   // legacy vertical-dock prefs;
 const LAYOUT_KEY = "clientlens.transponder.layout";
 const AUTOSTART_KEY = "clientlens.autostart";
 // User-pinned body height (px). Default 320; persists across sessions so the
-// rep's preferred panel size sticks. Re-renders never change height — only
+// rep's preferred panel size sticks. Re-renders never change height, only
 // dragging the resize grip does.
 const BODY_HEIGHT_KEY = "clientlens.transponder.body_h";
 const BODY_HEIGHT_DEFAULT = 320;
 const BODY_HEIGHT_MIN = 160;
 const BODY_HEIGHT_MAX = 720;
 
-// The strip sits under the physical laptop camera — narrow enough that the
+// The strip sits under the physical laptop camera, narrow enough that the
 // rep can flick their eyes between the camera lens and the prompts without
 // breaking eye contact. Width caps mean it never covers the remote tile.
 const STRIP_W = 560;
@@ -130,7 +130,7 @@ function teardownOrphan() {
 
 // ── DOM-builder helper (closes #19) ──────────────────────────────────────────
 // Replaces every innerHTML template literal in this file. Each interpolation
-// that previously had to flow through escapeHtml is now structurally safe —
+// that previously had to flow through escapeHtml is now structurally safe,
 // `setText(s)` calls become `Node.textContent = s` which can't render HTML.
 //
 // Usage:
@@ -138,7 +138,7 @@ function teardownOrphan() {
 //      el("span", { class: "cl-bar" }, escapedDynamicValue))
 //
 // Children can be: Node, string (becomes a text node), or false/null/undefined
-// (skipped — handy for `cond && el(...)` patterns).
+// (skipped: handy for `cond && el(...)` patterns).
 type ElChild = Node | string | number | null | undefined | false;
 type ElAttrs = Record<string, string | number | boolean | null | undefined>;
 
@@ -151,7 +151,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
   if (attrs) {
     for (const [k, v] of Object.entries(attrs)) {
       if (v === null || v === undefined || v === false) continue;
-      // `class` is the most common attr in this file — alias for readability.
+      // `class` is the most common attr in this file, alias for readability.
       if (k === "class") node.setAttribute("class", String(v));
       else if (k === "html") {
         // Escape hatch ONLY for trusted static markup (icon glyphs). Marked
@@ -239,7 +239,7 @@ function css() {
     margin-right: 8px; vertical-align: middle;
     transition: background-color 280ms ease;
   }
-  /* #81: hide the dot entirely in the idle state — the transponder is
+  /* #81: hide the dot entirely in the idle state, the transponder is
    * the vercel-mono surface; the dot is the single brand cue that signals
    * "Wingman is actively listening." No session = no cue. */
   #${ROOT_ID}.idle .cl-dot { display: none; }
@@ -266,7 +266,7 @@ function css() {
     overflow-y: auto;
     overflow-x: hidden;
     resize: vertical;
-    /* Custom grip below makes the resize affordance obvious — Chrome's
+    /* Custom grip below makes the resize affordance obvious, Chrome's
        default corner triangle is invisible on dark themes. */
     position: relative;
   }
@@ -361,7 +361,7 @@ function css() {
   #${ROOT_ID} .cl-conf-chip.high { color: #50E3C2; border-color: #50E3C2; }
   #${ROOT_ID} .cl-conf-chip.med  { color: #F5A623; border-color: #F5A623; }
   #${ROOT_ID} .cl-conf-chip.low  { color: #EE0000; border-color: #EE0000; }
-  /* Rejection pill — faint so it never competes with an active suggestion. */
+  /* Rejection pill: faint so it never competes with an active suggestion. */
   #${ROOT_ID} .cl-reject {
     margin-top: 6px; padding: 6px 8px;
     background: rgba(248,113,113,0.04);
@@ -371,7 +371,7 @@ function css() {
   #${ROOT_ID} .cl-reject b { color: #EE0000; font-weight: 600; margin-right: 4px; }
   #${ROOT_ID} .cl-reject-body { color: #E5E5E5; margin-top: 2px; }
   #${ROOT_ID} .cl-reject-issues { color: #A1A1A1; font-size: 9px; margin-top: 2px; font-style: italic; }
-  /* Pacing + trend chips — sit inline in the header. */
+  /* Pacing + trend chips: sit inline in the header. */
   #${ROOT_ID} .cl-pace {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 10px; letter-spacing: 0.04em;
@@ -380,7 +380,7 @@ function css() {
   #${ROOT_ID} .cl-pace.behind { color: #F5A623; border-color: #F5A623; }
   #${ROOT_ID} .cl-pace.ahead  { color: #50E3C2; border-color: #50E3C2; }
   #${ROOT_ID} .cl-trend { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: #A1A1A1; }
-  /* Error banner — shown after 3 back-to-back agent failures. */
+  /* Error banner: shown after 3 back-to-back agent failures. */
   #${ROOT_ID} .cl-errbanner {
     margin: 0 0 6px; padding: 6px 8px;
     background: rgba(248,113,113,0.08); border: 1px solid #EE0000;
@@ -732,7 +732,7 @@ function toggleExpanded() {
   render();
 }
 
-// escapeHtml has been removed — every render path is now DOM-builder based,
+// escapeHtml has been removed, every render path is now DOM-builder based,
 // so HTML escaping is structural (TextNode + setAttribute) rather than manual
 // string interpolation. If a future feature genuinely needs to inject HTML
 // (icon glyphs, etc.), use the `html` attribute of the `el()` helper above,
@@ -753,7 +753,7 @@ function moodEmoji(label?: string): string {
   return "⚪";
 }
 
-// Coach kinds we show under "SAY THIS" — anything actionable the rep should do
+// Coach kinds we show under "SAY THIS", anything actionable the rep should do
 // or say next. Anything we want the rep to back off of goes in AVOID.
 const SAY_KINDS: CoachSuggestion["kind"][] = [
   "say_next",
@@ -831,7 +831,7 @@ function render() {
     : el("div", { class: `cl-primary ${confCls}` },
         el("div", { class: "cl-primary-title" }, "→ Say this"),
         el("div", { class: "cl-primary-empty" },
-          "Coach is listening — a nudge will appear the moment the prospect raises a question or objection."),
+          "Coach is listening, a nudge will appear the moment the prospect raises a question or objection."),
       );
 
   const avoidEl = latestAvoid
@@ -844,7 +844,7 @@ function render() {
     : el("div", { class: "cl-avoid" },
         el("div", { class: "cl-avoid-title" }, "⚠ Avoid this"),
         el("div", { class: "cl-avoid-empty" },
-          "No traps flagged yet — the coach will warn here when the prospect signals risk."),
+          "No traps flagged yet, the coach will warn here when the prospect signals risk."),
       );
 
   // ── Rejection trail (most recent only, when expanded or no active say) ──
@@ -872,7 +872,7 @@ function render() {
   const prevSay = say.length >= 2 ? say[say.length - 2] : undefined;
   const secondaryEl: HTMLElement | null = state.expanded && prevSay
     ? el("div", { class: "cl-secondary" },
-        el("b", {}, "Earlier:"), " ", prevSay.title, " — ", prevSay.body)
+        el("b", {}, "Earlier:"), " ", prevSay.title, ", ", prevSay.body)
     : null;
   const moodRationaleEl: HTMLElement | null = state.expanded && sent?.rationale
     ? el("div", { class: "cl-rationale" }, `Mood read: ${sent.rationale}`)
@@ -890,7 +890,7 @@ function render() {
 
   const silenceEl: HTMLElement | null = state.silenceWarning && state.status === "listening"
     ? el("div", { class: "cl-silence", style: "margin:0 0 6px" },
-        "No new speech in 30s — summarize or ask a question?")
+        "No new speech in 30s: summarize or ask a question?")
     : null;
 
   const thinkingEl: HTMLElement | null = state.thinking
@@ -916,7 +916,7 @@ function render() {
               el("span", { class: "cl-thinking-dot" }), " Thinking…");
           } else if (e.status === "cancelled") {
             body = el("div", { class: "cl-kb-cancelled" },
-              "Cancelled — moved on to next question.");
+              "Cancelled: moved on to next question.");
           } else if (e.status === "error") {
             body = el("div", { class: "cl-kb-err" }, e.answer || "Error");
           } else {
@@ -982,7 +982,7 @@ function render() {
   const askInput = el("input", {
     class: "cl-ask",
     placeholder: "Ask KB…",
-    title: "Type a quick question — agents query your indexed KB (playbooks, product docs, case studies, security, pricing).",
+    title: "Type a quick question, agents query your indexed KB (playbooks, product docs, case studies, security, pricing).",
   });
   const askBtn = el("button", { class: "cl-btn", "data-action": "ask" }, "Ask");
 
@@ -1131,7 +1131,7 @@ chrome.runtime.onMessage.addListener((msg) => {
       startedAt: Date.now(),
       ...(m.payload as Partial<TransponderState> || {}),
     };
-    // Horizontal strip — CSS centers under the camera; no positioning math.
+    // Horizontal strip: CSS centers under the camera; no positioning math.
     applyLayout();
     resetSilenceTimer();
     startTick();
@@ -1154,7 +1154,7 @@ chrome.runtime.onMessage.addListener((msg) => {
       suggestion?: CoachSuggestion;
       rejection?: CoachRejection;
     }) || {};
-    // Append to suggestions buffer rather than overwrite — the panel needs the
+    // Append to suggestions buffer rather than overwrite, the panel needs the
     // recent history to fill the SAY THIS / AVOID columns.
     if (patch.suggestion) {
       const sug = patch.suggestion;
@@ -1197,7 +1197,7 @@ chrome.runtime.onMessage.addListener((msg) => {
         state.lastFinalAt = Date.now();
         resetSilenceTimer();
       }
-      // Any segment (final or not) keeps the status dot pulsing — interim
+      // Any segment (final or not) keeps the status dot pulsing, interim
       // segments are evidence the mic is live and the pipeline is processing.
       markStreamActive();
     }
@@ -1214,7 +1214,7 @@ chrome.runtime.onMessage.addListener((msg) => {
       entry.status = payload.error ? "error" : "done";
       entry.answer = payload.answer || payload.error || "No answer.";
     } else {
-      // Backward-compat: id missing — apply to the most recent pending entry
+      // Backward-compat: id missing, apply to the most recent pending entry
       // (now at the top of the thread since newest is unshifted to index 0).
       const pending = state.kbThread.find((e) => e.status === "pending");
       if (pending) {
@@ -1245,7 +1245,7 @@ function isMeetingLive(): boolean {
   const path = location.pathname;
   // Exclude known non-meeting paths: root, /landing, /about, /new, empty.
   if (!path || path === "/" || /^\/(landing|about|new|u\/|_)\b/i.test(path)) return false;
-  // Require at least one alphanumeric segment — filters out bare "/" variants.
+  // Require at least one alphanumeric segment: filters out bare "/" variants.
   if (!/\/[a-z0-9]/i.test(path)) return false;
   const hasControls =
     !!document.querySelector('[aria-label*="microphone" i]') ||
@@ -1316,7 +1316,7 @@ function showStartPrompt() {
   promptEl = el("div", { id: PROMPT_ID },
     el("div", { class: "cl-p-title" }, "Start Project Wingman for this call?"),
     el("div", { class: "cl-p-sub" },
-      "Live transcription, sentiment and coach nudges. Read-only — nothing is posted anywhere."),
+      "Live transcription, sentiment and coach nudges. Read-only, nothing is posted anywhere."),
     el("div", { class: "cl-p-row" },
       el("button", { class: "cl-p-btn", "data-p": "start" }, "Start copilot"),
       el("button", { class: "cl-p-btn ghost", "data-p": "skip" }, "Not now"),

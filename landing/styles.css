@@ -1,5 +1,5 @@
 /*
- * Project Wingman — Landing Page Styles
+ * Project Wingman: Landing Page Styles
  * ======================================
  * Multi-skin page layered as bands:
  *   1. Hero band       → SpaceX (pure black, uppercase D-DIN substitute, ghost pill CTA)
@@ -85,9 +85,9 @@ button { font: inherit; cursor: pointer; }
   transition: color 140ms ease;
 }
 .nav-links a:hover { color: #FFFFFF; }
-/* Ghost-outlined to match the strict SpaceX hero — the nav rides over the
+/* Ghost-outlined to match the strict SpaceX hero, the nav rides over the
    black hero band, so a ghost pill reads more SpaceX than a filled-orange
-   mark. (The hero band itself still has two pills — this isn't strict
+   mark. (The hero band itself still has two pills, this isn't strict
    "single CTA per band"; it's the closest fit without dropping a link.) */
 .nav-cta {
   background: transparent;
@@ -114,7 +114,7 @@ button { font: inherit; cursor: pointer; }
   overflow: hidden;
 }
 .hero::before {
-  /* Atmospheric backdrop — radial wash centred near top-right.
+  /* Atmospheric backdrop: radial wash centred near top-right.
      SpaceX uses photography here; we use a tonal radial wash so the
      page reads cinematic without a hero image asset to maintain. */
   content: "";
@@ -149,7 +149,7 @@ button { font: inherit; cursor: pointer; }
   /* SpaceX signature: uppercase D-DIN-Bold with POSITIVE tracking
      (+1.6px @ 80px = +0.02em). D-DIN isn't web-available, so the existing
      display family is uppercased with the positive tracking applied.
-     This overrides the earlier title-case softening on purpose — the
+     This overrides the earlier title-case softening on purpose, the
      hero now reads as the strict SpaceX "aerospace" register. */
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -157,7 +157,7 @@ button { font: inherit; cursor: pointer; }
   margin-bottom: 24px;
 }
 .hero__headline em {
-  /* SpaceX uses no accent — black/white/photography only. The orange
+  /* SpaceX uses no accent: black/white/photography only. The orange
      gradient is dropped so the headline is pure white. */
   font-style: normal;
   color: #FFFFFF;
@@ -193,7 +193,7 @@ button { font: inherit; cursor: pointer; }
 .btn-pill--ghost:hover { background: rgba(255,255,255,0.06); border-color: #FFFFFF; }
 
 /* SpaceX signature: "single ghost-outlined pill CTA per band, never
-   filled." Scoped to the hero — the filled-orange primary becomes a
+   filled." Scoped to the hero, the filled-orange primary becomes a
    ghost-outlined pill so the hero matches the strict SpaceX convention.
    Other bands keep their filled CTAs. */
 .hero .btn-pill--primary {
@@ -262,7 +262,7 @@ button { font: inherit; cursor: pointer; }
   font-family: 'Inter', sans-serif;
 }
 
-/* ─────────────────────────── FEATURE 1 — Live copilot (Cursor) */
+/* ─────────────────────────── FEATURE 1: Live copilot (Cursor) */
 .feature-cursor {
   background: #F7F7F4;
   color: #26251E;
@@ -354,7 +354,7 @@ button { font: inherit; cursor: pointer; }
 .mock-row__pill { flex-shrink: 0; }
 .mock-row__text { color: #26251E; }
 
-/* ─────────────────────────── FEATURE 2 — Pitch (Vercel mesh) ─ */
+/* ─────────────────────────── FEATURE 2: Pitch (Vercel mesh) ─ */
 .feature-vercel {
   background: #FFFFFF;
   color: #171717;
@@ -424,7 +424,7 @@ button { font: inherit; cursor: pointer; }
   margin-top: 4px;
 }
 
-/* ─────────────────────────── FEATURE 3 — Insights (Spotify) ── */
+/* ─────────────────────────── FEATURE 3: Insights (Spotify) ── */
 .feature-spotify {
   background: #121212;
   color: #FFFFFF;

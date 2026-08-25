@@ -1,5 +1,5 @@
 """
-Agent 2 — Brand Compliance Agent
+Agent 2: Brand Compliance Agent
 
 Checks all content against:
 - Design System component rules
@@ -48,12 +48,12 @@ class BrandComplianceAgent:
         brand_voice = await get_brand_voice()
 
         if not design_system or not brand_voice:
-            # No DS/BV configured yet — pass through with warning
+            # No DS/BV configured yet: pass through with warning
             return AgentResult(
                 agent="brand_compliance",
                 status="warning",
                 output=retrieval_output,
-                issues=["No Design System or Brand Voice configured — skipping compliance check"],
+                issues=["No Design System or Brand Voice configured, skipping compliance check"],
                 confidence=0.5,
             )
 

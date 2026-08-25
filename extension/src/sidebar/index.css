@@ -28,7 +28,7 @@ body {
   }
   .input:focus {
     /* Intentionally :focus (not :focus-visible). Text inputs conventionally
-     * show focus state on mouse click too — the border tint is subtle. The
+     * show focus state on mouse click too, the border tint is subtle. The
      * keyboard-only outline ring is handled by the unlayered :focus-visible
      * rule in tokens.css.
      *
@@ -39,7 +39,7 @@ body {
   }
 }
 
-/* Custom scrollbar — adapts to skin via CSS variables */
+/* Custom scrollbar: adapts to skin via CSS variables */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {

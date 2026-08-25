@@ -1,5 +1,5 @@
 """
-STT token endpoint — mints a short-lived Deepgram temporary key.
+STT token endpoint: mints a short-lived Deepgram temporary key.
 
 The Deepgram API key lives in backend .env (DEEPGRAM_API_KEY) and is never
 sent to the extension. Instead, each session fetches a 60-second temp key
@@ -28,10 +28,10 @@ async def get_stt_token(request: Request) -> dict:
     Return a short-lived Deepgram temporary key (TTL 60 s).
 
     Auth: requires valid Supabase JWT (enforced by AuthMiddleware).
-    The key is scoped to `usage:write` only — sufficient for live transcription,
+    The key is scoped to `usage:write` only, sufficient for live transcription,
     cannot be used to read usage data or manage the project.
     """
-    # Auth is already enforced by AuthMiddleware — request.state.user is set.
+    # Auth is already enforced by AuthMiddleware: request.state.user is set.
     user = request.state.user
     if not settings.deepgram_api_key or not settings.deepgram_project_id:
         log.warning("stt.token.not_configured", user_id=user.get("id"))

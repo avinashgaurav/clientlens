@@ -1,4 +1,4 @@
--- Migration 003 — Tighten Row-Level Security on shared org tables
+-- Migration 003: Tighten Row-Level Security on shared org tables
 -- Run in Supabase SQL editor after 002_llm_usage.sql
 --
 -- Closes #10.
@@ -19,12 +19,12 @@
 -- Write operations (INSERT / UPDATE / DELETE) are already denied by default:
 -- RLS is enabled on these tables but 001 never added write policies, so
 -- Postgres falls through to deny for any non-service-key caller. This
--- migration does not change that behaviour — writes remain backend-only via
+-- migration does not change that behaviour: writes remain backend-only via
 -- the service key.
 --
 -- This migration drops the `using (true)` SELECT policies and replaces them
 -- with policies that require the caller to have a known role in user_profiles.
--- `viewer` is excluded — viewers are not supposed to see brand internals.
+-- `viewer` is excluded: viewers are not supposed to see brand internals.
 -- The role set matches `require_permission` checks in the corresponding
 -- backend routes (`assets:read`, `brand_voice:read`, `design_system:read`).
 
@@ -33,12 +33,12 @@ begin;
 -- ── Helper: role-gated read ─────────────────────────────────────────────────
 -- Returns true if the calling user has a role with read access to org-wide
 -- brand/asset data. Declared as SECURITY INVOKER so it runs in the caller's
--- RLS context — no privilege escalation. STABLE lets Postgres cache the result
+-- RLS context, no privilege escalation. STABLE lets Postgres cache the result
 -- within a single query (avoids one extra lookup per row).
 --
 -- Note: if auth.uid() has no user_profiles row (e.g. an orphaned auth.users
 -- entry), the subquery returns no rows and exists() evaluates to false.
--- This is intentional — unprovisioned users get no access.
+-- This is intentional: unprovisioned users get no access.
 
 create or replace function public.auth_user_has_brand_read()
 returns boolean

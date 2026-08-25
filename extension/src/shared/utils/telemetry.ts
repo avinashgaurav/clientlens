@@ -7,17 +7,17 @@
  * PostHog / Amplitude / whatever without changing call sites.
  *
  * Events are typed via a discriminated union (`TelemetryEvent`) so adding
- * a new event name forces the type system to enforce the shape — call
+ * a new event name forces the type system to enforce the shape, call
  * sites can't ship `track("typo_event_name", ...)` accidentally.
  *
- * NOT for product analytics where PII matters — call sites should pass
+ * NOT for product analytics where PII matters, call sites should pass
  * IDs, counts, and reasons only. No raw user input, no LLM outputs.
  */
 
 const BUFFER_KEY = "clientlens_telemetry_buffer_v1";
 const BUFFER_MAX = 100;
 
-// Discriminated union — extend here when adding new tracked events.
+// Discriminated union: extend here when adding new tracked events.
 export type TelemetryEvent =
   | {
       name: "objection_response_copied";
@@ -56,7 +56,7 @@ interface BufferedEvent {
 }
 
 /**
- * Record a typed telemetry event. Returns void — failures are swallowed
+ * Record a typed telemetry event. Returns void, failures are swallowed
  * so a missing chrome.storage (e.g. unit-test env) never breaks UI code.
  */
 export function track<E extends TelemetryEvent>(event: E): void {
@@ -66,7 +66,7 @@ export function track<E extends TelemetryEvent>(event: E): void {
     ts: Date.now(),
   };
 
-  // Console sink — visible in the extension's DevTools / service-worker logs.
+  // Console sink: visible in the extension's DevTools / service-worker logs.
   // Prefixed with `[wingman:telemetry]` so it's grep-able.
   try {
      

@@ -13,7 +13,7 @@ import { resolveLLMConfig, type LLMProvider } from "../../shared/agents/llm-clie
  *
  * "Configured" rules:
  *   - anthropic / gemini / groq / openrouter: always available (backend-
- *     proxied per #1 — the extension never holds the keys for these).
+ *     proxied per #1, the extension never holds the keys for these).
  *   - ollama: surfaced only when VITE_OLLAMA_BASE_URL is set at build time.
  *     Treating this as a dev-only path; not listed by default.
  *   - custom: only available when settings.customBaseUrl AND
@@ -39,7 +39,7 @@ const ALL_OPTIONS: ProviderOption[] = [
 function availableProviders(): ProviderOption[] {
   return ALL_OPTIONS.filter((opt) => {
     // resolveLLMConfig is the single source of truth for "can I make a call
-    // with this provider?" — it knows about both extension-side keys (custom)
+    // with this provider?", it knows about both extension-side keys (custom)
     // and backend-proxied providers' configuration requirements. Filter via
     // it so the chip only lists providers that won't immediately error.
     const result = resolveLLMConfig({ provider: opt.id, model: "" });
@@ -53,7 +53,7 @@ export function ProviderChip() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Recompute options whenever the chip is opened — handles the case where the
+  // Recompute options whenever the chip is opened, handles the case where the
   // rep adds a custom endpoint in Settings, comes back, and would expect the
   // new option to be visible immediately.
   useEffect(() => {

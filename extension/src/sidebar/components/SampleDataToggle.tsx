@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 /**
  * Unprivileged sample-data toggle (#95). Loading/clearing demo data
- * doesn't require the admin passcode — it's reversible by design and the
+ * doesn't require the admin passcode, it's reversible by design and the
  * data is prefix-tagged so cleanup is atomic. Renders just the card; the
  * caller controls outer padding (used in both SettingsPanel and the
  * Quick Settings popover).
@@ -50,7 +50,7 @@ export function SampleDataToggle() {
       } else {
         await m.loadSampleData();
       }
-      // Re-read actual storage rather than optimistically flipping — if the
+      // Re-read actual storage rather than optimistically flipping, if the
       // load/clear threw mid-write, state stays truthful to disk.
       setLoaded(await m.hasSampleDataLoaded());
     } finally {
@@ -73,7 +73,7 @@ export function SampleDataToggle() {
         </div>
         <div className="text-[11px] text-ink-4 mt-0.5 leading-snug">
           Loads 5 sample KB entries and 4 sample call records. Toggle
-          off to remove them — real data is untouched.
+          off to remove them: real data is untouched.
         </div>
       </div>
       <button

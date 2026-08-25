@@ -1,5 +1,5 @@
 """
-Agent 1 — RAG Retrieval Agent
+Agent 1: RAG Retrieval Agent
 
 Pulls relevant content from:
 - Internal product docs (Pinecone vector store)
@@ -18,7 +18,7 @@ SYSTEM_PROMPT = """You are a RAG retrieval agent for Project Wingman's sales int
 Your job is to:
 1. Identify what content is needed based on the generation request
 2. Evaluate the retrieved context for relevance and quality
-3. Return ONLY factual, sourced content — never invent data
+3. Return ONLY factual, sourced content, never invent data
 4. Flag if retrieved context is insufficient to generate accurate content
 
 OUTPUT FORMAT (JSON):
@@ -57,7 +57,7 @@ class RetrievalAgent:
                 agent="retrieval",
                 status="warning",
                 output={"relevant_chunks": [], "sources": [], "key_facts": [], "metrics": [], "case_studies": []},
-                issues=["No relevant content found in knowledge base — generation will be limited"],
+                issues=["No relevant content found in knowledge base, generation will be limited"],
                 confidence=0.3,
             )
 

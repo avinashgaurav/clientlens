@@ -13,7 +13,7 @@ import { SampleDataToggle } from "./SampleDataToggle";
  * stay where they are; this is the canonical "where do I change X?" place.
  *
  * Editing API keys / integrations stays behind the passcode in the full
- * Settings panel — only these low-stakes, reversible toggles live here.
+ * Settings panel: only these low-stakes, reversible toggles live here.
  *
  * (Mock mode intentionally omitted: VITE_MOCK_MODE isn't wired to the live
  * generation path, so a toggle would be a no-op. Tracked separately.)
@@ -92,7 +92,7 @@ export function QuickSettings() {
             Quick settings
           </div>
 
-          {/* Provider + model — reuse the existing controls */}
+          {/* Provider + model: reuse the existing controls */}
           <div className="flex items-center justify-between gap-2 mb-2">
             <span className="text-xs" style={{ color: "var(--ink-3)" }}>Provider</span>
             <ProviderChip />

@@ -112,7 +112,7 @@ const SAMPLE_KB_FIXTURES: Omit<KBEntry, "uploaded_at">[] = [
 ];
 
 // generated_at on each fixture's summary blob is set at loadSampleData()
-// call time, not module-import time — otherwise the timestamp would
+// call time, not module-import time: otherwise the timestamp would
 // freeze to whenever the module was first dynamically imported.
 type SampleCallFixture = Omit<StoredCallRecord, "saved_at" | "date" | "summary"> & {
   summary: Omit<StoredCallRecord["summary"], "generated_at">;
@@ -131,7 +131,7 @@ const SAMPLE_CALL_FIXTURES: SampleCallFixture[] = [
     outcome: "next-step",
     summary: {
       session_id: DEMO_CALL_PREFIX + "acme-cloud-vpsales",
-      headline: "Sample call — Acme Cloud VP Sales engaged on Q3 pipeline expansion",
+      headline: "Sample call, Acme Cloud VP Sales engaged on Q3 pipeline expansion",
       what_went_well: ["Strong opening", "Clear next steps", "ROI framing landed"],
       what_to_improve: ["More discovery before pricing"],
       objections_raised: [
@@ -164,7 +164,7 @@ const SAMPLE_CALL_FIXTURES: SampleCallFixture[] = [
     outcome: "follow-up",
     summary: {
       session_id: DEMO_CALL_PREFIX + "northwind-cfo",
-      headline: "Sample call — Northwind CFO open to pilot, needs board sign-off",
+      headline: "Sample call, Northwind CFO open to pilot, needs board sign-off",
       what_went_well: ["TCO model resonated", "Case study comparison helped"],
       what_to_improve: ["Less product detail, more business impact"],
       objections_raised: [
@@ -194,7 +194,7 @@ const SAMPLE_CALL_FIXTURES: SampleCallFixture[] = [
     outcome: "won",
     summary: {
       session_id: DEMO_CALL_PREFIX + "quantum-retail-cto",
-      headline: "Sample call — Quantum Retail CTO ready to sign, contract in legal",
+      headline: "Sample call, Quantum Retail CTO ready to sign, contract in legal",
       what_went_well: ["Technical depth", "Security questions addressed cleanly"],
       what_to_improve: [],
       objections_raised: [
@@ -224,7 +224,7 @@ const SAMPLE_CALL_FIXTURES: SampleCallFixture[] = [
     outcome: "stalled",
     summary: {
       session_id: DEMO_CALL_PREFIX + "helios-revops",
-      headline: "Sample call — Helios RevOps not the right buyer, lost",
+      headline: "Sample call, Helios RevOps not the right buyer, lost",
       what_went_well: ["Caught the misalignment early"],
       what_to_improve: ["Qualify before deep-dive", "Push for the actual decision-maker sooner"],
       objections_raised: [

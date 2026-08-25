@@ -28,7 +28,7 @@ async function callLLM(system: string, user: string, maxTokens: number): Promise
 const SYSTEM = `You are a sales meeting reviewer. Read the full transcript of a sales call and produce a structured JSON summary.
 Schema:
 {
-  "headline": "one sentence — did the call advance the deal?",
+  "headline": "one sentence, did the call advance the deal?",
   "what_went_well": ["short", "bullets"],
   "what_to_improve": ["short", "bullets"],
   "objections_raised": [{"objection": "...", "response_quality": "good|weak|missed"}],
@@ -137,8 +137,8 @@ function emptySummary(sessionId: string, reason?: string): MeetingPostCallSummar
   return {
     session_id: sessionId,
     headline: reason
-      ? `Summary unavailable — ${reason}`
-      : "Summary unavailable — transcript was empty or the model returned no JSON.",
+      ? `Summary unavailable: ${reason}`
+      : "Summary unavailable, transcript was empty or the model returned no JSON.",
     what_went_well: [],
     what_to_improve: [],
     objections_raised: [],

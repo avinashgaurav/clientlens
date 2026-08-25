@@ -1,5 +1,5 @@
 """
-Agent 4 — Validation & Fact-Check Agent
+Agent 4: Validation & Fact-Check Agent
 
 Cross-checks final content against:
 - Original retrieved sources (hallucination detection)
@@ -26,8 +26,8 @@ CHECKS TO PERFORM:
 
 GRADING:
 - "pass": All checks pass, content is approved for delivery
-- "warning": Minor issues found, corrections applied — content is usable but flag for review
-- "fail": Hallucinated claims found that cannot be corrected — reject and request regeneration
+- "warning": Minor issues found, corrections applied, content is usable but flag for review
+- "fail": Hallucinated claims found that cannot be corrected, reject and request regeneration
 
 OUTPUT FORMAT (JSON):
 {
@@ -57,7 +57,7 @@ class ValidationAgent:
         personalized_content: dict,
     ) -> AgentResult:
 
-        prompt = f"""SOURCE OF TRUTH (retrieved facts — Agent 1 output):
+        prompt = f"""SOURCE OF TRUTH (retrieved facts, Agent 1 output):
 {json.dumps(raw_content, indent=2)}
 
 CONTENT TO VALIDATE (Agent 3 personalized output):

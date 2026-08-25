@@ -45,7 +45,7 @@ export function KnowledgeBasePanel() {
     listKB().then(setEntries);
     // Re-pull on every indexer status change so the pill flips live.
     const off = onIndexProgress(() => { void listKB().then(setEntries); });
-    // Re-pull on direct writes to chrome.storage.local — handles paths that
+    // Re-pull on direct writes to chrome.storage.local: handles paths that
     // skip the indexer entirely (sample-data fixtures, manual addKB calls
     // from sibling panels, etc.). Without this the panel can show a stale
     // empty list after demo data is loaded via the empty-state CTA.
@@ -195,7 +195,7 @@ export function KnowledgeBasePanel() {
       url: gitUrl.trim(),
       content: "",
       status: "pending_parse",
-      status_reason: `Git repo (${gitBranch}${gitPath ? ` /${gitPath}` : ""}) — backend will clone & index`,
+      status_reason: `Git repo (${gitBranch}${gitPath ? ` /${gitPath}` : ""}), backend will clone & index`,
       uploaded_by: user.email,
       uploaded_by_role: user.role,
       uploaded_at: new Date().toISOString(),
@@ -304,7 +304,7 @@ export function KnowledgeBasePanel() {
       {/* Name */}
       <label className="block space-y-1">
         <span className="text-xs text-[var(--ink-3)] font-medium">
-          Name {mode === "file" && <span className="text-[var(--ink-4)]">(optional — uses filename)</span>}
+          Name {mode === "file" && <span className="text-[var(--ink-4)]">(optional, uses filename)</span>}
         </span>
         <input
           type="text"
@@ -321,7 +321,7 @@ export function KnowledgeBasePanel() {
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Paste the source material here — claims, numbers, positioning, anything reps should cite."
+            placeholder="Paste the source material here: claims, numbers, positioning, anything reps should cite."
             rows={5}
             className="input resize-none"
           />
@@ -339,7 +339,7 @@ export function KnowledgeBasePanel() {
             className="input"
           />
           <span className="block text-[10px] text-[var(--ink-4)] leading-snug mt-1">
-            Page content is fetched and cleaned in your browser. Capped at 200KB. Sites that block bots may return empty — paste as text instead if so.
+            Page content is fetched and cleaned in your browser. Capped at 200KB. Sites that block bots may return empty, paste as text instead if so.
           </span>
         </label>
       )}
@@ -447,7 +447,7 @@ export function KnowledgeBasePanel() {
           </div>
         </div>
 
-        {/* Cross-cutting wiki signals — only shown when there's actually
+        {/* Cross-cutting wiki signals: only shown when there's actually
             something interesting to surface. */}
         {(wikiIndex.contradictions.length > 0 || wikiIndex.concepts.length > 0) && (
           <div className="bg-[var(--surface-2)] border border-[var(--line-2)] rounded-lg p-2 space-y-1.5">
@@ -458,7 +458,7 @@ export function KnowledgeBasePanel() {
                   <span className="font-medium">{wikiIndex.contradictions.length} cross-page contradiction{wikiIndex.contradictions.length === 1 ? "" : "s"}.</span>{" "}
                   {wikiIndex.contradictions.slice(0, 2).map((c, i) => (
                     <span key={i} className="block text-[var(--ink-4)] mt-0.5">
-                      “{c.entry_name}” ↔ “{c.with_entry_name ?? "—"}”: {c.note}
+                      “{c.entry_name}” ↔ “{c.with_entry_name ?? "an unnamed entry"}”: {c.note}
                     </span>
                   ))}
                   {wikiIndex.contradictions.length > 2 && (
@@ -536,7 +536,7 @@ export function KnowledgeBasePanel() {
                     {!isOpen && e.wiki_page?.contradictions && e.wiki_page.contradictions.length > 0 && (
                       <p className="text-[10px] text-[var(--ink-3)] mt-1 flex items-start gap-1">
                         <AlertTriangle size={10} className="mt-0.5 shrink-0" />
-                        <span>Conflicts with “{e.wiki_page.contradictions[0].with_entry_name ?? "—"}”: {e.wiki_page.contradictions[0].note}</span>
+                        <span>Conflicts with “{e.wiki_page.contradictions[0].with_entry_name ?? "an unnamed entry"}”: {e.wiki_page.contradictions[0].note}</span>
                       </p>
                     )}
                   </div>
@@ -697,7 +697,7 @@ function KBEmptyState() {
     try {
       await loadSampleData();
       setHasDemo(true);
-      // Force a panel refresh — caller's useEffect on kbCount won't fire
+      // Force a panel refresh: caller's useEffect on kbCount won't fire
       // without a re-render trigger, but the parent reads listKB on mount
       // and on KB-write events, so we let normal store-change propagation
       // handle the UI update.

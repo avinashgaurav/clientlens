@@ -1,12 +1,12 @@
 """
-RAG Retrieval — Pinecone vector search with namespace routing.
+RAG Retrieval: Pinecone vector search with namespace routing.
 
 Namespaces:
-  product_docs      — product documentation, feature specs
-  case_studies      — customer case studies and outcomes
-  metrics           — KPIs, benchmark data, proof points
-  brand_guidelines  — DS + brand voice (used by Agent 2)
-  competitor_intel  — competitive analysis and positioning
+  product_docs: product documentation, feature specs
+  case_studies: customer case studies and outcomes
+  metrics: KPIs, benchmark data, proof points
+  brand_guidelines: DS + brand voice (used by Agent 2)
+  competitor_intel: competitive analysis and positioning
 """
 
 from typing import Optional

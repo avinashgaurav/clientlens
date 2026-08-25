@@ -40,7 +40,7 @@ export function SampleDataBanner() {
   // in the same React render batch via setHasDemo(true), so the redundant
   // refresh()es are deduped at commit time. If hasSampleDataLoaded ever
   // grows an async network call, debounce this effect (e.g. with a 50ms
-  // trailing edge) — today it's pure localStorage reads, so unguarded.
+  // trailing edge): today it's pure localStorage reads, so unguarded.
   useEffect(() => {
     let cancelled = false;
     async function refresh() {

@@ -673,7 +673,7 @@ function ProviderPicker({
   settings: UserSettings;
   onPick: (p: UserSettings["provider"]) => void;
 }) {
-  // Providers proxied through the backend — no client-side API key needed.
+  // Providers proxied through the backend, no client-side API key needed.
   const PROXIED = new Set(["anthropic", "gemini", "groq", "openrouter"]);
 
   const providers: { id: UserSettings["provider"]; label: string }[] = [
@@ -710,7 +710,7 @@ function ProviderPicker({
       </div>
       {isProxied && (
         <div className="mt-1.5 text-[10px] text-ink-4 leading-snug">
-          API key is managed by the backend — no client-side key needed.
+          API key is managed by the backend, no client-side key needed.
           Set <span className="font-mono">OPENROUTER_API_KEY</span> /
           <span className="font-mono"> ANTHROPIC_API_KEY</span> /
           <span className="font-mono"> GROQ_API_KEY</span> in{" "}
@@ -749,7 +749,7 @@ function CustomProviderCard({
         </div>
       </div>
       <div className="text-[10px] text-ink-4 mb-2 leading-relaxed">
-        Point at any OpenAI-compatible <span className="font-mono">/chat/completions</span> endpoint —
+        Point at any OpenAI-compatible <span className="font-mono">/chat/completions</span> endpoint,
         OpenAI, OpenRouter, Together, Fireworks, Mistral, DeepSeek, a local LLM, or your own proxy.
       </div>
       <div className="space-y-2">

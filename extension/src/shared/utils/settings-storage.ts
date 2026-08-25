@@ -4,7 +4,7 @@
  * Stored in localStorage (sync read path for `resolveLLMConfig`) and
  * mirrored to chrome.storage.local for cross-surface persistence.
  *
- * Integrations are fully manual — users paste their own credentials.
+ * Integrations are fully manual: users paste their own credentials.
  * The extension never handles an OAuth flow; each card collects the
  * tokens/secrets the user obtained from the third-party console.
  */
@@ -28,21 +28,21 @@ export interface IntegrationConfig {
 export interface UserSettings {
   provider: LLMProvider;
   /**
-   * @deprecated since #1 — Anthropic is routed through the FastAPI backend.
+   * @deprecated since #1: Anthropic is routed through the FastAPI backend.
    * The extension never holds an Anthropic key. Field kept to avoid breaking
    * older hydrated payloads; ignored on read. Will be removed in a follow-up
    * after the migration window.
    */
   anthropicKey: string;
   /**
-   * @deprecated since #1 — Gemini chat + embeddings are routed through the
+   * @deprecated since #1: Gemini chat + embeddings are routed through the
    * FastAPI backend (`/api/v1/llm/{complete,stream,embed}`). The extension
    * never holds a Gemini key. Field kept to avoid breaking older hydrated
    * payloads; ignored on read.
    */
   geminiKey: string;
   /**
-   * @deprecated since #1 — Groq is routed through the FastAPI backend.
+   * @deprecated since #1: Groq is routed through the FastAPI backend.
    * The extension never holds a Groq key. Field kept to avoid breaking
    * older hydrated payloads; ignored on read.
    */
@@ -61,7 +61,7 @@ const EMPTY_INTEGRATION: IntegrationConfig = {
   fields: {},
 };
 
-// Shipped Gemini key — historically backfilled so the Gemini provider had a
+// Shipped Gemini key: historically backfilled so the Gemini provider had a
 // working credential. As of #1, Gemini is proxied via the backend and no
 // extension-side key is ever used. The constant is retained only for
 // backwards-compat with imports; new installs leave `geminiKey` empty.
@@ -89,7 +89,7 @@ const DEFAULTS: UserSettings = {
   // Default to OpenRouter only in dev-mode builds so existing users on other
   // providers aren't silently switched when they update the extension.
   // In production builds (VITE_DEV_MODE unset/false) we keep "custom" as the
-  // factory default — matches the pre-PR behaviour so no hydrate migration is
+  // factory default: matches the pre-PR behaviour so no hydrate migration is
   // needed for existing installs.
   provider: (import.meta.env.VITE_DEV_MODE as string | undefined) === "true"
     ? "openrouter"
@@ -228,7 +228,7 @@ export function lockAdmin(): void {
 
 export function apiKeyFor(provider: LLMProvider): string {
   const s = getSettings();
-  // Anthropic / Gemini / Groq are proxied via the backend (#1) — extension
+  // Anthropic / Gemini / Groq are proxied via the backend (#1), extension
   // never holds those keys. Only custom (user-supplied endpoint) returns one.
   if (provider === "custom") return s.customKey;
   return "";
@@ -286,7 +286,7 @@ export interface StoredSessionSummary {
 // Transcripts and per-call summaries include prospect PII (names, pricing
 // discussions, verbatim quotes). We cap retention to 24 hours so the
 // extension never hoards call data indefinitely. Sales reps who need longer
-// retention should push to their CRM via the Integrations flow — the
+// retention should push to their CRM via the Integrations flow, the
 // extension is not the system of record.
 const SESSION_RETENTION_MS = 24 * 60 * 60 * 1000;
 

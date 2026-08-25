@@ -59,7 +59,7 @@ export function PersonalizationForm() {
   // free-text persona role input with that ICP's canonical label so the
   // backend's matchICP() keyword matcher resolves it correctly. We only
   // overwrite when the field is empty or when the user hasn't customized
-  // it away from a known canonical label — manual edits win.
+  // it away from a known canonical label, manual edits win.
   const lastSeededLabelRef = useRef<string>("");
   useEffect(() => {
     const profile = ICP_PROFILES.find((p) => p.role === icpRole);
@@ -117,7 +117,7 @@ export function PersonalizationForm() {
       setBrandAssets(assets);
       // #91 smart-skip: if auto-fetch returned a real logo, jump straight
       // to Generating. The Preview step exists so the rep can fix a broken
-      // auto-fetch (placeholder logo, wrong domain, off accent color) —
+      // auto-fetch (placeholder logo, wrong domain, off accent color),
       // if there's nothing to fix, the extra click is friction.
       setFlowStep(assets.logo_source === "placeholder" ? "preview" : "generating");
     } catch (err) {
@@ -173,7 +173,7 @@ export function PersonalizationForm() {
               value={customHint}
               onChange={(e) => setCustomHint(e.target.value)}
               rows={2}
-              placeholder="e.g. RFP response · security questionnaire · partner brief · proposal — leave blank to auto-detect from the open tab and KB."
+              placeholder="e.g. RFP response · security questionnaire · partner brief · proposal, leave blank to auto-detect from the open tab and KB."
               className="w-full border border-line bg-surface-0 px-2 py-1.5 text-[11px] font-mono text-ink placeholder-ink-4 focus:outline-none focus:border-orange resize-y"
             />
             <div className="text-[10px] text-ink-4 mt-1 leading-snug">
@@ -195,7 +195,7 @@ export function PersonalizationForm() {
 
       <ICPSelector />
 
-      <Field label="Persona role" required hint="Picker above seeds this. Override freely — e.g. CFO, VP Engineering, Head of FinOps">
+      <Field label="Persona role" required hint="Picker above seeds this. Override freely, e.g. CFO, VP Engineering, Head of FinOps">
         <input
           type="text"
           value={role}
@@ -278,7 +278,7 @@ export function PersonalizationForm() {
         <textarea
           value={pains}
           onChange={(e) => setPains(e.target.value)}
-          placeholder="Short notes — anything the rep has heard from the buyer"
+          placeholder="Short notes, anything the rep has heard from the buyer"
           rows={3}
           className="w-full border border-line bg-surface-1 px-2.5 py-2 text-xs text-ink placeholder-ink-4 resize-none focus:outline-none focus:border-orange"
         />

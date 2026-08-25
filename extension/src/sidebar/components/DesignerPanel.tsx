@@ -98,7 +98,7 @@ function NamespaceUploader({
       });
     }
     e.target.value = "";
-    setFlash(`Replaced — ${files.length} file${files.length > 1 ? "s" : ""}`);
+    setFlash(`Replaced: ${files.length} file${files.length > 1 ? "s" : ""}`);
     setTimeout(() => setFlash(null), 2000);
     setBusy(false);
   }
@@ -120,7 +120,7 @@ function NamespaceUploader({
     });
     setPaste("");
     setPasteName("");
-    setFlash("Replaced — pasted content");
+    setFlash("Replaced: pasted content");
     setTimeout(() => setFlash(null), 2000);
     setBusy(false);
   }
@@ -176,7 +176,7 @@ function NamespaceUploader({
                 {busy ? "Replacing…" : "Upload & Replace"}
               </div>
               <span className="block text-[10px] text-slate-500 mt-1">
-                .md / .markdown / .txt / .json / .csv — replaces existing
+                .md / .markdown / .txt / .json / .csv, replaces existing
               </span>
             </label>
           ) : (

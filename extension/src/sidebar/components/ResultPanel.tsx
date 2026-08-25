@@ -138,7 +138,7 @@ export function ResultPanel({ result }: Props) {
           {/* Format badge */}
           <FormatBadge format={pitchFormat} />
 
-          {/* Content preview — format-aware */}
+          {/* Content preview: format-aware */}
           <FormatAwareRender
             format={pitchFormat}
             text={result.final_output.renderable_text}

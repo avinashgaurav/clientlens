@@ -49,7 +49,7 @@ export default function App() {
 
   // Track whether the rep has explicitly picked a tab in this sidebar lifetime.
   // Auto-switching to Copilot (when a Meet is detected) should ONLY happen
-  // before the rep has clicked anything — once they've made a choice, respect
+  // before the rep has clicked anything: once they've made a choice, respect
   // it for the rest of the session.
   const userPickedTabRef = useRef(false);
   const setAdminTab = (tab: AdminTab) => {
@@ -59,7 +59,7 @@ export default function App() {
 
   const hasMeetTab = useMeetDetection();
   const hasActiveSession = useMeetingCopilotStore((s) => s.session !== null);
-  // Build-time feature flag — captured once at mount via useState's lazy init
+  // Build-time feature flag: captured once at mount via useState's lazy init
   // so it's in the auto-switch effect's dep array without lint complaints. If
   // the flag ever becomes dynamic, lift this to its own subscription.
   const [copilotFlagOn] = useState(() => isMeetingCopilotEnabled());
@@ -71,7 +71,7 @@ export default function App() {
 
   // #79: auto-switch to Copilot tab when the rep has a Meet open and hasn't
   // already navigated somewhere else. We don't auto-switch if a session is
-  // already active because the rep is already mid-flow — moving them around
+  // already active because the rep is already mid-flow, moving them around
   // would be jarring. Also skip if the Copilot tab isn't enabled.
   useEffect(() => {
     if (userPickedTabRef.current) return;
@@ -167,11 +167,11 @@ export default function App() {
   const activeTab = tabs.find((t) => t.id === adminTab) ?? tabs[0];
   const activeSkin = activeTab.skin;
 
-  // CT1: live-mode applies to surfaces the rep reads mid-call —
+  // CT1: live-mode applies to surfaces the rep reads mid-call,
   // Copilot tab always, plus the objection mode (ObjectionPanel rendered).
   // Drives `[data-mode="live"]` typography bumps in tokens.css.
   //
-  // Gate is `outputMode === "objection"` alone — NOT
+  // Gate is `outputMode === "objection"` alone, NOT
   // `objectionInput?.objection_text`. Why: `objectionInput` is populated
   // asynchronously from chrome.storage.session in ObjectionPanel:23, so on
   // the first render after a context-menu capture the input is still null
@@ -184,12 +184,12 @@ export default function App() {
   // The `onboardingDone` state and its effect live above the `if (!user)`
   // early return, because hooks may not sit below a conditional return.
   // DUPLICATION ALERT: that computation mirrors the step definitions inside
-  // OnboardingChecklist.tsx — if those change (e.g. a new required step is
+  // OnboardingChecklist.tsx, if those change (e.g. a new required step is
   // added), update it too. A future PR can extract a shared
   // useOnboardingState() hook if the duplication becomes painful.
 
   return (
-    // Outer chrome uses the brand skin — header, tab strip, error banner.
+    // Outer chrome uses the brand skin: header, tab strip, error banner.
     // Active panel below swaps its data-skin per the active tab.
     <div
       data-skin="brand"
@@ -292,7 +292,7 @@ export default function App() {
 
         {adminTab === "insights" && <InsightsPanel />}
 
-        {/* Bottom render — only when setup is complete. Component drops
+        {/* Bottom render: only when setup is complete. Component drops
             into pill-mode (#80) which is small + reference-grade, not
             real-estate-eating. The component returns null if the user
             explicitly dismissed it. */}

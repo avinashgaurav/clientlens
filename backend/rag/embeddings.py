@@ -1,8 +1,8 @@
 async def get_embedding(text: str) -> list[float]:
-    """Placeholder embedding — returns zero vector until Voyage AI is wired up.
+    """Placeholder embedding: returns zero vector until Voyage AI is wired up.
 
     The previous version made a real (paid) Anthropic completion call and threw
-    the result away, returning a zero vector — a money leak whenever RAG ran.
+    the result away, returning a zero vector, a money leak whenever RAG ran.
 
     Production wiring:
         from voyageai import AsyncClient

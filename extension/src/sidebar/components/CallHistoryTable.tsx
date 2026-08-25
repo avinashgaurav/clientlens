@@ -9,7 +9,7 @@ import type {
 /**
  * Dense, filterable, sortable table for the full call history. Rendered
  * in place of the InsightsPanel grid when the user clicks "See all".
- * Option A from #44 — reuses sidebar real estate, no new entry points.
+ * Option A from #44: reuses sidebar real estate, no new entry points.
  */
 
 type DateRange = "7d" | "30d" | "all";
@@ -76,7 +76,7 @@ function comparator(column: SortColumn, dir: SortDirection) {
 
 function shortDate(iso: string): string {
   const d = new Date(iso);
-  if (!isFinite(d.getTime())) return "—";
+  if (!isFinite(d.getTime())) return "n/a";
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 

@@ -7,7 +7,7 @@
  * derived stats so drill-down views don't need to re-run the summary agent.
  *
  * Storage: localStorage (matches every other persistence layer in the
- * extension — session-history, settings, KB store). chrome.storage.local
+ * extension: session-history, settings, KB store). chrome.storage.local
  * is consulted only by clearAllSessionData() for wipe-on-uninstall.
  *
  * Retention: 30 days (vs the 24h cap on the legacy chip-strip store). The
@@ -19,7 +19,7 @@
  *   - 100-record secondary cap on storage volume.
  *   - clearAllSessionData() wipes this key.
  *   - Reps who need indefinite retention should push to CRM via the
- *     Integrations flow — the extension is not the system of record.
+ *     Integrations flow: the extension is not the system of record.
  *   - TODO: expose a settings toggle to opt back into the 24h policy for
  *     orgs that cannot tolerate extended retention (follow-up issue).
  */
@@ -44,7 +44,7 @@ export type CallOutcome = "won" | "next-step" | "follow-up" | "stalled";
 // here makes the contract with InsightsPanel (#43) explicit.
 export type StoredCallSentiment = Exclude<SentimentLabel, "mixed">;
 
-// The persisted blob is a redacted MeetingPostCallSummary — see
+// The persisted blob is a redacted MeetingPostCallSummary, see
 // REDACTED_SUMMARY_FIELDS below for what we drop and why.
 export type StoredCallSummary = Omit<
   MeetingPostCallSummary,
@@ -56,7 +56,7 @@ export interface StoredCallRecord {
   saved_at: string; // ISO
   company: string;
   prospect: string;
-  date: string; // ISO — session.ended_at where available, else saved_at
+  date: string; // ISO, session.ended_at where available, else saved_at
   durationMin: number;
   sentiment: StoredCallSentiment;
   sentimentScore: number; // 0-100
@@ -122,7 +122,7 @@ function deriveOutcome(
   const weak = summary.objections_raised.filter((o) => o.response_quality === "weak").length;
   const actionCount = summary.action_items.length;
   if (missed >= 2 || (missed >= 1 && agendaCoverage < 50)) return "stalled";
-  // Any missed objection caps the outcome at "next-step" — a clean "won"
+  // Any missed objection caps the outcome at "next-step", a clean "won"
   // requires zero missed objections, not just non-stalled severity.
   if (missed >= 1) return "next-step";
   // Sessions with no agenda set can't earn coverage credit; treat them as
@@ -148,7 +148,7 @@ export function buildCallRecord(session: MeetingSession, summary: MeetingPostCal
   const hasAgenda = summary.agenda_coverage.length > 0;
   const agendaCoverage = deriveAgendaCoverage(summary.agenda_coverage);
   // "Handled" = an objection that got a response, good OR weak. Missed
-  // objections (the rep had no answer) are excluded — counting them as
+  // objections (the rep had no answer) are excluded, counting them as
   // "handled" inflates the KPI displayed on the Insights tile.
   const objectionsHandled = summary.objections_raised.filter(
     (o) => o.response_quality === "good" || o.response_quality === "weak",
@@ -216,7 +216,7 @@ interface LegacySessionEntry {
 // legacy clientlens_session_history_v1 entries in so users don't lose their
 // recent calls. Legacy entries lack the derived stats fields; we backfill
 // with neutral defaults. The legacy key is NOT cleared during the dual-write
-// transition window — the chip strip still reads from it until #43 ships.
+// transition window, the chip strip still reads from it until #43 ships.
 let migrationRan = false;
 function runMigrationOnce(): void {
   if (migrationRan) return;
@@ -300,7 +300,7 @@ export function getCallRecord(id: string): StoredCallRecord | null {
 }
 
 // Remove a single record by id. Returns true if a record was removed,
-// false if no record with that id existed. Atomic — used by the sample-
+// false if no record with that id existed. Atomic, used by the sample-
 // data cleanup so demo entries can be wiped without affecting real
 // records. emitChange() fires so the InsightsPanel hook refreshes.
 export function removeCallRecord(id: string): boolean {
@@ -331,7 +331,7 @@ export function clearCallHistory(): void {
 //
 // Consumers (InsightsPanel, See-all-calls view) need to refresh when a
 // session ends and a new record lands. The standard window "storage" event
-// only fires for OTHER tabs writing to localStorage — same-tab writes are
+// only fires for OTHER tabs writing to localStorage, same-tab writes are
 // silent. We dispatch a custom event so React hooks can subscribe to
 // both same-tab and cross-tab changes uniformly.
 
@@ -341,7 +341,7 @@ function emitChange(): void {
   try {
     window.dispatchEvent(new Event(CHANGE_EVENT));
   } catch {
-    /* SSR / non-browser context — ignore */
+    /* SSR / non-browser context: ignore */
   }
 }
 

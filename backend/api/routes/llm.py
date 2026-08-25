@@ -8,10 +8,10 @@ forwards the request, logging usage to `llm_usage`.
 Closes #1 (security: provider keys exposed in browser).
 
 Providers handled here:
-  - anthropic — via the official `anthropic` SDK (streaming via SDK)
-  - gemini    — via direct HTTPS to `generativelanguage.googleapis.com`
-  - groq      — via direct HTTPS to `api.groq.com` (OpenAI-compatible chat)
-  - custom    — REJECTED at this proxy. Custom is the user-supplied endpoint
+  - anthropic: via the official `anthropic` SDK (streaming via SDK)
+  - gemini: via direct HTTPS to `generativelanguage.googleapis.com`
+  - groq: via direct HTTPS to `api.groq.com` (OpenAI-compatible chat)
+  - custom: REJECTED at this proxy. Custom is the user-supplied endpoint
                 escape hatch; the extension calls it directly. Documented.
 
 Embeddings (`/embed`) are Gemini-only and used by the in-browser vector store.
@@ -45,7 +45,7 @@ log = structlog.get_logger()
 # Free tier allows ~10 req/min per model. We enforce a 3-second minimum gap
 # between calls + a concurrency cap of 1 so burst requests from the council
 # pipeline (4 sequential agents) and live copilot don't stack up and 429.
-# Requests queue here rather than failing — worst case a pitch takes ~12s
+# Requests queue here rather than failing: worst case a pitch takes ~12s
 # instead of ~3s, which is far better than an error.
 
 _or_lock = asyncio.Semaphore(1)       # only 1 OpenRouter call in-flight at a time
@@ -164,10 +164,10 @@ async def _log_usage(
     error: Optional[str] = None,
 ) -> None:
     """
-    Record one LLM call to the `llm_usage` table. Best-effort — a Supabase
+    Record one LLM call to the `llm_usage` table. Best-effort, a Supabase
     failure must not break the user-facing call. See migration 002_llm_usage.sql.
     """
-    # Dev-mode stub user has no row in user_profiles — skip DB write to avoid
+    # Dev-mode stub user has no row in user_profiles, skip DB write to avoid
     # FK violation noise in logs. Usage tracking is irrelevant for local dev.
     if settings.dev_mode:
         return
@@ -317,7 +317,7 @@ async def _complete_anthropic(req: LLMRequest) -> LLMResponse:
 
 
 async def _stream_anthropic(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
-    """SSE relay — re-emit Anthropic's stream events as plain SSE.
+    """SSE relay: re-emit Anthropic's stream events as plain SSE.
 
     Logs to llm_usage in a finally block so disconnects and provider errors
     still produce a row (with `error` set) for cost-attribution accuracy.
@@ -330,7 +330,7 @@ async def _stream_anthropic(req: LLMRequest, user_id: str) -> AsyncIterator[byte
     error_msg: Optional[str] = None
     started = time.perf_counter()
 
-    # Same NOT_GIVEN concern as _complete_anthropic — only pass `temperature`
+    # Same NOT_GIVEN concern as _complete_anthropic: only pass `temperature`
     # when the caller supplied a value.
     stream_kwargs: dict = {
         "model": req.model,
@@ -399,17 +399,17 @@ async def _stream_anthropic(req: LLMRequest, user_id: str) -> AsyncIterator[byte
 # allowlist because an existing key still works, and removing them would break
 # deployments that are running fine. New deployments need a 2.5-or-later name.
 _ALLOWED_GEMINI_MODELS: frozenset[str] = frozenset({
-    # Chat / generateContent — the only name verified working on a key created
+    # Chat / generateContent, the only name verified working on a key created
     # today. Everything below it 404s as "no longer available to new users".
     "gemini-3.6-flash",
-    # Chat / generateContent — existing keys only
+    # Chat / generateContent: existing keys only
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
     "gemini-2.5-pro",
     "gemini-flash-latest",
     "gemini-flash-lite-latest",
     "gemini-pro-latest",
-    # Chat / generateContent — legacy, existing keys only (404 for new keys)
+    # Chat / generateContent: legacy, existing keys only (404 for new keys)
     "gemini-2.0-flash",
     "gemini-2.0-flash-exp",
     "gemini-2.0-flash-thinking-exp",
@@ -710,7 +710,7 @@ def _openrouter_headers(api_key: str) -> dict:
     return {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-        # App attribution — visible on openrouter.ai/activity. Optional.
+        # App attribution: visible on openrouter.ai/activity. Optional.
         "HTTP-Referer": settings.openrouter_referer,
         "X-Title": settings.openrouter_title,
     }
@@ -748,7 +748,7 @@ async def _complete_openrouter(req: LLMRequest) -> LLMResponse:
     assert res is not None
     if res.status_code >= 400:
         req_id = str(_uuid.uuid4())
-        # Log full upstream body server-side; never echo it to the client —
+        # Log full upstream body server-side; never echo it to the client,
         # OpenRouter bodies can contain prompt fragments or routing metadata.
         log.warning(
             "openrouter.upstream_error",
@@ -804,7 +804,7 @@ async def _stream_openrouter(req: LLMRequest, user_id: str) -> AsyncIterator[byt
             break
         log.warning("openrouter.stream_rate_limited", attempt=attempt, model=req.model)
     else:
-        # All retries exhausted on 429 — surface it as an SSE error event.
+        # All retries exhausted on 429: surface it as an SSE error event.
         req_id = str(_uuid.uuid4())
         log.warning("openrouter.stream_rate_limited_fatal", model=req.model, request_id=req_id)
         yield f"event: error\ndata: {json.dumps({'error': 'upstream_error', 'request_id': req_id})}\n\n".encode()
@@ -818,7 +818,7 @@ async def _stream_openrouter(req: LLMRequest, user_id: str) -> AsyncIterator[byt
         yield f"event: error\ndata: {json.dumps({'error': 'upstream_error', 'request_id': req_id})}\n\n".encode()
         return
 
-    # Probe succeeded — use its response directly (avoids a second round-trip).
+    # Probe succeeded: use its response directly (avoids a second round-trip).
     try:
         data = probe.json()
         choices = data.get("choices") or []
@@ -874,12 +874,12 @@ def _reject_unproxied(provider: str) -> None:
     """
     Reject providers that intentionally do not flow through the proxy.
 
-    `custom` — user-supplied OpenAI-compatible endpoint. The user picks both
+    `custom`: user-supplied OpenAI-compatible endpoint. The user picks both
         the URL and the credential. Routing through the backend would require
         accepting attacker-controlled URLs and credentials, which is worse than
         leaving the call direct. Documented in the README.
 
-    `ollama` — local-only (`http://localhost:11434`). No security concern;
+    `ollama`: local-only (`http://localhost:11434`). No security concern;
         the backend can't reach the user's localhost anyway.
 
     Anything else not in the proxied set is unsupported.
@@ -926,7 +926,7 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
         elif body.provider == "openrouter":
             response = await _complete_openrouter(body)
         else:
-            # Unreachable — _reject_unproxied above guards this.
+            # Unreachable: _reject_unproxied above guards this.
             raise HTTPException(status_code=500, detail="provider dispatch fell through")
         return response
     except HTTPException as e:
@@ -962,9 +962,9 @@ async def stream(request: Request, body: LLMRequest) -> StreamingResponse:
     Streaming LLM completion via SSE.
 
     Events:
-      - `delta` — partial text chunk: `{ "text": "..." }`
-      - `done`  — final usage + model: `{ "model", "usage", "request_id" }`
-      - `error` — terminal error: `{ "error": "..." }`
+      - `delta`: partial text chunk: `{ "text": "..." }`
+      - `done`: final usage + model: `{ "model", "usage", "request_id" }`
+      - `error`: terminal error: `{ "error": "..." }`
 
     Auth: requires Supabase JWT (enforced by AuthMiddleware).
     Budget: rejected with 429 if the user is over DAILY_USER_TOKEN_BUDGET.
@@ -983,7 +983,7 @@ async def stream(request: Request, body: LLMRequest) -> StreamingResponse:
     elif body.provider == "openrouter":
         gen = _stream_openrouter(body, user["id"])
     else:
-        # Unreachable — _reject_unproxied above guards this.
+        # Unreachable: _reject_unproxied above guards this.
         raise HTTPException(status_code=500, detail="provider dispatch fell through")
 
     return StreamingResponse(
@@ -1108,7 +1108,7 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
 @router.get("/v1/llm/health")
 async def llm_health() -> dict:
     """
-    Lightweight health check — confirms the module loaded.
+    Lightweight health check: confirms the module loaded.
 
     Intentionally does NOT leak provider-key configuration state. An
     earlier version returned `{anthropic,gemini,groq,openrouter}_key_configured`

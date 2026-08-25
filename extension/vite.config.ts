@@ -214,7 +214,7 @@ function copyStaticAssets(mode: string, env: Record<string, string>) {
       if (existsSync(resolve(root, "icons"))) {
         cpSync(resolve(root, "icons"), resolve(out, "icons"), { recursive: true });
       }
-      // AudioWorklet processor — must be served as a plain script at the
+      // AudioWorklet processor: must be served as a plain script at the
       // extension root so chrome.runtime.getURL('audio-processor.js') resolves.
       // Vite does not bundle it (AudioWorklet scripts can't have ESM imports).
       const audioProc = resolve(root, "src/offscreen/audio-processor.js");
@@ -228,7 +228,7 @@ function copyStaticAssets(mode: string, env: Record<string, string>) {
 // Wrap meet-transponder.js in an IIFE so re-injecting it (via
 // chrome.scripting.executeScript when the original copy was loaded by a now-
 // reloaded extension instance) doesn't crash with
-// "Identifier 'X' has already been declared" — re-running the bundle in the
+// "Identifier 'X' has already been declared": re-running the bundle in the
 // same isolated world otherwise collides on its top-level let/const.
 //
 // Strategy: IIFE-scope every declaration so each injection's lets are

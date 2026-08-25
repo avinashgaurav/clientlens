@@ -1,9 +1,9 @@
 /**
  * Email drafting council. Lighter than the pitch council:
- *   1. Retrieval    — pull KB relevant to intent + persona
- *   2. Draft        — produce subject / body / cta grounded in sources
- *   3. Brand check  — voice compliance (banned words, tone)
- *   4. Validation   — every claim traceable to a source
+ *   1. Retrieval: pull KB relevant to intent + persona
+ *   2. Draft: produce subject / body / cta grounded in sources
+ *   3. Brand check: voice compliance (banned words, tone)
+ *   4. Validation, every claim traceable to a source
  *
  * Emits the same CouncilEvent shape as the pitch council so the UI can reuse
  * progress rendering. `done` event carries EmailPipelineResult.
@@ -82,7 +82,7 @@ async function retrievalAgent(
       agent: "retrieval",
       status: "fail",
       output: { relevant_source_ids: [] },
-      issues: ["KB is empty — seed it before drafting"],
+      issues: ["KB is empty, seed it before drafting"],
       confidence: 0,
       relevant_ids: [],
     };
@@ -121,10 +121,10 @@ async function draftAgent(
   const used = kb.filter((e) => relevantIds.includes(e.id));
 
   const intentHint: Record<typeof input.intent, string> = {
-    intro: "Cold intro — pattern-match their industry + persona to a specific Project Wingman outcome, offer a 20-min call. No product dump.",
+    intro: "Cold intro, pattern-match their industry + persona to a specific Project Wingman outcome, offer a 20-min call. No product dump.",
     follow_up: "Polite follow-up after silence. Add one new data point or case study. Soft CTA.",
     post_call: "Post-call recap. Mirror what they said, confirm next steps, attach proof points for anything flagged.",
-    objection: "Handle the objection with specific facts. Don't argue — reframe with a comparable customer.",
+    objection: "Handle the objection with specific facts. Don't argue, reframe with a comparable customer.",
     close: "Close nudge. Re-anchor the ROI math. Propose a 14-day trial if not already on the table.",
     custom: "Follow the user's custom instruction.",
   };
@@ -135,7 +135,7 @@ Lead with: ${profile?.content_rules.lead_with.join(", ") ?? "business outcomes"}
 Avoid: ${profile?.content_rules.avoid.join(", ") ?? "jargon"}
 Voice: ${profile?.content_rules.tone ?? "direct, numbers-first"}
 
-INTENT: ${input.intent} — ${intentHint[input.intent]}
+INTENT: ${input.intent}, ${intentHint[input.intent]}
 RECIPIENT: ${input.recipient_name}
 CONTEXT: ${input.context}
 ${input.deal_size ? `DEAL SIZE: ${input.deal_size}` : ""}
@@ -151,7 +151,7 @@ Return JSON:
   "subject": "...",            // under 60 chars, no emoji, no clickbait
   "body": "...",               // plain text, 80-140 words, paragraphs separated by \\n\\n
   "cta": "...",                // single sentence, one ask
-  "tone_notes": "...",         // one line — why this hits the persona
+  "tone_notes": "...",         // one line, why this hits the persona
   "sources_used": ["id1"]
 }`;
 

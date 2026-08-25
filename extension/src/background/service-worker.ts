@@ -44,7 +44,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // ─── Unified message hub ─────────────────────────────────────────────────────
 // IMPORTANT: only ONE onMessage.addListener may exist in this file.
 // Chrome closes the response channel as soon as any listener returns a falsy
-// value — a second listener registered later never gets a chance to call
+// value, a second listener registered later never gets a chance to call
 // sendResponse for message types the first listener doesn't recognise.
 // All message handling (sidebar utils + V2 meeting copilot) lives here.
 
@@ -121,7 +121,7 @@ chrome.runtime.onMessage.addListener(
 
         // fromContent=true means the Meet page transponder started this session
         // (sender.tab is the Meet tab). In that case, spin up a bg orchestrator
-        // ONLY if the sidebar orchestrator is not already running — otherwise
+        // ONLY if the sidebar orchestrator is not already running, otherwise
         // we'd pay double LLM cost on every call.
         const fromContent = Boolean(sender.tab);
         if (fromContent && activeMeetTabId && !sidebarOrchestratorActive) {
@@ -201,7 +201,7 @@ function handleCouncilNotify(payload: unknown) {
   chrome.notifications.create({
     type: "basic",
     iconUrl: chrome.runtime.getURL("icons/icon128.png"),
-    title: title ?? (kind === "error" ? "Project Wingman — generation failed" : "Project Wingman — ready"),
+    title: title ?? (kind === "error" ? "Project Wingman, generation failed" : "Project Wingman, ready"),
     message: message ?? "",
     priority: kind === "error" ? 2 : 1,
   });
@@ -273,13 +273,13 @@ async function handleInsertContent(
   }
 }
 
-// Injected into the page — no closure access
+// Injected into the page, no closure access
 function extractPageContext() {
   const url = window.location.href;
   const title = document.title;
   const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "";
 
-  // LinkedIn company page detection — try stable data-attributes first, fall
+  // LinkedIn company page detection: try stable data-attributes first, fall
   // back to obfuscated CSS classes that LinkedIn rotates between deploys.
   const linkedInCompany = (
     document.querySelector<HTMLElement>('[data-test-id="org-name"]') ??

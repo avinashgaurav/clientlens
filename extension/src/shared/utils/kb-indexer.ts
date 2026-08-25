@@ -1,10 +1,10 @@
 /**
- * KB indexer — turns a raw KBEntry into chunks + embeddings stored in
+ * KB indexer: turns a raw KBEntry into chunks + embeddings stored in
  * IndexedDB. Single-flight queue ensures we don't fan out 50 concurrent
  * embed calls during a "Re-index all" backfill and trip Gemini RPM limits.
  *
  * The indexer never touches the LLM; it only embeds. Wiki/summary
- * transformation was deliberately skipped — pure semantic retrieval.
+ * transformation was deliberately skipped: pure semantic retrieval.
  */
 
 import type { KBChunk } from "../types";
@@ -44,7 +44,7 @@ function notify(entryId: string): void {
  * coalesce onto the in-flight job.
  */
 export function indexEntry(entryId: string): Promise<boolean> {
-  // Coalesce — if we already have a queued job for this id, ride along.
+  // Coalesce, if we already have a queued job for this id, ride along.
   const existing = queue.find((q) => q.entryId === entryId);
   if (existing) {
     return new Promise((resolve) => {
@@ -100,7 +100,7 @@ async function runOne(entryId: string): Promise<boolean> {
   if (!entry) return false;
 
   if (!entry.content || !entry.content.trim()) {
-    // Nothing to embed — mark ready with zero chunks. Ask KB will fall back
+    // Nothing to embed: mark ready with zero chunks. Ask KB will fall back
     // to lexical for this entry, which already handles empty content.
     await updateKB(entryId, {
       index_status: "ready",
@@ -145,7 +145,7 @@ async function runOne(entryId: string): Promise<boolean> {
     const msg = err instanceof Error ? err.message : String(err);
     await updateKB(entryId, { index_status: "failed", index_error: msg.slice(0, 300) });
     notify(entryId);
-    // Don't return — wiki build is independent and may still succeed even
+    // Don't return: wiki build is independent and may still succeed even
     // when embedding is broken (different provider/key).
   }
 
@@ -182,7 +182,7 @@ export async function dropEntryFromIndex(entryId: string): Promise<void> {
 }
 
 /**
- * Run the global wiki lint pass — re-checks every page for contradictions
+ * Run the global wiki lint pass: re-checks every page for contradictions
  * with every other page. One LLM call regardless of KB size. Writes the
  * refreshed contradiction list back onto each entry's wiki_page.
  */

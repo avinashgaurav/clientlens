@@ -1,7 +1,7 @@
 // Runs inside the service worker. Manages the offscreen document lifecycle
 // and hands off a tabCapture streamId for the live meeting tab.
 //
-// tabCapture is declared in manifest.json under `optional_permissions` —
+// tabCapture is declared in manifest.json under `optional_permissions`,
 // the scary "Record content of your screen" install warning is gated behind
 // a runtime request that fires only when the rep first enables Live Mode.
 // Closes #15.
@@ -13,7 +13,7 @@ const OFFSCREEN_PATH = "offscreen.html";
 /**
  * Ensure the `tabCapture` optional permission is granted, prompting the
  * user via chrome.permissions.request if it hasn't been granted yet.
- * Returns false if the user denies — caller should surface a polite
+ * Returns false if the user denies: caller should surface a polite
  * "Live Mode needs audio permission" message and bail.
  */
 async function ensureTabCapturePermission(): Promise<boolean> {
@@ -75,7 +75,7 @@ export async function startAudioForSession(opts: { sessionId: string; tabId?: nu
 
   // Request the tabCapture optional permission lazily. If the user denies
   // we surface a clear error message rather than silently falling back to
-  // mock STT — they explicitly asked for Live Mode and should know it can't
+  // mock STT, they explicitly asked for Live Mode and should know it can't
   // run without the audio permission.
   const tabCaptureOk = await ensureTabCapturePermission();
   if (!tabCaptureOk) {

@@ -3,14 +3,14 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    # LLM provider keys — optional per deployment. The proxy returns 503 if a
+    # LLM provider keys: optional per deployment. The proxy returns 503 if a
     # request comes in for a provider whose key isn't configured.
     anthropic_api_key: str = ""
     gemini_api_key: str = ""
     groq_api_key: str = ""
     openrouter_api_key: str = ""
 
-    # OpenRouter app attribution headers — recommended but optional.
+    # OpenRouter app attribution headers: recommended but optional.
     # https://openrouter.ai/docs/api-reference/overview#app-attribution
     openrouter_referer: str = "https://clientlens.example.com"
     openrouter_title: str = "Project Wingman"
@@ -19,12 +19,12 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_service_key: str
 
-    # Pinecone — optional for local dev. Embeddings are stubbed (zero vectors)
+    # Pinecone: optional for local dev. Embeddings are stubbed (zero vectors)
     # so RAG search is non-functional regardless; init is skipped if key empty.
     pinecone_api_key: str = ""
     pinecone_index: str = "clientlens"
 
-    # Deepgram — kept server-side so the API key is never baked into the
+    # Deepgram: kept server-side so the API key is never baked into the
     # extension bundle. The /api/v1/stt/token endpoint mints short-lived
     # (60 s) temporary keys for the extension to use directly with Deepgram.
     deepgram_api_key: str = ""
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
-    # Zoho CRM OAuth — kept server-side so the client_secret is never exposed
+    # Zoho CRM OAuth: kept server-side so the client_secret is never exposed
     # in the extension bundle. The extension proxies refresh-token exchanges
     # through /api/v1/zoho/refresh. Closes #33.
     zoho_client_id: str = ""
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     # App
     backend_url: str = "http://localhost:8000"
     # Production CORS allowlist. `chrome-extension://<ID>` entries MUST include
-    # the real 32-char extension ID — `chrome-extension://` alone never matches
+    # the real 32-char extension ID: `chrome-extension://` alone never matches
     # a real Origin header. Operators set this via the `ALLOWED_ORIGINS` env
     # var per deployment. In `dev_mode`, main.py adds an `allow_origin_regex`
     # that accepts any unpacked-extension build + any localhost port, so this

@@ -6,13 +6,13 @@ import type { KBEntry } from "../../shared/types";
 import { runAgendaTracker, runCoachAgent, runLiveCouncilValidator, runSentimentAgent } from "./live-agents";
 import { computeSentimentTrend, computeAgendaPacing, rejectionFromOutcome } from "./live-helpers";
 
-const SENTIMENT_INTERVAL_MS = 45_000;   // was 20s — free-tier saves ~60% of quota
-const AGENDA_INTERVAL_MS = 60_000;      // was 30s — agenda changes slowly
-const COACH_INTERVAL_MS = 30_000;       // was 15s — still fast enough for live coaching
+const SENTIMENT_INTERVAL_MS = 45_000;   // was 20s, free-tier saves ~60% of quota
+const AGENDA_INTERVAL_MS = 60_000;      // was 30s, agenda changes slowly
+const COACH_INTERVAL_MS = 30_000;       // was 15s, still fast enough for live coaching
 
-const LIVE_COACH_MIN_GAP_MS = 10_000;   // was 2.5s — prevents burst on fast talkers
+const LIVE_COACH_MIN_GAP_MS = 10_000;   // was 2.5s, prevents burst on fast talkers
 const LIVE_SENTIMENT_MIN_GAP_MS = 15_000; // was 4s
-const LIVE_TRIGGER_DEBOUNCE_MS = 600;   // was 350ms — a bit more buffering
+const LIVE_TRIGGER_DEBOUNCE_MS = 600;   // was 350ms, a bit more buffering
 
 // When a 429 lands, all agents pause for this window before retrying.
 // Helps with OpenRouter free-pool bursts where every model shares one
@@ -28,7 +28,7 @@ let lastCoachAt = 0;
 let lastSentimentAt = 0;
 let coachInFlight = false;
 let sentimentInFlight = false;
-// Pending re-trigger flags — set when the live trigger fires during an
+// Pending re-trigger flags: set when the live trigger fires during an
 // in-flight call. Critical for Opus (5-9s round trips): without this, every
 // segment spoken during the call is dropped and the coach is permanently
 // behind the conversation.
@@ -38,14 +38,14 @@ let liveTriggerTimer: number | undefined;
 let pollHandle: number | undefined;
 let transcriptUnsub: (() => void) | undefined;
 
-// Consecutive failure counters per agent — used to surface a single banner
+// Consecutive failure counters per agent: used to surface a single banner
 // after 3 back-to-back errors rather than spamming the user every 15s.
 let coachErrorStreak = 0;
 let sentimentErrorStreak = 0;
 let agendaErrorStreak = 0;
 let errorBanner: string | null = null;
 
-// Global 429 cooldown — when any agent hits a rate limit all agents hold
+// Global 429 cooldown, when any agent hits a rate limit all agents hold
 // off until this timestamp. Prevents the cascade where sentiment retries
 // immediately after coach's 429 and burns the remaining quota.
 let rateLimitUntil = 0;
@@ -58,7 +58,7 @@ function markRateLimited(err: unknown): void {
   const msg = err instanceof Error ? err.message : String(err);
   if (msg.toLowerCase().includes("rate limit") || msg.includes("429")) {
     rateLimitUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
-    console.debug(`[live-orch] 429 detected — all agents paused for ${RATE_LIMIT_COOLDOWN_MS / 1000}s`);
+    console.debug(`[live-orch] 429 detected, all agents paused for ${RATE_LIMIT_COOLDOWN_MS / 1000}s`);
   }
 }
 
@@ -157,7 +157,7 @@ async function runCoachNow(): Promise<void> {
       noteAgentError("coach", err);
       return;
     }
-    // Run validators sequentially — parallel calls stack 429s on free-tier
+    // Run validators sequentially: parallel calls stack 429s on free-tier
     // OpenRouter. The 30s coach cadence absorbs the extra ~1s per validator.
     const outcomes: Awaited<ReturnType<typeof runLiveCouncilValidator>>[] = [];
     for (const s of suggestions) {
@@ -198,7 +198,7 @@ async function runCoachNow(): Promise<void> {
 // Debounced live trigger. Called by the transcript poller below whenever a
 // new final segment lands; runs coach + sentiment in staggered fashion so
 // they don't both hit the free-tier rate bucket at the same instant.
-// Coach fires first; sentiment fires 3s later — by then the coach call is
+// Coach fires first; sentiment fires 3s later, by then the coach call is
 // typically in-flight (counted against the bucket) rather than queued.
 function scheduleLiveTrigger() {
   if (liveTriggerTimer) clearTimeout(liveTriggerTimer);
@@ -217,7 +217,7 @@ function scheduleLiveTrigger() {
 }
 
 // Subscribe to transcript mutations instead of polling. Zustand's subscribe
-// fires on every set()—we compare final-segment counts and fire the trigger
+// fires on every set(), so we compare final-segment counts and fire the trigger
 // only when a new final lands. Cheaper than 250ms polling and immune to the
 // double-mount edge case that gave us 8 polls/sec.
 function startTranscriptWatch() {

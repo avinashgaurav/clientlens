@@ -3,7 +3,7 @@
  * fields the meeting copilot needs: company, persona role, title, notes,
  * agenda items.
  *
- * A bare Google Meet URL has no metadata — the parser returns what it can
+ * A bare Google Meet URL has no metadata: the parser returns what it can
  * (often nothing) and the caller falls back to manual entry. Calendar event
  * URLs without OAuth access are treated the same way.
  *
@@ -14,7 +14,7 @@
 import { makeLLMClient, resolveLLMConfig, type LLMProvider } from "../agents/llm-client";
 import type { AgendaItem } from "../types";
 
-// Fast-tier model map — same provider, lighter model. Parsing an invite is a
+// Fast-tier model map: same provider, lighter model. Parsing an invite is a
 // simple extraction task; no reason to burn the full model on it.
 const FAST_MODELS: Partial<Record<LLMProvider, string>> = {
   anthropic: "claude-haiku-4-5-20251001",
@@ -87,7 +87,7 @@ export async function parsePastedInvite(input: string): Promise<ParsedInvite> {
   if ("error" in baseCfg) {
     throw new Error(baseCfg.error);
   }
-  // Use the fast-tier model for invite parsing — it's a lightweight extraction
+  // Use the fast-tier model for invite parsing, it's a lightweight extraction
   // task, and we don't need the full model's capacity or quota.
   const fastModel = FAST_MODELS[baseCfg.provider];
   const cfg = fastModel

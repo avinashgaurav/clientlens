@@ -1,6 +1,6 @@
 /**
  * Thin client helpers for the four integrations surfaced in Settings.
- * Everything is manual + credential-based — no OAuth dance handled here.
+ * Everything is manual + credential-based, no OAuth dance handled here.
  *
  * Each helper pings a read endpoint to validate credentials ("Test connection")
  * or hits a write endpoint ("Push note"). Errors bubble up so the caller can

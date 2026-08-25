@@ -36,7 +36,7 @@ const GEMINI_EMBED_MODEL = "text-embedding-004"; // 768 dims, free tier
 // free-tier Llama; users override via Settings or the ModelPicker.
 const OPENROUTER_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
 
-// Timeout constants. AbortSignal.timeout() is Chrome 103+ (2022) — safe for
+// Timeout constants. AbortSignal.timeout() is Chrome 103+ (2022), safe for
 // an extension that only runs in modern Chrome.
 const LLM_TIMEOUT_MS = 30_000;    // non-streaming: 30 s should be ample
 const STREAM_TIMEOUT_MS = 120_000; // streaming: allow up to 2 min for large models
@@ -75,7 +75,7 @@ export function resolveLLMConfig(override?: { provider: LLMProvider; model: stri
   const modelOverride = override?.model;
 
   if (provider === "gemini") {
-    // Proxied via backend (#1) — no extension-side key needed.
+    // Proxied via backend (#1), no extension-side key needed.
     return { provider, apiKey: "", model: modelOverride ?? import.meta.env.VITE_GEMINI_MODEL ?? GEMINI_MODEL };
   }
 
@@ -89,12 +89,12 @@ export function resolveLLMConfig(override?: { provider: LLMProvider; model: stri
   }
 
   if (provider === "groq") {
-    // Proxied via backend (#1) — no extension-side key needed.
+    // Proxied via backend (#1), no extension-side key needed.
     return { provider, apiKey: "", model: modelOverride ?? GROQ_MODEL };
   }
 
   if (provider === "openrouter") {
-    // Proxied via backend — no extension-side key. Backend env owns OPENROUTER_API_KEY.
+    // Proxied via backend, no extension-side key. Backend env owns OPENROUTER_API_KEY.
     return { provider, apiKey: "", model: modelOverride ?? import.meta.env.VITE_OPENROUTER_MODEL ?? OPENROUTER_MODEL };
   }
 
@@ -107,7 +107,7 @@ export function resolveLLMConfig(override?: { provider: LLMProvider; model: stri
     return { provider, apiKey, model, baseUrl };
   }
 
-  // Anthropic routes through the backend proxy — no extension-side API key needed.
+  // Anthropic routes through the backend proxy, no extension-side API key needed.
   // The (now-deprecated) `anthropicKey` setting is ignored; backend env owns the key.
   // We keep the provider entry for council selection but apiKey is intentionally empty.
   return { provider: "anthropic", apiKey: "", model: modelOverride ?? ANTHROPIC_MODEL };
@@ -115,7 +115,7 @@ export function resolveLLMConfig(override?: { provider: LLMProvider; model: stri
 
 export interface LLMClient {
   call(system: string, user: string, maxTokens: number): Promise<string>;
-  // Streaming variant — `onDelta` is invoked with each text chunk as it arrives.
+  // Streaming variant: `onDelta` is invoked with each text chunk as it arrives.
   // Resolves with the full concatenated text. Providers without native
   // streaming fall back to a single onDelta with the full string at the end.
   callStream?(
@@ -214,7 +214,7 @@ async function* readSSE(
  * Provider-agnostic proxy client. Anthropic / Gemini / Groq all flow through
  * the same backend endpoints (`/api/v1/llm/complete`, `/api/v1/llm/stream`)
  * with a `provider` field selecting the upstream. Custom + Ollama stay
- * direct-only — see `makeLLMClient` for dispatch.
+ * direct-only: see `makeLLMClient` for dispatch.
  */
 class ProxiedLLMClient implements LLMClient {
   constructor(private provider: "anthropic" | "gemini" | "groq" | "openrouter", private model: string, private label: string) {}
@@ -282,7 +282,7 @@ class ProxiedLLMClient implements LLMClient {
             full += text;
             try { onDelta(text, full); } catch { /* listener errors must not abort the stream */ }
           }
-        } catch { /* malformed delta — skip */ }
+        } catch { /* malformed delta: skip */ }
       } else if (frame.event === "error") {
         try {
           const { error } = JSON.parse(frame.data) as { error?: string };
@@ -292,7 +292,7 @@ class ProxiedLLMClient implements LLMClient {
           throw new Error(`${this.label} (proxy) stream errored`);
         }
       }
-      // `done` is informational — nothing to do client-side.
+      // `done` is informational, nothing to do client-side.
     }
     return full;
   }
@@ -432,7 +432,7 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
 
 export function makeLLMClient(cfg: LLMConfig): LLMClient {
   // Anthropic / Gemini / Groq route through the backend proxy (#1).
-  // Custom / Ollama stay direct — see notes on each.
+  // Custom / Ollama stay direct: see notes on each.
   const inner: LLMClient =
     cfg.provider === "anthropic"
       ? new ProxiedLLMClient("anthropic", cfg.model, "Claude")
@@ -456,7 +456,7 @@ export function makeLLMClient(cfg: LLMConfig): LLMClient {
       if (inner.callStream) {
         full = await inner.callStream(system, user, maxTokens, onDelta);
       } else {
-        // Provider doesn't stream natively — fire one delta with the full text.
+        // Provider doesn't stream natively: fire one delta with the full text.
         full = await inner.call(system, user, maxTokens);
         try { onDelta(full, full); } catch { /* noop */ }
       }

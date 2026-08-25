@@ -15,7 +15,7 @@ import { track } from "../../shared/utils/telemetry";
 //
 // Edge: for adjacent markers like "text [1] [2] more", the first match's
 // `\s*` consumes the space between [1] and [2], so the output is
-// "text more" with one space (not two). This is acceptable for copy —
+// "text more" with one space (not two). This is acceptable for copy,
 // the prose still reads cleanly. If a future spec wants exact spacing
 // preservation, replace with a two-pass: strip markers first, then
 // collapse runs of whitespace to single spaces.
@@ -38,7 +38,7 @@ export function ObjectionPanel() {
   const [copied, setCopied] = useState(false);
 
   // Hook MUST be called at the top of the component (React rules of hooks),
-  // unconditionally — see comment block in useObjectionComposerV2.ts.
+  // unconditionally: see comment block in useObjectionComposerV2.ts.
   const composerV2 = useObjectionComposerV2();
 
   // Time-to-copy measurement: stamp when a new result lands; emit a
@@ -182,7 +182,7 @@ export function ObjectionPanel() {
 //
 // Tokens here are token-system values (#102 explicitly does the legacy chrome
 // migration; this new code is token-correct out of the gate). PostHog
-// DESIGN.md was read before drafting this — surface-card on cream, hairline
+// DESIGN.md was read before drafting this: surface-card on cream, hairline
 // border, no shadow, inline-code chip pattern for [N] markers.
 interface ResultProps {
   result: ObjectionResponse;
@@ -200,7 +200,7 @@ function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: Re
   const confidencePct = Math.round(result.confidence * 100);
 
   // Emit parse-fallback telemetry once per result. The reason types from
-  // ParsedResponse include "ok" / "ok_with_literals" which are NOT fallbacks —
+  // ParsedResponse include "ok" / "ok_with_literals" which are NOT fallbacks,
   // only emit for the four reason values that indicate degraded parsing.
   useEffect(() => {
     const fallbackReasons = ["no_markers", "out_of_bounds", "no_citations", "empty_response"] as const;
@@ -229,7 +229,7 @@ function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: Re
         <ArrowLeft size={12} /> New objection
       </button>
 
-      {/* Objection recap — eyebrow + muted italic. The eyebrow keeps the
+      {/* Objection recap: eyebrow + muted italic. The eyebrow keeps the
           at-a-glance signal a rep who picks up the panel mid-conversation
           needs ("what was the objection again?") without re-introducing a
           full card. */}
@@ -243,7 +243,7 @@ function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: Re
         </p>
       </div>
 
-      {/* Composer card — the single visual block reps read mid-call */}
+      {/* Composer card, the single visual block reps read mid-call */}
       <div
         style={{
           background: "var(--surface-1)",
@@ -297,7 +297,7 @@ function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: Re
         </p>
 
         {/* Parser fell back to flat citations OR there are citations but no
-            inline markers — render the legacy citations card so the rep
+            inline markers: render the legacy citations card so the rep
             still has source accountability. */}
         {parsed.parseFallback && result.citations.length > 0 && (
           <div
@@ -319,8 +319,8 @@ function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: Re
           </div>
         )}
 
-        {/* "▾ Why this answer" disclosure — only when parse succeeded AND
-            there are citations. Default collapsed — mid-call rep doesn't
+        {/* "▾ Why this answer" disclosure: only when parse succeeded AND
+            there are citations. Default collapsed: mid-call rep doesn't
             need to see it. Expands post-call for review. */}
         {!parsed.parseFallback && result.citations.length > 0 && (
           <details
@@ -386,7 +386,7 @@ function ObjectionComposer({ result, objectionText, copied, onBack, onCopy }: Re
 // Inline [N] citation chip. Rendered as a focusable <button> so
 // keyboard-only and screen-reader users can reach the citation (aria-label
 // on a plain <span> isn't announced; title tooltips don't fire on focus).
-// Click is a no-op today — the chip exists for discovery via aria-label.
+// Click is a no-op today, the chip exists for discovery via aria-label.
 // PostHog's inline-code chip pattern: surface-soft bg, 2px radius,
 // brand-orange numeric in monospace.
 function CitationChip({
@@ -398,15 +398,15 @@ function CitationChip({
 }) {
   // Citation can be undefined if the parser kept a marker as literal `[N]`
   // text (out-of-bounds). The renderer never reaches this branch in that
-  // case — the parser emits a text token instead. Guard defensively.
+  // case, the parser emits a text token instead. Guard defensively.
   if (!citation) return <span>[{index}]</span>;
   const tooltip = `${citation.source_id}: "${citation.quote}"`;
   return (
     <button
       type="button"
       title={tooltip}
-      aria-label={`Citation ${index}: ${citation.source_id} — ${citation.quote}`}
-      // No onClick — the chip is read-only. We use <button> for keyboard
+      aria-label={`Citation ${index}: ${citation.source_id}, ${citation.quote}`}
+      // No onClick, the chip is read-only. We use <button> for keyboard
       // reachability + aria-label announcement only. Cursor is `help` to
       // match the read-only intent.
       style={{
@@ -433,7 +433,7 @@ function CitationChip({
 
 // #84b: legacy renderer kept reachable for the 84c flag flip. Preserves
 // the pre-composer 3-card layout exactly. Hardcoded slate/violet classes
-// stay until #102 migrates them (intentionally out of scope here — this
+// stay until #102 migrates them (intentionally out of scope here, this
 // is the v1 we're replacing, not improving).
 function LegacyObjectionResult({ result, objectionText, copied, onBack, onCopy }: ResultProps) {
   return (

@@ -32,14 +32,14 @@ echo
 export OPENROUTER_API_KEY
 
 echo "════════════════════════════════════════════════════════════════"
-echo " TEST 1 — basic API smoke (test_openrouter.py)"
+echo " TEST 1: basic API smoke (test_openrouter.py)"
 echo "════════════════════════════════════════════════════════════════"
 python3 "${SCRIPT_DIR}/test_openrouter.py"
 RC1=$?
 
 echo
 echo "════════════════════════════════════════════════════════════════"
-echo " TEST 2 — KB-grounded test (test_openrouter_kb.py)"
+echo " TEST 2: KB-grounded test (test_openrouter_kb.py)"
 echo "════════════════════════════════════════════════════════════════"
 python3 "${SCRIPT_DIR}/test_openrouter_kb.py"
 RC2=$?

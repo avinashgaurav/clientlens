@@ -18,7 +18,7 @@
  *     fall back. The agent didn't follow the prompt; don't try to render
  *     inline accountability we don't have.
  *
- * The renderer should NEVER throw on a bad response — every code path
+ * The renderer should NEVER throw on a bad response, every code path
  * here returns a usable shape.
  */
 
@@ -32,21 +32,21 @@ export interface ParsedResponse {
   /** True when the full-fallback path fires (renderer skips inline chips). */
   parseFallback: boolean;
   /** Diagnostic reason for telemetry (#84c). One of:
-   *  - `"ok"` — every detected marker resolved to a valid citation; no
+   *  - `"ok"`, every detected marker resolved to a valid citation; no
    *             literal `[N]` text fell out of the bounds check.
-   *  - `"ok_with_literals"` — markers detected; some were out-of-bounds
+   *  - `"ok_with_literals"`: markers detected; some were out-of-bounds
    *             but under the 30% threshold, so they were kept as literal
    *             `[N]` text in the prose. Renderer behavior is unchanged
    *             from `"ok"`, but telemetry uses this to flag partial
    *             LLM-prompt-following degradation.
-   *  - `"no_markers"` — zero markers detected, citations is non-empty.
+   *  - `"no_markers"`: zero markers detected, citations is non-empty.
    *             Fallback to legacy renderer.
-   *  - `"out_of_bounds"` — >30% of detected markers were invalid. Full
+   *  - `"out_of_bounds"`: >30% of detected markers were invalid. Full
    *             fallback to legacy renderer.
-   *  - `"empty_response"` — response field was blank. parseFallback is
+   *  - `"empty_response"`: response field was blank. parseFallback is
    *             intentionally FALSE here (no fallback semantics apply to
-   *             a blank response — render nothing).
-   *  - `"no_citations"` — citations array was empty. Render response
+   *             a blank response: render nothing).
+   *  - `"no_citations"`: citations array was empty. Render response
    *             literally with no chips. Not a fallback. */
   reason:
     | "ok"
@@ -72,13 +72,13 @@ export interface ParseInputs {
  * #84b and the telemetry hook in #84c) consume `reason` separately.
  */
 export function parseCitationMarkers({ response, citations }: ParseInputs): ParsedResponse {
-  // Edge: blank response — render literally, no fallback semantics apply.
+  // Edge: blank response, render literally, no fallback semantics apply.
   if (!response) {
     return { tokens: [], parseFallback: false, reason: "empty_response" };
   }
 
-  // Edge: no citations at all — inline chips have nothing to point at.
-  // Render the response as literal text. Not a "fallback" — the legacy
+  // Edge: no citations at all, inline chips have nothing to point at.
+  // Render the response as literal text. Not a "fallback", the legacy
   // path also has nothing to render in the citations card.
   if (!citations.length) {
     return {
@@ -105,7 +105,7 @@ export function parseCitationMarkers({ response, citations }: ParseInputs): Pars
   }
 
   // Invalid = out-of-bounds OR N === 0. Duplicates (same N appearing
-  // more than once) are NOT invalid — the LLM legitimately cites one
+  // more than once) are NOT invalid, the LLM legitimately cites one
   // source on multiple claims. The design doc's spec lumped duplicates
   // into "invalid" but that produces false-positive fallbacks for any
   // response that leans on a single strong source. If the user explicitly

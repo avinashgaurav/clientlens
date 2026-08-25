@@ -6,7 +6,7 @@
  * Schema: one object store "chunks", keyed by entry id. Value is a record:
  *   { entryId, namespace, name, chunks: [{ text, embedding }], updated_at }
  *
- * Embeddings are stored as Float32Array (4 bytes/dim) — half the size of
+ * Embeddings are stored as Float32Array (4 bytes/dim), half the size of
  * plain number[]. Search reconstructs them on read.
  */
 

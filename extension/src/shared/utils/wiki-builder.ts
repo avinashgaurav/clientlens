@@ -1,5 +1,5 @@
 /**
- * Wiki builder — turns a raw KBEntry into a structured WikiPage at ingest
+ * Wiki builder: turns a raw KBEntry into a structured WikiPage at ingest
  * time, in the spirit of Karpathy's "compile knowledge once, query forever."
  *
  * One LLM call per entry produces:
@@ -11,7 +11,7 @@
  *   - data_gaps (what's referenced but not explained)
  *   - contradictions vs. the existing wiki (flagged, not auto-resolved)
  *
- * Failures here don't block embedding-based retrieval — wiki_status tracks
+ * Failures here don't block embedding-based retrieval: wiki_status tracks
  * itself and the live agents fall back to chunks if the wiki isn't ready.
  */
 
@@ -22,13 +22,13 @@ const WIKI_INGEST_SYSTEM = `You are a knowledge engineer building a structured s
 
 Read the SOURCE document and produce ONE structured wiki page that captures it. Also compare the source's claims against EXISTING claims listed below and flag any contradictions.
 
-Output ONLY a single valid JSON object — no markdown fences, no prose. Schema:
+Output ONLY a single valid JSON object, no markdown fences, no prose. Schema:
 {
   "type": "concept|case_study|product_overview|battlecard|pricing|process|other",
   "title": "short canonical name (max 60 chars)",
   "tldr": "ONE sentence, max 200 chars, that stands alone without further context",
-  "body_markdown": "structured restatement of the source as markdown — sections, bullets, tables. Distill, don't quote at length.",
-  "concepts": ["specific noun phrases — companies, features, metrics, customer names. Lower-case unless proper noun. 3-12 items."],
+  "body_markdown": "structured restatement of the source as markdown, sections, bullets, tables. Distill, don't quote at length.",
+  "concepts": ["specific noun phrases, companies, features, metrics, customer names. Lower-case unless proper noun. 3-12 items."],
   "tags": ["broader categories like 'pricing', 'competitor', 'security'. 1-5 items."],
   "claims": [
     { "text": "specific assertion someone could verify", "kind": "metric|positioning|customer|capability|pricing|other" }
@@ -41,7 +41,7 @@ Output ONLY a single valid JSON object — no markdown fences, no prose. Schema:
 }
 
 Rules:
-- TLDR must read clearly without context — no "this document covers..." style.
+- TLDR must read clearly without context: no "this document covers..." style.
 - Concepts are SPECIFIC (e.g. "Vantage", "AWS Reserved Instances", "Tier 2 pricing"). NOT broad words like "cloud" or "savings".
 - A contradiction is when two pages assert different VALUES for the same metric, or contradictory positioning about the same entity. Phrasing differences are NOT contradictions.
 - If no contradictions exist, return an empty array.
@@ -125,7 +125,7 @@ function normaliseWikiPage(
     .map((g) => g.trim())
     .slice(0, 10);
 
-  // Resolve contradictions — drop ones that point at a non-existent entry id
+  // Resolve contradictions: drop ones that point at a non-existent entry id
   // (LLM hallucination) and stamp the partner page's name at detection time.
   const contradictions = (parsed.contradictions ?? [])
     .filter((c) => c && typeof c.with_entry_id === "string" && existingById.has(c.with_entry_id))
@@ -167,7 +167,7 @@ export async function buildWikiPage(entry: KBEntry, existing: KBEntry[]): Promis
 
   const sourceText = (entry.content || "").trim();
   if (!sourceText) {
-    // Empty source — return a minimal page without an LLM call.
+    // Empty source: return a minimal page without an LLM call.
     return {
       type: "other",
       title: entry.name,
@@ -176,7 +176,7 @@ export async function buildWikiPage(entry: KBEntry, existing: KBEntry[]): Promis
       concepts: [],
       tags: [],
       claims: [],
-      data_gaps: ["Source body is empty — backend parser may not have run yet."],
+      data_gaps: ["Source body is empty, backend parser may not have run yet."],
       confidence: "low",
       contradictions: [],
       generated_at: new Date().toISOString(),
@@ -184,7 +184,7 @@ export async function buildWikiPage(entry: KBEntry, existing: KBEntry[]): Promis
     };
   }
 
-  // Cap source at 12K chars — Llama 3.3 70B handles much more, but anything
+  // Cap source at 12K chars: Llama 3.3 70B handles much more, but anything
   // longer almost always means the chunker should be authoritative for
   // retrieval and the wiki page should stay distilled.
   const cappedSource = sourceText.length > 12_000 ? sourceText.slice(0, 12_000) + "\n\n[…truncated]" : sourceText;
@@ -194,7 +194,7 @@ export async function buildWikiPage(entry: KBEntry, existing: KBEntry[]): Promis
 - namespace: ${entry.namespace}
 - source_type: ${entry.source_type}${entry.url ? `\n- url: ${entry.url}` : ""}
 
-EXISTING WIKI CLAIMS (for contradiction detection — use the entry_id values verbatim if you flag a conflict):
+EXISTING WIKI CLAIMS (for contradiction detection: use the entry_id values verbatim if you flag a conflict):
 ${existingRows.length === 0 ? "(none yet)" : JSON.stringify(existingRows, null, 2)}
 
 SOURCE:
@@ -212,7 +212,7 @@ Produce the wiki page JSON now.`;
 //
 // Re-audit the WHOLE wiki against itself, asking the LLM to surface any
 // contradictions across pages. Used for the "Lint wiki" button. Single LLM
-// call regardless of KB size — we send only TLDRs + claims, not bodies.
+// call regardless of KB size, we send only TLDRs + claims, not bodies.
 
 const WIKI_LINT_SYSTEM = `You are auditing a sales knowledge base for contradictions across pages.
 
