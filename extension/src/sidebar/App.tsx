@@ -85,7 +85,7 @@ export default function App() {
     if (!user) {
       setUser({
         id: "local-user",
-        email: "local@clientlens.app",
+        email: "local@project-wingman.app",
         name: "You",
         role: "admin",
       });

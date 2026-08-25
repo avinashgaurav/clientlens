@@ -129,7 +129,7 @@ ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
 GROQ_API_KEY=
 OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-OPENROUTER_REFERER=https://clientlens.example.com
+OPENROUTER_REFERER=https://project-wingman.example.com
 OPENROUTER_TITLE=Project Wingman
 
 # ── Pinecone: intentionally empty (init skipped, embeddings stubbed) ─────────

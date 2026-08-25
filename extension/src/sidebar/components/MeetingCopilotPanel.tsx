@@ -379,7 +379,7 @@ export function MeetingCopilotPanel() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `clientlens-${(companyName || "call").replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.md`;
+    a.download = `wingman-${(companyName || "call").replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

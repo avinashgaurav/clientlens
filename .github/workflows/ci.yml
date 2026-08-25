@@ -83,10 +83,31 @@ jobs:
         working-directory: .
         # config.py builds `Settings()` at import time and pydantic requires
         # SUPABASE_URL and SUPABASE_SERVICE_KEY to be present, so the app cannot
-        # be imported at all without a .env. Placeholder values satisfy that.
+        # be imported at all without a .env.
         run: bash scripts/setup_env.sh --non-interactive
 
       - name: Import the app
         # The 3.9 failure mode this guards against was an import-time error, not a
         # dependency resolution error, so installing is not enough to catch it.
+        #
+        # setup_env.sh deliberately leaves secrets blank, and main.py now refuses
+        # to start on a blank SUPABASE_SERVICE_KEY, so CI supplies a placeholder
+        # here rather than having the generator invent one. A fake value is fine:
+        # nothing in this check talks to Supabase.
+        env:
+          SUPABASE_SERVICE_KEY: ci-placeholder-not-a-real-key
         run: python -c "import main; assert any(r.path == '/health' for r in main.app.routes)"
+
+      - name: Refuse to start when Supabase config is missing
+        # The counterpart: with no key at all, the failure must stay a readable
+        # message rather than regressing to a fourteen-frame starlette traceback.
+        run: |
+          set +e
+          out=$(python -c "import main" 2>&1)
+          rc=$?
+          set -e
+          echo "$out"
+          test $rc -ne 0 || { echo "expected a non-zero exit"; exit 1; }
+          echo "$out" | grep -q "SUPABASE_SERVICE_KEY" || { echo "message did not name the missing key"; exit 1; }
+          echo "$out" | grep -q "Traceback" && { echo "regressed to a traceback"; exit 1; }
+          echo "ok: refused with a readable message"

@@ -1,20 +1,44 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import sys
 from contextlib import asynccontextmanager
 import structlog
 
 from api.routes import assets, admin, llm, stt, zoho
 from api.middleware.auth import AuthMiddleware
-from db.supabase_client import init_supabase
+from db.supabase_client import init_supabase, missing_config
 from rag.vector_store import init_vector_store
 from config import settings
 
 log = structlog.get_logger()
 
+# Checked at import, before uvicorn builds the app. Raising from the lifespan
+# instead gets wrapped in a starlette traceback fourteen frames deep, which
+# buries the one line that tells you which file to edit.
+_missing = missing_config()
+if _missing:
+    print(
+        "\n"
+        "  Cannot start: backend/.env is missing %s\n"
+        "\n"
+        "  Both values come from your Supabase project, under\n"
+        "  Project Settings > API:\n"
+        "\n"
+        "    SUPABASE_URL          the Project URL\n"
+        "    SUPABASE_SERVICE_KEY  the service_role key, not the anon key\n"
+        "\n"
+        "  Add them to backend/.env and start again.\n"
+        "  `bash scripts/setup_env.sh` prompts for both.\n"
+        % ", ".join(_missing),
+        file=sys.stderr,
+        flush=True,
+    )
+    raise SystemExit(1)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    log.info("startup", service="clientlens-backend")
+    log.info("startup", service="project-wingman-backend")
     if settings.dev_mode:
         log.critical(
             "DEV_MODE is ENABLED: JWT verification is bypassed. "
@@ -28,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Project Wingman – Sales Copilot API",
+    title="Project Wingman: Sales Copilot API",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -67,4 +91,4 @@ app.include_router(zoho.router, prefix="/api", tags=["zoho"])
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "clientlens-backend"}
+    return {"status": "ok", "service": "project-wingman-backend"}

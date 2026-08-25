@@ -1,6 +1,6 @@
 # Skin fidelity audit: tokens.css vs design-md sources
 
-**Status:** reference doc. Captures how faithfully each of the 6 surface skins matches its source `DESIGN.md` in the awesome-design-md corpus (`~/Desktop/Personal/wingman-revamp/design-md/design-md/<brand>/`).
+**Status:** reference doc. Captures how faithfully each of the 6 surface skins matches its source `DESIGN.md` in the awesome-design-md corpus (the `awesome-design-md` corpus, one directory per brand).
 
 **Method:** read all 6 source `DESIGN.md` files, extracted concrete specs (hex values, type scale, signature moves), compared token-by-token against `extension/src/sidebar/tokens.css`.
 

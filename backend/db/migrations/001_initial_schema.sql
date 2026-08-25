@@ -1,4 +1,4 @@
--- ClientLens – Sales Copilot: Initial Schema
+-- Project Wingman: initial schema
 -- Run in Supabase SQL editor
 
 -- ── User Profiles ─────────────────────────────────────────────────────────────

@@ -59,7 +59,7 @@ bash backend/scripts/run_tests.sh
 - **One concern per PR.** A 40-file PR that mixes a bug fix with a refactor will sit unreviewed longer than three small ones.
 - **Say what you tested manually.** Much of this codebase is Chrome extension surface area that no test harness covers: side panel, offscreen audio capture, content scripts, the Meet transponder. "I ran a real Meet call and the transponder rendered" is more useful than a green type-check.
 - **Squash-friendly history.** `main` requires linear history, so PRs land as squash or rebase merges. Do not worry about a messy branch history.
-- **Touching `chrome.storage` keys?** Say so explicitly in the PR body. Those keys are persistence identifiers (see the note on the `clientlens` prefix in the README), and changing one without a migration silently orphans user data.
+- **Touching `chrome.storage` keys?** Say so explicitly in the PR body. Those keys are persistence identifiers (see [A note on the name `clientlens`](docs/development.md#a-note-on-the-name-clientlens)), and changing one without a migration silently orphans user data.
 - **Touching `manifest.json` permissions?** Explain why the new permission is needed. Chrome Web Store review is stricter than this repo is, and every added host is a question to answer later.
 
 ## Security issues

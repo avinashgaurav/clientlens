@@ -335,7 +335,7 @@ export function KnowledgeBasePanel() {
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://clientlens.com/…"
+            placeholder="https://your-company.com/battle-cards…"
             className="input"
           />
           <span className="block text-[10px] text-[var(--ink-4)] leading-snug mt-1">
