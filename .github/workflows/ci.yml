@@ -1,0 +1,92 @@
+name: CI
+
+# Contributor PRs were not checked by anything before this. There are no tests
+# yet, so this checks the things that can be checked: types, lint, that the
+# extension builds, that the generated manifest is coherent, and that the backend
+# imports on the Python version the README makes a hard requirement.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A force-push or a quick second commit should cancel the older run, not queue
+# behind it.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  extension:
+    name: Extension
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+
+      - run: npm ci
+
+      - name: Generate .env files
+        working-directory: .
+        # The build reads the backend host and OAuth client ID from .env. Without
+        # them the manifest keeps its placeholders and the build fails, so CI has
+        # to generate them the same way a contributor does.
+        run: bash scripts/setup_env.sh --non-interactive
+
+      - run: npm run type-check
+
+      - run: npm run lint
+
+      - name: Build (dev mode)
+        # `npm run dev` is `vite build --watch` and never exits, so CI cannot call
+        # it directly. This is the same build without the watcher. `npm run build`
+        # is deliberately not used: it rejects the localhost backend that
+        # setup_env.sh writes, which is the supported self-hosted shape.
+        run: npx vite build --mode development
+
+      - name: Lint the generated manifest
+        working-directory: .
+        run: bash scripts/lint-manifest.sh
+
+      - name: Fail if the build produced nothing loadable
+        run: test -f dist/manifest.json && test -f dist/.build-mode
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - name: Generate .env files
+        working-directory: .
+        # config.py builds `Settings()` at import time and pydantic requires
+        # SUPABASE_URL and SUPABASE_SERVICE_KEY to be present, so the app cannot
+        # be imported at all without a .env. Placeholder values satisfy that.
+        run: bash scripts/setup_env.sh --non-interactive
+
+      - name: Import the app
+        # The 3.9 failure mode this guards against was an import-time error, not a
+        # dependency resolution error, so installing is not enough to catch it.
+        run: python -c "import main; assert any(r.path == '/health' for r in main.app.routes)"

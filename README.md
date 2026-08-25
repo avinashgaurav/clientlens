@@ -56,6 +56,7 @@ Worth knowing before you invest an evening in it:
 - **Authentication is not wired.** See the warning above.
 - **Zoho is the only CRM**, and **Google Meet is the only meeting surface** that works end to end. HubSpot, Salesforce and Teams are on the roadmap.
 - **Python 3.11+ is a hard requirement.** Dependencies resolve on 3.9, but the backend then fails at import, so it breaks later and more confusingly than you would expect.
+- **No way to try it without installing it.** Mock mode avoids spending LLM credits but still routes through the backend, so there is no offline or hosted demo.
 
 ## Quick start
 
@@ -76,6 +77,9 @@ uvicorn main:app --reload --port 8000     # health check: curl localhost:8000/he
 
 cd ../extension && npm install && npm run dev
 ```
+
+`npm run dev` is a watch build (`vite build --watch`), so it does not exit. Leave it
+running and open a second terminal for anything else.
 
 Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and click the extension icon. **There is no sign-in step**: the panel opens straight into an admin session.
 
@@ -108,21 +112,26 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 ## Roadmap
 
 1. **Wire real authentication.** Everything else is downstream of this: it is what gates a shared team deployment.
-2. [An error boundary around the panel](https://github.com/avinashgaurav/project-wingman/issues/129), so a render error cannot blank the surface.
-3. Salesforce and HubSpot connectors, Microsoft Teams copilot.
-4. On-device STT (Whisper) for privacy-sensitive deployments.
-5. Multi-tenant mode with org-level KB isolation.
+2. Salesforce and HubSpot connectors, Microsoft Teams copilot.
+3. On-device STT (Whisper) for privacy-sensitive deployments.
+4. Multi-tenant mode with org-level KB isolation.
+5. A zero-setup way to try it. Mock mode still needs the backend running, so today there is no way to see the UI without a full install.
 
 The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/project-wingman/issues/113). Items are largely independent, so pick any of them in any order.
 
 ## Contributing
 
-PRs welcome, including small ones. [**CONTRIBUTING.md**](CONTRIBUTING.md) covers setup and expectations. There is no CI yet, so run these before opening one:
+PRs welcome, including small ones. [**CONTRIBUTING.md**](CONTRIBUTING.md) covers setup and expectations. CI runs these on every PR, and running them first saves you a round trip:
 
 ```bash
-cd extension && npm run type-check && npm run lint && npm run build
+cd extension && npm run type-check && npm run lint && npm run dev
 cd .. && bash scripts/lint-manifest.sh
 ```
+
+Use `npm run dev` here, not `npm run build`. A production build refuses a
+`localhost` backend by design, so on a normal self-hosted setup `npm run build`
+is *supposed* to fail. There are no tests yet, which is why CI checks types,
+lint, the build and the generated manifest rather than behaviour.
 
 Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman/security/advisories/new).
 

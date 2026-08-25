@@ -32,7 +32,7 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on.
 Two things that trip people up:
 
 - **Do not hand-edit `extension/manifest.json`.** It is a template. `vite.config.ts` injects `oauth2.client_id` from `VITE_GOOGLE_CLIENT_ID` and your backend host from `VITE_BACKEND_URL` at build time. If Google sign-in fails, check `extension/dist/manifest.json` for a real client ID first.
-- **`npm run dev` is not a release build.** It injects `localhost` host permissions on purpose. Use `npm run build` for anything you would actually ship.
+- **`npm run dev` is not a release build.** It injects `localhost` host permissions on purpose. Use `npm run build` for anything you would actually ship, and note that it refuses a `localhost` backend, so it will fail on a normal local setup. That is deliberate, not a broken build.
 
 You can develop most of the UI without burning LLM credits by setting `VITE_MOCK_MODE=true`. Note the caveat in the README: mock mode still routes through the backend's own mock branch, so the backend needs to be running.
 
@@ -44,7 +44,7 @@ Run all four. CI is not going to catch it for you, because there is no CI on thi
 cd extension
 npm run type-check      # tsc --noEmit
 npm run lint            # eslint src
-npm run build           # production bundle; fails on unresolved manifest placeholders
+npm run dev             # watch build; does not exit, Ctrl-C when dist/ is written
 cd .. && bash scripts/lint-manifest.sh
 ```
 
