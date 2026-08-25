@@ -14,6 +14,12 @@ Live coaching during Google Meet calls, pitch generation grounded in your own kn
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com)
 [![BYOL](https://img.shields.io/badge/LLM-Bring%20Your%20Own%20Keys-F58549)](docs/configuration.md)
 
+<br />
+
+<img src="docs/screenshots/insights.png" alt="Wingman's Insights tab: win rate, average sentiment, objections handled and total calls for the week." width="720" />
+
+<sub>Insights after a week of calls. Every screenshot here is the real extension, with sample data loaded.</sub>
+
 </div>
 
 ---
@@ -30,6 +36,15 @@ A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fum
 - **After the call.** A structured summary with agenda coverage, sentiment timeline, objections and action items. One click pushes it to Zoho CRM.
 
 Everything is grounded: each numeric claim must cite a source from your knowledge base, and a dedicated validation agent rejects anything uncited.
+
+### The loop, in screens
+
+| | |
+|---|---|
+| **Load your material.** Case studies and battle cards, indexed and chunked. Every citation resolves back to one of these. | <img src="docs/screenshots/knowledge-base.png" alt="Knowledge base: five entries, five of five indexed." width="420" /> |
+| **Draft the pitch.** Five output formats and a buyer persona. Live meeting mode on for the call itself. | <img src="docs/screenshots/pitch-setup.png" alt="Pitch setup with output formats and live meeting mode on." width="300" /> |
+| **Take the calls.** Each one lands with its sentiment and how much of the agenda you covered. | <img src="docs/screenshots/call-history.png" alt="Call history with sentiment and agenda coverage per call." width="420" /> |
+
 
 **[Full feature detail →](docs/features.md)**
 
