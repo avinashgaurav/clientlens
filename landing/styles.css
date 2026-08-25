@@ -544,6 +544,43 @@ button { font: inherit; cursor: pointer; }
   color: #4D4F46;
 }
 
+/* The README leads with the unwired-auth caveat; this is the same disclosure on
+   the page that actually receives traffic. Brand orange is 2.52:1 on white, so it
+   is confined to the decorative rule and never carries text. */
+.how__caveat {
+  margin-top: 32px;
+  background: #FFFFFF;
+  border: 1px solid #BFC1B7;
+  border-left: 3px solid #F58549;
+  border-radius: 6px;
+  padding: 28px 32px;
+}
+.how__caveat__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8A4B1E;
+  margin-bottom: 14px;
+}
+.how__caveat p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #23251D;
+  max-width: 78ch;
+}
+.how__caveat p + p {
+  margin-top: 14px;
+  color: #4D4F46;
+}
+.how__caveat strong { font-weight: 700; }
+.how__caveat a {
+  color: #8A4B1E;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ─────────────────────────── Closing CTA (SpaceX echo) ─────── */
 .cta {
   background: #000000;

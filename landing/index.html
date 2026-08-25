@@ -432,6 +432,24 @@
           </p>
         </div>
       </div>
+      <div class="how__caveat">
+        <p class="how__caveat__label">Read this before you deploy it</p>
+        <p>
+          <strong>Authentication is not wired in v1.0.</strong> The sidebar provisions a local
+          admin and the backend runs in dev mode, so anything that can reach the backend is
+          treated as an admin request. Keep it bound to localhost. That is fine for one rep
+          self-hosting, which is exactly what v1.0 targets, and it is not safe for a shared
+          team deployment or for a backend on a public address.
+        </p>
+        <p>
+          Also worth knowing up front: you load it unpacked, there is no Web Store listing yet,
+          Python 3.11 or newer is a hard requirement, and Zoho is the only CRM wired end to
+          end. <a href="https://github.com/avinashgaurav/project-wingman/blob/main/docs/security.md">The
+          security model</a> covers what to lock down, and
+          <a href="https://github.com/avinashgaurav/project-wingman#what-this-is-not-yet">the
+          README</a> lists every edge.
+        </p>
+      </div>
     </div>
   </section>
 
