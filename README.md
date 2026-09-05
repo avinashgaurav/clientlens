@@ -1,6 +1,6 @@
 <div align="center">
 
-# Project Wingman
+# Project Wingman (ClientLens)
 
 **The open-source AI sales copilot that lives in your browser sidebar.**
 
