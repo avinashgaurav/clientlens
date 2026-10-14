@@ -7,7 +7,7 @@
 Live coaching during Google Meet calls, pitch generation grounded in your own knowledge base, and objection handling on tap. Runs on your LLM keys, on your infrastructure. There is no Wingman server.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.0.0-F58549)](https://github.com/avinashgaurav/project-wingman/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/release-v1.0.0-F58549)](https://github.com/avinashgaurav/project-wingman-ClientLens/releases/tag/v1.0.0)
 [![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-4285F4)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![React](https://img.shields.io/badge/React-18-61dafb)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff)](https://vitejs.dev)
@@ -32,10 +32,20 @@ Live coaching during Google Meet calls, pitch generation grounded in your own kn
 A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fumble the objection, take a half-page of notes, paste them into the CRM, then forget the follow-up. Wingman compresses that loop.
 
 - **Pre-call.** Generate a personalized pitch and a tailored email from the prospect's public signals and your indexed knowledge base.
-- **During the call.** Five agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence, objection handling, and a validator that checks each coach suggestion against your knowledge base: it shows an approved suggestion, swaps in its rewrite of one it revises, and drops one it rejects or cannot read. A small overlay mirrors the cues on the Meet tab itself.
+- **During the call.** Four agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence and objection handles, and a validator that checks each coach suggestion against your knowledge base: it shows an approved suggestion, swaps in its rewrite of one it revises, and drops one it rejects or cannot read. A small overlay mirrors the cues on the Meet tab itself.
 - **After the call.** A structured summary with agenda coverage, sentiment timeline, objections and action items. One click pushes it to Zoho CRM.
 
 Outputs are grounded in your knowledge base: agents are prompted to cite a source for each numeric claim, and a validation pass checks those claims. It is an LLM check, not a guarantee; see Known limitations.
+
+### Why AI here, why code there
+
+| Step | Done by | Why |
+|---|---|---|
+| Drafting pitches, emails, objection replies and live coaching cues | LLM, on your keys | Writing from your own material is what models are good at. |
+| Checking numeric and named claims against the cited sources | LLM validator | Deciding whether a sentence is supported needs reading, so it is a judgement, not a proof. |
+| Removing a flagged claim, or holding the draft for review | Code, fails closed | A claim is cut only when it can be located without ambiguity; anything unreadable or ambiguous holds the draft. |
+| Writing a draft into Google Slides or Docs | Code: the service worker's write gate | Only a "verified" or "redacted" draft, and only from the extension's own pages. Unit tested. |
+| Looking for a restatement after a cut | Code, a heuristic | Shared figures, names and keywords; it can miss paraphrases (see Known limitations). |
 
 ### The loop, in screens
 
@@ -74,8 +84,8 @@ Prerequisites: Node 20+, Python 3.11+ (`brew install python@3.11`), a Supabase p
 > **On a new Gemini key, use `gemini-3.6-flash`.** Google has restricted the 1.5, 2.0 and 2.5 families to accounts that had already used them, so a key created today returns `404 no longer available to new users` on those, and they do not appear in the API's own model list either. `gemini-3.6-flash` works and is the default here. Groq and OpenRouter are the alternatives if you would rather not use Google at all.
 
 ```bash
-git clone https://github.com/avinashgaurav/project-wingman.git
-cd project-wingman
+git clone https://github.com/avinashgaurav/project-wingman-ClientLens.git
+cd project-wingman-ClientLens
 
 bash scripts/setup_env.sh          # writes backend/.env and extension/.env
 
@@ -115,7 +125,7 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 
 **Backend:** FastAPI and Pydantic v2 on Python 3.11, Supabase Postgres with RLS, an in-browser vector store (brute-force cosine over IndexedDB), Deepgram Nova-2 for speech.
 
-**LLMs:** Anthropic, Gemini, Groq, OpenRouter, or any OpenAI-compatible endpoint. The extension never holds a provider key; the backend proxies.
+**LLMs:** Anthropic, Gemini, Groq, OpenRouter, or any OpenAI-compatible endpoint (including Ollama). Anthropic, Gemini, Groq and OpenRouter keys live only in `backend/.env` and the backend proxies those calls. A custom OpenAI-compatible or Ollama endpoint is called directly from the extension, with the key you enter in Settings.
 
 ## Roadmap
 
@@ -125,7 +135,7 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 4. Multi-tenant mode with org-level KB isolation.
 5. A zero-setup way to try it. Mock mode still needs the backend running, so today there is no way to see the UI without a full install.
 
-The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/project-wingman/issues/113). Items are largely independent, so pick any of them in any order.
+The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/project-wingman-ClientLens/issues/113). Items are largely independent, so pick any of them in any order.
 
 ## Contributing
 
@@ -144,11 +154,12 @@ is *supposed* to fail.
 They cover the pure logic the trust story rests on, with no LLM calls: the
 JSON extractor that reads agent replies, the pitch council's fail-closed fact
 check (an unsupported number is removed, an unlocatable claim holds the draft,
-an unreadable verdict marks it unverified), objection citation parsing,
-prompt-injection wrapping of KB content, and cosine ranking in the in-browser
-vector store. UI components and the live-call agents are not unit tested.
+an unreadable verdict marks it unverified), the service worker's write gate,
+objection citation parsing, prompt-injection wrapping of KB content, and cosine
+ranking in the in-browser vector store: 88 tests across 5 files. UI components
+and the live-call agents are not unit tested.
 
-Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman/security/advisories/new).
+Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman-ClientLens/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman-ClientLens/security/advisories/new).
 
 ## License
 
