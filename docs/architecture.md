@@ -59,7 +59,6 @@ project-wingman/
 │   ├── src/
 │   │   ├── background/                 # Service worker + orchestrator
 │   │   ├── content/                    # Content scripts
-│   │   │   ├── content-script.ts       # Generated-content insertion
 │   │   │   └── meet-transponder.ts     # In-Meet overlay
 │   │   ├── offscreen/                  # Offscreen doc for tab audio
 │   │   │   └── audio-processor.js      # AudioWorklet

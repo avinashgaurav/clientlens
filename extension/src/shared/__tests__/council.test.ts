@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyFactCheck, extractJson, parseBrandCheck, parseFactCheck, type FactCheck } from "../agents/council";
+import { applyFactCheck, extractJson, numericTokens, parseBrandCheck, parseFactCheck, type FactCheck } from "../agents/council";
 import type { SlideContent } from "../types";
 
 describe("extractJson", () => {
@@ -362,6 +362,18 @@ describe("applyFactCheck (fails closed)", () => {
     expect(verification.review_notes).toEqual(["Slide 1 has no content left after removing unsupported claims"]);
   });
 
+  it.each([
+    ["Acme reduced cloud spend by 40% within 90 days", "Spend dropped 40% for customers."],
+    ["SOC 2 Type II certified", "Independently audited to SOC 2 standards."],
+    ["Acme cut costs 40%", "We save you 40% on AWS."],
+  ])("holds %j for review when a loose restatement survives", (claim, restated) => {
+    const { slides, verification } = applyFactCheck(one(`${claim}.\n${restated}`), flag(claim));
+    expect(verification.status).toBe("needs_review");
+    expect(verification.unresolved_claims).toEqual([claim]);
+    expect(verification.removed_claims).toEqual([]);
+    expect(slides[0].components[0].content).toContain(restated);
+  });
+
   it("describes a blank flagged claim instead of listing an empty string", () => {
     const { verification } = applyFactCheck(
       draft,
@@ -502,5 +514,17 @@ describe("parseBrandCheck", () => {
       violations: [],
       tone_score: 0.4,
     });
+  });
+});
+
+describe("numericTokens", () => {
+  it("keeps units that touch the number", () => {
+    expect(numericTokens("40% of $2.5M, 3x faster, 1.2bn rows, 40 % more")).toEqual(["40%", "$2.5m", "3x", "1.2bn", "40%"]);
+  });
+
+  it("does not read a following word as a unit", () => {
+    expect(numericTokens("10 M&A deals")).toEqual(["10"]);
+    expect(numericTokens("in 2024 x the board")).toEqual(["2024"]);
+    expect(numericTokens("10M&A")).toEqual(["10"]);
   });
 });

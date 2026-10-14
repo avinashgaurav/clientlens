@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkWritePayload, isTrustedSender } from "../utils/write-gate";
+import { checkWritePayload, isTrustedSender, senderAllowed } from "../utils/write-gate";
 import type { SlideContent } from "../types";
 
 const slides: SlideContent[] = [{ index: 0, title: "t", components: [{ type: "text_block", content: "Hello." }] }];
@@ -30,7 +30,14 @@ describe("checkWritePayload (service worker write gate)", () => {
   });
 
   it("rejects malformed slides", () => {
-    for (const bad of [[null], ["slide"], [{ index: 0, title: "t" }], [{ index: 0, title: "t", components: "x" }]]) {
+    for (const bad of [
+      [null],
+      ["slide"],
+      [{ index: 0, title: "t" }],
+      [{ index: 0, title: "t", components: "x" }],
+      [{ index: 0, components: [] }],
+      [{ index: 0, title: 7, components: [] }],
+    ]) {
       const r = checkWritePayload({ slides: bad, verification: "verified" });
       expect(r.ok).toBe(false);
     }
@@ -44,5 +51,23 @@ describe("isTrustedSender", () => {
     expect(isTrustedSender({ id: "self", tab: { id: 3 } }, "self")).toBe(false);
     expect(isTrustedSender({ id: "other" }, "self")).toBe(false);
     expect(isTrustedSender({}, "self")).toBe(false);
+  });
+});
+
+describe("senderAllowed", () => {
+  const page = { id: "self" };
+  const contentScript = { id: "self", tab: { id: 3 } };
+  const otherExtension = { id: "other" };
+
+  it("refuses UNDO_WRITE, WRITE_TO_DOC and FETCH_URL_TEXT from a content script or another extension", () => {
+    for (const type of ["UNDO_WRITE", "WRITE_TO_DOC", "FETCH_URL_TEXT"]) {
+      expect(senderAllowed(type, page, "self")).toBe(true);
+      expect(senderAllowed(type, contentScript, "self")).toBe(false);
+      expect(senderAllowed(type, otherExtension, "self")).toBe(false);
+    }
+  });
+
+  it("leaves other messages to their own handlers", () => {
+    expect(senderAllowed("OPEN_SIDEBAR", contentScript, "self")).toBe(true);
   });
 });

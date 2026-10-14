@@ -465,9 +465,11 @@ const containsPhrase = (haystack: string, needle: string) =>
 
 // Numbers, percentages, money and multipliers: "40%", "$2.5M", "3x", "1,200".
 // A bare single digit ("2" in "SOC 2", "3" slides) is too common to identify
-// a claim, so it is not a token.
-function numericTokens(s: string): string[] {
-  return (s.replace(/(\d),(?=\d{3}\b)/g, "$1").match(/[$€£]?\d[\d.]*\s*(?:%|x\b|k\b|m\b|b\b|bn\b)?/gi) ?? [])
+// a claim, so it is not a token. A letter unit must touch the number and
+// end the word ("3x", "$2.5M", "1.2bn"), so "10 M&A" and "2024 x" are plain
+// numbers; "%" may follow a single space ("40 %").
+export function numericTokens(s: string): string[] {
+  return (s.replace(/(\d),(?=\d{3}\b)/g, "$1").match(/[$€£]?\d[\d.]*(?:\s?%|(?:bn|x|k|m|b)(?![\w&]))?/gi) ?? [])
     .map((t) => t.toLowerCase().replace(/\s+/g, "").replace(/\.$/, ""))
     .filter((t) => /[^\d]/.test(t) || t.length >= 2);
 }
@@ -528,11 +530,43 @@ const componentHasContent = (content: unknown): boolean => {
 /** A slide still has content if any component carries text or structured data. */
 const hasContent = (slide: SlideContent) => slide.components.some((c) => componentHasContent(c.content));
 
-/** Whether any sentence left in the slide's body or notes still states `claim`. */
-const stillStated = (slide: SlideContent, claim: string) =>
-  [...slide.components.map((c) => (typeof c.content === "string" ? c.content : "")), slide.speaker_notes ?? ""]
-    .flatMap(splitSentences)
-    .some((s) => matchClaim(s, claim) !== null);
+// Capitalised words that open a sentence without naming anything.
+const GENERIC_STARTERS = new Set([
+  "a", "an", "the", "we", "our", "you", "your", "it", "its", "this", "that", "these", "those", "they", "their",
+  "customers", "teams", "users", "companies", "clients", "most", "all", "every", "each", "in", "on", "with",
+  "for", "by", "after", "within", "over", "up", "save", "cut", "reduce", "reduces",
+]);
+
+/**
+ * The parts of a claim that identify it even when reworded: figures with a
+ * unit or magnitude ("40%", "$2m", "3x"), acronyms ("SOC", "AWS") and
+ * capitalised names ("Acme"). Used only to decide whether a claim survives
+ * a removal, never to choose what to delete.
+ */
+function salientTokens(claim: string): { figures: string[]; names: string[] } {
+  const figures = numericTokens(claim).filter(hasUnit);
+  const names = (claim.match(/[A-Za-z][A-Za-z0-9&]*/g) ?? []).filter(
+    (w) => /^[A-Z]{2,}[0-9]*$/.test(w) || (/^[A-Z]/.test(w) && !GENERIC_STARTERS.has(w.toLowerCase())),
+  );
+  return { figures, names };
+}
+
+/**
+ * Whether anything identifying `claim` is still on the slide (body or notes)
+ * after its sentence was removed. A reworded restatement ("Spend dropped 40%
+ * for customers") is often too loose for matchClaim, so this checks the
+ * claim's salient tokens instead. Erring towards true only costs a review.
+ */
+function claimSurvives(slide: SlideContent, claim: string): boolean {
+  const { figures, names } = salientTokens(claim);
+  if (!figures.length && !names.length) return false;
+  const remaining = [...slide.components.map((c) => (typeof c.content === "string" ? c.content : "")), slide.speaker_notes ?? ""]
+    .join("\n");
+  const remainingFigures = numericTokens(remaining);
+  if (figures.some((f) => remainingFigures.includes(f))) return true;
+  const words = new Set(remaining.match(/[A-Za-z][A-Za-z0-9&]*/g) ?? []);
+  return names.some((n) => words.has(n));
+}
 
 const bodyText = (slide: SlideContent) =>
   slide.components.map((c) => (typeof c.content === "string" ? c.content : "")).join(" ").trim();
@@ -685,7 +719,7 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
     const goneHere = gone.get(slide) ?? [];
     gone.set(slide, goneHere);
     if (r.outcome === "not_found" && goneHere.some((s) => matchClaim(s, f.claim) !== null)) {
-      removed.push(f.claim);
+      (claimSurvives(slide, f.claim) ? unresolved : removed).push(f.claim);
       continue;
     }
     if (r.outcome !== "removed") { unresolved.push(f.claim); continue; }
@@ -708,10 +742,10 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
       slide.speaker_notes = rejoin(kept);
     }
 
-    // A paraphrase elsewhere on the slide ("cut spend 40% within 90 days"
-    // after the exact sentence is gone) means the claim is still in the
-    // draft, so it is not "redacted": hold it for review.
-    if (stillStated(slide, f.claim)) unresolved.push(f.claim);
+    // A restatement left elsewhere on the slide ("Spend dropped 40% for
+    // customers" after the exact sentence is gone) means the claim may still
+    // be in the draft, so it is not "redacted": hold it for review.
+    if (claimSurvives(slide, f.claim)) unresolved.push(f.claim);
     else removed.push(f.claim);
     removed.push(...echoedNotes);
 

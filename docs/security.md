@@ -7,9 +7,9 @@ Read this before you deploy anything. The most important section is the first on
 The product handles OAuth tokens, transcripts, and an org-wide KB, security posture matters.
 
 - **No LLM keys in the browser.** All provider keys live in `backend/.env`. The extension calls `/api/v1/llm/*`; the backend proxies. Switching providers is a backend config change, not an extension release.
-- **No `<all_urls>`.** `content_scripts` inject into exactly three origins: `docs.google.com`, `www.notion.so`, and `meet.google.com`. `lint-manifest.sh` enforces the absence of `<all_urls>` in both the template and the built manifest.
+- **No `<all_urls>`.** `content_scripts` inject into exactly one origin: `meet.google.com`. `lint-manifest.sh` enforces the absence of `<all_urls>` in both the template and the built manifest.
 - **`host_permissions` are enumerated, not wildcarded**, but the list is wider than the content-script list because the extension calls these hosts directly. Current groups, and why each is there:
-  - **Product surfaces the content scripts run on:** `docs.google.com`, `slides.google.com`, `www.notion.so`, `meet.google.com`.
+  - **Product surfaces the extension reads or writes:** `docs.google.com`, `slides.google.com`, `www.notion.so`, `meet.google.com`.
   - **Page-context capture:** `www.linkedin.com` (reads the profile or company page you are pitching into).
   - **Your own infrastructure:** `*.supabase.co`, plus the backend host injected at build time from `VITE_BACKEND_URL`.
   - **Services the extension talks to directly:** `api.deepgram.com` and `wss://api.deepgram.com` (live STT), `www.googleapis.com` (Slides, Drive, Calendar), the Zoho API and accounts hosts per data centre.

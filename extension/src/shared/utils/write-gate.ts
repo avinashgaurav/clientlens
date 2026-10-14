@@ -17,6 +17,14 @@ export function isTrustedSender(sender: { id?: string; tab?: unknown }, runtimeI
   return sender.id === runtimeId && !sender.tab;
 }
 
+/** Worker messages that only the extension's own pages may send. */
+export const TRUSTED_ONLY_MESSAGES: ReadonlySet<string> = new Set(["WRITE_TO_DOC", "UNDO_WRITE", "FETCH_URL_TEXT"]);
+
+/** Whether the worker should handle a message of `type` from `sender`. */
+export function senderAllowed(type: string, sender: { id?: string; tab?: unknown }, runtimeId: string): boolean {
+  return !TRUSTED_ONLY_MESSAGES.has(type) || isTrustedSender(sender, runtimeId);
+}
+
 /**
  * The service worker's write gate. Only a draft the validator cleared
  * ("verified") or cleaned ("redacted") may be written to a doc. Anything
@@ -39,9 +47,11 @@ export function checkWritePayload(
     };
   }
   if (!Array.isArray(p.slides)) return { ok: false, error: "Write blocked: no slides in the payload." };
-  const wellFormed = p.slides.every(
-    (s) => !!s && typeof s === "object" && Array.isArray((s as { components?: unknown }).components),
-  );
-  if (!wellFormed) return { ok: false, error: "Write blocked: a slide in the payload has no components list." };
+  // google-writer inserts `title` as text and maps over `components`.
+  const wellFormed = p.slides.every((s) => {
+    const slide = s as { title?: unknown; components?: unknown } | null;
+    return !!slide && typeof slide === "object" && typeof slide.title === "string" && Array.isArray(slide.components);
+  });
+  if (!wellFormed) return { ok: false, error: "Write blocked: a slide in the payload has no title or components list." };
   return { ok: true, slides: p.slides as SlideContent[] };
 }

@@ -1,6 +1,6 @@
 import type { ExtensionMessage, TranscriptSegment } from "../shared/types";
 import { writeToDoc, undoWrite } from "./google-writer";
-import { checkWritePayload, isTrustedSender } from "../shared/utils/write-gate";
+import { checkWritePayload, senderAllowed } from "../shared/utils/write-gate";
 import { startAudioForSession, stopAudio } from "../meeting-copilot/audio-controller";
 import { startBgOrchestrator, stopBgOrchestrator, bgAppendTranscript } from "./bg-orchestrator";
 
@@ -61,6 +61,14 @@ chrome.runtime.onMessage.addListener(
   (message: ExtensionMessage, sender, sendResponse) => {
     const type = (message as { type?: string }).type ?? "";
 
+    // Writing to a doc, undoing a write and fetching URLs are for the
+    // extension's own pages only. A content script has `sender.tab` set and
+    // another extension has a different `sender.id`; both are refused.
+    if (!senderAllowed(type, sender, chrome.runtime.id)) {
+      sendResponse({ success: false, error: "untrusted sender" });
+      return false;
+    }
+
     // ── Sidebar utility messages ────────────────────────────────────────────
     switch (type) {
       case "GET_PAGE_CONTEXT":
@@ -72,13 +80,6 @@ chrome.runtime.onMessage.addListener(
         return true;
 
       case "WRITE_TO_DOC":
-        // Only the extension's own pages (the sidebar) may write to a doc.
-        // A content script has `sender.tab` set, the same rule as
-        // FETCH_URL_TEXT below.
-        if (!isTrustedSender(sender, chrome.runtime.id)) {
-          sendResponse({ success: false, error: "untrusted sender" });
-          return false;
-        }
         handleWriteToDoc(message.payload, sendResponse);
         return true;
 
