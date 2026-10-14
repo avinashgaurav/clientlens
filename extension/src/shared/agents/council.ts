@@ -448,51 +448,92 @@ function splitSentences(text: string): string[] {
   return out;
 }
 
-const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9%$.]+/g, " ").trim();
+// Lowercase, drop thousands separators ("1,200" -> "1200"), and reduce
+// everything except letters, digits, "%", "$" and "." to single spaces.
+const normalize = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/(\d),(?=\d{3}\b)/g, "$1")
+    .replace(/[^a-z0-9%$.]+/g, " ")
+    .replace(/\.(?!\d)/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** Whole-word containment: "ai" is in "we use ai daily", not in "she said". */
+const containsPhrase = (haystack: string, needle: string) =>
+  !!needle && ` ${haystack} `.includes(` ${needle} `);
 
 // Numbers, percentages, money and multipliers: "40%", "$2.5M", "3x", "1,200".
+// A bare single digit ("2" in "SOC 2", "3" slides) is too common to identify
+// a claim, so it is not a token.
 function numericTokens(s: string): string[] {
-  return (s.match(/[$€£]?\d[\d,.]*\s*(?:%|x\b|k\b|m\b|b\b|bn\b)?/gi) ?? [])
-    .map((t) => t.toLowerCase().replace(/\s+/g, "").replace(/[.,]$/, ""));
+  return (s.replace(/(\d),(?=\d{3}\b)/g, "$1").match(/[$€£]?\d[\d.]*\s*(?:%|x\b|k\b|m\b|b\b|bn\b)?/gi) ?? [])
+    .map((t) => t.toLowerCase().replace(/\s+/g, "").replace(/\.$/, ""))
+    .filter((t) => /[^\d]/.test(t) || t.length >= 2);
+}
+
+/** A figure with a unit ("40%", "$2m", "3x") is distinctive enough to track on its own. */
+const hasUnit = (t: string) => /[%$€£xkmb]/.test(t);
+
+const STOPWORDS = new Set(["that", "this", "with", "from", "have", "their", "they", "your", "will", "than", "into", "over", "within"]);
+const keywords = (s: string) => normalize(s).split(" ").filter((w) => w.length >= 4 && !/\d/.test(w) && !STOPWORDS.has(w));
+
+type Match = "exact" | "numeric" | null;
+
+/**
+ * Where the flagged `claim` was made, if in `sentence`:
+ *  - "exact":   the claim's words appear in the sentence as a whole phrase
+ *  - "numeric": the validator paraphrased, but the sentence states every
+ *               figure in the claim, and either there are at least two
+ *               figures or the sentence also shares a keyword with the claim
+ */
+function matchClaim(sentence: string, claim: string): Match {
+  const ns = normalize(sentence);
+  const nc = normalize(claim);
+  if (!nc || !ns) return null;
+  if (containsPhrase(ns, nc)) return "exact";
+  const nums = numericTokens(claim);
+  if (!nums.length) return null;
+  const sentNums = numericTokens(sentence);
+  if (!nums.every((n) => sentNums.includes(n))) return null;
+  if (nums.length >= 2) return "numeric";
+  const sentWords = new Set(keywords(sentence));
+  return keywords(claim).some((w) => sentWords.has(w)) ? "numeric" : null;
 }
 
 /**
- * True when `sentence` is the place the flagged `claim` was made. With
- * `anyNumber`, a sentence repeating any one of the claim's numbers matches
- * too: used for speaker notes, which tend to echo a figure ("lead with the
- * 40%") without restating the claim.
+ * Remove the sentences matching `claim`. A paraphrase match ("numeric") that
+ * hits more than one sentence is ambiguous, so nothing is removed and the
+ * caller sends the claim to review.
  */
-function sentenceMatchesClaim(sentence: string, claim: string, anyNumber = false): boolean {
-  const ns = normalize(sentence);
-  const nc = normalize(claim);
-  if (!nc || !ns) return false;
-  if (ns.includes(nc)) return true;
-  // The validator often paraphrases. A claim that carries numbers matches a
-  // sentence that states every one of those numbers.
-  const nums = numericTokens(claim);
-  if (!nums.length) return false;
-  const sentNums = numericTokens(sentence);
-  return anyNumber ? nums.some((n) => sentNums.includes(n)) : nums.every((n) => sentNums.includes(n));
+function redactText(text: string, claim: string): { text: string; removed: string[]; ambiguous: boolean } {
+  const sentences = splitSentences(text);
+  const matches = sentences.map((s) => matchClaim(s, claim));
+  const exact = matches.some((m) => m === "exact");
+  const numericCount = matches.filter((m) => m === "numeric").length;
+  if (!exact && numericCount > 1) return { text, removed: [], ambiguous: true };
+  const drop = (m: Match) => (exact ? m === "exact" : m === "numeric");
+  const removed = sentences.filter((_, i) => drop(matches[i]));
+  if (!removed.length) return { text, removed: [], ambiguous: false };
+  const kept = sentences.filter((_, i) => !drop(matches[i]));
+  return { text: kept.join("").replace(/\n{3,}/g, "\n\n").trim(), removed, ambiguous: false };
 }
 
-/** Remove sentences matching `claim`. Returns the new text and whether anything was removed. */
-function redactText(text: string, claim: string, anyNumber = false): { text: string; removed: boolean } {
-  const sentences = splitSentences(text);
-  const kept = sentences.filter((s) => !sentenceMatchesClaim(s, claim, anyNumber));
-  if (kept.length === sentences.length) return { text, removed: false };
-  return { text: kept.join("").replace(/\n{3,}/g, "\n\n").trim(), removed: true };
-}
+const bodyText = (slide: SlideContent) =>
+  slide.components.map((c) => (typeof c.content === "string" ? c.content : "")).join(" ").trim();
 
 /**
  * Apply the validator's verdict to the draft. Pure: no LLM, no I/O.
  *
- *  - no readable verdict          -> "unverified", slides unchanged
- *  - every flagged claim located
- *    in body text and removed     -> "redacted" (or "verified" if none flagged)
- *  - any flagged claim not found,
- *    or found only in a title     -> "needs_review", claims listed
- *  - grounded:false with nothing
- *    listed                       -> "needs_review"
+ *  - no readable verdict                     -> "unverified", slides unchanged
+ *  - verdict itemised no claims              -> "unverified", or "needs_review"
+ *                                               if the draft states figures
+ *  - every flagged claim located on its own
+ *    slide's body text and removed           -> "redacted" ("verified" if none)
+ *  - a flagged claim with no slide index, not
+ *    found, ambiguous, in a title, or whose
+ *    removal empties a slide                 -> "needs_review", claims listed
+ *  - grounded:false with nothing listed      -> "needs_review"
  *
  * `supported` / `total` count the claims the validator itemised; they are
  * the only confidence figure the council reports.
@@ -501,23 +542,41 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
   slides: SlideContent[];
   verification: VerificationResult;
 } {
-  if (!check) {
-    return {
-      slides,
-      verification: { status: "unverified", supported: 0, total: 0, removed_claims: [], unresolved_claims: [] },
-    };
-  }
+  const empty = { supported: 0, total: 0, removed_claims: [], unresolved_claims: [] };
+  if (!check) return { slides, verification: { status: "unverified", ...empty } };
 
   const total = check.claims.length;
   const supported = check.claims.filter((c) => c.status === "verified").length;
 
   // Every claim the validator did not mark verified, plus free-text
-  // hallucination notes that are not already one of those claims.
+  // hallucination notes that do not restate one of those claims.
   const flagged: { claim: string; slide_index: number | null }[] = check.claims
     .filter((c) => c.status !== "verified")
     .map((c) => ({ claim: c.claim, slide_index: Number.isInteger(c.slide_index) ? c.slide_index : null }));
   for (const h of check.hallucinations) {
-    if (!flagged.some((f) => normalize(f.claim) === normalize(h))) flagged.push({ claim: h, slide_index: null });
+    const nh = normalize(h);
+    const dup = flagged.some((f) => {
+      const nf = normalize(f.claim);
+      return containsPhrase(nh, nf) || containsPhrase(nf, nh);
+    });
+    if (!dup) flagged.push({ claim: h, slide_index: null });
+  }
+
+  // A verdict that checked nothing has verified nothing.
+  if (total === 0 && flagged.length === 0) {
+    const statesFigures = slides.some((s) =>
+      numericTokens([s.title, bodyText(s), s.speaker_notes ?? ""].join(" ")).length > 0,
+    );
+    return statesFigures
+      ? {
+          slides,
+          verification: {
+            status: "needs_review",
+            ...empty,
+            unresolved_claims: ["The validator itemised no claims, but the draft states figures. Check each one against your KB."],
+          },
+        }
+      : { slides, verification: { status: "unverified", ...empty } };
   }
 
   const out: SlideContent[] = slides.map((s) => ({
@@ -528,36 +587,51 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
   const unresolved: string[] = [];
 
   for (const f of flagged) {
-    const targets = f.slide_index !== null && out[f.slide_index] ? [out[f.slide_index]] : out;
+    // No slide index (or one that does not exist): never sweep the whole
+    // deck for it. A guess there deletes the wrong sentence.
+    const slide = f.slide_index !== null ? out[f.slide_index] : undefined;
+    if (!slide) { unresolved.push(f.claim); continue; }
+
+    const hadBody = bodyText(slide).length > 0;
     let hit = false;
-    let unremovable = false;
-    for (const slide of targets) {
-      if (sentenceMatchesClaim(slide.title ?? "", f.claim)) unremovable = true;
-      for (const comp of slide.components) {
-        if (typeof comp.content === "string") {
-          const r = redactText(comp.content, f.claim);
-          if (r.removed) { comp.content = r.text; hit = true; }
-        } else if (comp.content != null && sentenceMatchesClaim(JSON.stringify(comp.content), f.claim)) {
-          unremovable = true; // structured content we cannot safely edit: same treatment as a title
+    let unremovable = matchClaim(slide.title ?? "", f.claim) !== null;
+    const removedFigures: string[] = [];
+    for (const comp of slide.components) {
+      if (typeof comp.content === "string") {
+        const r = redactText(comp.content, f.claim);
+        if (r.ambiguous) unremovable = true;
+        else if (r.removed.length) {
+          comp.content = r.text;
+          hit = true;
+          removedFigures.push(...r.removed.flatMap(numericTokens));
         }
-      }
-      if (slide.speaker_notes) {
-        // Notes only count as a hit for an exact match; an echoed number is
-        // cleaned up once the claim itself has been found and removed.
-        const r = redactText(slide.speaker_notes, f.claim);
-        if (r.removed) { slide.speaker_notes = r.text; hit = true; }
+      } else if (comp.content != null && matchClaim(JSON.stringify(comp.content), f.claim) !== null) {
+        unremovable = true; // structured content we cannot safely edit: same treatment as a title
       }
     }
-    if (hit) {
-      for (const slide of targets) {
-        if (slide.speaker_notes) slide.speaker_notes = redactText(slide.speaker_notes, f.claim, true).text;
-      }
+    if (slide.speaker_notes) {
+      const r = redactText(slide.speaker_notes, f.claim);
+      if (r.ambiguous) unremovable = true;
+      else if (r.removed.length) { slide.speaker_notes = r.text; hit = true; }
     }
-    for (const slide of targets) {
-      slide.components = slide.components.filter((c) => typeof c.content !== "string" || c.content.trim() !== "");
+    // Speaker notes often echo a figure ("lead with the 40%") without
+    // restating the claim. Once the claim is removed from the body, drop note
+    // sentences repeating one of its unit-bearing figures (40%, $2m, 3x);
+    // plain numbers are too common to act on.
+    const echoed = removedFigures.filter(hasUnit);
+    if (hit && echoed.length && slide.speaker_notes) {
+      slide.speaker_notes = splitSentences(slide.speaker_notes)
+        .filter((s) => !numericTokens(s).some((t) => echoed.includes(t)))
+        .join("")
+        .trim();
     }
+    slide.components = slide.components.filter((c) => typeof c.content !== "string" || c.content.trim() !== "");
+
     if (hit && !unremovable) removed.push(f.claim);
     else unresolved.push(f.claim);
+    if (hit && hadBody && bodyText(slide).length === 0) {
+      unresolved.push(`Slide ${f.slide_index! + 1} has no content left after removing unsupported claims`);
+    }
   }
 
   let status: VerificationResult["status"];
@@ -608,7 +682,7 @@ Return JSON:
     needs_review: verification.unresolved_claims.length
       ? verification.unresolved_claims.map((c) => `Unsupported claim left in draft: ${c}`)
       : ["Validator marked the draft ungrounded without naming the claims"],
-    unverified: ["Validator output could not be read, so no claim in this draft is verified"],
+    unverified: ["The validator's output could not be read or checked no claims, so nothing in this draft is verified"],
   };
   return {
     agent: "validation",

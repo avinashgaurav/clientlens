@@ -121,12 +121,90 @@ describe("applyFactCheck (fails closed)", () => {
     expect(slides[0].components[0].content).not.toContain("40%");
   });
 
-  it("drops a component that becomes empty after redaction", () => {
-    const { slides } = applyFactCheck(
+  it("holds the draft for review when redaction empties a slide", () => {
+    const { slides, verification } = applyFactCheck(
       draft,
       check({ claims: [{ slide_index: 1, claim: "encrypted with AES-256 at rest", source_id: null, status: "hallucinated" }] }),
     );
     expect(slides[1].components).toHaveLength(0);
+    expect(verification.status).toBe("needs_review");
+    expect(verification.unresolved_claims).toContain("Slide 2 has no content left after removing unsupported claims");
+  });
+
+  it("does not report verified when the validator itemised no claims", () => {
+    // The draft states "40%", so it needs a human look.
+    expect(applyFactCheck(draft, check({ claims: [] })).verification.status).toBe("needs_review");
+    const plain: SlideContent[] = [{ index: 0, title: "Hello", components: [{ type: "text_block", content: "We listen first." }] }];
+    expect(applyFactCheck(plain, check({ claims: [] })).verification.status).toBe("unverified");
+  });
+
+  it("never sweeps the deck for a claim with no slide index", () => {
+    const { slides, verification } = applyFactCheck(
+      draft,
+      check({ claims: [{ slide_index: null as unknown as number, claim: "Customers cut cloud spend by 40% in 90 days", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("40%");
+  });
+
+  it("treats an out-of-range slide index as unresolved", () => {
+    const { verification } = applyFactCheck(
+      draft,
+      check({ claims: [{ slide_index: 9, claim: "Setup takes one day", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("matches short claims on word boundaries only", () => {
+    const s: SlideContent[] = [
+      { index: 0, title: "t", components: [{ type: "text_block", content: "The CFO said budgets are tight. Plans start monthly." }] },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "AI", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(slides[0].components[0].content).toBe("The CFO said budgets are tight. Plans start monthly.");
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("ignores single-digit numbers when matching a paraphrase", () => {
+    const s: SlideContent[] = [
+      { index: 0, title: "t", components: [{ type: "text_block", content: "We ship 2 releases a month. Onboarding is guided." }] },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "SOC 2 Type II certified", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(slides[0].components[0].content).toContain("We ship 2 releases a month.");
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("treats 1,200 and 1200 as the same figure", () => {
+    const s: SlideContent[] = [
+      { index: 0, title: "t", components: [{ type: "text_block", content: "Trusted by 1,200 teams worldwide. Setup is guided." }] },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "used by 1200 teams", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("redacted");
+    expect(slides[0].components[0].content).toBe("Setup is guided.");
+  });
+
+  it("holds the draft when a paraphrase matches more than one sentence", () => {
+    const s: SlideContent[] = [
+      {
+        index: 0,
+        title: "t",
+        components: [{ type: "text_block", content: "Teams save 40% on spend. Spend drops 40% in the first quarter. Setup is guided." }],
+      },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "a 40% reduction in spend", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("40%");
   });
 
   it("holds the draft for review when a flagged claim cannot be located", () => {

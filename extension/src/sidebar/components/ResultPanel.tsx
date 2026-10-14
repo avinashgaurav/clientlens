@@ -77,9 +77,10 @@ export function ResultPanel({ result }: Props) {
 
   const verification = result.metadata.verification;
   const allAgentsPassed = verification.status === "verified" && result.agents.every((a) => a.status === "pass");
-  // A draft held for review still contains claims the validator rejected, so
-  // it can be read and copied for editing, but not written to a doc as-is.
-  const writeBlocked = verification.status === "needs_review";
+  // Only a draft the validator cleared, or cleaned, can be written to a doc.
+  // A draft held for review or not verified can be read and copied for
+  // editing, but not written as-is.
+  const writeBlocked = verification.status !== "verified" && verification.status !== "redacted";
 
   return (
     <div className="bg-slate-900 rounded-xl border border-emerald-500/30 p-3 space-y-3">
@@ -201,7 +202,7 @@ export function ResultPanel({ result }: Props) {
               <button
                 onClick={handleWrite}
                 disabled={writing || writeBlocked}
-                title={writeBlocked ? "Resolve the flagged claims before writing this draft to a doc" : undefined}
+                title={writeBlocked ? "This draft is not verified. Copy the text and edit it instead." : undefined}
                 className={`flex items-center justify-center gap-1.5 py-2 text-white rounded-lg text-xs transition-colors ${
                   writeConfirm
                     ? "bg-amber-600 hover:bg-amber-500 border border-amber-500"
@@ -233,11 +234,11 @@ const VERIFICATION_COPY: Record<Exclude<VerificationResult["status"], "verified"
   },
   needs_review: {
     tone: "border-red-700/50 bg-red-900/30 text-red-300",
-    text: "Needs review. The validator flagged claims it could not remove from the draft. Edit or drop them before using it:",
+    text: "Needs review. These could not be resolved automatically, so the draft cannot be written to a doc. Copy it and fix them first:",
   },
   unverified: {
     tone: "border-yellow-700/50 bg-yellow-900/30 text-yellow-300",
-    text: "Not verified. The fact check could not be read, so no claim in this draft has been checked against your KB. It was not written to your doc.",
+    text: "Not verified. The fact check could not be read or checked no claims, so nothing in this draft is confirmed against your KB. It cannot be written to a doc; copy it and check it yourself.",
   },
 };
 
