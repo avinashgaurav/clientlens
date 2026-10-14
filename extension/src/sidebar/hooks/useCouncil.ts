@@ -70,7 +70,7 @@ export function useCouncil() {
           try {
             const writeRes = await chrome.runtime.sendMessage({
               type: "WRITE_TO_DOC",
-              payload: { slides: event.pipeline.final_output.slides },
+              payload: { slides: event.pipeline.final_output.slides, verification: verification.status },
             });
             if (writeRes && !writeRes.success) {
               setError(`Auto-write skipped: ${writeRes.error}`);

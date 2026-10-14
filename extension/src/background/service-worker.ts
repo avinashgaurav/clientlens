@@ -1,5 +1,6 @@
-import type { ExtensionMessage, SlideContent, TranscriptSegment } from "../shared/types";
+import type { ExtensionMessage, TranscriptSegment } from "../shared/types";
 import { writeToDoc, undoWrite } from "./google-writer";
+import { checkWritePayload } from "../shared/utils/write-gate";
 import { startAudioForSession, stopAudio } from "../meeting-copilot/audio-controller";
 import { startBgOrchestrator, stopBgOrchestrator, bgAppendTranscript } from "./bg-orchestrator";
 
@@ -344,14 +345,19 @@ async function handleWriteToDoc(
   payload: unknown,
   sendResponse: (r: unknown) => void,
 ) {
+  // Enforce the fact-check gate here too, not only in the sidebar.
+  const gate = checkWritePayload(payload);
+  if (!gate.ok) {
+    sendResponse({ success: false, error: gate.error });
+    return;
+  }
   try {
     // `lastFocusedWindow: true` finds the active tab in the last focused
     // browser window. `currentWindow: true` from a service worker resolves
     // to the side-panel window, which never contains a Slides/Docs tab.
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     const url = tab?.url ?? "";
-    const slides = (payload as { slides?: SlideContent[] })?.slides ?? [];
-    const result = await writeToDoc({ url, slides });
+    const result = await writeToDoc({ url, slides: gate.slides });
     sendResponse(result);
   } catch (err) {
     sendResponse({ success: false, error: err instanceof Error ? err.message : String(err) });

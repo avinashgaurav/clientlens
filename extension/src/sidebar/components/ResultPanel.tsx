@@ -45,7 +45,7 @@ export function ResultPanel({ result }: Props) {
     try {
       const res: WriteResponse = await chrome.runtime.sendMessage({
         type: "WRITE_TO_DOC",
-        payload: { slides: result.final_output.slides },
+        payload: { slides: result.final_output.slides, verification: result.metadata.verification.status },
       });
       setWriteStatus(res);
     } catch (err) {
@@ -245,12 +245,13 @@ const VERIFICATION_COPY: Record<Exclude<VerificationResult["status"], "verified"
 function VerificationBanner({ verification }: { verification: VerificationResult }) {
   if (verification.status === "verified") return null;
   const copy = VERIFICATION_COPY[verification.status];
-  const claims =
+  const claims = (
     verification.status === "redacted"
       ? verification.removed_claims
       : verification.status === "needs_review"
-      ? verification.unresolved_claims
-      : [];
+      ? [...verification.unresolved_claims, ...(verification.review_notes ?? [])]
+      : []
+  ).filter((c) => c.trim() !== "");
   return (
     <div className={`text-xs rounded-lg px-3 py-2 border space-y-1 ${copy.tone}`}>
       <div className="flex items-start gap-1.5">
