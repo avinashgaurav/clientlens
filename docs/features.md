@@ -8,7 +8,7 @@ Every surface, in full. For the short version see the [README](../README.md).
 
 A multi-agent pipeline that turns "company name + ICP" into a structured pitch.
 
-- **Page-context capture**: the content script reads the current tab (LinkedIn profile, company website, press release) and extracts company name, role hints, and industry signals.
+- **Page-context capture**: the background service worker reads the current tab (LinkedIn profile, company website, press release) and extracts company name, role hints, and industry signals.
 - **ICP selector**: pick the persona you're pitching to: CFO, CTO, VP Sales, RevOps, or generic. Each profile drives a different tone, ROI framing, and feature emphasis.
 - **Personalization form**: manual overrides for company name, contact, industry, key pain points, custom notes. Everything is editable before generation.
 - **Council pipeline** runs four agents in sequence:

@@ -374,6 +374,33 @@ describe("applyFactCheck (fails closed)", () => {
     expect(slides[0].components[0].content).toContain(restated);
   });
 
+  it.each([
+    ["Acme cut costs 40% on AWS", "We run on AWS."],
+    ["Acme cut costs 40% on AWS", "Acme is a FinOps platform."],
+    ["Cloud costs fell 40% this year", "Cloud bills are complex."],
+  ])("keeps %j redacted next to an unrelated sentence", (claim, unrelated) => {
+    const { slides, verification } = applyFactCheck(one(`${claim}.\n${unrelated}`), flag(claim));
+    expect(verification.status).toBe("redacted");
+    expect(verification.removed_claims).toEqual([claim]);
+    expect(slides[0].components[0].content).toBe(unrelated);
+  });
+
+  it("holds a claim whose name and keyword survive together", () => {
+    const { verification } = applyFactCheck(
+      one("Teams at Northwind halved their cloud spend last year.\nNorthwind spend is now audited monthly."),
+      flag("Teams at Northwind halved their cloud spend last year"),
+    );
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("ignores a name that is also in the slide title", () => {
+    const { verification } = applyFactCheck(
+      one("Teams at Northwind halved their cloud spend last year.\nNorthwind spend is now audited monthly.", undefined, "Why Northwind"),
+      flag("Teams at Northwind halved their cloud spend last year"),
+    );
+    expect(verification.status).toBe("redacted");
+  });
+
   it("describes a blank flagged claim instead of listing an empty string", () => {
     const { verification } = applyFactCheck(
       draft,

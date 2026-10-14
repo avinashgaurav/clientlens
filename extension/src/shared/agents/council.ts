@@ -530,42 +530,73 @@ const componentHasContent = (content: unknown): boolean => {
 /** A slide still has content if any component carries text or structured data. */
 const hasContent = (slide: SlideContent) => slide.components.some((c) => componentHasContent(c.content));
 
-// Capitalised words that open a sentence without naming anything.
-const GENERIC_STARTERS = new Set([
-  "a", "an", "the", "we", "our", "you", "your", "it", "its", "this", "that", "these", "those", "they", "their",
-  "customers", "teams", "users", "companies", "clients", "most", "all", "every", "each", "in", "on", "with",
-  "for", "by", "after", "within", "over", "up", "save", "cut", "reduce", "reduces",
-]);
+const WORD = /[A-Za-z][A-Za-z0-9&]*/g;
+
+// "SOC 2", "ISO 27001", "PCI DSS 4": an acronym followed by a number names a
+// standard as firmly as "40%" names a figure.
+const acronymFigures = (s: string) =>
+  [...s.matchAll(/\b([A-Z]{2,})\s?(\d+(?:\.\d+)?)\b/g)].map((m) => `${m[1].toLowerCase()} ${m[2]}`);
 
 /**
- * The parts of a claim that identify it even when reworded: figures with a
- * unit or magnitude ("40%", "$2m", "3x"), acronyms ("SOC", "AWS") and
- * capitalised names ("Acme"). Used only to decide whether a claim survives
- * a removal, never to choose what to delete.
+ * The parts of a claim that identify it even when reworded. Used only to
+ * decide whether a claim survives a removal, never to choose what to delete.
+ *  - figures: a figure with a unit or magnitude ("40%", "$2m", "3x") or an
+ *             acronym with a number ("soc 2")
+ *  - names:   an all-caps acronym ("AWS"), or a capitalised word that does
+ *             not open its sentence ("Acme" in "Teams at Acme saved 40%").
+ *             An opener ("Cloud costs fell") is just capitalised.
+ *  - words:   the claim's other keywords, for corroborating a name
  */
-function salientTokens(claim: string): { figures: string[]; names: string[] } {
-  const figures = numericTokens(claim).filter(hasUnit);
-  const names = (claim.match(/[A-Za-z][A-Za-z0-9&]*/g) ?? []).filter(
-    (w) => /^[A-Z]{2,}[0-9]*$/.test(w) || (/^[A-Z]/.test(w) && !GENERIC_STARTERS.has(w.toLowerCase())),
-  );
-  return { figures, names };
+function salientTokens(claim: string): { figures: string[]; names: string[]; words: string[] } {
+  const figures = [...numericTokens(claim).filter(hasUnit), ...acronymFigures(claim)];
+  const names = new Set<string>();
+  for (const sentence of splitSentences(claim)) {
+    (sentence.match(WORD) ?? []).forEach((w, i) => {
+      if (/^[A-Z]{2,}[0-9]*$/.test(w) || (i > 0 && /^[A-Z]/.test(w))) names.add(w);
+    });
+  }
+  const lowerNames = new Set([...names].map((n) => n.toLowerCase()));
+  const words = keywords(claim).filter((w) => !lowerNames.has(w));
+  return { figures, names: [...names], words };
 }
 
 /**
- * Whether anything identifying `claim` is still on the slide (body or notes)
- * after its sentence was removed. A reworded restatement ("Spend dropped 40%
- * for customers") is often too loose for matchClaim, so this checks the
- * claim's salient tokens instead. Erring towards true only costs a review.
+ * Whether the claim is still on the slide (body or notes) after its sentence
+ * was removed. A reworded restatement ("Spend dropped 40% for customers") is
+ * often too loose for matchClaim, so this looks for the claim's salient
+ * tokens. It survives if:
+ *  - a figure from the claim is still there; or
+ *  - one remaining sentence has a claim name plus another claim keyword, or
+ *    two distinct claim names.
+ * A name alone is only corroboration: "We run on AWS" next to a removed AWS
+ * claim is not a restatement. Names in the title, or in remaining sentences
+ * that share nothing else with the claim, are the slide's subject rather
+ * than evidence, so they are ignored.
  */
 function claimSurvives(slide: SlideContent, claim: string): boolean {
-  const { figures, names } = salientTokens(claim);
-  if (!figures.length && !names.length) return false;
-  const remaining = [...slide.components.map((c) => (typeof c.content === "string" ? c.content : "")), slide.speaker_notes ?? ""]
-    .join("\n");
-  const remainingFigures = numericTokens(remaining);
+  const { figures, names, words } = salientTokens(claim);
+  const sentences = [...slide.components.map((c) => (typeof c.content === "string" ? c.content : "")), slide.speaker_notes ?? ""]
+    .flatMap(splitSentences)
+    .filter((x) => x.trim() !== "");
+  const remaining = sentences.join("\n");
+  const remainingFigures = [...numericTokens(remaining), ...acronymFigures(remaining)];
   if (figures.some((f) => remainingFigures.includes(f))) return true;
-  const words = new Set(remaining.match(/[A-Za-z][A-Za-z0-9&]*/g) ?? []);
-  return names.some((n) => words.has(n));
+  if (!names.length) return false;
+
+  const facts = sentences.map((x) => {
+    const tokens = new Set(x.match(WORD) ?? []);
+    const kw = new Set(keywords(x));
+    return { names: names.filter((n) => tokens.has(n)), corroborated: words.some((w) => kw.has(w)) };
+  });
+  const titleWords = new Set((slide.title ?? "").match(WORD) ?? []);
+  const background = new Set([
+    ...names.filter((n) => titleWords.has(n)),
+    ...facts.filter((f) => !f.corroborated && f.names.length === 1).flatMap((f) => f.names),
+  ]);
+  return facts.some((f) => {
+    const own = f.names.filter((n) => !background.has(n));
+    return (own.length >= 1 && f.corroborated) || own.length >= 2;
+  });
 }
 
 const bodyText = (slide: SlideContent) =>
