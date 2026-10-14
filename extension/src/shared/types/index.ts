@@ -378,7 +378,6 @@ export type ExtensionMessageType =
   | "PAGE_CONTEXT_RESULT"
   | "GET_DOCUMENT_STATE"
   | "DOCUMENT_STATE_RESULT"
-  | "INSERT_CONTENT"
   | "WRITE_TO_DOC"
   | "UNDO_WRITE"
   | "OPEN_SIDEBAR"

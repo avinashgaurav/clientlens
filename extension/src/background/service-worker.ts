@@ -1,6 +1,6 @@
 import type { ExtensionMessage, TranscriptSegment } from "../shared/types";
 import { writeToDoc, undoWrite } from "./google-writer";
-import { checkWritePayload } from "../shared/utils/write-gate";
+import { checkWritePayload, isTrustedSender } from "../shared/utils/write-gate";
 import { startAudioForSession, stopAudio } from "../meeting-copilot/audio-controller";
 import { startBgOrchestrator, stopBgOrchestrator, bgAppendTranscript } from "./bg-orchestrator";
 
@@ -71,11 +71,14 @@ chrome.runtime.onMessage.addListener(
         handleGetDocumentState(sender.tab?.id, sendResponse);
         return true;
 
-      case "INSERT_CONTENT":
-        handleInsertContent(message.payload, sender.tab?.id, sendResponse);
-        return true;
-
       case "WRITE_TO_DOC":
+        // Only the extension's own pages (the sidebar) may write to a doc.
+        // A content script has `sender.tab` set, the same rule as
+        // FETCH_URL_TEXT below.
+        if (!isTrustedSender(sender, chrome.runtime.id)) {
+          sendResponse({ success: false, error: "untrusted sender" });
+          return false;
+        }
         handleWriteToDoc(message.payload, sendResponse);
         return true;
 
@@ -253,27 +256,6 @@ async function handleGetDocumentState(
   }
 }
 
-async function handleInsertContent(
-  payload: unknown,
-  tabId: number | undefined,
-  sendResponse: (r: unknown) => void
-) {
-  if (!tabId) {
-    sendResponse({ error: "No active tab" });
-    return;
-  }
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      func: insertContentIntoDoc,
-      args: [payload],
-    });
-    sendResponse({ success: true });
-  } catch (err) {
-    sendResponse({ error: String(err) });
-  }
-}
-
 // Injected into the page, no closure access
 function extractPageContext() {
   const url = window.location.href;
@@ -327,11 +309,6 @@ function extractDocumentState(docType: string) {
   }
 
   return { doc_type: "unknown", url: window.location.href };
-}
-
-function insertContentIntoDoc(payload: unknown) {
-  // Dispatches a custom event that the content script listens to
-  window.dispatchEvent(new CustomEvent("CLIENTLENS_INSERT", { detail: payload }));
 }
 
 function detectDocType(url: string): string {

@@ -485,7 +485,9 @@ type Match = "exact" | "numeric" | null;
  *  - "exact":   the claim's words appear in the sentence as a whole phrase
  *  - "numeric": the validator paraphrased, but the sentence states every
  *               figure in the claim, and either there are at least two
- *               figures or the sentence also shares a keyword with the claim
+ *               figures or the sentence shares most (over half) of the
+ *               claim's keywords. One figure plus one shared word is too
+ *               weak to delete on, so it is not a match and goes to review.
  */
 function matchClaim(sentence: string, claim: string): Match {
   const ns = normalize(sentence);
@@ -498,23 +500,45 @@ function matchClaim(sentence: string, claim: string): Match {
   if (!nums.every((n) => sentNums.includes(n))) return null;
   if (nums.length >= 2) return "numeric";
   const sentWords = new Set(keywords(sentence));
-  return keywords(claim).some((w) => sentWords.has(w)) ? "numeric" : null;
+  const claimWords = keywords(claim);
+  const shared = claimWords.filter((w) => sentWords.has(w)).length;
+  return claimWords.length > 0 && shared * 2 > claimWords.length ? "numeric" : null;
 }
 
 /**
  * Whether an exact-phrase match is specific enough to delete on its own: at
- * least four words, or a figure. "Acme" or "our platform" also appear in
- * sentences that are fine, so a bare name never drives a deletion.
+ * least four words, a figure with a unit or magnitude ("40%", "$2m", "3x"),
+ * or three or more words alongside a digit. "Acme", "SOC 2" or "Q3" also
+ * appear in sentences that are fine, so they never drive a deletion.
  */
-const specificEnough = (claim: string) =>
-  normalize(claim).split(" ").filter(Boolean).length >= 4 || numericTokens(claim).length > 0;
+const specificEnough = (claim: string) => {
+  const words = normalize(claim).split(" ").filter(Boolean).length;
+  return words >= 4 || numericTokens(claim).some(hasUnit) || (words >= 3 && /\d/.test(claim));
+};
+
+/** Text, or structured data that is not an empty array or object. */
+const componentHasContent = (content: unknown): boolean => {
+  if (typeof content === "string") return content.trim() !== "";
+  if (content == null) return false;
+  if (Array.isArray(content)) return content.length > 0;
+  if (typeof content === "object") return Object.keys(content).length > 0;
+  return true;
+};
 
 /** A slide still has content if any component carries text or structured data. */
-const hasContent = (slide: SlideContent) =>
-  slide.components.some((c) => (typeof c.content === "string" ? c.content.trim() !== "" : c.content != null));
+const hasContent = (slide: SlideContent) => slide.components.some((c) => componentHasContent(c.content));
+
+/** Whether any sentence left in the slide's body or notes still states `claim`. */
+const stillStated = (slide: SlideContent, claim: string) =>
+  [...slide.components.map((c) => (typeof c.content === "string" ? c.content : "")), slide.speaker_notes ?? ""]
+    .flatMap(splitSentences)
+    .some((s) => matchClaim(s, claim) !== null);
 
 const bodyText = (slide: SlideContent) =>
   slide.components.map((c) => (typeof c.content === "string" ? c.content : "")).join(" ").trim();
+
+/** How an echoed speaker note is listed in `removed_claims`. */
+export const REMOVED_NOTE_PREFIX = "Removed speaker note: ";
 
 // One editable run of text on a slide: a string component or the notes.
 type Slot = { sentences: string[]; matches: Match[]; set: (text: string) => void };
@@ -549,10 +573,12 @@ function redactSlide(
   }
 
   const count = (kind: Match) => slots.reduce((n, s) => n + s.matches.filter((m) => m === kind).length, 0);
-  const exact = count("exact");
-  const kind: Match = exact > 0 ? "exact" : count("numeric") > 0 ? "numeric" : null;
+  const kind: Match = count("exact") > 0 ? "exact" : count("numeric") > 0 ? "numeric" : null;
   if (!kind) return { outcome: unremovable ? "unresolved" : "not_found", removed: [] };
-  if (unremovable || count(kind) !== 1 || (kind === "exact" && !specificEnough(claim))) {
+  // An exact sentence plus a paraphrase elsewhere is the claim made twice:
+  // ambiguous, like two exact hits.
+  const total = count("exact") + count("numeric");
+  if (unremovable || total !== 1 || (kind === "exact" && !specificEnough(claim))) {
     return { outcome: "unresolved", removed: [] };
   }
 
@@ -634,6 +660,9 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
   const removed: string[] = [];
   const unresolved: string[] = [];
   const notes: string[] = [];
+  // Sentences removed so far, per slide. When two flagged claims sit in one
+  // sentence, the first removal takes the second claim with it.
+  const gone = new Map<SlideContent, string[]>();
 
   for (const f of flagged) {
     // A flagged claim with no text cannot be located, and an empty bullet
@@ -653,22 +682,39 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
 
     const hadContent = hasContent(slide);
     const r = redactSlide(slide, f.claim);
+    const goneHere = gone.get(slide) ?? [];
+    gone.set(slide, goneHere);
+    if (r.outcome === "not_found" && goneHere.some((s) => matchClaim(s, f.claim) !== null)) {
+      removed.push(f.claim);
+      continue;
+    }
     if (r.outcome !== "removed") { unresolved.push(f.claim); continue; }
-    removed.push(f.claim);
+    goneHere.push(...r.removed);
 
     // Speaker notes often echo a figure ("lead with the 40%") without
     // restating the claim. Once the claim is removed, drop note sentences
     // repeating one of its unit-bearing figures (40%, $2m, 3x), and list
     // each so the rep sees it; plain numbers are too common to act on.
     const echoed = r.removed.flatMap(numericTokens).filter(hasUnit);
+    const echoedNotes: string[] = [];
     if (echoed.length && slide.speaker_notes) {
       const kept: string[] = [];
       for (const s of splitSentences(slide.speaker_notes)) {
-        if (numericTokens(s).some((t) => echoed.includes(t))) removed.push(`Speaker note: ${s.trim()}`);
-        else kept.push(s);
+        if (numericTokens(s).some((t) => echoed.includes(t))) {
+          echoedNotes.push(`${REMOVED_NOTE_PREFIX}${s.trim()}`);
+          goneHere.push(s);
+        } else kept.push(s);
       }
       slide.speaker_notes = rejoin(kept);
     }
+
+    // A paraphrase elsewhere on the slide ("cut spend 40% within 90 days"
+    // after the exact sentence is gone) means the claim is still in the
+    // draft, so it is not "redacted": hold it for review.
+    if (stillStated(slide, f.claim)) unresolved.push(f.claim);
+    else removed.push(f.claim);
+    removed.push(...echoedNotes);
+
     slide.components = slide.components.filter((c) => typeof c.content !== "string" || c.content.trim() !== "");
 
     if (hadContent && !hasContent(slide)) {
@@ -727,7 +773,9 @@ Return JSON:
 
   const issues: Record<VerificationResult["status"], string[]> = {
     verified: [],
-    redacted: verification.removed_claims.map((c) => `Removed unsupported claim: ${c}`),
+    redacted: verification.removed_claims.map((c) =>
+      c.startsWith(REMOVED_NOTE_PREFIX) ? c : `Removed unsupported claim: ${c}`,
+    ),
     needs_review:
       verification.unresolved_claims.length || verification.review_notes.length
         ? [
