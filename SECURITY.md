@@ -4,7 +4,8 @@
 
 **Authentication is not wired in v1.0.** The sidebar provisions a local admin and
 the backend runs with `DEV_MODE=true`, so any request that reaches the backend is
-treated as an authenticated admin request.
+accepted as an authenticated stub user (role `sales_rep`, which keeps the
+`/admin/*` routes out of reach).
 
 **Keep the backend off the public internet.** Bind it to localhost, or put it
 behind something that authenticates for it. That is fine for the single-user,
@@ -26,7 +27,7 @@ There is one maintainer, so expect best effort rather than an SLA.
 ## Reporting a vulnerability
 
 **Do not open a public issue.** Use a
-[private security advisory](https://github.com/avinashgaurav/project-wingman/security/advisories/new),
+[private security advisory](https://github.com/avinashgaurav/project-wingman-ClientLens/security/advisories/new),
 which lets us discuss the problem before there is a fix to point at.
 
 Useful things to include: what you did, what happened, the version or commit, and
@@ -52,5 +53,7 @@ Out of scope, because they are known and documented rather than undiscovered:
 ## What this project does not do with your data
 
 There is no hosted service and no telemetry endpoint. Call audio, transcripts,
-knowledge base contents and provider keys stay on infrastructure you control. The
-extension never holds a provider key; the backend proxies to your chosen LLM.
+knowledge base contents and provider keys stay on infrastructure you control. Anthropic,
+Gemini, Groq and OpenRouter keys stay in `backend/.env` and the backend proxies
+those calls. A custom OpenAI-compatible or Ollama endpoint is called directly
+from the extension with the key you enter in Settings.

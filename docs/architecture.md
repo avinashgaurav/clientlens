@@ -50,7 +50,7 @@ How the pieces fit together, and where everything lives on disk.
 ## Project structure
 
 ```
-project-wingman/
+project-wingman-ClientLens/
 ├── extension/                          # Chrome Extension (React + TS + Vite)
 │   ├── manifest.json                   # MV3 manifest
 │   ├── vite.config.ts                  # Build + dev-only localhost injection
@@ -89,8 +89,8 @@ project-wingman/
 │   │   └── middleware/                 # JWT auth middleware
 │   ├── db/
 │   │   ├── supabase_client.py
-│   │   └── migrations/                 # 001_initial, 002_llm_usage
-│   └── scripts/                        # test_openrouter, run_tests.sh
+│   │   └── migrations/                 # 001_initial, 002_llm_usage, 003_tighten_rls
+│   └── scripts/                        # OpenRouter smoke tests (live key needed)
 │
 ├── landing/                            # Static site, published to GitHub Pages
 │   ├── index.html                      # Deployed from the gh-pages branch, not

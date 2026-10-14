@@ -8,15 +8,15 @@ You do not need to write code to help. In rough order of value:
 
 1. **Run it and tell me where it broke.** The setup path (self-hosted backend, your own keys) is the least-tested part of this project because it mostly gets exercised on one machine. If step 3 of the Quick Start fails on your setup, that is a real bug and I want the issue.
 2. **Tell me what a rep would actually want.** Sales workflow feedback beats code. If the live-mode coaching cues fire at the wrong moment, say so.
-3. **Pick something off the backlog.** [Issue #113](https://github.com/avinashgaurav/project-wingman/issues/113) is the workflow and UX audit backlog, with acceptance criteria. Items are largely independent, so pick any of them in any order.
+3. **Pick something off the backlog.** [Issue #113](https://github.com/avinashgaurav/project-wingman-ClientLens/issues/113) is the workflow and UX audit backlog, with acceptance criteria. Items are largely independent, so pick any of them in any order.
 
 ## Local setup
 
 Prerequisites: Node 20+, npm 10+, Python 3.11+, a Supabase project (free tier is fine), and at least one LLM provider key. Gemini Flash has a generous free tier.
 
 ```bash
-git clone https://github.com/avinashgaurav/project-wingman.git
-cd project-wingman
+git clone https://github.com/avinashgaurav/project-wingman-ClientLens.git
+cd project-wingman-ClientLens
 
 bash scripts/setup_env.sh          # writes backend/.env and extension/.env
 
@@ -31,7 +31,7 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on.
 
 Two things that trip people up:
 
-- **Do not hand-edit `extension/manifest.json`.** It is a template. `vite.config.ts` injects `oauth2.client_id` from `VITE_GOOGLE_CLIENT_ID` and your backend host from `VITE_BACKEND_URL` at build time. If Google sign-in fails, check `extension/dist/manifest.json` for a real client ID first.
+- **Do not hand-edit `extension/manifest.json`.** It is a template. `vite.config.ts` injects `oauth2.client_id` from `VITE_GOOGLE_CLIENT_ID` and your backend host from `VITE_BACKEND_URL` at build time. If Google Slides/Docs export or Calendar sync fails, check `extension/dist/manifest.json` for a real client ID first.
 - **`npm run dev` is not a release build.** It injects `localhost` host permissions on purpose. Use `npm run build` for anything you would actually ship, and note that it refuses a `localhost` backend, so it will fail on a normal local setup. That is deliberate, not a broken build.
 
 You can develop most of the UI without burning LLM credits by setting `VITE_MOCK_MODE=true`. Note the caveat in the README: mock mode still routes through the backend's own mock branch, so the backend needs to be running.
@@ -49,7 +49,7 @@ npm run dev             # watch build; does not exit, Ctrl-C when dist/ is writt
 cd .. && bash scripts/lint-manifest.sh
 ```
 
-For backend changes:
+For backend changes there are no unit tests yet. `backend/scripts/run_tests.sh` runs OpenRouter smoke tests and needs a live key:
 
 ```bash
 bash backend/scripts/run_tests.sh
@@ -65,7 +65,7 @@ bash backend/scripts/run_tests.sh
 
 ## Security issues
 
-Do not open a public issue for a vulnerability. This project handles OAuth tokens, call transcripts, and an org-wide knowledge base. Email the maintainer or open a [private security advisory](https://github.com/avinashgaurav/project-wingman/security/advisories/new) instead.
+Do not open a public issue for a vulnerability. This project handles OAuth tokens, call transcripts, and an org-wide knowledge base. Email the maintainer or open a [private security advisory](https://github.com/avinashgaurav/project-wingman-ClientLens/security/advisories/new) instead.
 
 ## What I will probably say no to
 

@@ -6,7 +6,7 @@ Read this before you deploy anything. The most important section is the first on
 
 The product handles OAuth tokens, transcripts, and an org-wide KB, security posture matters.
 
-- **No LLM keys in the browser.** All provider keys live in `backend/.env`. The extension calls `/api/v1/llm/*`; the backend proxies. Switching providers is a backend config change, not an extension release.
+- **Hosted-provider keys stay on the backend.** Anthropic, Gemini, Groq and OpenRouter keys live in `backend/.env`; the extension calls `/api/v1/llm/*` and the backend proxies. The exception is a custom OpenAI-compatible endpoint or Ollama: those are called directly from the extension, so their key is stored in the extension's settings (and a `VITE_GROQ_PRESET_KEY` set at build time is baked into the bundle as the custom provider's default key). Leave that variable blank for any build you share.
 - **No `<all_urls>`.** `content_scripts` inject into exactly one origin: `meet.google.com`. `lint-manifest.sh` enforces the absence of `<all_urls>` in both the template and the built manifest.
 - **`host_permissions` are enumerated, not wildcarded**, but the list is wider than the content-script list because the extension calls these hosts directly. Current groups, and why each is there:
   - **Product surfaces the extension reads or writes:** `docs.google.com`, `slides.google.com`, `www.notion.so`, `meet.google.com`.

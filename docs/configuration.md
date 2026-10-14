@@ -35,7 +35,7 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `DEEPGRAM_API_KEY` | Deepgram STT key | If using live mode |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | **Currently unused.** Defined in `config.py` but read by no backend code. Google auth is entirely client-side via `chrome.identity.getAuthToken`, which reads the manifest's `oauth2.client_id` (set `VITE_GOOGLE_CLIENT_ID` instead). Reserved for a future server-side flow | No |
 | `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` | Zoho OAuth | If using CRM push |
-| `DEV_MODE` | Must be `true` in v1.0. `AuthMiddleware` then accepts every request as a stub admin. Required because no code path creates a Supabase session. Keep such a backend off the public internet | Yes |
+| `DEV_MODE` | Must be `true` in v1.0. `AuthMiddleware` then accepts every request as a stub `sales_rep` user. Required because no code path creates a Supabase session. Keep such a backend off the public internet | Yes |
 | `BACKEND_URL` | Self URL (used in OAuth callbacks) | Yes |
 | `ALLOWED_ORIGINS` | CORS allowlist (extension + dev origins) | Yes |
 | `DAILY_USER_TOKEN_BUDGET` | Per-user daily LLM token cap (default `1000000`) | Optional |
