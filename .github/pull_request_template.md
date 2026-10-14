@@ -17,6 +17,7 @@ sentiment updated" is worth more than a green type-check.
 
 - [ ] `npm run type-check` passes
 - [ ] `npm run lint` passes
+- [ ] `npm test` passes
 - [ ] `npm run build` passes (production bundle, fails on unresolved manifest placeholders)
 - [ ] `bash scripts/lint-manifest.sh` reports clean
 - [ ] Manually exercised the surface I changed, in Chrome

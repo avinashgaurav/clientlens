@@ -132,10 +132,6 @@ OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
 OPENROUTER_REFERER=https://project-wingman.example.com
 OPENROUTER_TITLE=Project Wingman
 
-# ── Pinecone: intentionally empty (init skipped, embeddings stubbed) ─────────
-PINECONE_API_KEY=
-PINECONE_INDEX=clientlens
-
 # ── Google OAuth (currently UNUSED by the backend) ────────────────────────────
 # These two settings exist in config.py but are read by no backend code. All
 # Google auth is client-side: Slides/Docs/Drive export and Calendar sync call

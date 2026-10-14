@@ -32,8 +32,6 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `OPENROUTER_API_KEY` | OpenRouter key | If used |
 | `OPENROUTER_REFERER` | URL shown on openrouter.ai/activity | Optional |
 | `OPENROUTER_TITLE` | App attribution title | Optional |
-| `PINECONE_API_KEY` | Pinecone key | If using Pinecone |
-| `PINECONE_INDEX` | Index name (defaults to `clientlens`) | If using Pinecone |
 | `DEEPGRAM_API_KEY` | Deepgram STT key | If using live mode |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | **Currently unused.** Defined in `config.py` but read by no backend code. Google auth is entirely client-side via `chrome.identity.getAuthToken`, which reads the manifest's `oauth2.client_id` (set `VITE_GOOGLE_CLIENT_ID` instead). Reserved for a future server-side flow | No |
 | `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` | Zoho OAuth | If using CRM push |

@@ -144,7 +144,7 @@ export async function clearAllChunks(): Promise<void> {
 // Brute-force cosine across all chunks. At our scale (200 entries × ~5 chunks
 // × 768 dims) this runs in a few ms in the browser. No ANN index needed.
 
-function cosine(a: number[] | Float32Array, b: number[] | Float32Array): number {
+export function cosine(a: number[] | Float32Array, b: number[] | Float32Array): number {
   let dot = 0, na = 0, nb = 0;
   const len = Math.min(a.length, b.length);
   for (let i = 0; i < len; i++) {
@@ -165,17 +165,14 @@ export interface SearchHit {
   score: number;
 }
 
-/**
- * Search across all stored chunks. Optional `entryIds` restricts the search to
- * a subset (useful when a downstream agent only cares about a namespace).
- */
-export async function searchChunks(
+/** Pure ranking step behind `searchChunks`: score every chunk, best first. */
+export function rankChunks(
+  records: StoredEntryChunks[],
   queryEmbedding: number[],
   topK: number,
   entryIds?: string[],
-): Promise<SearchHit[]> {
-  const all = await getAllEntryChunks();
-  const filtered = entryIds ? all.filter((r) => entryIds.includes(r.entryId)) : all;
+): SearchHit[] {
+  const filtered = entryIds ? records.filter((r) => entryIds.includes(r.entryId)) : records;
 
   const hits: SearchHit[] = [];
   for (const record of filtered) {
@@ -192,4 +189,16 @@ export async function searchChunks(
   }
   hits.sort((a, b) => b.score - a.score);
   return hits.slice(0, topK);
+}
+
+/**
+ * Search across all stored chunks. Optional `entryIds` restricts the search to
+ * a subset (useful when a downstream agent only cares about a namespace).
+ */
+export async function searchChunks(
+  queryEmbedding: number[],
+  topK: number,
+  entryIds?: string[],
+): Promise<SearchHit[]> {
+  return rankChunks(await getAllEntryChunks(), queryEmbedding, topK, entryIds);
 }

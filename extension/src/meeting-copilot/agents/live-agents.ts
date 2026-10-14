@@ -416,8 +416,11 @@ Produce JSON only.`;
 
 // ─── Live Council Validator ────────────────────────────────────────────────
 // Every coach suggestion passes through this before reaching the transponder.
-// Mirrors the post-call council's validation agent: strips hallucinations,
-// flags brand violations, rewrites if grounding exists.
+// Only an explicit "approve" passes the suggestion through unchanged. "revise"
+// replaces it with the validator's rewrite; "reject", a "revise" without a
+// rewrite, an unknown verdict, or unparseable output all drop it. If the
+// validator call itself fails, only low-risk nudges (ask a question, cover an
+// agenda item, sentiment shift) are shown, unvalidated.
 const VALIDATOR_SYSTEM = `You are the live-call council validator. You review a single coach suggestion before it is shown to a salesperson mid-call.
 Return JSON only:
 {
@@ -531,8 +534,20 @@ Review the suggestion. JSON only.`;
   }
 
   let outcome: LiveValidationOutcome;
-  if (parsed.verdict === "reject") {
-    outcome = { verdict: "reject", confidence: parsed.confidence, issues: parsed.issues || [], suggestion: null };
+  const hasRewrite = !!(parsed.revised?.title?.trim() || parsed.revised?.body?.trim());
+  if (parsed.verdict === "revise" && !hasRewrite) {
+    // A "revise" with no rewrite means the validator found a problem and did
+    // not fix it. Showing the original would ship the claim it objected to.
+    outcome = {
+      verdict: "reject",
+      confidence: parsed.confidence,
+      issues: [...(parsed.issues || []), "revise_without_rewrite"],
+      suggestion: null,
+    };
+  } else if (parsed.verdict !== "approve" && parsed.verdict !== "revise") {
+    // "reject" and anything unrecognised both drop the suggestion.
+    const issues = parsed.verdict === "reject" ? parsed.issues || [] : [...(parsed.issues || []), "unknown_verdict"];
+    outcome = { verdict: "reject", confidence: parsed.confidence, issues, suggestion: null };
   } else if (parsed.verdict === "revise" && parsed.revised) {
     outcome = {
       verdict: "revise",

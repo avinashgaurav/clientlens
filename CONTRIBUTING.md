@@ -38,12 +38,13 @@ You can develop most of the UI without burning LLM credits by setting `VITE_MOCK
 
 ## Before you open a PR
 
-Run all four. CI is not going to catch it for you, because there is no CI on this repo yet.
+Run all five. CI runs the same checks on every PR, so running them first saves you a round trip.
 
 ```bash
 cd extension
 npm run type-check      # tsc --noEmit
 npm run lint            # eslint src
+npm test                # vitest unit tests, no LLM calls
 npm run dev             # watch build; does not exit, Ctrl-C when dist/ is written
 cd .. && bash scripts/lint-manifest.sh
 ```

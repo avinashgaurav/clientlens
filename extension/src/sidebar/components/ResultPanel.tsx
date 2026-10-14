@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Copy, ExternalLink, ChevronDown, ChevronUp, ShieldCheck, Undo2, Loader2, Plus, Presentation, FileText, BookOpen, BarChart3, Wand2 } from "lucide-react";
-import type { PipelineResult, PitchFormat, SlideContent } from "../../shared/types";
+import { Copy, ExternalLink, ChevronDown, ChevronUp, ShieldCheck, Undo2, Loader2, Plus, Presentation, FileText, BookOpen, BarChart3, Wand2, AlertTriangle } from "lucide-react";
+import type { PipelineResult, PitchFormat, SlideContent, VerificationResult } from "../../shared/types";
 import { useAppStore } from "../stores/app-store";
 
 interface Props {
@@ -75,7 +75,11 @@ export function ResultPanel({ result }: Props) {
     setFlowStep("form");
   }
 
-  const allAgentsPassed = result.agents.every((a) => a.status !== "fail");
+  const verification = result.metadata.verification;
+  const allAgentsPassed = verification.status === "verified" && result.agents.every((a) => a.status === "pass");
+  // A draft held for review still contains claims the validator rejected, so
+  // it can be read and copied for editing, but not written to a doc as-is.
+  const writeBlocked = verification.status === "needs_review";
 
   return (
     <div className="bg-slate-900 rounded-xl border border-emerald-500/30 p-3 space-y-3">
@@ -116,6 +120,8 @@ export function ResultPanel({ result }: Props) {
         ))}
       </div>
 
+      <VerificationBanner verification={verification} />
+
       {expanded && (
         <>
           {/* Sources used */}
@@ -149,8 +155,12 @@ export function ResultPanel({ result }: Props) {
           <div className="text-xs text-slate-500">
             {result.final_output.slides.length} slide{result.final_output.slides.length !== 1 ? "s" : ""} generated
             {" · "}
-            <span className={result.metadata.hallucination_check === "clean" ? "text-emerald-400" : "text-yellow-400"}>
-              {result.metadata.hallucination_check === "clean" ? "No hallucinations detected" : "Review flagged content"}
+            <span className={verification.status === "verified" ? "text-emerald-400" : "text-yellow-400"}>
+              {verification.total > 0
+                ? `${verification.supported} of ${verification.total} claims traced to a KB source`
+                : verification.status === "unverified"
+                ? "Claims not checked"
+                : "No checkable claims itemised"}
             </span>
           </div>
 
@@ -190,11 +200,12 @@ export function ResultPanel({ result }: Props) {
             ) : (
               <button
                 onClick={handleWrite}
-                disabled={writing}
+                disabled={writing || writeBlocked}
+                title={writeBlocked ? "Resolve the flagged claims before writing this draft to a doc" : undefined}
                 className={`flex items-center justify-center gap-1.5 py-2 text-white rounded-lg text-xs transition-colors ${
                   writeConfirm
                     ? "bg-amber-600 hover:bg-amber-500 border border-amber-500"
-                    : "bg-violet-600 hover:bg-violet-500 disabled:bg-slate-700"
+                    : "bg-violet-600 hover:bg-violet-500 disabled:bg-slate-700 disabled:text-slate-400"
                 }`}
               >
                 {writing ? <Loader2 size={12} className="animate-spin" /> : <ExternalLink size={12} />}
@@ -210,6 +221,50 @@ export function ResultPanel({ result }: Props) {
             <Plus size={12} /> Run again for another target
           </button>
         </>
+      )}
+    </div>
+  );
+}
+
+const VERIFICATION_COPY: Record<Exclude<VerificationResult["status"], "verified">, { tone: string; text: string }> = {
+  redacted: {
+    tone: "border-yellow-700/50 bg-yellow-900/30 text-yellow-300",
+    text: "Removed claims the validator could not trace to a KB source:",
+  },
+  needs_review: {
+    tone: "border-red-700/50 bg-red-900/30 text-red-300",
+    text: "Needs review. The validator flagged claims it could not remove from the draft. Edit or drop them before using it:",
+  },
+  unverified: {
+    tone: "border-yellow-700/50 bg-yellow-900/30 text-yellow-300",
+    text: "Not verified. The fact check could not be read, so no claim in this draft has been checked against your KB. It was not written to your doc.",
+  },
+};
+
+function VerificationBanner({ verification }: { verification: VerificationResult }) {
+  if (verification.status === "verified") return null;
+  const copy = VERIFICATION_COPY[verification.status];
+  const claims =
+    verification.status === "redacted"
+      ? verification.removed_claims
+      : verification.status === "needs_review"
+      ? verification.unresolved_claims
+      : [];
+  return (
+    <div className={`text-xs rounded-lg px-3 py-2 border space-y-1 ${copy.tone}`}>
+      <div className="flex items-start gap-1.5">
+        <AlertTriangle size={12} className="mt-0.5 shrink-0" />
+        <span>{copy.text}</span>
+      </div>
+      {verification.status === "needs_review" && claims.length === 0 && (
+        <div className="pl-5">The validator marked the draft ungrounded without naming the claims.</div>
+      )}
+      {claims.length > 0 && (
+        <ul className="list-disc pl-5 space-y-0.5">
+          {claims.map((c, i) => (
+            <li key={i}>{c}</li>
+          ))}
+        </ul>
       )}
     </div>
   );

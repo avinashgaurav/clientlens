@@ -8,7 +8,7 @@ retrieval per query, and calls OpenRouter with the top-K chunks stuffed into
 the system prompt. Validates that responses reference KB content.
 
 This simulates what `council.ts` does end-to-end, but without needing Supabase,
-Pinecone, Google SSO, or the Chrome extension itself. Pure OpenRouter +
+Google SSO, or the Chrome extension itself. Pure OpenRouter +
 retrieval validation.
 
 Usage:
@@ -18,7 +18,7 @@ Usage:
     # Optional
     export OPENROUTER_MODEL="deepseek/deepseek-chat:free"
     export KB_FEATURES_PATH="path/to/your/FEATURES.md"
-    export KB_RULES_PATH="path/to/your/FAQ.md"
+    export KB_FAQ_PATH="path/to/your/FAQ.md"
 
 Exit codes:
     0, all queries returned valid responses referencing KB content
@@ -42,7 +42,7 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct:free"
 _SAMPLE_KB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sample_kb")
 DEFAULT_FEATURES = os.path.join(_SAMPLE_KB_DIR, "FEATURES.md")
-DEFAULT_RULES = os.path.join(_SAMPLE_KB_DIR, "FAQ.md")
+DEFAULT_FAQ = os.path.join(_SAMPLE_KB_DIR, "FAQ.md")
 
 
 # ── Chunking (mirrors extension/src/shared/utils/chunker.ts) ──────────────────
@@ -290,9 +290,9 @@ def main() -> int:
     referer = os.environ.get("OPENROUTER_REFERER", "https://project-wingman.example.com")
     title = os.environ.get("OPENROUTER_TITLE", "Project Wingman")
     features_path = os.environ.get("KB_FEATURES_PATH", DEFAULT_FEATURES)
-    rules_path = os.environ.get("KB_RULES_PATH", DEFAULT_RULES)
+    faq_path = os.environ.get("KB_FAQ_PATH", DEFAULT_FAQ)
 
-    for path in (features_path, rules_path):
+    for path in (features_path, faq_path):
         if not os.path.exists(path):
             print(f"KB file not found: {path}", file=sys.stderr)
             return 1
@@ -304,7 +304,7 @@ def main() -> int:
     # ── Load + chunk ─────────────────────────────────────────────────────────
     print("\n── Loading KB ──")
     chunks: list[Chunk] = []
-    for path, label in ((features_path, "FEATURES"), (rules_path, "FAQ")):
+    for path, label in ((features_path, "FEATURES"), (faq_path, "FAQ")):
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
         file_chunks = chunk_markdown(label, text)

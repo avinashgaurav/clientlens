@@ -61,7 +61,12 @@ export function useCouncil() {
           setLastResult(event.pipeline);
           setGenerationProgress({ stage: "done", ...STAGE_INFO.done });
           setFlowStep("result");
+          const verification = event.pipeline.metadata.verification;
           notifyIfBackgrounded("Pitch deck ready", `${event.pipeline.final_output.slides.length} slides`, "done");
+          // Only a draft the validator cleared (or cleaned) is written to the
+          // open doc automatically. A draft held for review or not verified
+          // stays in the sidebar, where its banner says why.
+          if (verification.status !== "verified" && verification.status !== "redacted") continue;
           try {
             const writeRes = await chrome.runtime.sendMessage({
               type: "WRITE_TO_DOC",

@@ -62,32 +62,3 @@ async def verify_token(token: str) -> Optional[dict]:
     except Exception:
         return None
 
-
-async def get_design_system() -> Optional[dict]:
-    try:
-        result = (
-            supabase_client()
-            .table("design_systems")
-            .select("*")
-            .order("created_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        return result.data[0] if result.data else None
-    except Exception:
-        return None
-
-
-async def get_brand_voice() -> Optional[dict]:
-    try:
-        result = (
-            supabase_client()
-            .table("brand_voice")
-            .select("*")
-            .order("created_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        return result.data[0] if result.data else None
-    except Exception:
-        return None

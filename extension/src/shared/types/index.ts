@@ -125,7 +125,23 @@ export interface AgentResult {
   status: "pass" | "fail" | "warning";
   output: unknown;
   issues?: string[];
-  confidence: number;
+  /** Only set where it is measured, e.g. the validator's supported/total claim ratio. */
+  confidence?: number;
+}
+
+/**
+ * The pitch council's fact-check outcome.
+ *  - verified:     every itemised claim traced to a KB source
+ *  - redacted:     unsupported claims were found and removed from the draft
+ *  - needs_review: unsupported claims could not be removed; listed for the rep
+ *  - unverified:   the validator's output could not be read; nothing is verified
+ */
+export interface VerificationResult {
+  status: "verified" | "redacted" | "needs_review" | "unverified";
+  supported: number;
+  total: number;
+  removed_claims: string[];
+  unresolved_claims: string[];
 }
 
 export interface PipelineResult {
@@ -139,7 +155,7 @@ export interface PipelineResult {
   metadata: {
     sources_used: string[];
     brand_compliant: boolean;
-    hallucination_check: "clean" | "flagged";
+    verification: VerificationResult;
     generated_at: string;
   };
 }

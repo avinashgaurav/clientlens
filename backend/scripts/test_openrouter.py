@@ -2,7 +2,7 @@
 Standalone smoke test for the OpenRouter proxy integration.
 
 Tests the exact request shape that `backend/api/routes/llm.py` would build,
-hitting the real OpenRouter API directly. Does NOT require Supabase, Pinecone,
+hitting the real OpenRouter API directly. Does NOT require Supabase
 or any other backend dependency.
 
 Usage:

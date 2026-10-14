@@ -31,19 +31,19 @@ How the pieces fit together, and where everything lives on disk.
 │  /api/v1/llm/*       → LLM proxy: complete, stream, embed, health       │
 │  /api/v1/stt/token   → STT key handoff for Deepgram                     │
 │  /api/v1/zoho/*      → Zoho OAuth exchange + refresh                    │
-│  /api/assets/*       → KB file upload, list, delete                     │
+│  /api/assets/*       → KB file storage: upload, list, delete (no index) │
 │  /admin/*            → Brand voice, user list, role editing             │
 │  /health             → Liveness check                                   │
 │                                                                         │
 │  Auth middleware is present but runs with DEV_MODE=true in v1.0.        │
 │  The pitch council (Retrieval → ICP → Brand → Validation) runs in the   │
-│  extension, not here. backend/agents/ is unused legacy (not mounted).   │
+│  extension, not here, and so does KB search (IndexedDB vectors).        │
 └─────────────┬───────────────┬───────────────┬───────────────────────────┘
               ▼               ▼               ▼
        ┌──────────────┐  ┌──────────┐  ┌──────────────┐
-       │   Pinecone   │  │ Supabase │  │   LLM        │
-       │  Vector DB   │  │ Postgres │  │  Providers   │
-       │  (KB index)  │  │  + Auth  │  │  (any)       │
+       │   Supabase   │  │ Supabase │  │   LLM        │
+       │   Storage    │  │ Postgres │  │  Providers   │
+       │  (KB files)  │  │  + Auth  │  │  (any)       │
        └──────────────┘  └──────────┘  └──────────────┘
 ```
 
@@ -76,21 +76,14 @@ project-wingman/
 │   │       ├── agents/                 # council, email-council, objection-council
 │   │       ├── auth/                   # Google SSO + team config
 │   │       ├── constants/              # ICP profiles
-│   │       └── utils/                  # storage, KB indexer, vector store, …
+│   │       ├── utils/                  # storage, KB indexer, vector store, …
+│   │       └── __tests__/              # Vitest unit tests (npm test)
 │   └── icons/
 │
 ├── backend/                            # FastAPI backend (Python 3.11)
 │   ├── main.py                         # App entry + route mounting
 │   ├── config.py                       # Env loading via pydantic-settings
-│   ├── models.py                       # Pydantic request/response models
 │   ├── requirements.txt
-│   ├── agents/                         # Unused legacy pipeline, not mounted by main.py
-│   │   ├── orchestrator.py
-│   │   ├── retrieval_agent.py
-│   │   ├── icp_personalization_agent.py
-│   │   ├── brand_compliance_agent.py
-│   │   └── validation_agent.py
-│   ├── rag/                            # Pinecone client + embedding helpers (embeddings are a zero-vector placeholder)
 │   ├── rbac/                           # roles.py: permission matrix
 │   ├── api/
 │   │   ├── routes/                     # llm, stt, zoho, assets, admin (the only mounted routers)

@@ -7,7 +7,6 @@ import structlog
 from api.routes import assets, admin, llm, stt, zoho
 from api.middleware.auth import AuthMiddleware
 from db.supabase_client import init_supabase, missing_config
-from rag.vector_store import init_vector_store
 from config import settings
 
 log = structlog.get_logger()
@@ -46,7 +45,6 @@ async def lifespan(app: FastAPI):
             "Never run this in production."
         )
     await init_supabase()
-    await init_vector_store()
     yield
     log.info("shutdown")
 

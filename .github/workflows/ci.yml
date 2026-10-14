@@ -1,9 +1,8 @@
 name: CI
 
-# Contributor PRs were not checked by anything before this. There are no tests
-# yet, so this checks the things that can be checked: types, lint, that the
-# extension builds, that the generated manifest is coherent, and that the backend
-# imports on the Python version the README makes a hard requirement.
+# Checks types, lint, the Vitest unit tests, that the extension builds, that the
+# generated manifest is coherent, and that the backend imports on the Python
+# version the README makes a hard requirement.
 on:
   push:
     branches: [main]
@@ -47,6 +46,8 @@ jobs:
       - run: npm run type-check
 
       - run: npm run lint
+
+      - run: npm test
 
       - name: Build (dev mode)
         # `npm run dev` is `vite build --watch` and never exits, so CI cannot call

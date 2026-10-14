@@ -32,7 +32,7 @@ Live coaching during Google Meet calls, pitch generation grounded in your own kn
 A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fumble the objection, take a half-page of notes, paste them into the CRM, then forget the follow-up. Wingman compresses that loop.
 
 - **Pre-call.** Generate a personalized pitch and a tailored email from the prospect's public signals and your indexed knowledge base.
-- **During the call.** Five agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence, objection handling, and a validator that checks the coach's suggested claims against your knowledge base and drops or rewrites the ones it cannot support. A small overlay mirrors the cues on the Meet tab itself.
+- **During the call.** Five agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence, objection handling, and a validator that checks each coach suggestion against your knowledge base: it shows an approved suggestion, swaps in its rewrite of one it revises, and drops one it rejects or cannot read. A small overlay mirrors the cues on the Meet tab itself.
 - **After the call.** A structured summary with agenda coverage, sentiment timeline, objections and action items. One click pushes it to Zoho CRM.
 
 Outputs are grounded in your knowledge base: agents are prompted to cite a source for each numeric claim, and a validation pass checks those claims. It is an LLM check, not a guarantee; see Known limitations.
@@ -60,9 +60,9 @@ Worth knowing before you invest an evening in it:
 
 ### Known limitations
 
-- **Validation is an LLM judgement, not a proof.** During a live call the validator drops or rewrites coach suggestions it judges unsupported. In the pre-call pitch council, flagged claims are only shown as warnings, and a validator parse failure passes the output through as grounded.
+- **Validation is an LLM judgement, not a proof.** It catches what the validating model flags and nothing else. In the pitch council, flagged claims are removed from the draft when they can be located in its body text; otherwise the draft is held as "needs review" with the claims listed, and a validator reply that cannot be read marks the draft "not verified". Neither of those is written to your doc automatically. The only confidence figure shown is the share of itemised claims the validator traced to a source. During a live call, if the validator itself is unreachable, low-risk nudges (ask a question, cover an agenda item, a sentiment shift) are shown unvalidated and everything else is dropped.
 - **Retrieval is brute-force.** The in-browser store scans every chunk with cosine similarity; fine for a personal knowledge base, slow for a large one.
-- **The backend Pinecone path is non-functional.** Its embeddings are placeholder zero vectors, so use the in-browser store.
+- **Knowledge-base search runs only in the browser.** The backend stores uploaded files but does not index or search them.
 - **Rate limiting is per user, not per tenant.** A daily token budget per user plus a process-wide OpenRouter throttle.
 
 ## Quick start
@@ -131,14 +131,21 @@ The backlog with acceptance criteria lives in [#113](https://github.com/avinashg
 PRs welcome, including small ones. [**CONTRIBUTING.md**](CONTRIBUTING.md) covers setup and expectations. CI runs these on every PR, and running them first saves you a round trip:
 
 ```bash
-cd extension && npm run type-check && npm run lint && npm run dev
+cd extension && npm run type-check && npm run lint && npm test && npm run dev
 cd .. && bash scripts/lint-manifest.sh
 ```
 
 Use `npm run dev` here, not `npm run build`. A production build refuses a
 `localhost` backend by design, so on a normal self-hosted setup `npm run build`
-is *supposed* to fail. There are no tests yet, which is why CI checks types,
-lint, the build and the generated manifest rather than behaviour.
+is *supposed* to fail.
+
+`npm test` runs the Vitest unit tests in `extension/src/shared/__tests__/`.
+They cover the pure logic the trust story rests on, with no LLM calls: the
+JSON extractor that reads agent replies, the pitch council's fail-closed fact
+check (an unsupported number is removed, an unlocatable claim holds the draft,
+an unreadable verdict marks it unverified), objection citation parsing,
+prompt-injection wrapping of KB content, and cosine ranking in the in-browser
+vector store. UI components and the live-call agents are not unit tested.
 
 Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman/security/advisories/new).
 

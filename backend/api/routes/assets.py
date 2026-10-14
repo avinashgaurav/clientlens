@@ -10,7 +10,6 @@ import uuid
 from pathlib import PurePosixPath
 from fastapi import APIRouter, Request, UploadFile, File, Form, HTTPException
 from db.supabase_client import supabase_client
-from rag.retriever import upsert_document, delete_document
 from rbac.roles import require_permission
 import structlog
 
@@ -118,7 +117,6 @@ async def upload_asset(
             status_code=413,
             detail=f"Upload exceeds limit of {MAX_UPLOAD_BYTES} bytes.",
         )
-    text_content = content.decode("utf-8", errors="ignore")
 
     # Storage path uses the server-generated file_id plus an allowlisted
     # extension (if the original filename had a recognized one). The extension
@@ -133,23 +131,10 @@ async def upload_asset(
 
     supabase_client().storage.from_("assets").upload(path, content)
 
-    # Chunk and index in vector store
-    chunks = _chunk_text(text_content, chunk_size=1000, overlap=200)
+    # The file is stored, not indexed. Semantic search over the KB runs in the
+    # extension (IndexedDB vectors); the backend has no embedding model, so it
+    # does not pretend to index anything. chunk_count stays at its default 0.
     namespace = ASSET_NAMESPACE_MAP[type]
-
-    for i, chunk in enumerate(chunks):
-        await upsert_document(
-            doc_id=f"{file_id}_chunk_{i}",
-            text=chunk,
-            namespace=namespace,
-            metadata={
-                "source": safe_name,
-                "asset_type": type,
-                "file_id": file_id,
-                "chunk_index": i,
-                "uploaded_by": user["id"],
-            },
-        )
 
     # Record in DB: sanitized name as display label, file_id as the storage key.
     supabase_client().table("assets").insert({
@@ -157,7 +142,6 @@ async def upload_asset(
         "name": safe_name,
         "type": type,
         "storage_path": path,
-        "chunk_count": len(chunks),
         "uploaded_by": user["id"],
         "namespace": namespace,
     }).execute()
@@ -167,9 +151,8 @@ async def upload_asset(
         type=type,
         file=safe_name,
         bytes=len(content),
-        chunks=len(chunks),
     )
-    return {"id": file_id, "chunks_indexed": len(chunks), "status": "indexed"}
+    return {"id": file_id, "status": "stored"}
 
 
 @router.get("/list")
@@ -196,11 +179,6 @@ async def delete_asset(request: Request, asset_id: str):
 
     a = asset.data
 
-    # Delete from vector store
-    namespace = ASSET_NAMESPACE_MAP.get(a["type"], "product_docs")
-    for i in range(a.get("chunk_count", 0)):
-        await delete_document(f"{asset_id}_chunk_{i}", namespace)
-
     # Delete from storage
     supabase_client().storage.from_("assets").remove([a["storage_path"]])
 
@@ -209,12 +187,3 @@ async def delete_asset(request: Request, asset_id: str):
 
     return {"deleted": asset_id}
 
-
-def _chunk_text(text: str, chunk_size: int = 1000, overlap: int = 200) -> list[str]:
-    chunks = []
-    start = 0
-    while start < len(text):
-        end = start + chunk_size
-        chunks.append(text[start:end])
-        start += chunk_size - overlap
-    return chunks

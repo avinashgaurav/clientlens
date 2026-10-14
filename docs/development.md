@@ -10,10 +10,9 @@ The project's original working name was **ClientLens**, and that string is still
 
 - `chrome.storage.local` key prefixes (call history, KB vector store, telemetry, admin gate)
 - the feature flag `clientlens_objection_composer_v2`
-- the default Pinecone index name (`PINECONE_INDEX` defaults to `clientlens`)
 - transponder DOM element IDs
 
-It is deliberately **not** renamed. Those storage keys and the index name are persistence identifiers: renaming them would orphan every existing user's call history, KB index, and admin passcode without a migration. If you fork this and want a clean namespace, do the rename and ship a one-time migration that copies the old keys forward before deleting them.
+It is deliberately **not** renamed. Those storage keys are persistence identifiers: renaming them would orphan every existing user's call history, KB index, and admin passcode without a migration. If you fork this and want a clean namespace, do the rename and ship a one-time migration that copies the old keys forward before deleting them.
 
 ### Mock mode
 
@@ -47,6 +46,14 @@ bash scripts/lint-manifest.sh          # Manifest placeholder + permission lint
 ```
 
 ### Testing
+
+```bash
+cd extension && npm test               # Vitest, src/shared/__tests__/
+```
+
+The unit tests cover pure logic with no LLM or network calls: the agent-reply
+JSON extractor, the pitch council's fail-closed fact check, objection citation
+parsing, KB prompt-injection wrapping, and cosine ranking in the vector store.
 
 Backend test scripts live in `backend/scripts/`:
 

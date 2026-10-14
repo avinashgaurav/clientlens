@@ -7,7 +7,10 @@
  *   2. ICP Personalization: rewrites to nearest ICP rules
  *   3. Brand Compliance: enforces Project Wingman voice + design system
  *   4. Fact / Validation, every claim must trace to KB
- *   5. Council vote, all 4 must pass; else regenerate or flag
+ *   5. Council vote: a hard fail from retrieval, ICP or brand blocks output.
+ *      Validation fails closed: unsupported claims are removed from the draft,
+ *      claims that cannot be located are listed and the draft is held for
+ *      review, and an unreadable validator verdict marks the draft unverified.
  */
 
 import type {
@@ -20,6 +23,7 @@ import type {
   SlideContent,
   PipelineResult,
   ResearchBrief,
+  VerificationResult,
 } from "../types";
 import { ICP_PROFILES } from "../constants/icp-profiles";
 import { type LLMClient, makeLLMClient, resolveLLMConfig } from "./llm-client";
@@ -194,7 +198,6 @@ async function retrievalAgent(
       status: "fail",
       output: { relevant_source_ids: [], citations: [], missing_info: ["KB is empty"] } as RetrievalOutput,
       issues: ["No ready KB entries. Admin/PMM/Designer must populate the KB before generation."],
-      confidence: 0,
     };
   }
 
@@ -232,7 +235,6 @@ Return JSON:
     status,
     output: parsed,
     issues: status === "warning" ? ["No explicit citations extracted"] : undefined,
-    confidence: parsed.citations.length > 2 ? 0.9 : 0.7,
   };
 }
 
@@ -315,7 +317,6 @@ Produce 3 slides. Keep each slide title ≤10 words, content ≤50 words, speake
       status: "fail",
       output: { error: "no slides parsed" },
       issues: ["Could not parse draft slides from ICP agent"],
-      confidence: 0,
       draft: { slides: [], matched_icp: icp.role },
     };
   }
@@ -324,7 +325,6 @@ Produce 3 slides. Keep each slide title ≤10 words, content ≤50 words, speake
     agent: "icp_personalization",
     status: "pass",
     output: { slide_count: parsed.slides.length, matched_icp: icp.role },
-    confidence: 0.85,
     draft: { slides: parsed.slides, matched_icp: icp.role },
   };
 }
@@ -335,6 +335,13 @@ interface BrandCheck {
   pass: boolean;
   violations: { slide_index: number; issue: string; severity: "low" | "medium" | "high" }[];
   tone_score: number;
+}
+
+/** Parse the brand agent's reply. Returns null unless it has the expected shape. */
+export function parseBrandCheck(text: string): BrandCheck | null {
+  const parsed = extractJson<Partial<BrandCheck>>(text);
+  if (!parsed || typeof parsed.pass !== "boolean" || !Array.isArray(parsed.violations)) return null;
+  return { pass: parsed.pass, violations: parsed.violations, tone_score: Number(parsed.tone_score) || 0 };
 }
 
 async function brandComplianceAgent(
@@ -372,26 +379,197 @@ Return JSON:
 tone_score is 0–1. Flag any banned words, invented customer names, or off-brand tone.`;
 
   const text = await callLLM(client, system, user, 1500);
-  const parsed = extractJson<BrandCheck>(text) ?? { pass: true, violations: [], tone_score: 0.7 };
+  const parsed = parseBrandCheck(text);
+
+  // Fail closed: an unreadable verdict is not a pass. It does not block the
+  // draft (the brand check is advisory), but it is reported as not compliant.
+  if (!parsed) {
+    return {
+      agent: "brand_compliance",
+      status: "warning",
+      output: { parsed: false },
+      issues: ["Brand check output could not be read, so brand compliance is not verified"],
+    };
+  }
 
   const highSeverity = parsed.violations.filter((v) => v.severity === "high");
-  const status = highSeverity.length > 0 ? "fail" : parsed.violations.length > 0 ? "warning" : "pass";
+  const status =
+    highSeverity.length > 0 ? "fail" : parsed.violations.length > 0 || !parsed.pass ? "warning" : "pass";
+  const issues = parsed.violations.map((v) => `slide ${v.slide_index}: ${v.issue} (${v.severity})`);
+  if (!parsed.pass && issues.length === 0) issues.push("Brand check did not pass and named no violations");
 
   return {
     agent: "brand_compliance",
     status,
     output: parsed,
-    issues: parsed.violations.map((v) => `slide ${v.slide_index}: ${v.issue} (${v.severity})`),
-    confidence: parsed.tone_score,
+    issues,
   };
 }
 
 // ─── Agent 4: Fact / Validation ──────────────────────────────────────────────
 
-interface FactCheck {
+export interface FactCheck {
   grounded: boolean;
   claims: { slide_index: number; claim: string; source_id: string | null; status: "verified" | "unverified" | "hallucinated" }[];
   hallucinations: string[];
+}
+
+/**
+ * Parse the validator's reply. Returns null unless it has the expected shape,
+ * so a truncated or malformed verdict can never be read as "grounded".
+ */
+export function parseFactCheck(text: string): FactCheck | null {
+  const parsed = extractJson<Partial<FactCheck>>(text);
+  if (!parsed || typeof parsed.grounded !== "boolean" || !Array.isArray(parsed.claims)) return null;
+  const claims = parsed.claims.filter(
+    (c): c is FactCheck["claims"][number] => !!c && typeof c.claim === "string" && typeof c.status === "string",
+  );
+  const hallucinations = Array.isArray(parsed.hallucinations)
+    ? parsed.hallucinations.filter((h): h is string => typeof h === "string" && h.trim().length > 0)
+    : [];
+  return { grounded: parsed.grounded, claims, hallucinations };
+}
+
+// Sentence boundaries: ".", "!" or "?" followed by whitespace or the end, or a
+// newline (bullets). A "." inside "2.5x" or "v1.2" is not a boundary.
+function splitSentences(text: string): string[] {
+  const out: string[] = [];
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const end =
+      c === "\n" || ((c === "." || c === "!" || c === "?") && (i + 1 === text.length || /\s/.test(text[i + 1])));
+    if (end) {
+      out.push(text.slice(start, i + 1));
+      start = i + 1;
+    }
+  }
+  if (start < text.length) out.push(text.slice(start));
+  return out;
+}
+
+const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9%$.]+/g, " ").trim();
+
+// Numbers, percentages, money and multipliers: "40%", "$2.5M", "3x", "1,200".
+function numericTokens(s: string): string[] {
+  return (s.match(/[$€£]?\d[\d,.]*\s*(?:%|x\b|k\b|m\b|b\b|bn\b)?/gi) ?? [])
+    .map((t) => t.toLowerCase().replace(/\s+/g, "").replace(/[.,]$/, ""));
+}
+
+/**
+ * True when `sentence` is the place the flagged `claim` was made. With
+ * `anyNumber`, a sentence repeating any one of the claim's numbers matches
+ * too: used for speaker notes, which tend to echo a figure ("lead with the
+ * 40%") without restating the claim.
+ */
+function sentenceMatchesClaim(sentence: string, claim: string, anyNumber = false): boolean {
+  const ns = normalize(sentence);
+  const nc = normalize(claim);
+  if (!nc || !ns) return false;
+  if (ns.includes(nc)) return true;
+  // The validator often paraphrases. A claim that carries numbers matches a
+  // sentence that states every one of those numbers.
+  const nums = numericTokens(claim);
+  if (!nums.length) return false;
+  const sentNums = numericTokens(sentence);
+  return anyNumber ? nums.some((n) => sentNums.includes(n)) : nums.every((n) => sentNums.includes(n));
+}
+
+/** Remove sentences matching `claim`. Returns the new text and whether anything was removed. */
+function redactText(text: string, claim: string, anyNumber = false): { text: string; removed: boolean } {
+  const sentences = splitSentences(text);
+  const kept = sentences.filter((s) => !sentenceMatchesClaim(s, claim, anyNumber));
+  if (kept.length === sentences.length) return { text, removed: false };
+  return { text: kept.join("").replace(/\n{3,}/g, "\n\n").trim(), removed: true };
+}
+
+/**
+ * Apply the validator's verdict to the draft. Pure: no LLM, no I/O.
+ *
+ *  - no readable verdict          -> "unverified", slides unchanged
+ *  - every flagged claim located
+ *    in body text and removed     -> "redacted" (or "verified" if none flagged)
+ *  - any flagged claim not found,
+ *    or found only in a title     -> "needs_review", claims listed
+ *  - grounded:false with nothing
+ *    listed                       -> "needs_review"
+ *
+ * `supported` / `total` count the claims the validator itemised; they are
+ * the only confidence figure the council reports.
+ */
+export function applyFactCheck(slides: SlideContent[], check: FactCheck | null): {
+  slides: SlideContent[];
+  verification: VerificationResult;
+} {
+  if (!check) {
+    return {
+      slides,
+      verification: { status: "unverified", supported: 0, total: 0, removed_claims: [], unresolved_claims: [] },
+    };
+  }
+
+  const total = check.claims.length;
+  const supported = check.claims.filter((c) => c.status === "verified").length;
+
+  // Every claim the validator did not mark verified, plus free-text
+  // hallucination notes that are not already one of those claims.
+  const flagged: { claim: string; slide_index: number | null }[] = check.claims
+    .filter((c) => c.status !== "verified")
+    .map((c) => ({ claim: c.claim, slide_index: Number.isInteger(c.slide_index) ? c.slide_index : null }));
+  for (const h of check.hallucinations) {
+    if (!flagged.some((f) => normalize(f.claim) === normalize(h))) flagged.push({ claim: h, slide_index: null });
+  }
+
+  const out: SlideContent[] = slides.map((s) => ({
+    ...s,
+    components: (s.components ?? []).map((c) => ({ ...c })),
+  }));
+  const removed: string[] = [];
+  const unresolved: string[] = [];
+
+  for (const f of flagged) {
+    const targets = f.slide_index !== null && out[f.slide_index] ? [out[f.slide_index]] : out;
+    let hit = false;
+    let unremovable = false;
+    for (const slide of targets) {
+      if (sentenceMatchesClaim(slide.title ?? "", f.claim)) unremovable = true;
+      for (const comp of slide.components) {
+        if (typeof comp.content === "string") {
+          const r = redactText(comp.content, f.claim);
+          if (r.removed) { comp.content = r.text; hit = true; }
+        } else if (comp.content != null && sentenceMatchesClaim(JSON.stringify(comp.content), f.claim)) {
+          unremovable = true; // structured content we cannot safely edit: same treatment as a title
+        }
+      }
+      if (slide.speaker_notes) {
+        // Notes only count as a hit for an exact match; an echoed number is
+        // cleaned up once the claim itself has been found and removed.
+        const r = redactText(slide.speaker_notes, f.claim);
+        if (r.removed) { slide.speaker_notes = r.text; hit = true; }
+      }
+    }
+    if (hit) {
+      for (const slide of targets) {
+        if (slide.speaker_notes) slide.speaker_notes = redactText(slide.speaker_notes, f.claim, true).text;
+      }
+    }
+    for (const slide of targets) {
+      slide.components = slide.components.filter((c) => typeof c.content !== "string" || c.content.trim() !== "");
+    }
+    if (hit && !unremovable) removed.push(f.claim);
+    else unresolved.push(f.claim);
+  }
+
+  let status: VerificationResult["status"];
+  if (unresolved.length > 0) status = "needs_review";
+  else if (removed.length > 0) status = "redacted";
+  else if (!check.grounded) status = "needs_review";
+  else status = "verified";
+
+  return {
+    slides: out,
+    verification: { status, supported, total, removed_claims: removed, unresolved_claims: unresolved },
+  };
 }
 
 async function validationAgent(
@@ -399,10 +577,10 @@ async function validationAgent(
   draft: DraftOutput,
   kb: KBEntry[],
   retrieval: RetrievalOutput,
-): Promise<AgentResult> {
+): Promise<AgentResult & { slides: SlideContent[]; verification: VerificationResult }> {
   const usedSources = kb.filter((e) => retrieval.relevant_source_ids.includes(e.id));
 
-  const system = `You are the Fact Validation Agent. Audit every numeric and named claim in the draft. Mark "hallucinated" for any claim not supported by the cited sources. Output strict JSON. ${KB_SAFETY_INSTRUCTION}`;
+  const system = `You are the Fact Validation Agent. Audit every numeric and named claim in the draft. Mark "hallucinated" for any claim not supported by the cited sources. Quote each claim exactly as it appears in the draft. Output strict JSON. ${KB_SAFETY_INSTRUCTION}`;
   const user = `SOURCES (ground truth):
 ${summarizeKB(usedSources)}
 
@@ -417,32 +595,37 @@ ${JSON.stringify(draft.slides, null, 2)}
 Return JSON:
 {
   "grounded": true,
-  "claims": [{"slide_index": 0, "claim": "...", "source_id": "...", "status": "verified"}],
-  "hallucinations": ["description of any fabricated claim"]
+  "claims": [{"slide_index": 0, "claim": "exact text from the draft", "source_id": "...", "status": "verified"}],
+  "hallucinations": ["exact text of any fabricated claim"]
 }`;
 
   const text = await callLLM(client, system, user, 2000);
-  const parsed = extractJson<FactCheck>(text) ?? { grounded: true, claims: [], hallucinations: [] };
+  const { slides, verification } = applyFactCheck(draft.slides, parseFactCheck(text));
 
-  // "warning" instead of "fail": flagged items are often legitimate KB content
-  // the retrieval agent didn't select, not actual hallucinations. Hard "fail"
-  // here was blocking every pitch even when ICP output was perfectly usable.
-  const status = parsed.hallucinations.length > 0 ? "warning" : "pass";
+  const issues: Record<VerificationResult["status"], string[]> = {
+    verified: [],
+    redacted: verification.removed_claims.map((c) => `Removed unsupported claim: ${c}`),
+    needs_review: verification.unresolved_claims.length
+      ? verification.unresolved_claims.map((c) => `Unsupported claim left in draft: ${c}`)
+      : ["Validator marked the draft ungrounded without naming the claims"],
+    unverified: ["Validator output could not be read, so no claim in this draft is verified"],
+  };
   return {
     agent: "validation",
-    status,
-    output: parsed,
-    issues: parsed.hallucinations,
-    confidence: status === "pass" ? 0.95 : 0.3,
+    status: verification.status === "verified" ? "pass" : verification.status === "redacted" ? "warning" : "fail",
+    output: verification,
+    issues: issues[verification.status],
+    confidence: verification.total > 0 ? verification.supported / verification.total : undefined,
+    slides,
+    verification,
   };
 }
 
 // ─── Council Orchestrator ─────────────────────────────────────────────────────
 
 // Single-pass council (4 LLM calls total: retrieval → ICP → brand → validation).
-// A retry loop existed previously but caused double-runs on validation "warning"
-// since validation rarely returns "pass" on the first attempt with free-tier
-// models. Removed in favour of accepting "warning" at the council vote step.
+// There is no retry loop: instead of regenerating until the validator is happy,
+// the draft is redacted or held for review (see applyFactCheck).
 
 export async function* runCouncil(opts: {
   input: PersonalizationInput;
@@ -511,15 +694,16 @@ export async function* runCouncil(opts: {
     // 5. Council vote
     yield { type: "stage", stage: "generating", message: "Council vote…" };
 
-    const agents = [retrieval, icpResult, brandResult, validationResult];
-    // Accept "warning" from validation: only hard "fail" on any agent blocks output.
-    // Previously requiring validationResult === "pass" caused the retry loop to
-    // always fire (validation rarely returns "pass" on first attempt with free
-    // models), doubling the LLM call count and making it look like agents re-ran.
-    const councilPass = agents.every((a) => a.status !== "fail");
+    const { verification } = validationResult;
+    const agents: AgentResult[] = [retrieval, icpResult, brandResult, validationResult];
+    // Retrieval, ICP and brand block on a hard fail. Validation does not block
+    // here: its verdict travels with the draft as `verification`, the UI shows
+    // it, and only a "verified" or "redacted" draft is auto-written to a doc.
+    const blocking = [retrieval, icpResult, brandResult];
+    const councilPass = blocking.every((a) => a.status !== "fail");
 
     if (!councilPass) {
-      const issues = agents.flatMap((a) => a.issues ?? []);
+      const issues = blocking.flatMap((a) => a.issues ?? []);
       // Instructive error (voice.md): keep "council" (differentiator), name
       // the fix. Most council failures are an empty/thin KB for this topic.
       const detail = issues.slice(0, 3).join("; ");
@@ -530,7 +714,7 @@ export async function* runCouncil(opts: {
       return;
     }
 
-    const slides = draft.slides;
+    const slides = validationResult.slides;
     const pipeline: PipelineResult = {
       request_id: `council-${Date.now()}`,
       agents,
@@ -549,8 +733,8 @@ export async function* runCouncil(opts: {
       },
       metadata: {
         sources_used: retrievalOutput.relevant_source_ids,
-        brand_compliant: brandResult!.status === "pass",
-        hallucination_check: validationResult!.status === "pass" ? "clean" : "flagged",
+        brand_compliant: brandResult.status === "pass",
+        verification,
         generated_at: new Date().toISOString(),
       },
     };

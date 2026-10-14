@@ -19,11 +19,6 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_service_key: str
 
-    # Pinecone: optional for local dev. Embeddings are stubbed (zero vectors)
-    # so RAG search is non-functional regardless; init is skipped if key empty.
-    pinecone_api_key: str = ""
-    pinecone_index: str = "clientlens"
-
     # Deepgram: kept server-side so the API key is never baked into the
     # extension bundle. The /api/v1/stt/token endpoint mints short-lived
     # (60 s) temporary keys for the extension to use directly with Deepgram.
