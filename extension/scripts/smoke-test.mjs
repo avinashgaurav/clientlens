@@ -51,18 +51,18 @@ const AGENT_RESPONSES = [
   JSON.stringify({
     relevant_source_ids: ["kb-1"],
     citations: [
-      { source_id: "kb-1", quote: "40 integrations", claim: "catalog size" },
-      { source_id: "kb-1", quote: "a 14-day free trial", claim: "savings" },
-      { source_id: "kb-1", quote: "14-day trial", claim: "pilot" },
+      { source_id: "kb-1", quote: "40 integrations", claim: "integration count" },
+      { source_id: "kb-1", quote: "setup in one day", claim: "time to value" },
+      { source_id: "kb-1", quote: "14-day trial", claim: "trial" },
     ],
     missing_info: [],
   }),
   // Call 2: ICP personalization
   JSON.stringify({
     slides: [
-      { index: 0, title: "ClientLens for Acme CFO", components: [{ type: "text_block", content: "40 integrations · 14-day trial · 14-day trial" }] },
+      { index: 0, title: "Northwind Notes for Acme CFO", components: [{ type: "text_block", content: "40 integrations · setup in one day · 14-day trial" }] },
       { index: 1, title: "How it works", components: [{ type: "text_block", content: "Read-only, ISO 27001 + SOC 2 Type II." }] },
-      { index: 2, title: "Commercial", components: [{ type: "text_block", content: "Flat monthly pricing." }] },
+      { index: 2, title: "Commercial", components: [{ type: "text_block", content: "Per-seat pricing." }] },
     ],
   }),
   // Call 3: brand compliance
@@ -122,17 +122,17 @@ const gen = runCouncil({
     meeting_stage: "discovery",
     clouds: ["aws", "gcp"],
     region: "apac",
-    competitor: "cast.ai",
-    pain_points: "cloud spend",
+    competitor: "globex wiki",
+    pain_points: "scattered team notes",
   },
   brandAssets: { company_name: "Acme", primary_color: "#0891b2", logo_source: "web" },
   kb: [
     {
       id: "kb-1",
-      name: "ClientLens Product Facts",
+      name: "Northwind Notes Product Facts",
       namespace: "product_overview",
       source_type: "text",
-      content: "ClientLens has 40 integrations across AWS+GCP+Azure. A 14-day free trial. 14-day trial. ISO 27001 + SOC 2 Type II. Read-only, AES-256-GCM.",
+      content: "Northwind Notes (fictional sample product) has 40 integrations. Setup in one day. 14-day trial. ISO 27001 + SOC 2 Type II. AES-256 at rest.",
       status: "ready",
       uploaded_by: "test@example.com",
       uploaded_by_role: "admin",
@@ -179,8 +179,8 @@ for (const [name, pass] of checks) {
 setResponses([
   JSON.stringify({ relevant_source_ids: ["kb-1"] }),
   JSON.stringify({
-    subject: "Cut AWS spend 20% in 30 days",
-    body: "Hi Priya,\n\nClientLens runs 40 integrations across AWS+GCP+Azure and typically offers a 14-day free trial. Read-only, ISO 27001 + SOC 2 Type II. Worth a 14-day trial?",
+    subject: "Get your team notes in one place this week",
+    body: "Hi Priya,\n\nNorthwind Notes connects to 40 tools and teams are set up in one day. ISO 27001 + SOC 2 Type II. Worth a 14-day trial?",
     cta: "Open to a 15-min walkthrough next week?",
     tone_notes: "Concrete, CFO-friendly",
     sources_used: ["kb-1"],
@@ -196,15 +196,15 @@ const emailGen = runEmailCouncil({
     company_name: "Acme",
     persona_role: "CFO",
     intent: "intro",
-    context: "Met at KubeCon, AWS-heavy, wants to cut 20%",
+    context: "Met at a trade show, team of 50, notes spread across tools",
   },
   kb: [
     {
       id: "kb-1",
-      name: "ClientLens Product Facts",
+      name: "Northwind Notes Product Facts",
       namespace: "product_overview",
       source_type: "text",
-      content: "40 integrations, a 14-day free trial, ISO 27001 + SOC 2 Type II, 14-day trial.",
+      content: "Northwind Notes (fictional): 40 integrations, setup in one day, ISO 27001 + SOC 2 Type II, 14-day trial.",
       status: "ready",
       uploaded_by: "test@example.com",
       uploaded_by_role: "admin",
@@ -245,23 +245,23 @@ for (const [name, pass] of emailChecks) {
 setResponses([
   JSON.stringify({ relevant_source_ids: ["kb-1"] }),
   JSON.stringify({
-    summary: "Cast.ai is compute-only; ClientLens covers 30+ resource types across 3 clouds.",
-    response: "Cast.ai handles Kubernetes compute bin-packing well, but ClientLens schedules 30+ resource types (storage, RDS, Redshift, etc.) across AWS/GCP/Azure dependency-aware. Different surface area.",
-    citations: [{ source_id: "kb-1", quote: "30+ resource types", claim: "coverage" }],
+    summary: "Globex Wiki is web-only; Northwind Notes adds offline sync on desktop and mobile.",
+    response: "Globex Wiki works well in the browser, but Northwind Notes keeps a full offline copy on desktop and mobile and merges edits per block on reconnect. Different use case.",
+    citations: [{ source_id: "kb-1", quote: "full offline copy", claim: "offline support" }],
     confidence: 0.85,
   }),
 ]);
 
 const objEvents = [];
 const objGen = runObjectionCouncil({
-  input: { objection_text: "Cast.ai already does this. Why pay again?", competitor_hint: "cast.ai" },
+  input: { objection_text: "Globex Wiki already does this. Why pay again?", competitor_hint: "globex wiki" },
   kb: [
     {
       id: "kb-1",
       name: "Competitor battlecard",
       namespace: "battlecard",
       source_type: "text",
-      content: "ClientLens schedules 30+ resource types across AWS/GCP/Azure dependency-aware.",
+      content: "Northwind Notes (fictional) keeps a full offline copy on desktop and mobile and merges edits per block.",
       status: "ready",
       uploaded_by: "test@example.com",
       uploaded_by_role: "admin",

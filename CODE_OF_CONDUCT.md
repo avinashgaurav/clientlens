@@ -24,8 +24,8 @@ plus cases where someone is representing the project in public.
 
 ## Reporting
 
-Email **220693974+avinashgaurav@users.noreply.github.com** with what happened and where. Reports go to the
-one maintainer, who will keep the reporter's identity to themselves.
+Open a GitHub issue or contact the maintainer via the GitHub profile, with what
+happened and where. Reports go to the one maintainer, who will keep the reporter's identity to themselves.
 
 If the report is about the maintainer, and that is an awkward thing to raise with
 the same person, say so directly and it will be handled as such.

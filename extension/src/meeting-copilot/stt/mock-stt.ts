@@ -10,12 +10,12 @@ const MOCK_SCRIPT: { speaker: "rep" | "prospect"; text: string; delay_ms: number
   { speaker: "prospect", text: "We tried CloudHealth but it felt like reporting without real action.", delay_ms: 3000 },
   { speaker: "rep", text: "That's a very common pattern. Can you share roughly what portion of that spend is EC2 versus managed services?", delay_ms: 3800 },
   { speaker: "prospect", text: "Compute is the biggest chunk, maybe sixty percent. Then databases and data transfer.", delay_ms: 3500 },
-  { speaker: "rep", text: "Got it. Where we've seen the fastest ROI is rightsizing plus idle scheduling for non-prod. Would savings of twenty to thirty percent in the first ninety days move the needle?", delay_ms: 5000 },
+  { speaker: "rep", text: "Got it. Where we've seen the fastest ROI is rightsizing and cleaning up unused resources. Would savings of twenty to thirty percent in the first ninety days move the needle?", delay_ms: 5000 },
   { speaker: "prospect", text: "That would be huge, but I'm skeptical. Everyone promises that and it never lands.", delay_ms: 3800 },
   { speaker: "rep", text: "Fair pushback. What if we ran a two-week read-only assessment on your prod account and showed you a line-item savings plan before you commit to anything?", delay_ms: 4800 },
   { speaker: "prospect", text: "Read-only, no changes? That I can probably get security to approve.", delay_ms: 3200 },
   { speaker: "prospect", text: "How does pricing work if we move forward?", delay_ms: 2800 },
-  { speaker: "rep", text: "Usage-based, tied to realized savings. You only pay once we've actually saved you money.", delay_ms: 3500 },
+  { speaker: "rep", text: "Annual subscription based on the size of your environment. The assessment itself is free.", delay_ms: 3500 },
 ];
 
 export class MockSttProvider implements SttProvider {

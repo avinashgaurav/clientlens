@@ -32,10 +32,10 @@ Live coaching during Google Meet calls, pitch generation grounded in your own kn
 A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fumble the objection, take a half-page of notes, paste them into the CRM, then forget the follow-up. Wingman compresses that loop.
 
 - **Pre-call.** Generate a personalized pitch and a tailored email from the prospect's public signals and your indexed knowledge base.
-- **During the call.** Five agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence, objection handling, and a validator that fact-checks numbers before you say them. A small overlay mirrors the cues on the Meet tab itself.
+- **During the call.** Five agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence, objection handling, and a validator that checks the coach's suggested claims against your knowledge base and drops or rewrites the ones it cannot support. A small overlay mirrors the cues on the Meet tab itself.
 - **After the call.** A structured summary with agenda coverage, sentiment timeline, objections and action items. One click pushes it to Zoho CRM.
 
-Everything is grounded: each numeric claim must cite a source from your knowledge base, and a dedicated validation agent rejects anything uncited.
+Outputs are grounded in your knowledge base: agents are prompted to cite a source for each numeric claim, and a validation pass checks those claims. It is an LLM check, not a guarantee; see Known limitations.
 
 ### The loop, in screens
 
@@ -57,6 +57,13 @@ Worth knowing before you invest an evening in it:
 - **Zoho is the only CRM**, and **Google Meet is the only meeting surface** that works end to end. HubSpot, Salesforce and Teams are on the roadmap.
 - **Python 3.11+ is a hard requirement.** Dependencies resolve on 3.9, but the backend then fails at import, so it breaks later and more confusingly than you would expect.
 - **No way to try it without installing it.** Mock mode avoids spending LLM credits but still routes through the backend, so there is no offline or hosted demo.
+
+### Known limitations
+
+- **Validation is an LLM judgement, not a proof.** During a live call the validator drops or rewrites coach suggestions it judges unsupported. In the pre-call pitch council, flagged claims are only shown as warnings, and a validator parse failure passes the output through as grounded.
+- **Retrieval is brute-force.** The in-browser store scans every chunk with cosine similarity; fine for a personal knowledge base, slow for a large one.
+- **The backend Pinecone path is non-functional.** Its embeddings are placeholder zero vectors, so use the in-browser store.
+- **Rate limiting is per user, not per tenant.** A daily token budget per user plus a process-wide OpenRouter throttle.
 
 ## Quick start
 
@@ -105,7 +112,7 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 
 **Extension:** React 18, TypeScript 5, Tailwind 3, Zustand, Chrome MV3 (service worker, Offscreen API, AudioWorklet), built with Vite 8.
 
-**Backend:** FastAPI and Pydantic v2 on Python 3.11, Supabase Postgres with RLS, Pinecone or an in-browser HNSW vector store, Deepgram Nova-2 for speech.
+**Backend:** FastAPI and Pydantic v2 on Python 3.11, Supabase Postgres with RLS, an in-browser vector store (brute-force cosine over IndexedDB), Deepgram Nova-2 for speech.
 
 **LLMs:** Anthropic, Gemini, Groq, OpenRouter, or any OpenAI-compatible endpoint. The extension never holds a provider key; the backend proxies.
 

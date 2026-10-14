@@ -12,10 +12,10 @@ A multi-agent pipeline that turns "company name + ICP" into a structured pitch.
 - **ICP selector**: pick the persona you're pitching to: CFO, CTO, VP Sales, RevOps, or generic. Each profile drives a different tone, ROI framing, and feature emphasis.
 - **Personalization form**: manual overrides for company name, contact, industry, key pain points, custom notes. Everything is editable before generation.
 - **Council pipeline** runs four agents in sequence:
-  1. **Retrieval Agent**: pulls the most relevant chunks from your KB via Pinecone (or in-browser vector store) using cosine similarity over Gemini embeddings.
+  1. **Retrieval Agent**: an LLM picks the KB entries that support this target from a summary of your in-extension KB. Pinecone is not used on this path.
   2. **ICP Personalization Agent**: drafts a ${persona}-tailored deck grounded only in the retrieved sources. No inventing customers, savings figures, or quotes.
   3. **Brand Compliance Agent**: checks the draft against your voice guidelines (banned hype words: "revolutionary", "game-changing", "best-in-class", "world-class", "synergy", "cutting-edge"; required factual baseline).
-  4. **Validation Agent**: fact-checks every numeric claim against a `source_id` citation. Rejects unsourced numbers.
+  4. **Validation Agent**: an LLM reviews numeric and named claims against the cited sources and lists any it thinks are unsupported. Flagged claims are shown as warnings for the rep to review; they do not block the draft. If the validator's reply cannot be parsed, the draft is treated as grounded (known limitation).
 - **Output formats**: on-screen presentation, one-pager, detailed doc, or analysis-style writeup (configurable per generation).
 - **Streaming UI**: `GenerationProgress` shows live stage transitions ("Retrieving sources…", "Checking brand compliance…", "Validating claims…") so the rep knows what's happening.
 
@@ -63,9 +63,9 @@ For follow-ups and cold outreach.
 
 Your sales team's source of truth, indexed and searchable.
 
-- **In-browser KB**: designers and PMMs upload case studies, battle cards, pricing PDFs, brand guides directly into the extension. Stored in `chrome.storage.local`, chunked, embedded with Gemini, and indexed in an in-browser vector store (HNSW).
-- **Backend KB**: for larger orgs, the FastAPI backend uses Pinecone (index name configurable via `PINECONE_INDEX`).
-- **Embedding cost guardrails**: embedding generation is gated and de-duplicated; the recent "embeddings money-leak fix" added per-tenant rate limiting.
+- **In-browser KB**: designers and PMMs upload case studies, battle cards, pricing PDFs, brand guides directly into the extension. Stored in `chrome.storage.local`, chunked, and embedded with Gemini. Embeddings live in IndexedDB and search is a brute-force cosine scan over every chunk (no ANN index such as HNSW); this is fine at a few hundred entries.
+- **Backend KB (not functional yet)**: the FastAPI backend has a Pinecone upsert path (index name via `PINECONE_INDEX`), but `backend/rag/embeddings.py` currently returns a zero-vector placeholder, so backend semantic search does not work until a real embedding model is wired in.
+- **LLM cost guardrails**: the backend LLM proxy enforces a per-user daily token budget (`DAILY_USER_TOKEN_BUDGET`) and a single process-wide throttle on OpenRouter calls. There is no per-tenant rate limiting. The "embeddings money-leak fix" removed a paid completion call that the old placeholder embedder made and discarded.
 - **Usage Meter**: sidebar shows current KB size with a 10 MB soft limit warning.
 
 ### 6. ICP Profiles

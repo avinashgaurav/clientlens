@@ -1,7 +1,8 @@
 """
 Knowledge-base smoke test for the OpenRouter proxy integration.
 
-Loads two Project Wingman KB markdown files (FEATURES + RECOMMENDATION-RULES), chunks
+Loads two sample KB markdown files (a fictional product, "Northwind Notes", shipped
+in backend/scripts/sample_kb/), chunks
 them the same way the extension's `chunker.ts` does, performs naive keyword
 retrieval per query, and calls OpenRouter with the top-K chunks stuffed into
 the system prompt. Validates that responses reference KB content.
@@ -16,8 +17,8 @@ Usage:
 
     # Optional
     export OPENROUTER_MODEL="deepseek/deepseek-chat:free"
-    export KB_FEATURES_PATH="./sample_kb/FEATURES.md"
-    export KB_RULES_PATH="./sample_kb/FAQ.md"
+    export KB_FEATURES_PATH="path/to/your/FEATURES.md"
+    export KB_RULES_PATH="path/to/your/FAQ.md"
 
 Exit codes:
     0, all queries returned valid responses referencing KB content
@@ -39,8 +40,9 @@ import httpx
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct:free"
-DEFAULT_FEATURES = os.path.expanduser("~/Downloads/FEATURES (1).md")
-DEFAULT_RULES = os.path.expanduser("~/Downloads/RECOMMENDATION-RULES (1).md")
+_SAMPLE_KB_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sample_kb")
+DEFAULT_FEATURES = os.path.join(_SAMPLE_KB_DIR, "FEATURES.md")
+DEFAULT_RULES = os.path.join(_SAMPLE_KB_DIR, "FAQ.md")
 
 
 # ── Chunking (mirrors extension/src/shared/utils/chunker.ts) ──────────────────
@@ -163,7 +165,7 @@ def retrieve(query: str, chunks: list[Chunk], k: int = 5) -> list[tuple[Chunk, i
 # ── Prompt construction (council-style) ───────────────────────────────────────
 
 
-SYSTEM_PROMPT = """You are a senior sales engineer at Project Wingman, a cloud cost optimization platform.
+SYSTEM_PROMPT = """You are a senior sales engineer at Northwind Notes, a team note-taking product.
 You answer prospect questions using ONLY the knowledge base excerpts provided in the user message.
 Never invent feature names, rule IDs, or numbers. If the KB does not cover the question, say so.
 
@@ -254,20 +256,20 @@ def parse_json_envelope(text: str) -> Optional[dict]:
 
 QUERIES = [
     {
-        "question": "We have 200 idle EC2 instances. What does Project Wingman do about them?",
-        "expect_terms": ["idle", "schedule", "ec2"],
+        "question": "Can our team keep working on notes while offline? What happens to conflicting edits?",
+        "expect_terms": ["offline", "conflict", "merge"],
     },
     {
-        "question": "Does Project Wingman track actual billing cost or just on-demand pricing? How does it handle reservations?",
-        "expect_terms": ["billing", "reservation", "amortized"],
+        "question": "Which plan includes SSO and audit logs, and how long are logs kept?",
+        "expect_terms": ["enterprise", "sso", "365"],
     },
     {
-        "question": "Give me 2 specific recommendation rule categories for RDS or database cost savings.",
-        "expect_terms": ["rds", "database"],
+        "question": "How is our data encrypted, and can we export it?",
+        "expect_terms": ["aes-256", "tls", "export"],
     },
     {
-        "question": "How does Project Wingman discover Kubernetes workloads across EKS, GKE, and AKS?",
-        "expect_terms": ["k8s", "eks", "gke", "aks", "deployment"],
+        "question": "What integrations does Northwind Notes support?",
+        "expect_terms": ["slack", "google drive", "jira"],
     },
 ]
 
@@ -295,14 +297,14 @@ def main() -> int:
             print(f"KB file not found: {path}", file=sys.stderr)
             return 1
 
-    print("Project Wingman KB · OpenRouter smoke test")
+    print("Sample KB (Northwind Notes) · OpenRouter smoke test")
     print(f"  model    {model}")
     print(f"  key      sk-or-v1-...  ({len(api_key)} chars)")
 
     # ── Load + chunk ─────────────────────────────────────────────────────────
     print("\n── Loading KB ──")
     chunks: list[Chunk] = []
-    for path, label in ((features_path, "FEATURES"), (rules_path, "RULES")):
+    for path, label in ((features_path, "FEATURES"), (rules_path, "FAQ")):
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
         file_chunks = chunk_markdown(label, text)

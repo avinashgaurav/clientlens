@@ -28,18 +28,16 @@ How the pieces fit together, and where everything lives on disk.
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                       BACKEND (FastAPI + Python 3.11)                   │
 │                                                                         │
-│  /api/v1/llm/*       → LLM proxy (Anthropic / Gemini / Groq / OpenRouter│
-│  /api/v1/generate    → Multi-agent pitch generation pipeline            │
-│  /api/v1/stt/*       → STT key handoff for Deepgram                     │
-│  /api/v1/zoho/*      → Zoho OAuth exchange + refresh (RBAC-gated)       │
-│  /api/v1/assets/*    → KB upload / vector indexing                      │
-│  /api/v1/admin/*     → User management, role editing, KB wipe           │
-│  /api/v1/auth/*      → Supabase JWT verification                        │
+│  /api/v1/llm/*       → LLM proxy: complete, stream, embed, health       │
+│  /api/v1/stt/token   → STT key handoff for Deepgram                     │
+│  /api/v1/zoho/*      → Zoho OAuth exchange + refresh                    │
+│  /api/assets/*       → KB file upload, list, delete                     │
+│  /admin/*            → Brand voice, user list, role editing             │
+│  /health             → Liveness check                                   │
 │                                                                         │
-│  ┌────────────────────────────────────────────────────────┐             │
-│  │              MULTI-AGENT ORCHESTRATOR                  │             │
-│  │  Retrieval → ICP Personalization → Brand → Validation  │             │
-│  └────────────────────────────────────────────────────────┘             │
+│  Auth middleware is present but runs with DEV_MODE=true in v1.0.        │
+│  The pitch council (Retrieval → ICP → Brand → Validation) runs in the   │
+│  extension, not here. backend/agents/ is unused legacy (not mounted).   │
 └─────────────┬───────────────┬───────────────┬───────────────────────────┘
               ▼               ▼               ▼
        ┌──────────────┐  ┌──────────┐  ┌──────────────┐
@@ -86,16 +84,16 @@ project-wingman/
 │   ├── config.py                       # Env loading via pydantic-settings
 │   ├── models.py                       # Pydantic request/response models
 │   ├── requirements.txt
-│   ├── agents/                         # Multi-agent pipeline
+│   ├── agents/                         # Unused legacy pipeline, not mounted by main.py
 │   │   ├── orchestrator.py
 │   │   ├── retrieval_agent.py
 │   │   ├── icp_personalization_agent.py
 │   │   ├── brand_compliance_agent.py
 │   │   └── validation_agent.py
-│   ├── rag/                            # Pinecone client + embedding helpers
+│   ├── rag/                            # Pinecone client + embedding helpers (embeddings are a zero-vector placeholder)
 │   ├── rbac/                           # roles.py: permission matrix
 │   ├── api/
-│   │   ├── routes/                     # generate, llm, stt, zoho, assets, admin, auth
+│   │   ├── routes/                     # llm, stt, zoho, assets, admin (the only mounted routers)
 │   │   └── middleware/                 # JWT auth middleware
 │   ├── db/
 │   │   ├── supabase_client.py
