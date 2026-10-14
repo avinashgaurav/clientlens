@@ -142,6 +142,8 @@ export interface VerificationResult {
   total: number;
   removed_claims: string[];
   unresolved_claims: string[];
+  /** Messages for the rep that are not claims, e.g. a slide left empty. */
+  review_notes: string[];
 }
 
 export interface PipelineResult {
@@ -376,7 +378,6 @@ export type ExtensionMessageType =
   | "PAGE_CONTEXT_RESULT"
   | "GET_DOCUMENT_STATE"
   | "DOCUMENT_STATE_RESULT"
-  | "INSERT_CONTENT"
   | "WRITE_TO_DOC"
   | "UNDO_WRITE"
   | "OPEN_SIDEBAR"

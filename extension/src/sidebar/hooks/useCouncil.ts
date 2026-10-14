@@ -4,6 +4,7 @@ import { runCouncil } from "../../shared/agents/council";
 import { listKB } from "../../shared/utils/kb-storage";
 import { getStoredModel } from "../../shared/agents/model-catalog";
 import type { AgentResult } from "../../shared/types";
+import type { WriteToDocPayload } from "../../shared/utils/write-gate";
 
 const STAGE_MAP: Record<string, keyof typeof STAGE_INFO> = {
   retrieval: "retrieval",
@@ -68,10 +69,11 @@ export function useCouncil() {
           // stays in the sidebar, where its banner says why.
           if (verification.status !== "verified" && verification.status !== "redacted") continue;
           try {
-            const writeRes = await chrome.runtime.sendMessage({
-              type: "WRITE_TO_DOC",
-              payload: { slides: event.pipeline.final_output.slides },
-            });
+            const payload: WriteToDocPayload = {
+              slides: event.pipeline.final_output.slides,
+              verification: verification.status,
+            };
+            const writeRes = await chrome.runtime.sendMessage({ type: "WRITE_TO_DOC", payload });
             if (writeRes && !writeRes.success) {
               setError(`Auto-write skipped: ${writeRes.error}`);
             }

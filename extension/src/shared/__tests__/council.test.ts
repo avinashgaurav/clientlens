@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyFactCheck, extractJson, parseBrandCheck, parseFactCheck, type FactCheck } from "../agents/council";
+import { applyFactCheck, extractJson, numericTokens, parseBrandCheck, parseFactCheck, type FactCheck } from "../agents/council";
 import type { SlideContent } from "../types";
 
 describe("extractJson", () => {
@@ -100,7 +100,11 @@ describe("applyFactCheck (fails closed)", () => {
       }),
     );
     expect(verification.status).toBe("redacted");
-    expect(verification.removed_claims).toEqual(["Customers cut cloud spend by 40% in 90 days"]);
+    // The note echoing the removed figure is listed too, so the rep sees it.
+    expect(verification.removed_claims).toEqual([
+      "Customers cut cloud spend by 40% in 90 days",
+      "Removed speaker note: Mention the 40% figure early.",
+    ]);
     expect(verification).toMatchObject({ supported: 1, total: 2 });
     const body = slides[0].components[0].content as string;
     expect(body).not.toContain("40%");
@@ -128,7 +132,299 @@ describe("applyFactCheck (fails closed)", () => {
     );
     expect(slides[1].components).toHaveLength(0);
     expect(verification.status).toBe("needs_review");
-    expect(verification.unresolved_claims).toContain("Slide 2 has no content left after removing unsupported claims");
+    expect(verification.review_notes).toEqual(["Slide 2 has no content left after removing unsupported claims"]);
+    expect(verification.unresolved_claims).toEqual([]);
+  });
+
+  it("does not delete every sentence naming an entity (the Acme case)", () => {
+    const s: SlideContent[] = [
+      { index: 0, title: "t", components: [{ type: "text_block", content: "Acme saved us time. Acme is great. Other." }] },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "Acme", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(verification.unresolved_claims).toEqual(["Acme"]);
+    expect(slides[0].components[0].content).toBe("Acme saved us time. Acme is great. Other.");
+  });
+
+  it("does not auto-remove a short, figure-free claim even on a single match", () => {
+    const s: SlideContent[] = [
+      { index: 0, title: "t", components: [{ type: "text_block", content: "Acme saved us time. Other." }] },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "Acme saved us", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toBe("Acme saved us time. Other.");
+  });
+
+  it("removes a single exact match of a claim of four or more words", () => {
+    const s: SlideContent[] = [
+      { index: 0, title: "t", components: [{ type: "text_block", content: "Acme saved us real time. Other." }] },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "Acme saved us real time", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("redacted");
+    expect(slides[0].components[0].content).toBe("Other.");
+  });
+
+  it("counts matches across components and notes before removing anything", () => {
+    const s: SlideContent[] = [
+      {
+        index: 0,
+        title: "t",
+        components: [
+          { type: "text_block", content: "Customers cut cloud spend by 40% in 90 days. Setup is guided." },
+          { type: "bullet_list", content: "Customers cut cloud spend by 40% in 90 days" },
+        ],
+        speaker_notes: "Open with the story.",
+      },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "Customers cut cloud spend by 40% in 90 days", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components).toHaveLength(2);
+    expect(slides[0].components[0].content).toContain("40%");
+    expect(slides[0].components[1].content).toContain("40%");
+  });
+
+  it("treats a claim in both body and notes as ambiguous", () => {
+    const s: SlideContent[] = [
+      {
+        index: 0,
+        title: "t",
+        components: [{ type: "text_block", content: "Customers cut cloud spend by 40% in 90 days. Setup is guided." }],
+        speaker_notes: "Customers cut cloud spend by 40% in 90 days.",
+      },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "Customers cut cloud spend by 40% in 90 days", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("40%");
+  });
+
+  it("does not call a slide empty when a table or chart remains", () => {
+    const s: SlideContent[] = [
+      {
+        index: 0,
+        title: "t",
+        components: [
+          { type: "text_block", content: "Customers cut cloud spend by 40% in 90 days." },
+          { type: "comparison_table", content: { headers: ["Plan", "Seats"], rows: [["Team", "10"]] } },
+        ],
+      },
+    ];
+    const { slides, verification } = applyFactCheck(
+      s,
+      check({ claims: [{ slide_index: 0, claim: "Customers cut cloud spend by 40% in 90 days", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("redacted");
+    expect(verification.review_notes).toEqual([]);
+    expect(slides[0].components).toHaveLength(1);
+    expect(slides[0].components[0].type).toBe("comparison_table");
+  });
+
+  const one = (content: string, notes?: string, title = "t"): SlideContent[] => [
+    { index: 0, title, components: [{ type: "text_block", content }], ...(notes ? { speaker_notes: notes } : {}) },
+  ];
+  const flag = (claim: string) => check({ claims: [{ slide_index: 0, claim, source_id: null, status: "hallucinated" }] });
+
+  it("holds the draft when a paraphrase of a removed claim would survive elsewhere on the slide", () => {
+    const s: SlideContent[] = [
+      {
+        index: 0,
+        title: "t",
+        components: [
+          { type: "text_block", content: "Reduces cloud spend by 40% in 90 days. Setup is guided." },
+          { type: "bullet_list", content: "Customers cut spend 40% within 90 days" },
+        ],
+      },
+    ];
+    const { slides, verification } = applyFactCheck(s, flag("Reduces cloud spend by 40% in 90 days"));
+    expect(verification.status).toBe("needs_review");
+    expect(verification.unresolved_claims).toEqual(["Reduces cloud spend by 40% in 90 days"]);
+    expect(slides[0].components[1].content).toContain("40%");
+  });
+
+  it("holds the draft when the notes paraphrase an exactly matched claim", () => {
+    const { slides, verification } = applyFactCheck(
+      one("Reduces cloud spend by 40% in 90 days. Setup is guided.", "Customers cut spend 40% within 90 days."),
+      flag("Reduces cloud spend by 40% in 90 days"),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].speaker_notes).toContain("40%");
+  });
+
+  it("lists every echoed speaker note it drops", () => {
+    const { slides, verification } = applyFactCheck(
+      one("We cut spend by 40% for most teams. Setup is guided.", "Lead with the 40%. Pause. Repeat 40% at the close."),
+      flag("We cut spend by 40% for most teams"),
+    );
+    expect(verification.status).toBe("redacted");
+    expect(verification.removed_claims).toEqual([
+      "We cut spend by 40% for most teams",
+      "Removed speaker note: Lead with the 40%.",
+      "Removed speaker note: Repeat 40% at the close.",
+    ]);
+    expect(slides[0].speaker_notes).toBe("Pause.");
+  });
+
+  it("sends a claim in a structured component to review and leaves the slide alone", () => {
+    const s: SlideContent[] = [
+      {
+        index: 0,
+        title: "t",
+        components: [
+          { type: "text_block", content: "Customers cut cloud spend by 40% in 90 days. Setup is guided." },
+          { type: "comparison_table", content: { rows: [["Customers cut cloud spend by 40% in 90 days"]] } },
+        ],
+      },
+    ];
+    const { slides, verification } = applyFactCheck(s, flag("Customers cut cloud spend by 40% in 90 days"));
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("40%");
+  });
+
+  it("sends a claim also in the title to review and leaves the body alone", () => {
+    const { slides, verification } = applyFactCheck(
+      one("Save 40% on cloud spend today. Setup is guided.", undefined, "Save 40% on cloud spend today"),
+      flag("Save 40% on cloud spend today"),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("40%");
+  });
+
+  it("removes a single match found only in the speaker notes", () => {
+    const { slides, verification } = applyFactCheck(
+      one("Setup is guided.", "Customers cut cloud spend by 40% in 90 days. Then demo."),
+      flag("Customers cut cloud spend by 40% in 90 days"),
+    );
+    expect(verification.status).toBe("redacted");
+    expect(slides[0].speaker_notes).toBe("Then demo.");
+    expect(slides[0].components[0].content).toBe("Setup is guided.");
+  });
+
+  it("counts a second claim in an already removed sentence as removed", () => {
+    const { slides, verification } = applyFactCheck(
+      one("Acme cut cloud spend by 40% and doubled release speed. Setup is guided."),
+      check({
+        claims: [
+          { slide_index: 0, claim: "Acme cut cloud spend by 40%", source_id: null, status: "hallucinated" },
+          { slide_index: 0, claim: "doubled release speed", source_id: null, status: "hallucinated" },
+        ],
+      }),
+    );
+    expect(verification.status).toBe("redacted");
+    expect(verification.removed_claims).toEqual(["Acme cut cloud spend by 40%", "doubled release speed"]);
+    expect(slides[0].components[0].content).toBe("Setup is guided.");
+  });
+
+  it("sends a short claim with a bare number (SOC 2, Q3, ISO 27001) to review", () => {
+    for (const claim of ["SOC 2", "Q3", "ISO 27001"]) {
+      const { slides, verification } = applyFactCheck(one(`We are ${claim} ready. Setup is guided.`), flag(claim));
+      expect(verification.status).toBe("needs_review");
+      expect(slides[0].components[0].content).toContain(claim);
+    }
+  });
+
+  it("sends a weak one-figure paraphrase to review", () => {
+    // One figure and one shared keyword out of several is not enough to delete on.
+    const { slides, verification } = applyFactCheck(
+      one("40% of teams use dashboards daily. Setup is guided."),
+      flag("40% lower cloud spend for teams after migration"),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("40%");
+  });
+
+  it("treats an empty table as no content left", () => {
+    const s: SlideContent[] = [
+      {
+        index: 0,
+        title: "t",
+        components: [
+          { type: "text_block", content: "Customers cut cloud spend by 40% in 90 days." },
+          { type: "comparison_table", content: {} },
+        ],
+      },
+    ];
+    const { verification } = applyFactCheck(s, flag("Customers cut cloud spend by 40% in 90 days"));
+    expect(verification.status).toBe("needs_review");
+    expect(verification.review_notes).toEqual(["Slide 1 has no content left after removing unsupported claims"]);
+  });
+
+  it.each([
+    ["Acme reduced cloud spend by 40% within 90 days", "Spend dropped 40% for customers."],
+    ["SOC 2 Type II certified", "Independently audited to SOC 2 standards."],
+    ["Acme cut costs 40%", "We save you 40% on AWS."],
+  ])("holds %j for review when a loose restatement survives", (claim, restated) => {
+    const { slides, verification } = applyFactCheck(one(`${claim}.\n${restated}`), flag(claim));
+    expect(verification.status).toBe("needs_review");
+    expect(verification.unresolved_claims).toEqual([claim]);
+    expect(verification.removed_claims).toEqual([]);
+    expect(slides[0].components[0].content).toContain(restated);
+  });
+
+  it.each([
+    ["Acme cut costs 40% on AWS", "We run on AWS."],
+    ["Acme cut costs 40% on AWS", "Acme is a FinOps platform."],
+    ["Cloud costs fell 40% this year", "Cloud bills are complex."],
+  ])("keeps %j redacted next to an unrelated sentence", (claim, unrelated) => {
+    const { slides, verification } = applyFactCheck(one(`${claim}.\n${unrelated}`), flag(claim));
+    expect(verification.status).toBe("redacted");
+    expect(verification.removed_claims).toEqual([claim]);
+    expect(slides[0].components[0].content).toBe(unrelated);
+  });
+
+  it("holds a claim whose name and keyword survive together", () => {
+    const { verification } = applyFactCheck(
+      one("Teams at Northwind halved their cloud spend last year.\nNorthwind spend is now audited monthly."),
+      flag("Teams at Northwind halved their cloud spend last year"),
+    );
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("still holds a name-plus-keyword restatement when the name is in the title", () => {
+    const { verification } = applyFactCheck(
+      one("Teams at Northwind halved their cloud spend last year.\nNorthwind spend is now audited monthly.", undefined, "Why Northwind"),
+      flag("Teams at Northwind halved their cloud spend last year"),
+    );
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("holds a restatement of a claim that opens with its company name", () => {
+    const { slides, verification } = applyFactCheck(
+      one("Acme cut cloud costs by half.\nAcme's platform reduced Northwind costs substantially."),
+      flag("Acme cut cloud costs by half"),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("Northwind costs");
+  });
+
+  it("holds a restatement even when the name also appears in a neutral sentence", () => {
+    const { verification } = applyFactCheck(
+      one("Acme cut cloud costs by half. Acme is our customer. Acme's cloud costs fell sharply.", undefined, "Acme results"),
+      flag("Acme cut cloud costs by half"),
+    );
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("describes a blank flagged claim instead of listing an empty string", () => {
+    const { verification } = applyFactCheck(
+      draft,
+      check({ claims: [{ slide_index: 0, claim: "  ", source_id: null, status: "hallucinated" }] }),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(verification.unresolved_claims).toEqual(["A claim on slide 1 (the validator did not quote it)"]);
   });
 
   it("does not report verified when the validator itemised no claims", () => {
@@ -185,7 +481,7 @@ describe("applyFactCheck (fails closed)", () => {
     ];
     const { slides, verification } = applyFactCheck(
       s,
-      check({ claims: [{ slide_index: 0, claim: "used by 1200 teams", source_id: null, status: "hallucinated" }] }),
+      check({ claims: [{ slide_index: 0, claim: "trusted by 1200 teams", source_id: null, status: "hallucinated" }] }),
     );
     expect(verification.status).toBe("redacted");
     expect(slides[0].components[0].content).toBe("Setup is guided.");
@@ -196,12 +492,12 @@ describe("applyFactCheck (fails closed)", () => {
       {
         index: 0,
         title: "t",
-        components: [{ type: "text_block", content: "Teams save 40% on spend. Spend drops 40% in the first quarter. Setup is guided." }],
+        components: [{ type: "text_block", content: "Teams save 40% on spend in 90 days. Spend drops 40% in 90 days. Setup is guided." }],
       },
     ];
     const { slides, verification } = applyFactCheck(
       s,
-      check({ claims: [{ slide_index: 0, claim: "a 40% reduction in spend", source_id: null, status: "hallucinated" }] }),
+      check({ claims: [{ slide_index: 0, claim: "a 40% reduction in spend over 90 days", source_id: null, status: "hallucinated" }] }),
     );
     expect(verification.status).toBe("needs_review");
     expect(slides[0].components[0].content).toContain("40%");
@@ -262,5 +558,17 @@ describe("parseBrandCheck", () => {
       violations: [],
       tone_score: 0.4,
     });
+  });
+});
+
+describe("numericTokens", () => {
+  it("keeps units that touch the number", () => {
+    expect(numericTokens("40% of $2.5M, 3x faster, 1.2bn rows, 40 % more")).toEqual(["40%", "$2.5m", "3x", "1.2bn", "40%"]);
+  });
+
+  it("does not read a following word as a unit", () => {
+    expect(numericTokens("10 M&A deals")).toEqual(["10"]);
+    expect(numericTokens("in 2024 x the board")).toEqual(["2024"]);
+    expect(numericTokens("10M&A")).toEqual(["10"]);
   });
 });

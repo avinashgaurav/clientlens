@@ -269,7 +269,6 @@ export default defineConfig(({ mode }) => ({
         popup: resolve(__dirname, "popup.html"),
         offscreen: resolve(__dirname, "offscreen.html"),
         background: resolve(__dirname, "src/background/service-worker.ts"),
-        content: resolve(__dirname, "src/content/content-script.ts"),
         "meet-transponder": resolve(__dirname, "src/content/meet-transponder.ts"),
       },
       output: {

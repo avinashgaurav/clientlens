@@ -1,5 +1,6 @@
-import type { ExtensionMessage, SlideContent, TranscriptSegment } from "../shared/types";
+import type { ExtensionMessage, TranscriptSegment } from "../shared/types";
 import { writeToDoc, undoWrite } from "./google-writer";
+import { checkWritePayload, senderAllowed } from "../shared/utils/write-gate";
 import { startAudioForSession, stopAudio } from "../meeting-copilot/audio-controller";
 import { startBgOrchestrator, stopBgOrchestrator, bgAppendTranscript } from "./bg-orchestrator";
 
@@ -60,6 +61,14 @@ chrome.runtime.onMessage.addListener(
   (message: ExtensionMessage, sender, sendResponse) => {
     const type = (message as { type?: string }).type ?? "";
 
+    // Writing to a doc, undoing a write and fetching URLs are for the
+    // extension's own pages only. A content script has `sender.tab` set and
+    // another extension has a different `sender.id`; both are refused.
+    if (!senderAllowed(type, sender, chrome.runtime.id)) {
+      sendResponse({ success: false, error: "untrusted sender" });
+      return false;
+    }
+
     // ── Sidebar utility messages ────────────────────────────────────────────
     switch (type) {
       case "GET_PAGE_CONTEXT":
@@ -68,10 +77,6 @@ chrome.runtime.onMessage.addListener(
 
       case "GET_DOCUMENT_STATE":
         handleGetDocumentState(sender.tab?.id, sendResponse);
-        return true;
-
-      case "INSERT_CONTENT":
-        handleInsertContent(message.payload, sender.tab?.id, sendResponse);
         return true;
 
       case "WRITE_TO_DOC":
@@ -252,27 +257,6 @@ async function handleGetDocumentState(
   }
 }
 
-async function handleInsertContent(
-  payload: unknown,
-  tabId: number | undefined,
-  sendResponse: (r: unknown) => void
-) {
-  if (!tabId) {
-    sendResponse({ error: "No active tab" });
-    return;
-  }
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      func: insertContentIntoDoc,
-      args: [payload],
-    });
-    sendResponse({ success: true });
-  } catch (err) {
-    sendResponse({ error: String(err) });
-  }
-}
-
 // Injected into the page, no closure access
 function extractPageContext() {
   const url = window.location.href;
@@ -328,11 +312,6 @@ function extractDocumentState(docType: string) {
   return { doc_type: "unknown", url: window.location.href };
 }
 
-function insertContentIntoDoc(payload: unknown) {
-  // Dispatches a custom event that the content script listens to
-  window.dispatchEvent(new CustomEvent("CLIENTLENS_INSERT", { detail: payload }));
-}
-
 function detectDocType(url: string): string {
   if (url.includes("docs.google.com/presentation")) return "slides";
   if (url.includes("docs.google.com/document")) return "docs";
@@ -344,14 +323,19 @@ async function handleWriteToDoc(
   payload: unknown,
   sendResponse: (r: unknown) => void,
 ) {
+  // Enforce the fact-check gate here too, not only in the sidebar.
+  const gate = checkWritePayload(payload);
+  if (!gate.ok) {
+    sendResponse({ success: false, error: gate.error });
+    return;
+  }
   try {
     // `lastFocusedWindow: true` finds the active tab in the last focused
     // browser window. `currentWindow: true` from a service worker resolves
     // to the side-panel window, which never contains a Slides/Docs tab.
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     const url = tab?.url ?? "";
-    const slides = (payload as { slides?: SlideContent[] })?.slides ?? [];
-    const result = await writeToDoc({ url, slides });
+    const result = await writeToDoc({ url, slides: gate.slides });
     sendResponse(result);
   } catch (err) {
     sendResponse({ success: false, error: err instanceof Error ? err.message : String(err) });

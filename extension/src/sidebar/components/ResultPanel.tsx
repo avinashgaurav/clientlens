@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Copy, ExternalLink, ChevronDown, ChevronUp, ShieldCheck, Undo2, Loader2, Plus, Presentation, FileText, BookOpen, BarChart3, Wand2, AlertTriangle } from "lucide-react";
 import type { PipelineResult, PitchFormat, SlideContent, VerificationResult } from "../../shared/types";
 import { useAppStore } from "../stores/app-store";
+import type { WriteToDocPayload } from "../../shared/utils/write-gate";
 
 interface Props {
   result: PipelineResult;
@@ -43,10 +44,11 @@ export function ResultPanel({ result }: Props) {
     setWriting(true);
     setWriteStatus(null);
     try {
-      const res: WriteResponse = await chrome.runtime.sendMessage({
-        type: "WRITE_TO_DOC",
-        payload: { slides: result.final_output.slides },
-      });
+      const payload: WriteToDocPayload = {
+        slides: result.final_output.slides,
+        verification: result.metadata.verification.status,
+      };
+      const res: WriteResponse = await chrome.runtime.sendMessage({ type: "WRITE_TO_DOC", payload });
       setWriteStatus(res);
     } catch (err) {
       setWriteStatus({ success: false, error: err instanceof Error ? err.message : String(err) });
@@ -245,12 +247,14 @@ const VERIFICATION_COPY: Record<Exclude<VerificationResult["status"], "verified"
 function VerificationBanner({ verification }: { verification: VerificationResult }) {
   if (verification.status === "verified") return null;
   const copy = VERIFICATION_COPY[verification.status];
-  const claims =
+  const claims = (
     verification.status === "redacted"
       ? verification.removed_claims
       : verification.status === "needs_review"
-      ? verification.unresolved_claims
-      : [];
+      ? // `?? []`: results saved before review_notes existed do not have it.
+        [...verification.unresolved_claims, ...(verification.review_notes ?? [])]
+      : []
+  ).filter((c) => c.trim() !== "");
   return (
     <div className={`text-xs rounded-lg px-3 py-2 border space-y-1 ${copy.tone}`}>
       <div className="flex items-start gap-1.5">
