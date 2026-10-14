@@ -393,12 +393,29 @@ describe("applyFactCheck (fails closed)", () => {
     expect(verification.status).toBe("needs_review");
   });
 
-  it("ignores a name that is also in the slide title", () => {
+  it("still holds a name-plus-keyword restatement when the name is in the title", () => {
     const { verification } = applyFactCheck(
       one("Teams at Northwind halved their cloud spend last year.\nNorthwind spend is now audited monthly.", undefined, "Why Northwind"),
       flag("Teams at Northwind halved their cloud spend last year"),
     );
-    expect(verification.status).toBe("redacted");
+    expect(verification.status).toBe("needs_review");
+  });
+
+  it("holds a restatement of a claim that opens with its company name", () => {
+    const { slides, verification } = applyFactCheck(
+      one("Acme cut cloud costs by half.\nAcme's platform reduced Northwind costs substantially."),
+      flag("Acme cut cloud costs by half"),
+    );
+    expect(verification.status).toBe("needs_review");
+    expect(slides[0].components[0].content).toContain("Northwind costs");
+  });
+
+  it("holds a restatement even when the name also appears in a neutral sentence", () => {
+    const { verification } = applyFactCheck(
+      one("Acme cut cloud costs by half. Acme is our customer. Acme's cloud costs fell sharply.", undefined, "Acme results"),
+      flag("Acme cut cloud costs by half"),
+    );
+    expect(verification.status).toBe("needs_review");
   });
 
   it("describes a blank flagged claim instead of listing an empty string", () => {

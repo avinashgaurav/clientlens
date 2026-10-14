@@ -537,28 +537,41 @@ const WORD = /[A-Za-z][A-Za-z0-9&]*/g;
 const acronymFigures = (s: string) =>
   [...s.matchAll(/\b([A-Z]{2,})\s?(\d+(?:\.\d+)?)\b/g)].map((m) => `${m[1].toLowerCase()} ${m[2]}`);
 
+// Capitalised words that are not names, even at the start of a sentence.
+const NAME_STOPWORDS = new Set([
+  "the", "a", "an", "we", "our", "you", "your", "it", "this", "that", "these", "those", "they", "their",
+  "customers", "teams", "users", "companies",
+]);
+
+/** Light stemming so "cost"/"costs" and "reduce"/"reduced" compare equal. */
+const stem = (w: string) => {
+  const s = w.toLowerCase().replace(/'s$/, "");
+  const cut = s.replace(/(?:ing|ed|es|s|e)$/, "");
+  return cut.length >= 3 ? cut : s;
+};
+
 /**
  * The parts of a claim that identify it even when reworded. Used only to
  * decide whether a claim survives a removal, never to choose what to delete.
  *  - figures: a figure with a unit or magnitude ("40%", "$2m", "3x") or an
  *             acronym with a number ("soc 2")
- *  - names:   an all-caps acronym ("AWS"), or a capitalised word that does
- *             not open its sentence ("Acme" in "Teams at Acme saved 40%").
- *             An opener ("Cloud costs fell") is just capitalised.
- *  - words:   the claim's other keywords, for corroborating a name
+ *  - names:   all-caps acronyms ("AWS") and capitalised words ("Acme"),
+ *             openers included, except NAME_STOPWORDS
+ *  - words:   the claim's other keywords, stemmed, for corroborating a name
  */
 function salientTokens(claim: string): { figures: string[]; names: string[]; words: string[] } {
   const figures = [...numericTokens(claim).filter(hasUnit), ...acronymFigures(claim)];
-  const names = new Set<string>();
-  for (const sentence of splitSentences(claim)) {
-    (sentence.match(WORD) ?? []).forEach((w, i) => {
-      if (/^[A-Z]{2,}[0-9]*$/.test(w) || (i > 0 && /^[A-Z]/.test(w))) names.add(w);
-    });
-  }
-  const lowerNames = new Set([...names].map((n) => n.toLowerCase()));
-  const words = keywords(claim).filter((w) => !lowerNames.has(w));
-  return { figures, names: [...names], words };
+  const names = [
+    ...new Set((claim.match(WORD) ?? []).filter((w) => /^[A-Z]/.test(w) && !NAME_STOPWORDS.has(w.toLowerCase()))),
+  ];
+  const lowerNames = new Set(names.map((n) => n.toLowerCase()));
+  const words = [...new Set(keywords(claim).filter((w) => !lowerNames.has(w)).map(stem))];
+  return { figures, names, words };
 }
+
+/** Whether `name` is in `tokens`: case-insensitive from three letters, exact below. */
+const hasName = (tokens: string[], name: string) =>
+  name.length >= 3 ? tokens.some((t) => t.toLowerCase() === name.toLowerCase()) : tokens.includes(name);
 
 /**
  * Whether the claim is still on the slide (body or notes) after its sentence
@@ -566,12 +579,11 @@ function salientTokens(claim: string): { figures: string[]; names: string[]; wor
  * often too loose for matchClaim, so this looks for the claim's salient
  * tokens. It survives if:
  *  - a figure from the claim is still there; or
- *  - one remaining sentence has a claim name plus another claim keyword, or
- *    two distinct claim names.
+ *  - one remaining sentence has a claim name plus another claim keyword; or
+ *  - one remaining sentence has two distinct claim names.
  * A name alone is only corroboration: "We run on AWS" next to a removed AWS
- * claim is not a restatement. Names in the title, or in remaining sentences
- * that share nothing else with the claim, are the slide's subject rather
- * than evidence, so they are ignored.
+ * claim is not a restatement. This is a word-level heuristic that errs
+ * towards holding the draft for review; the LLM validator is the main check.
  */
 function claimSurvives(slide: SlideContent, claim: string): boolean {
   const { figures, names, words } = salientTokens(claim);
@@ -583,19 +595,13 @@ function claimSurvives(slide: SlideContent, claim: string): boolean {
   if (figures.some((f) => remainingFigures.includes(f))) return true;
   if (!names.length) return false;
 
-  const facts = sentences.map((x) => {
-    const tokens = new Set(x.match(WORD) ?? []);
-    const kw = new Set(keywords(x));
-    return { names: names.filter((n) => tokens.has(n)), corroborated: words.some((w) => kw.has(w)) };
-  });
-  const titleWords = new Set((slide.title ?? "").match(WORD) ?? []);
-  const background = new Set([
-    ...names.filter((n) => titleWords.has(n)),
-    ...facts.filter((f) => !f.corroborated && f.names.length === 1).flatMap((f) => f.names),
-  ]);
-  return facts.some((f) => {
-    const own = f.names.filter((n) => !background.has(n));
-    return (own.length >= 1 && f.corroborated) || own.length >= 2;
+  return sentences.some((x) => {
+    const tokens = x.match(WORD) ?? [];
+    const found = names.filter((n) => hasName(tokens, n));
+    if (found.length >= 2) return true;
+    if (!found.length) return false;
+    const kw = new Set(keywords(x).map(stem));
+    return words.some((w) => kw.has(w));
   });
 }
 
