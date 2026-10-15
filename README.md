@@ -4,7 +4,7 @@ Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so
 
 **Demo site:** https://avinashgaurav.github.io/project-wingman-ClientLens/
 
-<img src="docs/demo.gif" alt="Wingman's loop: knowledge base, pitch setup, call history and weekly insights, real extension with sample data." width="720" />
+<img src="docs/demo.gif" alt="Wingman: weekly insights, pitch setup and call history, real extension with sample data." width="720" />
 
 > [!NOTE]
 > **Evals: the fact check that guards every pitch**
@@ -15,7 +15,7 @@ Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so
 > | Planted claims that could still be written to a doc | **0 / 13** |
 > | Fully supported decks wrongly flagged | **0 / 6** |
 >
-> Smoke test, not a benchmark: 18 fictional decks and one knowledge base, run through the Claude Code CLI rather than the production API path. Method and every hold: [EVALS.md](EVALS.md).
+> Smoke test, not a benchmark: 18 fictional decks and one knowledge base, run through the Claude Code CLI rather than the production API path; 9 of the 12 planted decks were held for review rather than cleanly redacted. Method and every hold: [EVALS.md](EVALS.md).
 
 ## Why AI here, why code there
 
@@ -60,4 +60,10 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 - [Architecture](docs/architecture.md): how the pieces fit, project layout, tech stack
 - [Development guide](docs/development.md): mock mode, build modes, running the CI checks locally
 - [Security model](docs/security.md): auth posture and what to lock down before deploying
-- [Evals](EVALS.md) · [Contributing](CONTRIBUTING.md) · [MIT License](LICENSE) © 2026 Avinash Gaurav
+- [Evals](EVALS.md) · [Contributing](CONTRIBUTING.md)
+
+## License
+
+[MIT](LICENSE) © 2026 Avinash Gaurav.
+
+Free to use, modify and distribute. Bring-your-own-keys means you run it on your own provider accounts: there is no Wingman-hosted service and no telemetry.
