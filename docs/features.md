@@ -6,9 +6,9 @@ Every surface, in full. For the short version see the [README](../README.md).
 
 **The open-source AI sales copilot that lives in your browser sidebar.**
 
-Live coaching during Google Meet calls, pitch generation grounded in your own knowledge base, and objection handling on tap. Runs on your LLM keys, on your infrastructure. There is no Wingman server.
+Live coaching during Google Meet calls, pitch generation grounded in your own knowledge base, and objection handling on tap. Runs on your LLM keys, on your infrastructure. There is no ClientLens server.
 
-A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fumble the objection, take a half-page of notes, paste them into the CRM, then forget the follow-up. Wingman compresses that loop.
+A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fumble the objection, take a half-page of notes, paste them into the CRM, then forget the follow-up. ClientLens compresses that loop.
 
 - **Pre-call.** Generate a personalized pitch and a tailored email from the prospect's public signals and your indexed knowledge base.
 - **During the call.** Four agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence and objection handles, and a validator that checks each coach suggestion against your knowledge base: it shows an approved suggestion, swaps in its rewrite of one it revises, and drops one it rejects or cannot read. A small overlay mirrors the cues on the Meet tab itself.
@@ -24,7 +24,7 @@ Outputs are grounded in your knowledge base: agents are prompted to cite a sourc
 | **Draft the pitch.** Five output formats and a buyer persona. Live meeting mode on for the call itself. | <img src="screenshots/pitch-setup.png" alt="Pitch setup with output formats and live meeting mode on." width="300" /> |
 | **Take the calls.** Each one lands with its sentiment and how much of the agenda you covered. | <img src="screenshots/call-history.png" alt="Call history with sentiment and agenda coverage per call." width="420" /> |
 
-<img src="screenshots/insights.png" alt="Wingman's Insights tab: win rate, average sentiment, objections handled and total calls for the week." width="720" />
+<img src="screenshots/insights.png" alt="ClientLens's Insights tab: win rate, average sentiment, objections handled and total calls for the week." width="720" />
 
 <sub>Insights after a week of calls. Every screenshot here is the real extension, with sample data loaded.</sub>
 
@@ -65,7 +65,7 @@ A Google Meet companion that captures tab audio, transcribes it in real time, an
 
 A purpose-built mid-call surface for "the prospect just said X, what do I say?"
 
-- **Invoke two ways:** right-click any selected text on a page → context menu **"Project Wingman: Handle objection"**, OR open the Generate tab and pick Objection mode.
+- **Invoke two ways:** right-click any selected text on a page → context menu **"ClientLens: Handle objection"**, OR open the Generate tab and pick Objection mode.
 - **2-agent pipeline:**
   - **Retrieval Agent**: pulls the most relevant battlecard / case study / compliance entries from your KB.
   - **Respond Agent**: drafts a 60–120 word grounded reply, emitting inline `[N]` citation markers tied to each cited claim.

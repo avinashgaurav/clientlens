@@ -1,5 +1,5 @@
 /*
- * Project Wingman: Multi-Surface Design Token System
+ * ClientLens: Multi-Surface Design Token System
  * =====================================================
  *
  * This file defines CSS variables for every brand surface. Tailwind tokens
@@ -41,7 +41,7 @@
  *   --surface-0..4   surface lift ladder (0 = deepest canvas)
  *   --ink, --ink-2..5   text ladder (ink = highest emphasis)
  *   --line, --line-2..3   hairline borders
- *   --brand-orange   the persistent Wingman brand mark
+ *   --brand-orange   the persistent ClientLens brand mark
  *   --accent-*       skin-specific signal colors
  *   --shadow-*       skin-specific elevation
  *
@@ -57,7 +57,7 @@
  */
 :root,
 [data-skin="brand"] {
-  /* Brand mark: Wingman orange, persistent across every skin */
+  /* Brand mark: ClientLens orange, persistent across every skin */
   --brand-orange: #F58549;
   --brand-orange-hover: #E07539;
   --brand-orange-press: #C66224;
@@ -119,7 +119,7 @@
  * CURSOR skin: Live Meeting Copilot panel
  * ===================================================================
  * Warm cream canvas with timeline-pastel accents for live AI agent
- * stages. The five timeline colors map to Wingman's live agents:
+ * stages. The five timeline colors map to ClientLens's live agents:
  *
  *   timeline-peach    → Sentiment Agent (the "feeling" stage)
  *   timeline-mint     → Agenda Agent (the "tracking" stage)

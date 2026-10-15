@@ -741,7 +741,7 @@ function KBEmptyState() {
           className="mt-1 text-[11px] font-semibold disabled:opacity-50"
           style={{ color: "var(--brand-orange)", background: "transparent", border: "none" }}
         >
-          {loading ? "Loading sample data…" : "Try Wingman with sample data →"}
+          {loading ? "Loading sample data…" : "Try ClientLens with sample data →"}
         </button>
       )}
     </div>

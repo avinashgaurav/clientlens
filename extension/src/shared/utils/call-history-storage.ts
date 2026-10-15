@@ -32,6 +32,7 @@ import type {
   SentimentSnapshot,
 } from "../types";
 
+// Storage key keeps the pre-rename name so existing call history survives the ClientLens rename.
 const CALL_HISTORY_KEY = "wingman_call_history_v1";
 const LEGACY_KEY = "clientlens_session_history_v1";
 const CALL_HISTORY_LIMIT = 100;
@@ -193,7 +194,7 @@ function safeWrite(records: StoredCallRecord[]): void {
     // localStorage may throw on quota; we drop the write rather than crash
     // the stop-session flow, but we log it so quota issues are visible in
     // the service-worker console instead of failing silently.
-    console.warn("[wingman] call-history write failed", err);
+    console.warn("[clientlens] call-history write failed", err);
   }
 }
 
@@ -335,7 +336,7 @@ export function clearCallHistory(): void {
 // silent. We dispatch a custom event so React hooks can subscribe to
 // both same-tab and cross-tab changes uniformly.
 
-const CHANGE_EVENT = "wingman:call-history-changed";
+const CHANGE_EVENT = "clientlens:call-history-changed";
 
 function emitChange(): void {
   try {

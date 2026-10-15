@@ -52,7 +52,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     // Keep the full detail in the extension's own DevTools, where a developer
     // debugging this already is, and where it is not shipped anywhere.
     try {
-      console.error("[wingman] sidebar render error", error, info.componentStack);
+      console.error("[clientlens] sidebar render error", error, info.componentStack);
     } catch {
       /* noop */
     }

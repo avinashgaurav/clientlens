@@ -36,7 +36,7 @@ For each: **today's flow** · **friction** · **leverage** (how much rep time / 
 - **Leverage:** **H**, most-used async surface for non-Meet workflows.
 
 ### W3. Mid-call objection (highlight → response → paste)
-- **Today:** Two entry points: (a) Generate tab → ModeSwitcher → "objection" → paste text manually; (b) any page → highlight → right-click → "Project Wingman: Handle objection" → opens sidebar → `ObjectionPanel`. Result is single response card + separate citations card + copy button.
+- **Today:** Two entry points: (a) Generate tab → ModeSwitcher → "objection" → paste text manually; (b) any page → highlight → right-click → "ClientLens: Handle objection" → opens sidebar → `ObjectionPanel`. Result is single response card + separate citations card + copy button.
 - **Friction:**
   - Path (a) is wrong: putting objection inside the Generate tab implies it's an async task. Mid-call reps land on the Generate tab (default), see "objection" as a sub-mode, paste, wait. The Generate tab's mental model is broken by hosting a real-time workflow.
   - Path (b) is right but slow to surface, the sidebar opens cold, ObjectionPanel renders from scratch, no pre-warmed state.
@@ -173,7 +173,7 @@ Today's cold-start lands on Generate (empty form). The rep's first impression is
 
 #### Change 2.2: In-product first-run callout
 
-- **What:** A one-time slim banner above the active panel (not the OnboardingChecklist, separate, dismissible) with: "Welcome, Wingman is loaded with sample data. Try Insights to see what a finished call looks like. Clear samples in Quick Settings (sliders icon)." 14-day dismissal expires; reappears if they reinstall.
+- **What:** A one-time slim banner above the active panel (not the OnboardingChecklist, separate, dismissible) with: "Welcome, ClientLens is loaded with sample data. Try Insights to see what a finished call looks like. Clear samples in Quick Settings (sliders icon)." 14-day dismissal expires; reappears if they reinstall.
 - **Why:** Tells the rep *why* they're looking at sample data and *where* to clear it. Without it, the auto-load looks like a bug.
 - **Files:** New component `extension/src/sidebar/components/FirstInstallBanner.tsx`. Render in `App.tsx` above the active panel, gated on `clientlens_install_seen` flag and a separate `clientlens_first_install_banner_dismissed` flag.
 - **Effort:** ~½ day.

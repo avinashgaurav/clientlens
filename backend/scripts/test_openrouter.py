@@ -11,8 +11,8 @@ Usage:
 
     # Optional overrides
     export OPENROUTER_MODEL="deepseek/deepseek-chat:free"
-    export OPENROUTER_REFERER="https://project-wingman.example.com"
-    export OPENROUTER_TITLE="Project Wingman"
+    export OPENROUTER_REFERER="https://clientlens.example.com"
+    export OPENROUTER_TITLE="ClientLens"
 
 Exit codes:
     0: both /complete and /stream paths returned valid responses
@@ -184,8 +184,8 @@ def main() -> int:
         )
         return 1
     model = os.environ.get("OPENROUTER_MODEL", DEFAULT_MODEL)
-    referer = os.environ.get("OPENROUTER_REFERER", "https://project-wingman.example.com")
-    title = os.environ.get("OPENROUTER_TITLE", "Project Wingman")
+    referer = os.environ.get("OPENROUTER_REFERER", "https://clientlens.example.com")
+    title = os.environ.get("OPENROUTER_TITLE", "ClientLens")
 
     print("OpenRouter proxy smoke test")
     print(f"  model    {model}")

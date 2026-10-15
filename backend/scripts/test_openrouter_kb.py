@@ -287,8 +287,8 @@ def main() -> int:
         )
         return 1
     model = os.environ.get("OPENROUTER_MODEL", DEFAULT_MODEL)
-    referer = os.environ.get("OPENROUTER_REFERER", "https://project-wingman.example.com")
-    title = os.environ.get("OPENROUTER_TITLE", "Project Wingman")
+    referer = os.environ.get("OPENROUTER_REFERER", "https://clientlens.example.com")
+    title = os.environ.get("OPENROUTER_TITLE", "ClientLens")
     features_path = os.environ.get("KB_FEATURES_PATH", DEFAULT_FEATURES)
     faq_path = os.environ.get("KB_FAQ_PATH", DEFAULT_FAQ)
 

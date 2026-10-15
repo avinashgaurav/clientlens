@@ -241,7 +241,7 @@ function css() {
   }
   /* #81: hide the dot entirely in the idle state, the transponder is
    * the vercel-mono surface; the dot is the single brand cue that signals
-   * "Wingman is actively listening." No session = no cue. */
+   * "ClientLens is actively listening." No session = no cue. */
   #${ROOT_ID}.idle .cl-dot { display: none; }
   #${ROOT_ID}.error .cl-dot { background: #EE0000; }
   /* Solid gray when a session is live but no transcript has arrived
@@ -799,7 +799,7 @@ function render() {
     : null;
 
   const chipEl = el("span", { class: "cl-chip" },
-    el("span", { class: "cl-chip-co" }, inp?.company_name || "Project Wingman"),
+    el("span", { class: "cl-chip-co" }, inp?.company_name || "ClientLens"),
     el("span", { class: "cl-chip-sep" }, "·"),
     moodEl,
     el("span", { class: "cl-chip-sep" }, "·"),
@@ -952,12 +952,12 @@ function render() {
   // pulse, listening alone = gray). aria-label is set per state below.
   const dotAriaLabel =
     state.status === "idle"
-      ? "Wingman: idle"
+      ? "ClientLens: idle"
       : state.status === "error"
-        ? "Wingman: error"
+        ? "ClientLens: error"
         : state.streamActive
-          ? "Wingman: listening"
-          : "Wingman: paused";
+          ? "ClientLens: listening"
+          : "ClientLens: paused";
   const dotEl = el("span", {
     class: "cl-dot",
     role: "status",
@@ -1120,7 +1120,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   const m = msg as { type: string; payload?: unknown };
   if (m.type === "MC_TRANSPONDER_OPEN") {
     // Session was started from the side-panel entry point. Suppress the
-    // in-call "Start Project Wingman?" prompt and tear it down if already shown,
+    // in-call "Start ClientLens?" prompt and tear it down if already shown,
     // so the rep doesn't get asked twice for the same call.
     sessionStarted = true;
     dismissPrompt();
@@ -1314,7 +1314,7 @@ function showStartPrompt() {
   injectFonts();
   ensureStyle();
   promptEl = el("div", { id: PROMPT_ID },
-    el("div", { class: "cl-p-title" }, "Start Project Wingman for this call?"),
+    el("div", { class: "cl-p-title" }, "Start ClientLens for this call?"),
     el("div", { class: "cl-p-sub" },
       "Live transcription, sentiment and coach nudges. Read-only, nothing is posted anywhere."),
     el("div", { class: "cl-p-row" },

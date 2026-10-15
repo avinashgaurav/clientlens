@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config}
  *
- * Project Wingman: Multi-Surface Token Bridge.
+ * ClientLens: Multi-Surface Token Bridge.
  * ===============================================
  *
  * Every color token below resolves to a CSS variable defined in
@@ -106,7 +106,7 @@ export default {
           "purple-soft": "var(--accent-purple-soft)",
         },
 
-        // Cursor timeline pastels: maps to Wingman's live agent stages
+        // Cursor timeline pastels: maps to ClientLens's live agent stages
         timeline: {
           thinking: "var(--timeline-thinking, #DFA88F)",
           grep: "var(--timeline-grep, #9FC9A2)",

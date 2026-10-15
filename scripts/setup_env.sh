@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Interactive .env file generator for local Project Wingman development.
+# Interactive .env file generator for local ClientLens development.
 #
 # Prompts for secrets silently (no echo, not stored in shell history) and writes
 # the values to `backend/.env` and `extension/.env`. Public values (URLs, OAuth
@@ -27,7 +27,7 @@ for arg in "$@"; do
   [[ "$arg" == "--non-interactive" ]] && INTERACTIVE=0
 done
 
-echo "── Project Wingman local .env setup ──"
+echo "── ClientLens local .env setup ──"
 echo
 if (( ! INTERACTIVE )); then
   echo "Running with --non-interactive: public values get their defaults and every"
@@ -129,8 +129,8 @@ ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
 GROQ_API_KEY=
 OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-OPENROUTER_REFERER=https://project-wingman.example.com
-OPENROUTER_TITLE=Project Wingman
+OPENROUTER_REFERER=https://clientlens.example.com
+OPENROUTER_TITLE=ClientLens
 
 # ── Google OAuth (currently UNUSED by the backend) ────────────────────────────
 # These two settings exist in config.py but are read by no backend code. All

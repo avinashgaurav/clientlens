@@ -50,7 +50,7 @@ How the pieces fit together, and where everything lives on disk.
 ## Project structure
 
 ```
-project-wingman-ClientLens/
+clientlens/
 ├── extension/                          # Chrome Extension (React + TS + Vite)
 │   ├── manifest.json                   # MV3 manifest
 │   ├── vite.config.ts                  # Build + dev-only localhost injection

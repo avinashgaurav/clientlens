@@ -28,12 +28,12 @@ export const DEMO_CALL_PREFIX = "demo_call_";
 
 const SAMPLE_KB_FIXTURES: Omit<KBEntry, "uploaded_at">[] = [
   {
-    id: DEMO_KB_PREFIX + "wingman-playbook",
-    name: "Wingman Sales Playbook (sample)",
+    id: DEMO_KB_PREFIX + "clientlens-playbook",
+    name: "ClientLens Sales Playbook (sample)",
     namespace: "product_overview",
     source_type: "text",
     content:
-      "Wingman is an AI sales copilot that runs in your Chrome sidebar. " +
+      "ClientLens is an AI sales copilot that runs in your Chrome sidebar. " +
       "Council of 5 agents (sentiment / agenda / coach / objection / validator) " +
       "coaches you live during the call and grounds every pitch in this KB. " +
       "BYOL: your data goes only to your configured LLM provider. " +
@@ -81,10 +81,10 @@ const SAMPLE_KB_FIXTURES: Omit<KBEntry, "uploaded_at">[] = [
     namespace: "roi_pricing",
     source_type: "text",
     content:
-      "Sample pricing FAQ. Wingman itself is free and open source. " +
+      "Sample pricing FAQ. ClientLens itself is free and open source. " +
       "Your only cost is the LLM provider API charges for the council " +
       "calls (~$0.08 per pitch on Gemini Flash, varies by provider). " +
-      "No per-seat licensing. No data leaves your machine to Wingman's " +
+      "No per-seat licensing. No data leaves your machine to ClientLens's " +
       "servers; it goes only to your configured LLM provider.",
     status: "ready",
     uploaded_by: "demo",
@@ -98,11 +98,11 @@ const SAMPLE_KB_FIXTURES: Omit<KBEntry, "uploaded_at">[] = [
     namespace: "security_compliance",
     source_type: "text",
     content:
-      "Sample security overview. Wingman is local-first. Transcripts and " +
+      "Sample security overview. ClientLens is local-first. Transcripts and " +
       "summaries live in localStorage on the rep's browser. Retention " +
       "caps: 24h for session history, 30d for call history (configurable). " +
       "No shared backend. The rep's chosen LLM provider sees the prompts " +
-      "but never persists them on Wingman's side.",
+      "but never persists them on ClientLens's side.",
     status: "ready",
     uploaded_by: "demo",
     uploaded_by_role: "admin",

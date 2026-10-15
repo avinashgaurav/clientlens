@@ -78,7 +78,7 @@ async function respondAgent(
 ): Promise<AgentResult & { response: ObjectionResponse }> {
   const used = kb.filter((e) => relevantIds.includes(e.id));
 
-  const system = `You are the Objection Response Agent for Project Wingman. Respond to the prospect's objection using ONLY the cited sources. Be concise, specific, numerical. No hype words. Never invent customers. Output strict JSON only. ${KB_SAFETY_INSTRUCTION}`;
+  const system = `You are the Objection Response Agent for ClientLens. Respond to the prospect's objection using ONLY the cited sources. Be concise, specific, numerical. No hype words. Never invent customers. Output strict JSON only. ${KB_SAFETY_INSTRUCTION}`;
   const user = `OBJECTION (from prospect):
 "${input.objection_text}"
 ${input.source_url ? `\nContext: ${input.source_title ?? ""} (${input.source_url})` : ""}

@@ -37,7 +37,7 @@ if _missing:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    log.info("startup", service="project-wingman-backend")
+    log.info("startup", service="clientlens-backend")
     if settings.dev_mode:
         log.critical(
             "DEV_MODE is ENABLED: JWT verification is bypassed. "
@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Project Wingman: Sales Copilot API",
+    title="ClientLens: Sales Copilot API",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -89,4 +89,4 @@ app.include_router(zoho.router, prefix="/api", tags=["zoho"])
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "project-wingman-backend"}
+    return {"status": "ok", "service": "clientlens-backend"}

@@ -77,7 +77,7 @@ This trips people up, so it is worth stating plainly before the commands.
 
 **If you are self-hosting, you want `npm run dev`, and that is not a workaround.** v1.0 assumes one rep running the backend on their own machine, so a local backend is the supported shape. The Quick Start uses `npm run dev` for exactly this reason.
 
-A release build deliberately **cannot** be produced against a local backend. `hostPermissionFor` in `extension/vite.config.ts` rejects any non-https URL, and outside development mode it also rejects loopback hosts, because granting a shipped extension access to the user's own machine is the vulnerability [issue #37](https://github.com/avinashgaurav/project-wingman-ClientLens/issues/37) closed. Point `VITE_BACKEND_URL` at `http://localhost:8000` and run `npm run build`, and the build refuses with the reason and the suggested fix rather than emitting a broken manifest.
+A release build deliberately **cannot** be produced against a local backend. `hostPermissionFor` in `extension/vite.config.ts` rejects any non-https URL, and outside development mode it also rejects loopback hosts, because granting a shipped extension access to the user's own machine is the vulnerability [issue #37](https://github.com/avinashgaurav/clientlens/issues/37) closed. Point `VITE_BACKEND_URL` at `http://localhost:8000` and run `npm run build`, and the build refuses with the reason and the suggested fix rather than emitting a broken manifest.
 
 > [!WARNING]
 > A release bundle needs a publicly reachable backend, and **until authentication is wired, a public backend is not safe to expose**: anyone who finds it can spend your LLM budget and read your knowledge base. Read [Security model](security.md) before you deploy one. Wiring auth is the top roadmap item precisely because it is what unlocks this path.
@@ -115,4 +115,4 @@ objection citation parsing, prompt-injection wrapping of KB content, and cosine
 ranking in the in-browser vector store: 89 tests across 5 files. UI components
 and the live-call agents are not unit tested.
 
-Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman-ClientLens/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman-ClientLens/security/advisories/new).
+Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/clientlens/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/clientlens/security/advisories/new).

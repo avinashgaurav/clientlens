@@ -5,7 +5,7 @@
  * Pipeline:
  *   1. Retrieval: pulls relevant KB chunks
  *   2. ICP Personalization: rewrites to nearest ICP rules
- *   3. Brand Compliance: enforces Project Wingman voice + design system
+ *   3. Brand Compliance: enforces ClientLens voice + design system
  *   4. Fact / Validation, every claim must trace to KB
  *   5. Council vote: a hard fail from retrieval, ICP or brand blocks output.
  *      Validation fails closed: unsupported claims are removed from the draft,
@@ -201,7 +201,7 @@ async function retrievalAgent(
     };
   }
 
-  const system = `You are the Retrieval Agent for Project Wingman's sales council. Identify the KB sources that directly support a personalized deck for this target. Output strict JSON only. ${KB_SAFETY_INSTRUCTION}`;
+  const system = `You are the Retrieval Agent for ClientLens's sales council. Identify the KB sources that directly support a personalized deck for this target. Output strict JSON only. ${KB_SAFETY_INSTRUCTION}`;
   const user = `TARGET:
 - Company: ${input.company_name}
 - Persona: ${input.persona_role}
@@ -360,9 +360,9 @@ async function brandComplianceAgent(
   // Voice guidance only. It must not carry product facts: any number here would
   // reach the model with no source behind it, which is exactly what the
   // validation agent exists to reject.
-  const fallbackVoice = `Project Wingman voice: direct, specific, no hype. Avoid "revolutionary", "game-changing", "best-in-class", "world-class", "synergy", "cutting-edge". Prefer a concrete sourced number over an adjective, and if the sources do not contain the number, leave it out entirely.`;
+  const fallbackVoice = `ClientLens voice: direct, specific, no hype. Avoid "revolutionary", "game-changing", "best-in-class", "world-class", "synergy", "cutting-edge". Prefer a concrete sourced number over an adjective, and if the sources do not contain the number, leave it out entirely.`;
 
-  const system = `You are the Brand Compliance Agent. Check the draft against Project Wingman voice and design system. Output strict JSON. ${KB_SAFETY_INSTRUCTION}`;
+  const system = `You are the Brand Compliance Agent. Check the draft against ClientLens voice and design system. Output strict JSON. ${KB_SAFETY_INSTRUCTION}`;
   const user = `GUIDANCE:
 ${guidance || fallbackVoice}
 
@@ -944,7 +944,7 @@ export async function* runCouncil(opts: {
     const draft: DraftOutput = icpResult.draft;
 
     // 3. Brand compliance
-    yield { type: "stage", stage: "brand_check", message: "Checking Project Wingman brand compliance…" };
+    yield { type: "stage", stage: "brand_check", message: "Checking ClientLens brand compliance…" };
     const brandResult = await brandComplianceAgent(client, draft, kb);
     yield { type: "agent", result: brandResult };
 
