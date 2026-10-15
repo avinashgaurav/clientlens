@@ -278,6 +278,27 @@ describe("applyFactCheck (fails closed)", () => {
     expect(slides[0].speaker_notes).toBe("Pause.");
   });
 
+  it("lists an echoed speaker note once when the validator also flags it", () => {
+    // From the CLI eval (deck d18): the body claim and the note sentence that
+    // echoes its figure are both flagged. Echo removal takes the note first.
+    const { slides, verification } = applyFactCheck(
+      one("Customers see 50% lower AP costs in the first year. Setup is guided.", "Lead with the 50% lower AP costs."),
+      check({
+        grounded: false,
+        claims: [
+          { slide_index: 0, claim: "Customers see 50% lower AP costs in the first year.", source_id: null, status: "hallucinated" },
+          { slide_index: 0, claim: "Lead with the 50% lower AP costs.", source_id: null, status: "hallucinated" },
+        ],
+      }),
+    );
+    expect(verification.status).toBe("redacted");
+    expect(verification.removed_claims).toEqual([
+      "Customers see 50% lower AP costs in the first year.",
+      "Removed speaker note: Lead with the 50% lower AP costs.",
+    ]);
+    expect(slides[0].speaker_notes ?? "").not.toContain("50%");
+  });
+
   it("sends a claim in a structured component to review and leaves the slide alone", () => {
     const s: SlideContent[] = [
       {

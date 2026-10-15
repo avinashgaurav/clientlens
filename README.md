@@ -47,6 +47,18 @@ Outputs are grounded in your knowledge base: agents are prompted to cite a sourc
 | Writing a draft into Google Slides or Docs | Code: the service worker's write gate | Only a "verified" or "redacted" draft, and only from the extension's own pages. Unit tested. |
 | Looking for a restatement after a cut | Code, a heuristic | Shared figures, names and keywords; it can miss paraphrases (see Known limitations). |
 
+### Evals
+
+18 fictional three-slide decks, 12 of them with 13 planted false claims (certifications, figures, names, integrations, pricing). Method and every hold: [EVALS.md](EVALS.md).
+
+| Measure | Result |
+|---|---|
+| Planted claims caught by the fact check | 13 / 13 |
+| Planted claims that could still be written to a doc | 0 / 13 |
+| Fully supported decks wrongly flagged | 0 / 6 |
+
+9 of the 12 planted decks were held for review instead of cleanly redacted, mostly because the claim was the only sentence on its slide. Retrieval and drafting were not exercised. Run through the Claude Code CLI with the app's own prompts and schema, not the production API path; an API rerun is planned.
+
 ### The loop, in screens
 
 | | |

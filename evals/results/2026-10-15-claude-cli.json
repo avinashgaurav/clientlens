@@ -1,0 +1,1529 @@
+{
+  "method": "Claude Code CLI (claude -p) with the app's own validation prompt and post-processing; not the production API path",
+  "summary": {
+    "started": "2026-10-15T06:36:11.570Z",
+    "wallMs": 38132,
+    "configuredModel": "claude-opus-4-7",
+    "modelsAnswered": [
+      "claude-opus-4-7"
+    ],
+    "cliCalls": 18,
+    "cliErrors": 0,
+    "callLatencyMs": {
+      "n": 18,
+      "p50": 6694,
+      "p90": 8562,
+      "max": 9335
+    },
+    "usageTotals": {
+      "input": 41337,
+      "output": 7886
+    },
+    "decks": 18,
+    "supportedDecks": 6,
+    "plantedDecks": 12,
+    "plantedClaims": 13,
+    "plantedCaughtByValidator": 13,
+    "plantedMarkedVerified": 0,
+    "plantedRemovedFromDraft": 12,
+    "plantedInWritableOutput": 0,
+    "plantedDecksEndingVerified": 0,
+    "supportedDecksVerified": 6,
+    "supportedDecksWithAnyFlag": 0,
+    "statusCounts": {
+      "verified": 6,
+      "redacted": 3,
+      "needs_review": 9
+    },
+    "needsReviewCauses": {
+      "slide-emptied-by-redaction": 8,
+      "claim-in-title": 1
+    },
+    "decksMeetingExpectation": 18,
+    "unparsedVerdicts": 0,
+    "pipelineErrors": []
+  },
+  "results": [
+    {
+      "id": "d01",
+      "kind": "supported",
+      "expect": "verified",
+      "ms": 4982,
+      "status": "verified",
+      "writable": true,
+      "supported": 4,
+      "total": 4,
+      "removed": [],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [],
+      "parsedVerdict": true,
+      "planted": [],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger captures invoices from email and PDF.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"It runs three-way matching against purchase orders and goods receipts.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"On Fernhollow's 2025 internal benchmark of 12,000 invoices, field-level extraction accuracy was 96%.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Pricing starts at $1,800 per month for up to 2,000 invoices per month.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Invoices in, matched, approved",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger captures invoices from email and PDF. It runs three-way matching against purchase orders and goods receipts."
+            }
+          ],
+          "speaker_notes": "Open with the matching workflow."
+        },
+        {
+          "index": 1,
+          "title": "Accuracy you can check",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "On Fernhollow's 2025 internal benchmark of 12,000 invoices, field-level extraction accuracy was 96%."
+            }
+          ],
+          "speaker_notes": "Offer the benchmark method on request."
+        },
+        {
+          "index": 2,
+          "title": "Simple starting price",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Pricing starts at $1,800 per month for up to 2,000 invoices per month."
+            }
+          ],
+          "speaker_notes": "Confirm their monthly invoice volume."
+        }
+      ]
+    },
+    {
+      "id": "d02",
+      "kind": "supported",
+      "expect": "verified",
+      "ms": 5032,
+      "status": "verified",
+      "writable": true,
+      "supported": 4,
+      "total": 4,
+      "removed": [],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [],
+      "parsedVerdict": true,
+      "planted": [],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Quarry & Pine Outfitters rolled out Lumora Ledger in 2025.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Average invoice processing time fell from 9 days to 3 days.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Late-payment fees fell 62% over the first two quarters.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"The AP team stayed at three people while volume grew.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "A retailer like you",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Quarry & Pine Outfitters rolled out Lumora Ledger in 2025."
+            }
+          ],
+          "speaker_notes": "Peer story for a retail CFO."
+        },
+        {
+          "index": 1,
+          "title": "Faster close on payables",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Average invoice processing time fell from 9 days to 3 days."
+            }
+          ],
+          "speaker_notes": "Pause on the 9 to 3 days drop."
+        },
+        {
+          "index": 2,
+          "title": "Fewer late fees, same team",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Late-payment fees fell 62% over the first two quarters. The AP team stayed at three people while volume grew."
+            }
+          ],
+          "speaker_notes": "Tie this to their late-fee pain."
+        }
+      ]
+    },
+    {
+      "id": "d03",
+      "kind": "supported",
+      "expect": "verified",
+      "ms": 4578,
+      "status": "verified",
+      "writable": true,
+      "supported": 3,
+      "total": 3,
+      "removed": [],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [],
+      "parsedVerdict": true,
+      "planted": [],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Production runs in a US East region and an EU West region, and customers choose the region.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Audited every year",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm."
+            }
+          ],
+          "speaker_notes": "Offer the report under NDA."
+        },
+        {
+          "index": 1,
+          "title": "Encrypted end to end",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit."
+            }
+          ],
+          "speaker_notes": "Keep this short for the CTO."
+        },
+        {
+          "index": 2,
+          "title": "Your choice of region",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Production runs in a US East region and an EU West region, and customers choose the region."
+            }
+          ],
+          "speaker_notes": "Ask where their data must live."
+        }
+      ]
+    },
+    {
+      "id": "d04",
+      "kind": "supported",
+      "expect": "verified",
+      "ms": 4592,
+      "status": "verified",
+      "writable": true,
+      "supported": 3,
+      "total": 3,
+      "removed": [],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [],
+      "parsedVerdict": true,
+      "planted": [],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Harbor Thistle Foods processes about 14,000 invoices per month with a four-person AP team.\",\n      \"source_id\": \"kb-case-harbor\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Invoices needing manual exception review dropped to 8% of volume at Harbor Thistle Foods.\",\n      \"source_id\": \"kb-case-harbor\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Native integrations cover Corvel ERP, Brightbook Accounts and Tallyhouse.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Built for volume",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Harbor Thistle Foods processes about 14,000 invoices per month with a four-person AP team."
+            }
+          ],
+          "speaker_notes": "Distributor peer story."
+        },
+        {
+          "index": 1,
+          "title": "Exceptions under control",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Invoices needing manual exception review dropped to 8% of volume at Harbor Thistle Foods."
+            }
+          ],
+          "speaker_notes": "Exceptions are their stated pain."
+        },
+        {
+          "index": 2,
+          "title": "Fits your ERP",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Native integrations cover Corvel ERP, Brightbook Accounts and Tallyhouse."
+            }
+          ],
+          "speaker_notes": "Confirm which ERP they run."
+        }
+      ]
+    },
+    {
+      "id": "d05",
+      "kind": "supported",
+      "expect": "verified",
+      "ms": 4190,
+      "status": "verified",
+      "writable": true,
+      "supported": 3,
+      "total": 3,
+      "removed": [],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [],
+      "parsedVerdict": true,
+      "planted": [],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Run a 30-day pilot on your own invoices before signing.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Typical implementation takes six weeks.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Approval routing supports up to five approval tiers.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "A pilot plan for Brindlewood Supply",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Run a 30-day pilot on your own invoices before signing."
+            }
+          ],
+          "speaker_notes": "Propose pilot dates."
+        },
+        {
+          "index": 1,
+          "title": "Live in about six weeks",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Typical implementation takes six weeks."
+            }
+          ],
+          "speaker_notes": "Walk through the rollout plan."
+        },
+        {
+          "index": 2,
+          "title": "Approvals your way",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Approval routing supports up to five approval tiers."
+            }
+          ],
+          "speaker_notes": "Map their current approval chain."
+        }
+      ]
+    },
+    {
+      "id": "d06",
+      "kind": "supported",
+      "expect": "verified",
+      "ms": 4677,
+      "status": "verified",
+      "writable": true,
+      "supported": 3,
+      "total": 3,
+      "removed": [],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [],
+      "parsedVerdict": true,
+      "planted": [],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger is built for mid-market finance teams processing 1,000 to 50,000 invoices per month.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Calder Mills could run a 30-day pilot on its own invoices before signing.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Quarry & Pine Outfitters cut average invoice processing time from 9 days to 3 days.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Mid-market AP, automated",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger is built for mid-market finance teams processing 1,000 to 50,000 invoices per month."
+            }
+          ],
+          "speaker_notes": "Qualify their volume early."
+        },
+        {
+          "index": 1,
+          "title": "Try it on real invoices",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Calder Mills could run a 30-day pilot on its own invoices before signing."
+            }
+          ],
+          "speaker_notes": "Suggest a pilot scope."
+        },
+        {
+          "index": 2,
+          "title": "Proof from a peer",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Quarry & Pine Outfitters cut average invoice processing time from 9 days to 3 days."
+            }
+          ],
+          "speaker_notes": "Use as the closing proof point."
+        }
+      ]
+    },
+    {
+      "id": "d07",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 5113,
+      "status": "redacted",
+      "writable": true,
+      "supported": 3,
+      "total": 4,
+      "removed": [
+        "Lumora Ledger is ISO 27001 certified."
+      ],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [
+        "Lumora Ledger is ISO 27001 certified.",
+        "Lumora Ledger is ISO 27001 certified."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "ISO 27001 certified (KB: in progress)",
+          "type": "certification",
+          "marker": "iso ?27001",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Lumora Ledger is ISO 27001 certified.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Data is encrypted with AES-256 at rest.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Customers choose between a US East region and an EU West region.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Lumora Ledger is ISO 27001 certified.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Security first",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm."
+            }
+          ],
+          "speaker_notes": "Lead with the audit."
+        },
+        {
+          "index": 1,
+          "title": "Certified twice over",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Data is encrypted with AES-256 at rest."
+            }
+          ],
+          "speaker_notes": "Mention both standards."
+        },
+        {
+          "index": 2,
+          "title": "Your region",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Customers choose between a US East region and an EU West region."
+            }
+          ],
+          "speaker_notes": "Ask about data residency."
+        }
+      ]
+    },
+    {
+      "id": "d08",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 4874,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 2,
+      "total": 3,
+      "removed": [
+        "Quarry & Pine Outfitters cut late-payment fees by 75% over the first two quarters."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 2 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Quarry & Pine Outfitters cut late-payment fees by 75% over the first two quarters.",
+        "Quarry & Pine Outfitters cut late-payment fees by 75% over the first two quarters."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "late fees down 75% (KB: 62%)",
+          "type": "figure",
+          "marker": "75 ?%",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Quarry & Pine Outfitters rolled out Lumora Ledger in 2025.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Quarry & Pine Outfitters cut late-payment fees by 75% over the first two quarters.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"The AP team stayed at three people while invoice volume grew.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Quarry & Pine Outfitters cut late-payment fees by 75% over the first two quarters.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "A peer retailer",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Quarry & Pine Outfitters rolled out Lumora Ledger in 2025."
+            }
+          ],
+          "speaker_notes": "Peer story."
+        },
+        {
+          "index": 1,
+          "title": "Late fees, slashed",
+          "components": [],
+          "speaker_notes": "Make this the headline."
+        },
+        {
+          "index": 2,
+          "title": "Same team, more volume",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "The AP team stayed at three people while invoice volume grew."
+            }
+          ],
+          "speaker_notes": "Headcount angle for the CFO."
+        }
+      ]
+    },
+    {
+      "id": "d09",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 6695,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 2,
+      "total": 3,
+      "removed": [
+        "Northcrest Bank runs its accounts payable on Lumora Ledger."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 1 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Northcrest Bank runs its accounts payable on Lumora Ledger.",
+        "Northcrest Bank runs its accounts payable on Lumora Ledger."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "invented customer Northcrest Bank",
+          "type": "name",
+          "marker": "northcrest",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Northcrest Bank runs its accounts payable on Lumora Ledger.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Lumora Ledger runs three-way matching against purchase orders and goods receipts.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Prospects can run a 30-day pilot on their own invoices.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Northcrest Bank runs its accounts payable on Lumora Ledger.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Trusted in finance",
+          "components": [],
+          "speaker_notes": "Name-drop the bank."
+        },
+        {
+          "index": 1,
+          "title": "Matching that holds up",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger runs three-way matching against purchase orders and goods receipts."
+            }
+          ],
+          "speaker_notes": "Explain three-way matching."
+        },
+        {
+          "index": 2,
+          "title": "Start small",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Prospects can run a 30-day pilot on their own invoices."
+            }
+          ],
+          "speaker_notes": "Close on the pilot."
+        }
+      ]
+    },
+    {
+      "id": "d10",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 8564,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 1,
+      "total": 3,
+      "removed": [
+        "Lumora Ledger integrates natively with Monolith ERP, Corvel ERP and Brightbook Accounts.",
+        "Pricing starts at $990 per month."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 1 has no content left after removing unsupported claims",
+        "Slide 2 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Lumora Ledger integrates natively with Monolith ERP, Corvel ERP and Brightbook Accounts.",
+        "Pricing starts at $990 per month.",
+        "Lumora Ledger integrates natively with Monolith ERP, Corvel ERP and Brightbook Accounts.",
+        "Pricing starts at $990 per month."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "Monolith ERP integration (not in KB)",
+          "type": "integration",
+          "marker": "monolith",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        },
+        {
+          "label": "pricing from $990/month (KB: $1,800)",
+          "type": "pricing",
+          "marker": "\\$990|990",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger integrates natively with Monolith ERP, Corvel ERP and Brightbook Accounts.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Pricing starts at $990 per month.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Typical implementation takes six weeks.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Lumora Ledger integrates natively with Monolith ERP, Corvel ERP and Brightbook Accounts.\",\n    \"Pricing starts at $990 per month.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Plugs into your ERP",
+          "components": [],
+          "speaker_notes": "They run a large ERP."
+        },
+        {
+          "index": 1,
+          "title": "Priced for mid-market",
+          "components": [],
+          "speaker_notes": "Anchor low."
+        },
+        {
+          "index": 2,
+          "title": "Quick rollout",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Typical implementation takes six weeks."
+            }
+          ],
+          "speaker_notes": "Set expectations."
+        }
+      ]
+    },
+    {
+      "id": "d11",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 9335,
+      "status": "redacted",
+      "writable": true,
+      "supported": 3,
+      "total": 4,
+      "removed": [
+        "Tell them we guarantee a 99.9% uptime SLA."
+      ],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [
+        "Tell them we guarantee a 99.9% uptime SLA.",
+        "Tell them we guarantee a 99.9% uptime SLA."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "99.9% uptime SLA (in speaker notes)",
+          "type": "figure",
+          "marker": "99\\.9",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Production runs in a US East region and an EU West region.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Tell them we guarantee a 99.9% uptime SLA.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Lumora Ledger has a SOC 2 Type II report.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Tell them we guarantee a 99.9% uptime SLA.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Encrypted by default",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit."
+            }
+          ],
+          "speaker_notes": "Keep it brief."
+        },
+        {
+          "index": 1,
+          "title": "Always on",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Production runs in a US East region and an EU West region."
+            }
+          ],
+          "speaker_notes": ""
+        },
+        {
+          "index": 2,
+          "title": "Audited annually",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger has a SOC 2 Type II report."
+            }
+          ],
+          "speaker_notes": "Offer the report."
+        }
+      ]
+    },
+    {
+      "id": "d12",
+      "kind": "planted",
+      "expect": "needs_review",
+      "ms": 8015,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 3,
+      "total": 4,
+      "removed": [],
+      "unresolved": [
+        "HIPAA-compliant AP automation"
+      ],
+      "notes": [],
+      "flaggedClaims": [
+        "HIPAA-compliant AP automation",
+        "HIPAA-compliant AP automation"
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "HIPAA compliance claimed in a slide title",
+          "type": "certification",
+          "marker": "hipaa",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": true,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "claim-in-title"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"HIPAA-compliant AP automation\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger captures invoices from email and PDF and extracts header and line-item fields.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Run a 30-day pilot on your own invoices before signing.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"HIPAA-compliant AP automation\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "HIPAA-compliant AP automation",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger captures invoices from email and PDF and extracts header and line-item fields."
+            }
+          ],
+          "speaker_notes": "Healthcare prospect."
+        },
+        {
+          "index": 1,
+          "title": "Audited annually",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm."
+            }
+          ],
+          "speaker_notes": "Offer the report."
+        },
+        {
+          "index": 2,
+          "title": "Pilot first",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Run a 30-day pilot on your own invoices before signing."
+            }
+          ],
+          "speaker_notes": "Close on the pilot."
+        }
+      ]
+    },
+    {
+      "id": "d13",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 6796,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 2,
+      "total": 3,
+      "removed": [
+        "Ridgeview Research named Lumora Ledger a Leader in AP automation."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 1 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Ridgeview Research named Lumora Ledger a Leader in AP automation.",
+        "Ridgeview Research named Lumora Ledger a Leader in AP automation."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "invented analyst ranking (Ridgeview Research)",
+          "type": "name",
+          "marker": "ridgeview",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Ridgeview Research named Lumora Ledger a Leader in AP automation.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Field-level extraction accuracy was 96% on Fernhollow's 2025 internal benchmark.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Native integrations cover Corvel ERP, Brightbook Accounts and Tallyhouse.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Ridgeview Research named Lumora Ledger a Leader in AP automation.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Recognised by analysts",
+          "components": [],
+          "speaker_notes": "Credibility opener."
+        },
+        {
+          "index": 1,
+          "title": "Measured accuracy",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Field-level extraction accuracy was 96% on Fernhollow's 2025 internal benchmark."
+            }
+          ],
+          "speaker_notes": "Cite the benchmark."
+        },
+        {
+          "index": 2,
+          "title": "Fits your stack",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Native integrations cover Corvel ERP, Brightbook Accounts and Tallyhouse."
+            }
+          ],
+          "speaker_notes": "Confirm ERP."
+        }
+      ]
+    },
+    {
+      "id": "d14",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 6799,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 2,
+      "total": 3,
+      "removed": [
+        "Harbor Thistle Foods processes 40,000 invoices per month with a four-person AP team."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 1 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Harbor Thistle Foods processes 40,000 invoices per month with a four-person AP team.",
+        "Harbor Thistle Foods processes 40,000 invoices per month with a four-person AP team."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "40,000 invoices/month (KB: about 14,000)",
+          "type": "figure",
+          "marker": "40,?000",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Harbor Thistle Foods processes 40,000 invoices per month with a four-person AP team.\",\n      \"source_id\": \"kb-case-harbor\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Invoices needing manual exception review dropped to 8% of volume.\",\n      \"source_id\": \"kb-case-harbor\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Prospects can run a 30-day pilot on their own invoices.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Harbor Thistle Foods processes 40,000 invoices per month with a four-person AP team.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Proven at scale",
+          "components": [],
+          "speaker_notes": "Scale story."
+        },
+        {
+          "index": 1,
+          "title": "Fewer exceptions",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Invoices needing manual exception review dropped to 8% of volume."
+            }
+          ],
+          "speaker_notes": "Exceptions pain."
+        },
+        {
+          "index": 2,
+          "title": "Try it",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Prospects can run a 30-day pilot on their own invoices."
+            }
+          ],
+          "speaker_notes": "Pilot close."
+        }
+      ]
+    },
+    {
+      "id": "d15",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 6051,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 2,
+      "total": 3,
+      "removed": [
+        "Typical implementation takes four weeks."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 1 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Typical implementation takes four weeks.",
+        "Typical implementation takes four weeks."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "four-week implementation (KB: six weeks)",
+          "type": "figure",
+          "marker": "four weeks|4 weeks|four-week|4-week",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Typical implementation takes four weeks.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Run a 30-day pilot on your own invoices before signing.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Pricing starts at $1,800 per month for up to 2,000 invoices per month.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Typical implementation takes four weeks.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Fast to value",
+          "components": [],
+          "speaker_notes": "Speed matters to this buyer."
+        },
+        {
+          "index": 1,
+          "title": "Start with a pilot",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Run a 30-day pilot on your own invoices before signing."
+            }
+          ],
+          "speaker_notes": "Pilot scope."
+        },
+        {
+          "index": 2,
+          "title": "Clear pricing",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Pricing starts at $1,800 per month for up to 2,000 invoices per month."
+            }
+          ],
+          "speaker_notes": "Pricing anchor."
+        }
+      ]
+    },
+    {
+      "id": "d16",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 7086,
+      "status": "redacted",
+      "writable": true,
+      "supported": 3,
+      "total": 4,
+      "removed": [
+        "Lumora Ledger is FedRAMP authorized for public-sector buyers."
+      ],
+      "unresolved": [],
+      "notes": [],
+      "flaggedClaims": [
+        "Lumora Ledger is FedRAMP authorized for public-sector buyers.",
+        "Lumora Ledger is FedRAMP authorized for public-sector buyers."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "FedRAMP authorized",
+          "type": "certification",
+          "marker": "fedramp",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger is FedRAMP authorized for public-sector buyers.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"It has a SOC 2 Type II report.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Data is encrypted with AES-256 at rest.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Production runs in a US East region and an EU West region.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Lumora Ledger is FedRAMP authorized for public-sector buyers.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Ready for public sector",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "It has a SOC 2 Type II report."
+            }
+          ],
+          "speaker_notes": "Public-sector prospect."
+        },
+        {
+          "index": 1,
+          "title": "Encryption",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Data is encrypted with AES-256 at rest."
+            }
+          ],
+          "speaker_notes": "Brief."
+        },
+        {
+          "index": 2,
+          "title": "Regions",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Production runs in a US East region and an EU West region."
+            }
+          ],
+          "speaker_notes": "Residency."
+        }
+      ]
+    },
+    {
+      "id": "d17",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 6913,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 2,
+      "total": 3,
+      "removed": [
+        "Field-level extraction accuracy is 99% on Fernhollow's 2025 internal benchmark."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 1 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Field-level extraction accuracy is 99% on Fernhollow's 2025 internal benchmark.",
+        "Field-level extraction accuracy is 99% on Fernhollow's 2025 internal benchmark."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "99% extraction accuracy (KB: 96%)",
+          "type": "figure",
+          "marker": "\\b99 ?%",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Field-level extraction accuracy is 99% on Fernhollow's 2025 internal benchmark.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Lumora Ledger matches invoices against purchase orders and goods receipts.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Approval routing supports up to five approval tiers.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Field-level extraction accuracy is 99% on Fernhollow's 2025 internal benchmark.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "Near-perfect capture",
+          "components": [],
+          "speaker_notes": "Accuracy headline."
+        },
+        {
+          "index": 1,
+          "title": "Three-way matching",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Lumora Ledger matches invoices against purchase orders and goods receipts."
+            }
+          ],
+          "speaker_notes": "Workflow."
+        },
+        {
+          "index": 2,
+          "title": "Approvals",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Approval routing supports up to five approval tiers."
+            }
+          ],
+          "speaker_notes": "Controls."
+        }
+      ]
+    },
+    {
+      "id": "d18",
+      "kind": "planted",
+      "expect": "not-verified",
+      "ms": 7661,
+      "status": "needs_review",
+      "writable": false,
+      "supported": 2,
+      "total": 3,
+      "removed": [
+        "Customers see 50% lower AP costs in the first year.",
+        "Removed speaker note: Lead with the 50% lower AP costs."
+      ],
+      "unresolved": [],
+      "notes": [
+        "Slide 1 has no content left after removing unsupported claims"
+      ],
+      "flaggedClaims": [
+        "Customers see 50% lower AP costs in the first year.",
+        "Customers see 50% lower AP costs in the first year."
+      ],
+      "parsedVerdict": true,
+      "planted": [
+        {
+          "label": "50% lower AP costs, stated in body and echoed in notes",
+          "type": "figure",
+          "marker": "50 ?%",
+          "caught": true,
+          "markedVerified": false,
+          "stillInFinal": false,
+          "inWritableOutput": false
+        }
+      ],
+      "needsReviewCauses": [
+        "slide-emptied-by-redaction"
+      ],
+      "validatorRaw": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Customers see 50% lower AP costs in the first year.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Quarry & Pine Outfitters cut average invoice processing time from 9 days to 3 days.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Prospects can run a 30-day pilot on their own invoices.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": [\n    \"Customers see 50% lower AP costs in the first year.\"\n  ]\n}",
+      "finalSlides": [
+        {
+          "index": 0,
+          "title": "The cost case",
+          "components": [],
+          "speaker_notes": ""
+        },
+        {
+          "index": 1,
+          "title": "A peer result",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Quarry & Pine Outfitters cut average invoice processing time from 9 days to 3 days."
+            }
+          ],
+          "speaker_notes": "Peer proof."
+        },
+        {
+          "index": 2,
+          "title": "Low-risk start",
+          "components": [
+            {
+              "type": "text_block",
+              "content": "Prospects can run a 30-day pilot on their own invoices."
+            }
+          ],
+          "speaker_notes": "Pilot close."
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "label": "d03",
+      "ms": 4560,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Data is encrypted w",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 266,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2301,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.02969,
+      "num_turns": 1
+    },
+    {
+      "label": "d01",
+      "ms": 4978,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger captures invoices from email and PDF.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"It runs three-way matching against purchase orders",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 342,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2337,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.031950000000000006,
+      "num_turns": 1
+    },
+    {
+      "label": "d02",
+      "ms": 5018,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Quarry & Pine Outfitters rolled out Lumora Ledger in 2025.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Average invoice processing time fell fro",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 328,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2315,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.03138,
+      "num_turns": 1
+    },
+    {
+      "label": "d04",
+      "ms": 4591,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Harbor Thistle Foods processes about 14,000 invoices per month with a four-person AP team.\",\n      \"source_id\": \"kb-case-harbor\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Invoices",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 287,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2314,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.030345,
+      "num_turns": 1
+    },
+    {
+      "label": "d05",
+      "ms": 4190,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Run a 30-day pilot on your own invoices before signing.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Typical implementation takes six weeks.\",\n     ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 232,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2272,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.02855,
+      "num_turns": 1
+    },
+    {
+      "label": "d06",
+      "ms": 4677,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger is built for mid-market finance teams processing 1,000 to 50,000 invoices per month.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Cal",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 282,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2316,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.03024,
+      "num_turns": 1
+    },
+    {
+      "label": "d08",
+      "ms": 4870,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Quarry & Pine Outfitters rolled out Lumora Ledger in 2025.\",\n      \"source_id\": \"kb-case-quarry\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Quarry & Pine Outfitters cut late-payme",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 307,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2291,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.030615,
+      "num_turns": 1
+    },
+    {
+      "label": "d07",
+      "ms": 5113,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Lumora Ledger is I",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 335,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2284,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.031245000000000002,
+      "num_turns": 1
+    },
+    {
+      "label": "d09",
+      "ms": 6694,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Northcrest Bank runs its accounts payable on Lumora Ledger.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Lumora Ledger runs three-way matching against ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 516,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2282,
+        "thinking_tokens": 226
+      },
+      "cost_usd_list": 0.03575,
+      "num_turns": 1
+    },
+    {
+      "label": "d10",
+      "ms": 8562,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger integrates natively with Monolith ERP, Corvel ERP and Brightbook Accounts.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Pricing ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 678,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2273,
+        "thinking_tokens": 357
+      },
+      "cost_usd_list": 0.039709999999999995,
+      "num_turns": 1
+    },
+    {
+      "label": "d11",
+      "ms": 9335,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Production runs in a US East",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 770,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2283,
+        "thinking_tokens": 424
+      },
+      "cost_usd_list": 0.042109999999999995,
+      "num_turns": 1
+    },
+    {
+      "label": "d12",
+      "ms": 8013,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"HIPAA-compliant AP automation\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger captures invoices from email and PDF and extracts header and l",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 633,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2293,
+        "thinking_tokens": 287
+      },
+      "cost_usd_list": 0.038785,
+      "num_turns": 1
+    },
+    {
+      "label": "d13",
+      "ms": 6795,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Ridgeview Research named Lumora Ledger a Leader in AP automation.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Field-level extraction accuracy was 96% ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 307,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2303,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.030735,
+      "num_turns": 1
+    },
+    {
+      "label": "d14",
+      "ms": 6799,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Harbor Thistle Foods processes 40,000 invoices per month with a four-person AP team.\",\n      \"source_id\": \"kb-case-harbor\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Invoices ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 551,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2275,
+        "thinking_tokens": 244
+      },
+      "cost_usd_list": 0.036555,
+      "num_turns": 1
+    },
+    {
+      "label": "d15",
+      "ms": 6051,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Typical implementation takes four weeks.\",\n      \"source_id\": \"kb-pricing\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Run a 30-day pilot on your own invoices before signing.\",",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 434,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2269,
+        "thinking_tokens": 164
+      },
+      "cost_usd_list": 0.03357,
+      "num_turns": 1
+    },
+    {
+      "label": "d16",
+      "ms": 7085,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Lumora Ledger is FedRAMP authorized for public-sector buyers.\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"It has a SOC 2 Type II report.\",\n  ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 553,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2269,
+        "thinking_tokens": 215
+      },
+      "cost_usd_list": 0.036545,
+      "num_turns": 1
+    },
+    {
+      "label": "d17",
+      "ms": 6912,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Field-level extraction accuracy is 99% on Fernhollow's 2025 internal benchmark.\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Lumora Ledger mat",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 540,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2275,
+        "thinking_tokens": 237
+      },
+      "cost_usd_list": 0.03628,
+      "num_turns": 1
+    },
+    {
+      "label": "d18",
+      "ms": 7658,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Customers see 50% lower AP costs in the first year.\",\n      \"source_id\": null,\n      \"status\": \"hallucinated\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Quarry & Pine Outfitters cut average invoice processin",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 525,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2277,
+        "thinking_tokens": 243
+      },
+      "cost_usd_list": 0.035925,
+      "num_turns": 1
+    }
+  ]
+}

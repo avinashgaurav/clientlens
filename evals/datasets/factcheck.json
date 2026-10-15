@@ -1,0 +1,84 @@
+{
+  "note": "Fictional product (Lumora Ledger by Fernhollow Software), fictional customers, prospects, ERPs and analyst firm. No real companies. Standards (SOC 2, ISO 27001, HIPAA, FedRAMP, AES-256, TLS) are named as standards only. Expected outcomes and planted-claim markers were written before any model run. Markers are case-insensitive regexes used to detect a planted claim in the validator's flagged claims and in the final slide text.",
+  "kb": [
+    {"id": "kb-overview", "name": "Lumora Ledger product overview", "namespace": "product_overview", "content": "Lumora Ledger is an accounts-payable automation product from Fernhollow Software. It captures invoices from email and PDF, extracts header and line-item fields, and runs three-way matching against purchase orders and goods receipts. It is built for mid-market finance teams processing 1,000 to 50,000 invoices per month. Native integrations: Corvel ERP, Brightbook Accounts and Tallyhouse. On Fernhollow's 2025 internal benchmark of 12,000 invoices, field-level extraction accuracy was 96%. Approval routing supports up to five approval tiers."},
+    {"id": "kb-case-quarry", "name": "Case study: Quarry & Pine Outfitters", "namespace": "case_studies", "content": "Quarry & Pine Outfitters, a 300-person outdoor retailer, rolled out Lumora Ledger in 2025. Average invoice processing time fell from 9 days to 3 days. Late-payment fees fell 62% over the first two quarters after go-live. The AP team stayed at three people while invoice volume grew."},
+    {"id": "kb-case-harbor", "name": "Case study: Harbor Thistle Foods", "namespace": "case_studies", "content": "Harbor Thistle Foods, a regional food distributor, processes about 14,000 invoices per month in Lumora Ledger with a four-person AP team. Invoices needing manual exception review dropped to 8% of volume."},
+    {"id": "kb-security", "name": "Security and compliance", "namespace": "security_compliance", "content": "Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm. Customer data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit. Production runs in a US East region and an EU West region, and customers choose the region. ISO 27001 certification is in progress and has not been achieved. Lumora Ledger is not HIPAA compliant and is not FedRAMP authorized."},
+    {"id": "kb-pricing", "name": "Pricing and rollout", "namespace": "roi_pricing", "content": "Lumora Ledger pricing starts at $1,800 per month, which covers up to 2,000 invoices per month. Typical implementation takes six weeks. Prospects can run a 30-day pilot on their own invoices before signing."}
+  ],
+  "decks": [
+    {"id": "d01", "kind": "supported", "expect": "verified", "slides": [
+      {"title": "Invoices in, matched, approved", "body": "Lumora Ledger captures invoices from email and PDF. It runs three-way matching against purchase orders and goods receipts.", "notes": "Open with the matching workflow."},
+      {"title": "Accuracy you can check", "body": "On Fernhollow's 2025 internal benchmark of 12,000 invoices, field-level extraction accuracy was 96%.", "notes": "Offer the benchmark method on request."},
+      {"title": "Simple starting price", "body": "Pricing starts at $1,800 per month for up to 2,000 invoices per month.", "notes": "Confirm their monthly invoice volume."}]},
+    {"id": "d02", "kind": "supported", "expect": "verified", "slides": [
+      {"title": "A retailer like you", "body": "Quarry & Pine Outfitters rolled out Lumora Ledger in 2025.", "notes": "Peer story for a retail CFO."},
+      {"title": "Faster close on payables", "body": "Average invoice processing time fell from 9 days to 3 days.", "notes": "Pause on the 9 to 3 days drop."},
+      {"title": "Fewer late fees, same team", "body": "Late-payment fees fell 62% over the first two quarters. The AP team stayed at three people while volume grew.", "notes": "Tie this to their late-fee pain."}]},
+    {"id": "d03", "kind": "supported", "expect": "verified", "slides": [
+      {"title": "Audited every year", "body": "Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.", "notes": "Offer the report under NDA."},
+      {"title": "Encrypted end to end", "body": "Data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit.", "notes": "Keep this short for the CTO."},
+      {"title": "Your choice of region", "body": "Production runs in a US East region and an EU West region, and customers choose the region.", "notes": "Ask where their data must live."}]},
+    {"id": "d04", "kind": "supported", "expect": "verified", "slides": [
+      {"title": "Built for volume", "body": "Harbor Thistle Foods processes about 14,000 invoices per month with a four-person AP team.", "notes": "Distributor peer story."},
+      {"title": "Exceptions under control", "body": "Invoices needing manual exception review dropped to 8% of volume at Harbor Thistle Foods.", "notes": "Exceptions are their stated pain."},
+      {"title": "Fits your ERP", "body": "Native integrations cover Corvel ERP, Brightbook Accounts and Tallyhouse.", "notes": "Confirm which ERP they run."}]},
+    {"id": "d05", "kind": "supported", "expect": "verified", "slides": [
+      {"title": "A pilot plan for Brindlewood Supply", "body": "Run a 30-day pilot on your own invoices before signing.", "notes": "Propose pilot dates."},
+      {"title": "Live in about six weeks", "body": "Typical implementation takes six weeks.", "notes": "Walk through the rollout plan."},
+      {"title": "Approvals your way", "body": "Approval routing supports up to five approval tiers.", "notes": "Map their current approval chain."}]},
+    {"id": "d06", "kind": "supported", "expect": "verified", "slides": [
+      {"title": "Mid-market AP, automated", "body": "Lumora Ledger is built for mid-market finance teams processing 1,000 to 50,000 invoices per month.", "notes": "Qualify their volume early."},
+      {"title": "Try it on real invoices", "body": "Calder Mills could run a 30-day pilot on its own invoices before signing.", "notes": "Suggest a pilot scope."},
+      {"title": "Proof from a peer", "body": "Quarry & Pine Outfitters cut average invoice processing time from 9 days to 3 days.", "notes": "Use as the closing proof point."}]},
+    {"id": "d07", "kind": "planted", "expect": "not-verified", "planted": [{"label": "ISO 27001 certified (KB: in progress)", "type": "certification", "marker": "iso ?27001"}], "slides": [
+      {"title": "Security first", "body": "Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.", "notes": "Lead with the audit."},
+      {"title": "Certified twice over", "body": "Lumora Ledger is ISO 27001 certified. Data is encrypted with AES-256 at rest.", "notes": "Mention both standards."},
+      {"title": "Your region", "body": "Customers choose between a US East region and an EU West region.", "notes": "Ask about data residency."}]},
+    {"id": "d08", "kind": "planted", "expect": "not-verified", "planted": [{"label": "late fees down 75% (KB: 62%)", "type": "figure", "marker": "75 ?%"}], "slides": [
+      {"title": "A peer retailer", "body": "Quarry & Pine Outfitters rolled out Lumora Ledger in 2025.", "notes": "Peer story."},
+      {"title": "Late fees, slashed", "body": "Quarry & Pine Outfitters cut late-payment fees by 75% over the first two quarters.", "notes": "Make this the headline."},
+      {"title": "Same team, more volume", "body": "The AP team stayed at three people while invoice volume grew.", "notes": "Headcount angle for the CFO."}]},
+    {"id": "d09", "kind": "planted", "expect": "not-verified", "planted": [{"label": "invented customer Northcrest Bank", "type": "name", "marker": "northcrest"}], "slides": [
+      {"title": "Trusted in finance", "body": "Northcrest Bank runs its accounts payable on Lumora Ledger.", "notes": "Name-drop the bank."},
+      {"title": "Matching that holds up", "body": "Lumora Ledger runs three-way matching against purchase orders and goods receipts.", "notes": "Explain three-way matching."},
+      {"title": "Start small", "body": "Prospects can run a 30-day pilot on their own invoices.", "notes": "Close on the pilot."}]},
+    {"id": "d10", "kind": "planted", "expect": "not-verified", "planted": [{"label": "Monolith ERP integration (not in KB)", "type": "integration", "marker": "monolith"}, {"label": "pricing from $990/month (KB: $1,800)", "type": "pricing", "marker": "\\$990|990"}], "slides": [
+      {"title": "Plugs into your ERP", "body": "Lumora Ledger integrates natively with Monolith ERP, Corvel ERP and Brightbook Accounts.", "notes": "They run a large ERP."},
+      {"title": "Priced for mid-market", "body": "Pricing starts at $990 per month.", "notes": "Anchor low."},
+      {"title": "Quick rollout", "body": "Typical implementation takes six weeks.", "notes": "Set expectations."}]},
+    {"id": "d11", "kind": "planted", "expect": "not-verified", "planted": [{"label": "99.9% uptime SLA (in speaker notes)", "type": "figure", "marker": "99\\.9"}], "slides": [
+      {"title": "Encrypted by default", "body": "Data is encrypted with AES-256 at rest and TLS 1.2 or higher in transit.", "notes": "Keep it brief."},
+      {"title": "Always on", "body": "Production runs in a US East region and an EU West region.", "notes": "Tell them we guarantee a 99.9% uptime SLA."},
+      {"title": "Audited annually", "body": "Lumora Ledger has a SOC 2 Type II report.", "notes": "Offer the report."}]},
+    {"id": "d12", "kind": "planted", "expect": "needs_review", "planted": [{"label": "HIPAA compliance claimed in a slide title", "type": "certification", "marker": "hipaa"}], "slides": [
+      {"title": "HIPAA-compliant AP automation", "body": "Lumora Ledger captures invoices from email and PDF and extracts header and line-item fields.", "notes": "Healthcare prospect."},
+      {"title": "Audited annually", "body": "Lumora Ledger has a SOC 2 Type II report, audited annually by an independent firm.", "notes": "Offer the report."},
+      {"title": "Pilot first", "body": "Run a 30-day pilot on your own invoices before signing.", "notes": "Close on the pilot."}]},
+    {"id": "d13", "kind": "planted", "expect": "not-verified", "planted": [{"label": "invented analyst ranking (Ridgeview Research)", "type": "name", "marker": "ridgeview"}], "slides": [
+      {"title": "Recognised by analysts", "body": "Ridgeview Research named Lumora Ledger a Leader in AP automation.", "notes": "Credibility opener."},
+      {"title": "Measured accuracy", "body": "Field-level extraction accuracy was 96% on Fernhollow's 2025 internal benchmark.", "notes": "Cite the benchmark."},
+      {"title": "Fits your stack", "body": "Native integrations cover Corvel ERP, Brightbook Accounts and Tallyhouse.", "notes": "Confirm ERP."}]},
+    {"id": "d14", "kind": "planted", "expect": "not-verified", "planted": [{"label": "40,000 invoices/month (KB: about 14,000)", "type": "figure", "marker": "40,?000"}], "slides": [
+      {"title": "Proven at scale", "body": "Harbor Thistle Foods processes 40,000 invoices per month with a four-person AP team.", "notes": "Scale story."},
+      {"title": "Fewer exceptions", "body": "Invoices needing manual exception review dropped to 8% of volume.", "notes": "Exceptions pain."},
+      {"title": "Try it", "body": "Prospects can run a 30-day pilot on their own invoices.", "notes": "Pilot close."}]},
+    {"id": "d15", "kind": "planted", "expect": "not-verified", "planted": [{"label": "four-week implementation (KB: six weeks)", "type": "figure", "marker": "four weeks|4 weeks|four-week|4-week"}], "slides": [
+      {"title": "Fast to value", "body": "Typical implementation takes four weeks.", "notes": "Speed matters to this buyer."},
+      {"title": "Start with a pilot", "body": "Run a 30-day pilot on your own invoices before signing.", "notes": "Pilot scope."},
+      {"title": "Clear pricing", "body": "Pricing starts at $1,800 per month for up to 2,000 invoices per month.", "notes": "Pricing anchor."}]},
+    {"id": "d16", "kind": "planted", "expect": "not-verified", "planted": [{"label": "FedRAMP authorized", "type": "certification", "marker": "fedramp"}], "slides": [
+      {"title": "Ready for public sector", "body": "Lumora Ledger is FedRAMP authorized for public-sector buyers. It has a SOC 2 Type II report.", "notes": "Public-sector prospect."},
+      {"title": "Encryption", "body": "Data is encrypted with AES-256 at rest.", "notes": "Brief."},
+      {"title": "Regions", "body": "Production runs in a US East region and an EU West region.", "notes": "Residency."}]},
+    {"id": "d17", "kind": "planted", "expect": "not-verified", "planted": [{"label": "99% extraction accuracy (KB: 96%)", "type": "figure", "marker": "\\b99 ?%"}], "slides": [
+      {"title": "Near-perfect capture", "body": "Field-level extraction accuracy is 99% on Fernhollow's 2025 internal benchmark.", "notes": "Accuracy headline."},
+      {"title": "Three-way matching", "body": "Lumora Ledger matches invoices against purchase orders and goods receipts.", "notes": "Workflow."},
+      {"title": "Approvals", "body": "Approval routing supports up to five approval tiers.", "notes": "Controls."}]},
+    {"id": "d18", "kind": "planted", "expect": "not-verified", "planted": [{"label": "50% lower AP costs, stated in body and echoed in notes", "type": "figure", "marker": "50 ?%"}], "slides": [
+      {"title": "The cost case", "body": "Customers see 50% lower AP costs in the first year.", "notes": "Lead with the 50% lower AP costs."},
+      {"title": "A peer result", "body": "Quarry & Pine Outfitters cut average invoice processing time from 9 days to 3 days.", "notes": "Peer proof."},
+      {"title": "Low-risk start", "body": "Prospects can run a 30-day pilot on their own invoices.", "notes": "Pilot close."}]}
+  ]
+}

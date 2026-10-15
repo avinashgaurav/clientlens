@@ -793,6 +793,16 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
     }
   }
 
+  // One removal, listed once. The validator can flag a speaker-note sentence that
+  // echo removal already took ("Removed speaker note: X" plus a bare "X"); keep
+  // the labelled entry so the rep can see it came from the notes.
+  const echoedNoteTexts = new Set(
+    removed.filter((c) => c.startsWith(REMOVED_NOTE_PREFIX)).map((c) => normalize(c.slice(REMOVED_NOTE_PREFIX.length))),
+  );
+  const removedOnce = removed.filter(
+    (c, i) => removed.indexOf(c) === i && (c.startsWith(REMOVED_NOTE_PREFIX) || !echoedNoteTexts.has(normalize(c))),
+  );
+
   let status: VerificationResult["status"];
   if (unresolved.length > 0 || notes.length > 0) status = "needs_review";
   else if (removed.length > 0) status = "redacted";
@@ -801,7 +811,7 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
 
   return {
     slides: out,
-    verification: { status, supported, total, removed_claims: removed, unresolved_claims: unresolved, review_notes: notes },
+    verification: { status, supported, total, removed_claims: removedOnce, unresolved_claims: unresolved, review_notes: notes },
   };
 }
 
@@ -831,6 +841,11 @@ ${JSON.stringify(indexedSlides, null, 2)}
 
 Each slide carries an "index" field. Set every claim's "slide_index" to the
 "index" of the slide the claim appears on.
+
+Every claim you mark "hallucinated" MUST also appear in "claims" with its
+"slide_index" and "status": "hallucinated". "hallucinations" repeats those
+claims' text; it never holds a claim that is missing from "claims". A claim
+without a slide index cannot be removed, so the whole draft is held for review.
 
 Return JSON:
 {
