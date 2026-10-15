@@ -28,7 +28,8 @@ export const DEMO_CALL_PREFIX = "demo_call_";
 
 const SAMPLE_KB_FIXTURES: Omit<KBEntry, "uploaded_at">[] = [
   {
-    id: DEMO_KB_PREFIX + "clientlens-playbook",
+    // Id keeps the pre-rename suffix so sample data loaded before the rename is not duplicated.
+    id: DEMO_KB_PREFIX + "wingman-playbook",
     name: "ClientLens Sales Playbook (sample)",
     namespace: "product_overview",
     source_type: "text",

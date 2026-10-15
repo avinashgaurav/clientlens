@@ -1,10 +1,12 @@
 # ClientLens
 
+*Formerly Project Wingman.*
+
 Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so ClientLens is an open-source Chrome sidebar that drafts pitches from your own knowledge base and coaches you live in Google Meet, on your own LLM keys.
 
 **Demo site:** https://avinashgaurav.github.io/clientlens/
 
-<img src="docs/demo.gif" alt="ClientLens: weekly insights, pitch setup and call history, real extension with sample data." width="720" />
+<img src="docs/demo.gif" alt="ClientLens sidebar with sample data: weekly insights, all calls, pitch setup and the knowledge base." width="380" />
 
 > [!NOTE]
 > **Evals: the fact check that guards every pitch**
