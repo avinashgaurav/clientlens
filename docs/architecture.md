@@ -116,3 +116,11 @@ project-wingman-ClientLens/
 ├── CONTRIBUTING.md
 └── README.md
 ```
+
+## Tech stack
+
+**Extension:** React 18, TypeScript 5, Tailwind 3, Zustand, Chrome MV3 (service worker, Offscreen API, AudioWorklet), built with Vite 8.
+
+**Backend:** FastAPI and Pydantic v2 on Python 3.11, Supabase Postgres with RLS, an in-browser vector store (brute-force cosine over IndexedDB), Deepgram Nova-2 for speech.
+
+**LLMs:** Anthropic, Gemini, Groq, OpenRouter, or any OpenAI-compatible endpoint (including Ollama). Anthropic, Gemini, Groq and OpenRouter keys live only in `backend/.env` and the backend proxies those calls. A custom OpenAI-compatible or Ollama endpoint is called directly from the extension, with the key you enter in Settings.
