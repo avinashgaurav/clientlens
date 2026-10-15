@@ -49,7 +49,7 @@ Outputs are grounded in your knowledge base: agents are prompted to cite a sourc
 
 ### Evals
 
-18 fictional three-slide decks, 12 of them with 13 planted false claims (certifications, figures, names, integrations, pricing). Method and every hold: [EVALS.md](EVALS.md).
+18 fictional three-slide decks, 12 of them with 13 planted false claims (certifications, figures, names, integrations, pricing) (18 decks, one knowledge base: a smoke test). Method and every hold: [EVALS.md](EVALS.md).
 
 | Measure | Result |
 |---|---|

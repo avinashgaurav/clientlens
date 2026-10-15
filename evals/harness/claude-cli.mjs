@@ -10,6 +10,8 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 export const EVAL_CTX = new AsyncLocalStorage();
 
 export const CALL_LOG = [];
+// A call still running after this is killed and reported as an error.
+const TIMEOUT_MS = 300_000;
 // Empty cwd so no project CLAUDE.md or git context is picked up.
 const CWD = mkdtempSync(join(tmpdir(), 'cli-eval-'));
 
@@ -42,22 +44,21 @@ function flattenText(messages) {
  * returns { ok, structured, text, envelope, ms }
  */
 export function callClaude({ model, system, messages, schema, label = '' }) {
+  const multimodal = hasNonText(messages);
   const args = [
     '-p',
     '--tools', '',
     '--strict-mcp-config',
     '--setting-sources', '',
     '--no-session-persistence',
-    '--output-format', 'json',
+    '--output-format', multimodal ? 'stream-json' : 'json',
+    ...(multimodal ? ['--input-format', 'stream-json', '--verbose'] : []),
     '--system-prompt', systemText(system),
+    ...(model ? ['--model', model] : []),
+    ...(schema ? ['--json-schema', JSON.stringify(schema)] : []),
   ];
-  if (model) args.push('--model', model);
-  if (schema) args.push('--json-schema', JSON.stringify(schema));
-  const multimodal = hasNonText(messages);
   let stdin;
   if (multimodal) {
-    const i = args.indexOf('json'); args[i] = 'stream-json';
-    args.push('--input-format', 'stream-json', '--verbose');
     const content = messages[messages.length - 1].content;
     stdin = JSON.stringify({ type: 'user', message: { role: 'user', content } }) + '\n';
   } else {
@@ -68,10 +69,13 @@ export function callClaude({ model, system, messages, schema, label = '' }) {
     const p = spawn('claude', args, { cwd: CWD, env: { ...process.env, CLAUDE_CODE_DISABLE_CLAUDE_MDS: '1' } });
     let out = '';
     let err = '';
+    let timedOut = false;
+    const timer = setTimeout(() => { timedOut = true; p.kill('SIGKILL'); }, TIMEOUT_MS);
     p.stdout.on('data', (d) => (out += d));
     p.stderr.on('data', (d) => (err += d));
     p.stdin.end(stdin);
     p.on('close', (code) => {
+      clearTimeout(timer);
       const ms = Date.now() - t0;
       let env = null;
       try { env = JSON.parse(out); } catch {}
@@ -88,15 +92,17 @@ export function callClaude({ model, system, messages, schema, label = '' }) {
       } : null;
       const models = env?.modelUsage ? Object.keys(env.modelUsage) : [];
       const rec = {
-        label, ms, exit: code, is_error: env?.is_error ?? true,
-        result_head: (env?.result ?? err ?? '').slice(0, 300),
+        label, ms, exit: code, is_error: timedOut || (env?.is_error ?? true),
+        result_head: timedOut
+          ? `claude CLI did not finish within ${TIMEOUT_MS / 1000} s and was killed`
+          : (env?.result ?? err ?? '').slice(0, 300),
         models, usage, cost_usd_list: env?.total_cost_usd ?? null, num_turns: env?.num_turns,
       };
       CALL_LOG.push(rec);
       // Only an error envelope can mean a usage limit; model output may legitimately mention "rate limit".
       const limitHit = (!env || env.is_error) && /usage limit|rate limit|limit reached|out of extra usage/i.test((env?.result ?? '') + err);
       if (limitHit) { rec.limit_hit = true; }
-      resolve({ ok: !!env && !env.is_error, structured: env?.structured_output ?? null, text: env?.result ?? '', envelope: env, ms, rec, limitHit });
+      resolve({ ok: !timedOut && !!env && !env.is_error, structured: env?.structured_output ?? null, text: env?.result ?? '', envelope: env, ms, rec, limitHit });
     });
   });
 }
@@ -124,7 +130,7 @@ export default class Anthropic {
         }
         const r = await callClaude({ model: process.env.EVAL_MODEL || req.model, system: req.system, messages: req.messages, schema, label: EVAL_CTX.getStore()?.label || '' });
         if (r.limitHit) { const e = new RateLimitError('CLI usage limit'); throw e; }
-        if (!r.ok) throw new APIError('CLI error: ' + r.text.slice(0, 200));
+        if (!r.ok) throw new APIError('CLI error: ' + (r.text || r.rec.result_head).slice(0, 200));
         const ctx = EVAL_CTX.getStore(); if (ctx) { ctx.last = { structured: r.structured, rec: r.rec }; }
         const text = r.structured ? JSON.stringify(r.structured) : r.text;
         return { stop_reason: 'end_turn', content: [{ type: 'text', text }], usage: r.rec.usage, model: r.rec.models[0] };

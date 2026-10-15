@@ -1,6 +1,6 @@
 # ClientLens fact-check eval
 
-First-pass eval of the council's fact-check stage: the Fact Validation Agent, `parseFactCheck`, `applyFactCheck`, the council vote and the service-worker write gate (`checkWritePayload`). Run on 2026-10-15, then rerun the same day after the fix in commit `b205a06` (see "Before and after the fix").
+First-pass eval of the council's fact-check stage: the Fact Validation Agent, `parseFactCheck`, `applyFactCheck`, the council vote and the service-worker write gate (`checkWritePayload`). Run on 2026-10-15, then rerun the same day after the fix, which ships in the same PR (see "Before and after the fix").
 
 **Method note.** Measured via the Claude Code CLI with the app's own prompts and schema, not the production API path; an API rerun is planned.
 
@@ -12,7 +12,6 @@ How the harness works (`evals/harness/factcheck.eval.ts`):
   - **Brand is canned** to pass.
   - **The validation call is live.** It uses the app's own validation system and user prompts, sent through `claude -p` with `--tools ""`, `--strict-mcp-config`, `--setting-sources ""`, `--no-session-persistence` and `--model claude-opus-4-7` (the app's `ANTHROPIC_MODEL`).
 - Everything after the model reply is production code: JSON extraction, `parseFactCheck`, redaction and hold logic in `applyFactCheck`, the vote, and `checkWritePayload`.
-- The eval commits change no production file; the fix is in a separate commit.
 
 Differences from the API path:
 
@@ -97,7 +96,7 @@ Both are single observations, so treat them as run-to-run variance worth guardin
 
 ## Before and after the fix
 
-Fix commit `b205a06` (production code, separate from the eval commits):
+The fix (production code, in the same PR as these results):
 
 - The validation prompt now says every claim marked "hallucinated" must also appear in `claims` with its `slide_index`, and that `hallucinations` only repeats those claims.
 - `applyFactCheck` de-duplicates `removed_claims`. When the validator also flags a speaker-note sentence that echo removal already took, only the labelled "Removed speaker note: ..." entry is kept. A regression test reproduces the d18 case; it fails without the fix.

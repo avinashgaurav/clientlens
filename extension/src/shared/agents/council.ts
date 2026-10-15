@@ -799,6 +799,7 @@ export function applyFactCheck(slides: SlideContent[], check: FactCheck | null):
   const echoedNoteTexts = new Set(
     removed.filter((c) => c.startsWith(REMOVED_NOTE_PREFIX)).map((c) => normalize(c.slice(REMOVED_NOTE_PREFIX.length))),
   );
+  // Tradeoff: entries carry no slide, so the same sentence cut from two slides (or from a body and a note) is listed once.
   const removedOnce = removed.filter(
     (c, i) => removed.indexOf(c) === i && (c.startsWith(REMOVED_NOTE_PREFIX) || !echoedNoteTexts.has(normalize(c))),
   );
