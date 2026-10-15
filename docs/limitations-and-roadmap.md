@@ -28,4 +28,4 @@ Worth knowing before you invest an evening in it:
 4. Multi-tenant mode with org-level KB isolation.
 5. A zero-setup way to try it. Mock mode still needs the backend running, so today there is no way to see the UI without a full install.
 
-The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/project-wingman-ClientLens/issues/113). Items are largely independent, so pick any of them in any order.
+The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/clientlens/issues/113). Items are largely independent, so pick any of them in any order.

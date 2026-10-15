@@ -23,7 +23,7 @@ import {
  * via the KB empty-state CTA refreshes the banner too.
  */
 
-const DISMISS_KEY = "wingman_sample_banner_dismissed_session";
+const DISMISS_KEY = "clientlens_sample_banner_dismissed_session";
 
 export function SampleDataBanner() {
   const [hasDemo, setHasDemo] = useState(false);

@@ -134,7 +134,7 @@ export function ObjectionPanel() {
 
       <p className="text-[11px] text-[var(--ink-4)]">
         Paste the prospect's objection, or right-click any selected text on a page and pick
-        <span className="text-[var(--ink-3)]"> "Project Wingman: Handle objection"</span>.
+        <span className="text-[var(--ink-3)]"> "ClientLens: Handle objection"</span>.
       </p>
 
       {objectionInput?.source_url && (

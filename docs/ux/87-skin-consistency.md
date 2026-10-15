@@ -83,7 +83,7 @@ Not screenshotted, the transponder injects into Meet's DOM and can't render stan
 - Outer shell uses Helvetica/Inter; everything is intentionally mono-flavored
 - Pacing chips, transcript drawer, KB-ask input, all white-on-black
 
-**Verdict: keep.** The vercel mono palette is intentional non-competition with Meet's own UI. Adding any chromatic noise risks visual clutter inside Meet's busy chrome. #81 added the one brand cue (the dot) which gives Wingman a recognizable signature without breaking the neutrality contract.
+**Verdict: keep.** The vercel mono palette is intentional non-competition with Meet's own UI. Adding any chromatic noise risks visual clutter inside Meet's busy chrome. #81 added the one brand cue (the dot) which gives ClientLens a recognizable signature without breaking the neutrality contract.
 
 ### `spacex` (landing hero)
 

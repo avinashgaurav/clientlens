@@ -55,7 +55,7 @@ Every empty surface gets a friendly card with icon, copy, and one CTA. No mock d
 
 Per surface:
 - **KB empty (0 entries):** Card with sources-icon, copy "Your sales playbook lives here. The council uses it to ground every pitch.", CTA "Add your first entry → opens the Add UI." Plus a secondary "Browse a sample entry" link that opens a docs page (not in-product mock data).
-- **Copilot empty (no session):** Card with mic-icon, copy "Wingman copilots your live meetings. Connect Calendar or paste a meeting URL to start.", CTA links to the existing onboarding paths (already shown, this becomes a hero above them).
+- **Copilot empty (no session):** Card with mic-icon, copy "ClientLens copilots your live meetings. Connect Calendar or paste a meeting URL to start.", CTA links to the existing onboarding paths (already shown, this becomes a hero above them).
 - **Insights empty:** No change, #43's EmptyState is already in this shape.
 
 Pros:
@@ -72,7 +72,7 @@ Estimated work: ~2 days. Per-surface card components + KB-specific empty state w
 ## Option C: Hybrid (recommended)
 
 Default: Option B's guided empty states.
-Opt-in: A Settings toggle "Try Wingman with sample data" that:
+Opt-in: A Settings toggle "Try ClientLens with sample data" that:
 - Loads mock KB entries into the KB store (tagged with a `_demo: true` flag in metadata).
 - Loads mock call records into the call-history store (tagged similarly).
 - Shows a dismissable banner on every tab: "Demo data loaded, clear from Settings."
@@ -102,7 +102,7 @@ Estimated work: ~3 days total. Breakdown:
 1. KB empty-state card with one-click "Try sample data"
 2. Copilot empty-state card (replaces "full form on first open")
 3. Sample-data fixtures + `_demo` tag + cleanup
-4. Settings toggle "Try Wingman with sample data" / "Clear sample data"
+4. Settings toggle "Try ClientLens with sample data" / "Clear sample data"
 
 (Insights empty state already covered by #43.)
 

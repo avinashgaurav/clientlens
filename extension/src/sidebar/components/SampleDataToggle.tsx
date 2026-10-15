@@ -33,11 +33,11 @@ export function SampleDataToggle() {
     };
     const onSameTab = () => void refresh();
     try { chrome.storage?.onChanged?.addListener(onStorageChanged); } catch { /* noop */ }
-    window.addEventListener("wingman:call-history-changed", onSameTab);
+    window.addEventListener("clientlens:call-history-changed", onSameTab);
     return () => {
       cancelled = true;
       try { chrome.storage?.onChanged?.removeListener(onStorageChanged); } catch { /* noop */ }
-      window.removeEventListener("wingman:call-history-changed", onSameTab);
+      window.removeEventListener("clientlens:call-history-changed", onSameTab);
     };
   }, []);
 
@@ -69,7 +69,7 @@ export function SampleDataToggle() {
     >
       <div className="flex-1 min-w-0">
         <div className="text-xs font-semibold text-ink">
-          Try Wingman with sample data
+          Try ClientLens with sample data
         </div>
         <div className="text-[11px] text-ink-4 mt-0.5 leading-snug">
           Loads 5 sample KB entries and 4 sample call records. Toggle

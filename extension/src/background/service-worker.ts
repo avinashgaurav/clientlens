@@ -9,13 +9,13 @@ chrome.action.onClicked.addListener((tab) => {
   chrome.sidePanel.open({ tabId: tab.id! });
 });
 
-// ─── Context menu: "Handle objection with Project Wingman" ─────────────────────────
+// ─── Context menu: "Handle objection with ClientLens" ─────────────────────────
 const OBJECTION_MENU_ID = "clientlens-handle-objection";
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: OBJECTION_MENU_ID,
-    title: "Project Wingman: Handle objection",
+    title: "ClientLens: Handle objection",
     contexts: ["selection"],
   });
 });
@@ -206,7 +206,7 @@ function handleCouncilNotify(payload: unknown) {
   chrome.notifications.create({
     type: "basic",
     iconUrl: chrome.runtime.getURL("icons/icon128.png"),
-    title: title ?? (kind === "error" ? "Project Wingman, generation failed" : "Project Wingman, ready"),
+    title: title ?? (kind === "error" ? "ClientLens, generation failed" : "ClientLens, ready"),
     message: message ?? "",
     priority: kind === "error" ? 2 : 1,
   });

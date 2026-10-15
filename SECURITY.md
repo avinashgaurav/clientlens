@@ -27,7 +27,7 @@ There is one maintainer, so expect best effort rather than an SLA.
 ## Reporting a vulnerability
 
 **Do not open a public issue.** Use a
-[private security advisory](https://github.com/avinashgaurav/project-wingman-ClientLens/security/advisories/new),
+[private security advisory](https://github.com/avinashgaurav/clientlens/security/advisories/new),
 which lets us discuss the problem before there is a fix to point at.
 
 Useful things to include: what you did, what happened, the version or commit, and
@@ -48,7 +48,7 @@ Out of scope, because they are known and documented rather than undiscovered:
 - The missing authentication layer described above.
 - A backend that the operator chose to expose publicly.
 - Provider keys held in an operator's own `.env`. Bring-your-own-keys means those
-  live on your machine, and there is no Wingman server that could leak them.
+  live on your machine, and there is no ClientLens server that could leak them.
 
 ## What this project does not do with your data
 

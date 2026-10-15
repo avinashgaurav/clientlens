@@ -41,7 +41,7 @@ Most hits for "RAG" (92), "namespace" (51), "validator" (2) are in **comments an
 
 | # | Area | Outcome |
 |---|---|---|
-| #104 | Generate tab | **2 fixes:** ICPSelector "ICP Profile" → "Buyer persona" (rep-facing); custom-doc helper "the orchestrator infers" → "Wingman infers". Output-format card descriptions already concrete/on-voice, kept. |
+| #104 | Generate tab | **2 fixes:** ICPSelector "ICP Profile" → "Buyer persona" (rep-facing); custom-doc helper "the orchestrator infers" → "ClientLens infers". Output-format card descriptions already concrete/on-voice, kept. |
 | #105 | Live Copilot | **1 fix:** transponder confidence tooltip "Validator confidence" → "Fact-check confidence". Agent stage labels (Sentiment/Agenda/Coach/Objection) already job-named, kept. Rest of "validator/orchestrator" hits are code comments, not rendered. |
 | #106 | KB tab | **Already compliant.** Rendered label is "Category" (the `namespace` is a code identifier only). "ICP Profiles" as a KB category is acceptable per voice.md, KB is an admin/PMM-gated surface where ICP is expected. No change. |
 | #107 | Settings + integrations | **Already compliant.** No filler adjectives or plumbing jargon; integration result strings already instructive. No change. |

@@ -1,4 +1,4 @@
--- Project Wingman: initial schema
+-- ClientLens: initial schema
 -- Run in Supabase SQL editor
 
 -- ── User Profiles ─────────────────────────────────────────────────────────────

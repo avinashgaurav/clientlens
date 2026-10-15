@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Single source of truth for every Project Wingman brand asset.
+"""Single source of truth for every ClientLens brand asset.
 
 The mark: a navy squircle, a soft orange glow rising from below, and a white
 chevron sitting in front of it. Run from the repo root:
@@ -188,7 +188,7 @@ def make_og() -> None:
     margin = 76
 
     img.paste(render_mark(72), (margin, 66), render_mark(72))
-    d.text((margin + 96, 84), " ".join("PROJECT WINGMAN"), font=load(mono, 19), fill=WHITE)
+    d.text((margin + 96, 84), " ".join("CLIENTLENS"), font=load(mono, 19), fill=WHITE)
 
     headline = load(sans, 80, "Bold")
     d.text((margin, 178), "The copilot that", font=headline, fill=WHITE)
@@ -205,7 +205,7 @@ def make_og() -> None:
     d.line([(margin, rail_y), (W - margin, rail_y)], fill=RULE, width=1)
     rail = load(mono, 19)
     x = margin
-    for i, fact in enumerate(["MIT LICENSED", "BRING YOUR OWN KEYS", "NO WINGMAN SERVER"]):
+    for i, fact in enumerate(["MIT LICENSED", "BRING YOUR OWN KEYS", "NO CLIENTLENS SERVER"]):
         d.text((x, rail_y + 30), fact, font=rail, fill=WHITE if i == 0 else DIM)
         x += d.textlength(fact, font=rail) + 44
         if i < 2:
@@ -239,7 +239,7 @@ def make_github_social() -> None:
     m = render_mark(104)
     img.paste(m, (80, 118), m)
 
-    d.text((80, 256), "Project Wingman", font=load(sans, 68, "Bold"), fill=WHITE)
+    d.text((80, 256), "ClientLens", font=load(sans, 68, "Bold"), fill=WHITE)
     d.text((80, 340), "Open-source AI sales copilot for your browser sidebar.",
            font=load(sans, 29, "Regular"), fill=DIM)
 
@@ -247,7 +247,7 @@ def make_github_social() -> None:
     d.line([(80, rail_y), (W - 80, rail_y)], fill=RULE, width=1)
     rail = load(mono, 19)
     x = 80
-    for i, fact in enumerate(["MIT LICENSED", "BRING YOUR OWN KEYS", "NO WINGMAN SERVER"]):
+    for i, fact in enumerate(["MIT LICENSED", "BRING YOUR OWN KEYS", "NO CLIENTLENS SERVER"]):
         d.text((x, rail_y + 32), fact, font=rail, fill=WHITE if i == 0 else DIM)
         x += d.textlength(fact, font=rail) + 44
         if i < 2:

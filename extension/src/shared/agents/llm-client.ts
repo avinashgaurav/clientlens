@@ -163,7 +163,7 @@ export async function backendJwt(): Promise<string> {
     // instead. So with DEV_MODE off there is no path to a JWT and every backend
     // call fails here. Point at the actual fix.
     throw new Error(
-      "No backend session. Wingman v1.0 is single-user self-hosted and does not " +
+      "No backend session. ClientLens v1.0 is single-user self-hosted and does not " +
         "wire real auth yet: set DEV_MODE=true in backend/.env and VITE_DEV_MODE=true " +
         "in extension/.env, then restart the backend and rebuild. Only do this on a " +
         "backend that is not reachable from the public internet.",

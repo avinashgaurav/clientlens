@@ -73,7 +73,7 @@ async function writeAll(entries: KBEntry[]): Promise<void> {
   }
   if (ratio >= 0.80) {
     console.warn(
-      `[Project Wingman] KB storage at ${Math.round(ratio * 100)}% of 10 MB. Consider removing unused entries.`
+      `[ClientLens] KB storage at ${Math.round(ratio * 100)}% of 10 MB. Consider removing unused entries.`
     );
   }
 

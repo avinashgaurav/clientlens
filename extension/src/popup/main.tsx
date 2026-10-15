@@ -47,7 +47,7 @@ const STYLES = {
     marginTop: 4,
   } as React.CSSProperties,
 
-  // Primary action row: orange pill button (Wingman brand mark)
+  // Primary action row: orange pill button (ClientLens brand mark)
   primaryBtn: (hover: boolean): React.CSSProperties => ({
     width: "100%",
     padding: "10px 14px",
@@ -124,7 +124,7 @@ function Popup() {
             out of sync with the toolbar icon the way the old "PW" text did. */}
         <img src="icons/icon128.png" alt="" width={32} height={32} style={STYLES.mark} />
         <div style={STYLES.brand}>
-          <span style={STYLES.brandName}>Project Wingman</span>
+          <span style={STYLES.brandName}>ClientLens</span>
           <span style={STYLES.brandEyebrow}>Sales Copilot</span>
         </div>
       </div>

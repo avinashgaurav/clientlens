@@ -365,7 +365,7 @@ export function MeetingCopilotPanel() {
         });
         saveCallRecord(buildCallRecord({ ...finalSession, status: "ended", ended_at: new Date().toISOString() }, s));
       } catch (err) {
-        console.warn("[wingman] call record save failed", err);
+        console.warn("[clientlens] call record save failed", err);
       }
     } else {
       resetSession();
@@ -379,7 +379,7 @@ export function MeetingCopilotPanel() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `wingman-${(companyName || "call").replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.md`;
+    a.download = `clientlens-${(companyName || "call").replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -394,7 +394,7 @@ export function MeetingCopilotPanel() {
       const s = getSettings();
       const zoho = s.integrations.zoho;
       const custom = s.integrations.customTool;
-      const noteTitle = `Project Wingman call · ${companyName}`;
+      const noteTitle = `ClientLens call · ${companyName}`;
       const noteContent = summaryToMarkdown(summary, companyName, personaRole);
       if (zoho.connected && zoho.pushEnabled && zoho.fields.parentModule && zoho.fields.parentId) {
         const res = await pushZohoNote(zoho, {
@@ -1051,7 +1051,7 @@ function CopilotEmptyState() {
       {/* Renders at weight 400 by design, the live (Cursor) skin sets
           --display-weight: 400 ("magazine voice, never bold"). Not a regression. */}
       <h3 className="display-heading" style={{ color: "var(--ink)", fontSize: 14, margin: 0 }}>
-        Wingman copilots your live meetings
+        ClientLens copilots your live meetings
       </h3>
       <p style={{ color: "var(--ink-3)", fontSize: 12, maxWidth: 320, lineHeight: 1.45, margin: 0 }}>
         Connect Calendar or paste a meeting URL when you're ready. We'll listen
@@ -1065,7 +1065,7 @@ function CopilotEmptyState() {
           className="text-[11px] font-semibold disabled:opacity-50"
           style={{ color: "var(--brand-orange)", background: "transparent", border: "none", marginTop: 2 }}
         >
-          {loading ? "Loading sample data…" : "Try Wingman with sample data →"}
+          {loading ? "Loading sample data…" : "Try ClientLens with sample data →"}
         </button>
       )}
     </div>

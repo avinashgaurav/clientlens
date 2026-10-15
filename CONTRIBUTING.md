@@ -1,4 +1,4 @@
-# Contributing to Project Wingman
+# Contributing to ClientLens
 
 Thanks for looking. This is a solo-maintained MIT project, and the whole point of putting it in the open is that other people try it, use it, and improve it. Issues and pull requests are genuinely welcome, including small ones.
 
@@ -8,15 +8,15 @@ You do not need to write code to help. In rough order of value:
 
 1. **Run it and tell me where it broke.** The setup path (self-hosted backend, your own keys) is the least-tested part of this project because it mostly gets exercised on one machine. If step 3 of the Quick Start fails on your setup, that is a real bug and I want the issue.
 2. **Tell me what a rep would actually want.** Sales workflow feedback beats code. If the live-mode coaching cues fire at the wrong moment, say so.
-3. **Pick something off the backlog.** [Issue #113](https://github.com/avinashgaurav/project-wingman-ClientLens/issues/113) is the workflow and UX audit backlog, with acceptance criteria. Items are largely independent, so pick any of them in any order.
+3. **Pick something off the backlog.** [Issue #113](https://github.com/avinashgaurav/clientlens/issues/113) is the workflow and UX audit backlog, with acceptance criteria. Items are largely independent, so pick any of them in any order.
 
 ## Local setup
 
 Prerequisites: Node 20+, npm 10+, Python 3.11+, a Supabase project (free tier is fine), and at least one LLM provider key. Gemini Flash has a generous free tier.
 
 ```bash
-git clone https://github.com/avinashgaurav/project-wingman-ClientLens.git
-cd project-wingman-ClientLens
+git clone https://github.com/avinashgaurav/clientlens.git
+cd clientlens
 
 bash scripts/setup_env.sh          # writes backend/.env and extension/.env
 
@@ -65,13 +65,13 @@ bash backend/scripts/run_tests.sh
 
 ## Security issues
 
-Do not open a public issue for a vulnerability. This project handles OAuth tokens, call transcripts, and an org-wide knowledge base. Email the maintainer or open a [private security advisory](https://github.com/avinashgaurav/project-wingman-ClientLens/security/advisories/new) instead.
+Do not open a public issue for a vulnerability. This project handles OAuth tokens, call transcripts, and an org-wide knowledge base. Email the maintainer or open a [private security advisory](https://github.com/avinashgaurav/clientlens/security/advisories/new) instead.
 
 ## What I will probably say no to
 
 Not to be discouraging, just to save you the work:
 
-- **A hosted SaaS mode with a Wingman-run server.** The bring-your-own-keys, no-Wingman-server property is the point of the project, not a limitation of it. Multi-tenant self-hosted mode is on the roadmap; a Wingman-operated cloud is not.
+- **A hosted SaaS mode with a ClientLens-run server.** The bring-your-own-keys, no-ClientLens-server property is the point of the project, not a limitation of it. Multi-tenant self-hosted mode is on the roadmap; a ClientLens-operated cloud is not.
 - **Sending transcripts anywhere they are not already sent.** Audio goes to your configured STT provider and text to your configured LLM. Any PR that widens that gets a hard look.
 - **Adding a build-time dependency to do something small.** The extension bundle is already the slowest part of the rep's experience.
 

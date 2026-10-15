@@ -1,4 +1,4 @@
-# Wingman voice guide
+# ClientLens voice guide
 
 **Status:** source of truth for user-facing copy. Decisions locked with the product owner. Drives the content audit (`content-audit.md`) and the per-area sweep PRs under #85.
 
@@ -47,7 +47,7 @@ Familiar, neutral, reps know it. No rename to "playbook" or "sources." (The one 
 ## General tone rules
 
 - **Concrete over clever.** "Drafts your comeback in 3 seconds" > "Supercharge your objection handling."
-- **Active voice, second person.** "You closed it." / "Wingman coaches you live."
+- **Active voice, second person.** "You closed it." / "ClientLens coaches you live."
 - **No filler adjectives.** Avoid "powerful," "seamless," "robust," "cutting-edge."
 - **Numbers stay honest.** Every stat needs a baseline or a methodology (carried over from the landing-page accuracy work).
 - **Sentence case for everything except eyebrows.** Headings, buttons, body, sentence case.

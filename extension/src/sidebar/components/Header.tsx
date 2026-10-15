@@ -48,7 +48,7 @@ export function Header() {
               Persists across every skin. */}
           <img
             src="icons/icon128.png"
-            alt="Project Wingman"
+            alt="ClientLens"
             className="w-7 h-7"
             style={{ borderRadius: 6, display: "block", flexShrink: 0 }}
           />
@@ -61,7 +61,7 @@ export function Header() {
                 letterSpacing: "-0.03em",
               }}
             >
-              Project Wingman
+              ClientLens
             </span>
             <span className="eyebrow mt-1" style={{ fontSize: 9 }}>
               Sales Copilot

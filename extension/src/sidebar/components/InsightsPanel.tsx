@@ -256,7 +256,7 @@ function EmptyState() {
         No calls yet.
       </h3>
       <p style={{ color: "var(--ink-3)", fontSize: 13, maxWidth: 320, lineHeight: 1.45 }}>
-        Start a Meeting Copilot session from the Copilot tab. Wingman will
+        Start a Meeting Copilot session from the Copilot tab. ClientLens will
         save the post-call summary here automatically.
       </p>
       <p className="eyebrow" style={{ fontSize: 9, color: "var(--ink-5)" }}>
