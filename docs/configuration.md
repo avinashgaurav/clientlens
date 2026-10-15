@@ -64,3 +64,15 @@ The check is **fail-open**: if the Supabase query for today's usage errors, call
 **Edge case:** Live Mode can also auto-start when joining a Meet call if the rep has previously enabled "Don't ask again". On a brand-new install, that auto-start fires before the user has clicked anything, Chrome will not grant the permission without a user-gesture. The auto-start will silently bail; the next manual click on **Start Live Mode** prompts and grants normally. Once granted, all future auto-starts work.
 
 If you want auto-start to "just work" from install, have new reps click the Live Mode toggle once after install to grant the permission proactively.
+
+### Gemini models on a new key
+
+> [!IMPORTANT]
+> **On a new Gemini key, use `gemini-3.6-flash`.** Google has restricted the 1.5, 2.0 and 2.5 families to accounts that had already used them, so a key created today returns `404 no longer available to new users` on those, and they do not appear in the API's own model list either. `gemini-3.6-flash` works and is the default here. Groq and OpenRouter are the alternatives if you would rather not use Google at all.
+
+### The manifest template and the dev build
+
+> [!NOTE]
+> **You never hand-edit `extension/manifest.json`.** It is a template with two deliberate placeholders. The build injects your OAuth client ID and backend host from `.env` into `extension/dist/manifest.json`. A production build fails if the backend host is unresolved, and warns if the client ID is missing (that one is optional: only Google Slides/Drive export and Calendar sync read it).
+>
+> **Use `npm run dev`, not `npm run build`.** Self-hosting v1.0 against a local backend is the supported shape, and only the dev build may reach `localhost`. A release build requires a public https backend, which is not safe to expose until authentication is wired. [The two build modes](development.md#the-two-build-modes-and-which-one-you-want) explains why.

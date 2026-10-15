@@ -92,3 +92,27 @@ bash scripts/lint-manifest.sh               # Fails if YOUR_*, your-backend.rail
 ```
 
 The lint script blocks shipping placeholder strings or `<all_urls>` permissions to the Chrome Web Store.
+
+### Running the CI checks locally
+
+PRs welcome, including small ones. [**CONTRIBUTING.md**](../CONTRIBUTING.md) covers setup and expectations. CI runs these on every PR, and running them first saves you a round trip:
+
+```bash
+cd extension && npm run type-check && npm run lint && npm test && npm run dev
+cd .. && bash scripts/lint-manifest.sh
+```
+
+Use `npm run dev` here, not `npm run build`. A production build refuses a
+`localhost` backend by design, so on a normal self-hosted setup `npm run build`
+is *supposed* to fail.
+
+`npm test` runs the Vitest unit tests in `extension/src/shared/__tests__/`.
+They cover the pure logic the trust story rests on, with no LLM calls: the
+JSON extractor that reads agent replies, the pitch council's fail-closed fact
+check (an unsupported number is removed, an unlocatable claim holds the draft,
+an unreadable verdict marks it unverified), the service worker's write gate,
+objection citation parsing, prompt-injection wrapping of KB content, and cosine
+ranking in the in-browser vector store: 89 tests across 5 files. UI components
+and the live-call agents are not unit tested.
+
+Setup failures are real bugs and among the most useful reports, since the self-hosted path gets exercised on far fewer machines than it should. Questions that are not bugs belong in [Discussions](https://github.com/avinashgaurav/project-wingman-ClientLens/discussions). **Security issues: do not open a public issue**, use a [private advisory](https://github.com/avinashgaurav/project-wingman-ClientLens/security/advisories/new).

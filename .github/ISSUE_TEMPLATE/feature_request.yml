@@ -47,4 +47,4 @@ body:
     attributes:
       label: Before filing
       options:
-        - label: I checked the README roadmap and issue #113 (the workflow and UX backlog)
+        - label: I checked the roadmap (docs/limitations-and-roadmap.md) and issue #113 (the workflow and UX backlog)

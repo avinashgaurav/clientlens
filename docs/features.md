@@ -2,6 +2,32 @@
 
 Every surface, in full. For the short version see the [README](../README.md).
 
+## What it does
+
+**The open-source AI sales copilot that lives in your browser sidebar.**
+
+Live coaching during Google Meet calls, pitch generation grounded in your own knowledge base, and objection handling on tap. Runs on your LLM keys, on your infrastructure. There is no Wingman server.
+
+A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fumble the objection, take a half-page of notes, paste them into the CRM, then forget the follow-up. Wingman compresses that loop.
+
+- **Pre-call.** Generate a personalized pitch and a tailored email from the prospect's public signals and your indexed knowledge base.
+- **During the call.** Four agents run on the live transcript: sentiment, agenda pacing, a coach that surfaces the next-best sentence and objection handles, and a validator that checks each coach suggestion against your knowledge base: it shows an approved suggestion, swaps in its rewrite of one it revises, and drops one it rejects or cannot read. A small overlay mirrors the cues on the Meet tab itself.
+- **After the call.** A structured summary with agenda coverage, sentiment timeline, objections and action items. One click pushes it to Zoho CRM.
+
+Outputs are grounded in your knowledge base: agents are prompted to cite a source for each numeric claim, and a validation pass checks those claims. It is an LLM check, not a guarantee; see [Known limitations](limitations-and-roadmap.md#known-limitations).
+
+### The loop, in screens
+
+| | |
+|---|---|
+| **Load your material.** Case studies and battle cards, indexed and chunked. Every citation resolves back to one of these. | <img src="screenshots/knowledge-base.png" alt="Knowledge base: five entries, five of five indexed." width="420" /> |
+| **Draft the pitch.** Five output formats and a buyer persona. Live meeting mode on for the call itself. | <img src="screenshots/pitch-setup.png" alt="Pitch setup with output formats and live meeting mode on." width="300" /> |
+| **Take the calls.** Each one lands with its sentiment and how much of the agenda you covered. | <img src="screenshots/call-history.png" alt="Call history with sentiment and agenda coverage per call." width="420" /> |
+
+<img src="screenshots/insights.png" alt="Wingman's Insights tab: win rate, average sentiment, objections handled and total calls for the week." width="720" />
+
+<sub>Insights after a week of calls. Every screenshot here is the real extension, with sample data loaded.</sub>
+
 ## Features in detail
 
 ### 1. Personalized Pitch Generation
@@ -32,7 +58,7 @@ A Google Meet companion that captures tab audio, transcribes it in real time, an
   - **Live Validator**: checks each coach suggestion against your knowledge base before it is shown, and approves, rewrites or drops it.
 - **In-Meet transponder**: a non-intrusive overlay on `meet.google.com` that shows the company name chip, sentiment, and the current coaching cue. Designed not to steal focus during a live call.
 - **Post-call summary**: once the call ends, a structured summary is generated: agenda coverage, sentiment timeline, key objections raised, action items, sourced quotes.
-- **CRM push:** one click to write the summary as a note in Zoho CRM under the prospect's record. Backed by RBAC-gated server-side OAuth (see [Security model](security.md)). **Zoho is the only CRM wired today**; HubSpot and Salesforce connectors are on the [roadmap](../README.md#roadmap) and not implemented. The Integrations panel shows Meet and Zoom cards for parity, but Google Meet is the only meeting surface that works end to end.
+- **CRM push:** one click to write the summary as a note in Zoho CRM under the prospect's record. Backed by RBAC-gated server-side OAuth (see [Security model](security.md)). **Zoho is the only CRM wired today**; HubSpot and Salesforce connectors are on the [roadmap](limitations-and-roadmap.md#roadmap) and not implemented. The Integrations panel shows Meet and Zoom cards for parity, but Google Meet is the only meeting surface that works end to end.
 - **Calendar sync**: Google Calendar integration pre-populates upcoming meetings so the copilot is primed when the call starts.
 
 ### 3. Objection Composer
