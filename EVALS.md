@@ -117,7 +117,7 @@ Same 18 decks, same KB, same model. Results: `evals/results/2026-10-15-claude-cl
 | Made-up claims with no slide number | 0 | 0 |
 | Duplicate `removed_claims` entries | 0 | 0 |
 
-What this honestly shows: the rerun matches the first counted run exactly. The two problems the fix targets were each seen once, in the run I threw away. Neither happened in either counted run. So the rerun shows the fix broke nothing. It cannot show that the fix makes these problems rarer. The automated test proves the duplicate fix, not this eval. The holds that remain are the same intended ones: 8 slides left empty by a cut (because the test slides have one sentence each) and 1 claim in a title.
+What this honestly shows: the rerun matches the first counted run exactly. The two problems the fix targets were each seen once, in the run I threw away. Neither happened in either counted run. So the rerun showed no sign that the fix broke anything. It cannot show that the fix makes these problems rarer. The automated test proves the duplicate fix, not this eval. The holds that remain are the same intended ones: 8 slides left empty by a cut (because the test slides have one sentence each) and 1 claim in a title.
 
 Rerun speed: the middle call took 7.0 s (p50), nine in ten calls finished within 9.5 s (p90), and the whole run took 43 s. Model: `claude-opus-4-7`.
 
