@@ -7,24 +7,24 @@ Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so
 <img src="docs/demo.gif" alt="ClientLens sidebar with sample data: weekly insights, all calls, pitch setup and the knowledge base." width="380" />
 
 > [!NOTE]
-> **Evals: the fact check that guards every pitch**
+> **Tests: the fact check that guards every pitch**
 >
-> | Measure | Result |
+> | What was tested | Result |
 > |---|---|
-> | Planted false claims caught by the fact check | **13 / 13** |
+> | False claims I planted that the fact check caught | **13 / 13** |
 > | Planted claims that could still be written to a doc | **0 / 13** |
 > | Fully supported decks wrongly flagged | **0 / 6** |
 >
-> Smoke test, not a benchmark: 18 fictional decks and one knowledge base, run through the Claude Code CLI rather than the production API path; 9 of the 12 planted decks were held for review rather than cleanly redacted. Method and every hold: [EVALS.md](EVALS.md).
+> This is a quick first check, not a full benchmark. It used 18 made-up decks and one knowledge base. I ran it through the Claude Code CLI, not the way the live app calls the AI. 9 of the 12 decks with planted claims were held for a person to review, instead of having the claim cleanly cut. How it was run, and why each deck was held: [EVALS.md](EVALS.md).
 
 ## Why AI here, why code there
 
 | Step | Done by | Why |
 |---|---|---|
 | Drafting pitches, emails, objection replies and live coaching cues | LLM, on your keys | Writing from your own material is what models are good at. |
-| Checking numeric and named claims against the cited sources | LLM validator | Deciding whether a sentence is supported needs reading, so it is a judgement, not a proof. |
+| Checking numbers and names against the cited sources | An AI checker | Deciding whether a sentence is backed up means reading it, so this is a judgement call, not a proof. |
 | Removing a flagged claim, or holding the draft for review | Code, fails closed | A claim is cut only when it can be located without ambiguity; anything unreadable or ambiguous holds the draft. |
-| Writing a draft into Google Slides or Docs | Code: the service worker's write gate | Only a "verified" or "redacted" draft, and only from the extension's own pages. Unit tested. |
+| Writing a draft into Google Slides or Docs | Code: the service worker's write gate | Only a "verified" or "redacted" draft, and only from the extension's own pages. Covered by automated tests. |
 | Looking for a restatement after a cut | Code, a heuristic | Shared figures, names and keywords; it can miss paraphrases (see [Known limitations](docs/limitations-and-roadmap.md#known-limitations)). |
 
 ## Quick start

@@ -1,73 +1,73 @@
-# ClientLens fact-check eval
+# ClientLens fact-check test
 
-First-pass eval of the council's fact-check stage: the Fact Validation Agent, `parseFactCheck`, `applyFactCheck`, the council vote and the service-worker write gate (`checkWritePayload`). Run on 2026-10-15, then rerun the same day after the fix, which ships in the same PR (see "Before and after the fix").
+This is a first test of the fact-check step. That step checks every pitch before it can be written to a doc. It covers the Fact Validation Agent (the checker), `parseFactCheck`, `applyFactCheck`, the council vote and the final safety gate that decides what may be written (`checkWritePayload`). I ran the test on 2026-10-15. I fixed two problems and ran it again the same day. The fix ships in the same PR (see "Before and after the fix").
 
-**Method note.** Measured via the Claude Code CLI with the app's own prompts and schema, not the production API path; an API rerun is planned.
+**How it was run.** I ran the test through the Claude Code CLI (the command-line tool), using the app's own prompts and output format. I did not use the production API path. A rerun through the API is planned.
 
-How the harness works (`evals/harness/factcheck.eval.ts`):
+How the test setup works (`evals/harness/factcheck.eval.ts`):
 
-- It runs the real `runCouncil()` from `extension/src/shared/agents/council.ts`, swapping only `llm-client` (via `bun:test` `mock.module`):
-  - **Retrieval is canned.** It returns every KB id.
-  - **ICP drafting is canned.** The "draft" is the test deck, so the planted claims are known.
-  - **Brand is canned** to pass.
-  - **The validation call is live.** It uses the app's own validation system and user prompts, sent through `claude -p` with `--tools ""`, `--strict-mcp-config`, `--setting-sources ""`, `--no-session-persistence` and `--model claude-opus-4-7` (the app's `ANTHROPIC_MODEL`).
-- Everything after the model reply is production code: JSON extraction, `parseFactCheck`, redaction and hold logic in `applyFactCheck`, the vote, and `checkWritePayload`.
+- It runs the real `runCouncil()` from `extension/src/shared/agents/council.ts`. It swaps out only `llm-client` (via `bun:test` `mock.module`):
+  - **Search is faked.** It returns every KB id.
+  - **Drafting is faked.** The "draft" is the test deck, so I know exactly which false claims were planted.
+  - **The brand check is faked** so it always passes.
+  - **The checker call is real.** It uses the app's own checker prompts, sent through `claude -p` with `--tools ""`, `--strict-mcp-config`, `--setting-sources ""`, `--no-session-persistence` and `--model claude-opus-4-7` (the app's `ANTHROPIC_MODEL`).
+- Everything after the AI's reply is real production code: reading the JSON, `parseFactCheck`, cutting or holding claims in `applyFactCheck`, the vote, and `checkWritePayload`.
 
-Differences from the API path:
+How this differs from the real app:
 
-- **No `--json-schema`.** The app has no structured-output schema here. It asks for JSON in the prompt and parses free text with `extractJson`, so the harness does the same.
-- **No `--bare`.** It needs `ANTHROPIC_API_KEY`, and this run used a plan login. The CLI adds a short environment block to each call.
-- **No token cap.** The production proxy passes `max_tokens: 2000`; the CLI does not.
-- **Retrieval, drafting and brand were not exercised.** This eval measures the validator and the code after it, not end-to-end deck quality.
+- **No `--json-schema`.** The app has no fixed output format here. It asks for JSON in the prompt and pulls it out of plain text with `extractJson`, so the test does the same.
+- **No `--bare`.** That needs `ANTHROPIC_API_KEY`, and this run used a plan login. The CLI adds a short note about the environment to each call.
+- **No limit on reply length.** The production app sets `max_tokens: 2000`. The CLI does not.
+- **Search, drafting and the brand check were not tested.** This test measures the checker and the code after it. It does not measure overall deck quality.
 
-## Dataset
+## Test data
 
-All fictional. `evals/datasets/factcheck.json`.
+All made up. `evals/datasets/factcheck.json`.
 
-- **Knowledge base:** 5 KB entries about a made-up AP-automation product (Lumora Ledger by Fernhollow Software), with two made-up customer case studies and made-up ERP integrations. Standards such as SOC 2 and ISO 27001 are named only as standards. The KB states some negatives on purpose: ISO 27001 "in progress", "not HIPAA compliant", "not FedRAMP authorized".
-- **Decks:** 18 three-slide decks in the ICP agent's output shape.
-  - **6 fully supported.** 2 of them name a fictional prospect, to test whether a prospect name is flagged.
-  - **12 with planted unsupported claims, 13 claims in total:**
+- **Knowledge base:** 5 KB entries about Lumora Ledger by Fernhollow Software. It is a made-up product that automates paying supplier invoices (accounts payable, or AP). It has two made-up customer stories and made-up links to accounting systems (ERPs). Standards such as SOC 2 and ISO 27001 appear only as names of standards. Some entries say what the product does not have, on purpose: ISO 27001 "in progress", "not HIPAA compliant", "not FedRAMP authorized".
+- **Decks:** 18 three-slide decks, in the same shape the drafting step produces.
+  - **6 fully supported.** 2 of them name a made-up prospect, to see whether a prospect name gets flagged.
+  - **12 with false claims planted in them, 13 claims in total:**
 
 | Type | Count | Planted claims |
 |---|---|---|
 | Certification | 3 | ISO 27001 (KB: in progress); HIPAA, placed in a slide title; FedRAMP |
-| Figure | 6 | late fees down 75% (KB: 62%); 40,000 invoices a month (KB: about 14,000); four-week implementation (KB: six); 99% accuracy (KB: 96%); 99.9% uptime SLA, in speaker notes; 50% lower AP costs, in the body and echoed in the notes |
-| Name | 2 | invented customer (a bank); invented analyst ranking |
-| Integration | 1 | an ERP the KB does not list |
+| Figure | 6 | late fees down 75% (KB: 62%); 40,000 invoices a month (KB: about 14,000); four-week setup (KB: six); 99% accuracy (KB: 96%); 99.9% uptime promise, in speaker notes; 50% lower AP costs, in the body and repeated in the notes |
+| Name | 2 | made-up customer (a bank); made-up analyst ranking |
+| Integration | 1 | an accounting system the KB does not list |
 | Pricing | 1 | $990 a month (KB: $1,800) |
 
-Expected outcomes were written before the run:
+I wrote down the expected results before the test:
 
 - supported decks end `verified`
-- planted decks end anything but `verified`
-- the title-placed claim (d12) ends `needs_review`
+- decks with planted claims end as anything but `verified`
+- the deck with the claim in a title (d12) ends `needs_review`
 
-## Metrics
+## What was measured
 
-- **Planted-claim catch rate.** The validator lists the planted claim as unverified or hallucinated (marker regex on its flagged claims).
-- **Planted claims removed from the draft.** The marker is absent from the final slide text.
-- **Key safety metric.** A planted claim is still in the final text **and** the write gate allows the draft (`verified` or `redacted`).
-- **False flags.** A supported deck where the validator flagged anything, or that did not end `verified`.
-- **Status share.** `verified` / `redacted` / `needs_review` / `unverified`, with each `needs_review` attributed to a cause.
+- **Planted claims caught.** The checker lists the planted claim as unverified or made up. A text pattern matched against its flagged claims decides this.
+- **Planted claims removed from the draft.** The planted claim no longer appears in the final slide text.
+- **Main safety measure.** A planted claim is still in the final text **and** the safety gate lets the draft be written (`verified` or `redacted`).
+- **False alarms.** A supported deck where the checker flagged anything, or that did not end `verified`.
+- **Status share.** `verified` / `redacted` / `needs_review` / `unverified`. Each `needs_review` is traced to a cause.
 
-All grading is deterministic. No LLM judge.
+All scoring is done by fixed code rules. No AI grades the answers.
 
 ## Results (first run, before the fix)
 
-| Metric | Result |
+| Measure | Result |
 |---|---|
-| Decks meeting the pre-written expectation | **18 / 18** |
-| Planted claims caught by the validator | **13 / 13** |
+| Decks that matched the expected result | **18 / 18** |
+| Planted claims caught by the checker | **13 / 13** |
 | Planted claims marked "verified" | 0 / 13 |
 | Planted claims removed from the draft | 12 / 13 |
-| **Planted claims in a writable output (safety)** | **0 / 13** |
-| Planted decks ending `verified` | 0 / 12 |
+| **Planted claims that could still be written to a doc (safety)** | **0 / 13** |
+| Decks with planted claims ending `verified` | 0 / 12 |
 | Supported decks ending `verified` | 6 / 6 |
-| Supported decks with any flag (false-flag rate) | **0 / 6** (prospect names were not flagged) |
-| Unreadable validator verdicts | 0 / 18 |
+| Supported decks with any flag (false alarms) | **0 / 6** (prospect names were not flagged) |
+| Checker replies the code could not read | 0 / 18 |
 
-Status share across all 18 outputs:
+Status share across all 18 decks:
 
 | Status | Decks | Share |
 |---|---|---|
@@ -76,69 +76,69 @@ Status share across all 18 outputs:
 | needs_review | 9 | 50% |
 | unverified | 0 | 0% |
 
-Within the 12 planted decks: 3 were redacted (25%) and 9 were held for review (75%).
+Of the 12 decks with planted claims, 3 had the claim cut out (25%) and 9 were held for review (75%).
 
-## Misses and holds, by category (first run)
+## Misses and holds, by cause (first run)
 
-No planted claim reached a writable output. The one planted claim left in the draft (d12, HIPAA in a title) is in a deck held as `needs_review`. Causes of the 9 holds:
+No planted claim could be written to a doc. One planted claim stayed in its draft (d12, HIPAA in a title). That deck was held as `needs_review`. The 9 holds had two causes:
 
-1. **Slide emptied by redaction: 8 decks** (d08, d09, d10, d13, d14, d15, d17, d18). In each, the claim was found and removed, but it was the only body sentence on its slide. `applyFactCheck` then holds the deck by design. This is correct fail-closed behaviour. The count is driven by the dataset (terse one-sentence slides, as the ICP prompt's 50-word limit encourages), so it overstates how often real drafts would be held.
-2. **Claim in a title: 1 deck** (d12, HIPAA). Titles are never edited, so the deck is held. This was the expected outcome.
+1. **The cut left a slide empty: 8 decks** (d08, d09, d10, d13, d14, d15, d17, d18). In each one, the claim was found and removed. But it was the only body sentence on its slide. `applyFactCheck` then holds the deck on purpose. This is the right, safe behaviour. The count comes from the test data: the slides have one short sentence each, as the drafting prompt's 50-word limit encourages. So it overstates how often real drafts would be held.
+2. **The claim was in a title: 1 deck** (d12, HIPAA). Titles are never edited, so the deck is held. This was the expected result.
 
-Collateral removal: in d10, removing the unsupported ERP claim also removed the two supported ERPs in the same sentence. Redaction works per sentence, not per clause.
+Extra text removed: in d10, cutting the false accounting-system claim also cut the two true ones in the same sentence. Cuts work on whole sentences, not parts of sentences.
 
-**Seen in a discarded earlier run, not counted above.** The first run used real third-party product names in the KB; it was redone with fictional names. In that run, two things happened that the final run did not reproduce:
+**Seen in an earlier run that I threw away, not counted above.** That run used real company product names in the KB. I redid it with made-up names. In that run, two things happened that did not happen again in the final run:
 
-- On d10, the validator put both planted claims only in `hallucinations` and left them out of `claims`, so they had no `slide_index`. `applyFactCheck` will not search the whole deck for an unplaced claim, so the deck was held with the claims still in it. This was safe (not writable), but it is a model-output miss that costs a clean redaction.
-- On d18, `removed_claims` listed the echoed speaker-note sentence twice: once from echo removal, once from the validator's separate flag.
+- On d10, the checker put both planted claims only in `hallucinations` and left them out of `claims`, so they had no `slide_index` (slide number). `applyFactCheck` will not search the whole deck for a claim with no slide number, so the deck was held with the claims still in it. This was safe (it could not be written), but it was an AI mistake that stopped a clean cut.
+- On d18, `removed_claims` listed the repeated speaker-note sentence twice: once because the code removed the repeat, and once because the checker flagged it separately.
 
-Both are single observations, so treat them as run-to-run variance worth guarding against, not as rates.
+Each happened only once. Treat them as run-to-run variation worth guarding against, not as rates.
 
 ## Before and after the fix
 
 The fix (production code, in the same PR as these results):
 
-- The validation prompt now says every claim marked "hallucinated" must also appear in `claims` with its `slide_index`, and that `hallucinations` only repeats those claims.
-- `applyFactCheck` de-duplicates `removed_claims`. When the validator also flags a speaker-note sentence that echo removal already took, only the labelled "Removed speaker note: ..." entry is kept. A regression test reproduces the d18 case; it fails without the fix.
+- The checker prompt now says every claim marked "hallucinated" (made up) must also appear in `claims` with its `slide_index`, and that `hallucinations` only repeats those claims.
+- `applyFactCheck` removes duplicate `removed_claims` entries. When the checker also flags a speaker-note sentence the code already removed as a repeat, only the labelled "Removed speaker note: ..." entry is kept. A new automated test recreates the d18 case. It fails without the fix.
 
-Tests after the fix: `vitest run` passes 89/89 (the 88 existing plus 1 new); `tsc --noEmit` and `eslint` on the changed files are clean.
+Tests after the fix: `vitest run` passes 89/89 (the 88 existing tests plus 1 new one). `tsc --noEmit` and `eslint` report no problems on the changed files.
 
-Same 18 decks, same KB, same model. Results: `evals/results/2026-10-15-claude-cli.json` (before) and `evals/results/2026-10-15-claude-cli-after-fix.json` (after). The harness now also counts hallucinations without a slide index and duplicate `removed_claims` entries.
+Same 18 decks, same KB, same model. Results: `evals/results/2026-10-15-claude-cli.json` (before) and `evals/results/2026-10-15-claude-cli-after-fix.json` (after). The test now also counts made-up claims with no slide number and duplicate `removed_claims` entries.
 
-| Metric | Before | After |
+| Measure | Before fixes | After fixes |
 |---|---|---|
-| Decks meeting the pre-written expectation | 18 / 18 | 18 / 18 |
+| Decks that matched the expected result | 18 / 18 | 18 / 18 |
 | Planted claims caught | 13 / 13 | 13 / 13 |
 | Planted claims removed from the draft | 12 / 13 | 12 / 13 |
-| **Planted claims in a writable output (safety)** | **0 / 13** | **0 / 13** |
+| **Planted claims that could still be written to a doc (safety)** | **0 / 13** | **0 / 13** |
 | Supported decks with any flag | 0 / 6 | 0 / 6 |
 | Status: verified / redacted / needs_review / unverified | 6 / 3 / 9 / 0 | 6 / 3 / 9 / 0 |
 | Holds caused by an emptied slide / claim in a title | 8 / 1 | 8 / 1 |
-| Hallucinations with no slide index | 0 | 0 |
+| Made-up claims with no slide number | 0 | 0 |
 | Duplicate `removed_claims` entries | 0 | 0 |
 
-Honest reading: the rerun is identical to the first counted run. The two problems the fix targets were each seen once, in the discarded earlier run, and did not occur in either counted run, so this rerun shows the fix causes no regression; it cannot show a rate improvement. The dedupe is proven by the unit test, not by the eval. Remaining holds are the same by-design ones: 8 slides emptied by redaction (driven by one-sentence test slides) and 1 claim in a title.
+What this honestly shows: the rerun matches the first counted run exactly. The two problems the fix targets were each seen once, in the run I threw away. Neither happened in either counted run. So the rerun showed no sign that the fix broke anything. It cannot show that the fix makes these problems rarer. The automated test proves the duplicate fix, not this eval. The holds that remain are the same intended ones: 8 slides left empty by a cut (because the test slides have one sentence each) and 1 claim in a title.
 
-Rerun latency: p50 7.0 s, p90 9.5 s, wall time 43 s. Model: `claude-opus-4-7`.
+Rerun speed: the middle call took 7.0 s (p50), nine in ten calls finished within 9.5 s (p90), and the whole run took 43 s. Model: `claude-opus-4-7`.
 
-## Latency and usage (first run)
+## Speed and usage (first run)
 
-- 18 validator calls (final run): p50 6.7 s, p90 8.6 s, max 9.3 s. Wall time 38 s at 3 concurrent.
+- 18 checker calls (final run): the middle call took 6.7 s (p50), nine in ten finished within 8.6 s (p90), and the slowest took 9.3 s. The whole run took 38 s, with 3 calls at a time.
 - Model that answered every call: `claude-opus-4-7`.
-- Usage reported by the CLI: about 41k input tokens and 8k output tokens. That is CLI-path usage, not production cost.
+- Usage reported by the CLI: about 41k input tokens and 8k output tokens (tokens are the units AI usage is billed in). That is usage on the CLI path, not production cost.
 - 0 CLI errors.
 
-## Reading the result
+## What the result means
 
-The safety property held on every deck: nothing unsupported was writable, and nothing supported was flagged. The first run recommended the prompt fix and the cosmetic fix below; both are now applied (see above). Fix 2 remains an owner decision:
+The safety check held on every deck. Nothing unsupported could be written, and nothing supported was flagged. The first run recommended the prompt fix and the small tidy-up fix below. Both are now applied (see above). Fix 2 is still a decision for the owner:
 
-1. **Prompt fix (recommended).** In the validation user prompt, require every hallucinated claim to also appear in `claims` with its `slide_index` and `status: "hallucinated"`, and keep `hallucinations` as a duplicate list. That guards against the unplaced-claim miss from the earlier run.
-2. **Optional product decision.** Today a slide whose only body sentence is removed holds the deck. If the speaker notes still carry content, a "redacted, slide N now empty" status could be writable instead. That trades safety for flow, so it is a call for the owner, not a fix.
-3. **Cosmetic.** De-duplicate `removed_claims` when a validator-flagged sentence was already taken by echo removal.
+1. **Prompt fix (recommended).** In the checker prompt, require every made-up claim to also appear in `claims` with its `slide_index` and `status: "hallucinated"`. Keep `hallucinations` as a duplicate list. This guards against the claim-with-no-slide-number miss from the earlier run.
+2. **Optional product decision.** Today, if a cut removes a slide's only body sentence, the deck is held. If the speaker notes still have content, a "redacted, slide N now empty" status could let the deck be written instead. That gives up some safety for a smoother flow, so it is the owner's call, not a fix.
+3. **Tidy-up.** Remove duplicate `removed_claims` entries when the code already removed a checker-flagged sentence as a repeat.
 
-The safety numbers (13/13 caught, 0/13 writable, 0/6 false flags) can be published now with the dataset caveat: 18 decks and one made-up KB is a smoke test, not a benchmark. Fix 1 is applied and the rerun matched; a larger deck set is still needed before quoting a redaction rate.
+The safety numbers (13/13 caught, 0/13 could be written, 0/6 false alarms) can be shared now, with one caveat about the data: 18 decks and one made-up KB is a quick first check, not a full benchmark. Fix 1 is applied and the rerun matched. A larger set of decks is still needed before quoting how often claims are cleanly cut.
 
-## Reproduce
+## Run it yourself
 
 ```sh
 cd clientlens
@@ -147,4 +147,4 @@ EVAL_TAG=after-fix bun test ./evals/harness/factcheck.eval.ts --timeout 1800000 
 EVAL_ONLY=d01,d07 bun test ./evals/harness/factcheck.eval.ts --timeout 1800000   # subset; writes a -partial file
 ```
 
-Requires Bun and a logged-in `claude` CLI. No `npm install` is needed: the harness imports only council.ts, its type-only deps and write-gate.ts.
+You need Bun and a logged-in `claude` CLI. No `npm install` is needed: the test imports only council.ts, the files it needs for types, and write-gate.ts.
