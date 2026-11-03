@@ -21,7 +21,9 @@ export interface LLMConfig {
   baseUrl?: string;
 }
 
-const ANTHROPIC_MODEL = "claude-opus-4-7";
+// Must be in the backend's default Anthropic allowlist (backend/api/routes/llm.py),
+// or every council call 400s on a server without ALLOWED_MODELS_ANTHROPIC.
+const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 const OLLAMA_MODEL = "llama3.1:8b";
 const OLLAMA_BASE = "http://localhost:11434";
