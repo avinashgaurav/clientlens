@@ -24,6 +24,7 @@ import { InsightsPanel } from "./components/InsightsPanel";
 import { isMeetingCopilotEnabled } from "../shared/meeting-copilot/feature-flag";
 import { listKB } from "../shared/utils/kb-storage";
 import { getSettings } from "../shared/utils/settings-storage";
+import { isOnboardingComplete } from "../shared/utils/onboarding";
 import { FileText, BookOpen, Radio, BarChart3 } from "lucide-react";
 
 type AdminTab = "form" | "kb" | "copilot" | "insights";
@@ -68,7 +69,42 @@ export default function App() {
 
   useEffect(() => {
     detectContext();
-    listKB().then((entries) => setKbCount(entries.length)).catch(() => { /* ignore */ });
+    const refreshKbCount = () => {
+      listKB().then((entries) => setKbCount(entries.length)).catch(() => { /* ignore */ });
+    };
+    refreshKbCount();
+    // KB writes land in chrome.storage.local; recount so the checklist's KB
+    // step ticks as soon as an entry or the sample data is added.
+    const onStorageChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+      if (area === "local" && "clientlens_kb" in changes) refreshKbCount();
+    };
+    try { chrome.storage?.onChanged?.addListener(onStorageChanged); } catch { /* non-extension env */ }
+    return () => {
+      try { chrome.storage?.onChanged?.removeListener(onStorageChanged); } catch { /* noop */ }
+    };
+  }, []);
+
+  // The popup's "This week's insights" leaves a tab hint in chrome.storage.local
+  // before opening the panel. Take it on mount, or live if the panel is already
+  // open, then clear it so the next plain open lands on the default tab.
+  useEffect(() => {
+    const OPEN_TAB_KEY = "clientlens_open_tab";
+    const take = (tab: unknown) => {
+      if (tab !== "insights") return;
+      userPickedTabRef.current = true;
+      setAdminTabState("insights");
+      try { void chrome.storage.local.remove(OPEN_TAB_KEY); } catch { /* non-extension env */ }
+    };
+    const onStorageChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+      if (area === "local" && OPEN_TAB_KEY in changes) take(changes[OPEN_TAB_KEY].newValue);
+    };
+    try {
+      chrome.storage.local.get(OPEN_TAB_KEY, (r) => take(r[OPEN_TAB_KEY]));
+      chrome.storage.onChanged.addListener(onStorageChanged);
+    } catch { /* non-extension env */ }
+    return () => {
+      try { chrome.storage.onChanged.removeListener(onStorageChanged); } catch { /* noop */ }
+    };
   }, []);
 
   // #79: auto-switch to Copilot tab when the rep has a Meet open and hasn't
@@ -100,14 +136,7 @@ export default function App() {
   const [onboardingDone, setOnboardingDone] = useState(false);
   useEffect(() => {
     try {
-      const s = getSettings();
-      const keyOk =
-        !!s.geminiKey ||
-        !!s.anthropicKey ||
-        !!s.groqKey ||
-        (!!s.customBaseUrl && !!s.customModel);
-      const anyIntegration = Object.values(s.integrations).some((c) => c.connected);
-      setOnboardingDone(keyOk && anyIntegration && kbCount > 0);
+      setOnboardingDone(isOnboardingComplete(getSettings(), kbCount));
     } catch {
       setOnboardingDone(false);
     }

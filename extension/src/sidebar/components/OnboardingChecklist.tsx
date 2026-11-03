@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Circle, Sparkles, X, ChevronDown } from "lucide-react";
 import { getSettings } from "../../shared/utils/settings-storage";
+import { isModelKeyConfigured } from "../../shared/utils/onboarding";
 
 interface Props {
   kbCount: number;
@@ -24,11 +25,7 @@ export function OnboardingChecklist({ kbCount, onOpenSettings }: Props) {
 
   const steps = useMemo(() => {
     const s = getSettings();
-    const keyOk =
-      !!s.geminiKey ||
-      !!s.anthropicKey ||
-      !!s.groqKey ||
-      (!!s.customBaseUrl && !!s.customModel);
+    const keyOk = isModelKeyConfigured(s);
     const anyIntegration = Object.values(s.integrations).some((c) => c.connected);
     const hasKB = kbCount > 0;
     return [
@@ -39,7 +36,8 @@ export function OnboardingChecklist({ kbCount, onOpenSettings }: Props) {
   }, [kbCount, onOpenSettings]);
 
   const remaining = steps.filter((s) => !s.done).length;
-  const allDone = remaining === 0;
+  // The integration step is optional, so it doesn't hold back completion.
+  const allDone = steps.every((s) => s.done || s.id === "integ");
 
   // If a previously-complete state regresses (e.g. KB wiped, key removed), the
   // checklist should reappear: clear the dismissal so the rep sees what's

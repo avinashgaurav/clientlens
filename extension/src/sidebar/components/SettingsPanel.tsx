@@ -346,9 +346,9 @@ export function SettingsPanel({ open, onClose }: Props) {
               <div className="flex items-start gap-2">
                 <Trash2 size={13} className="text-red-300 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-semibold text-ink">Clear all session data</div>
+                  <div className="text-xs font-semibold text-ink">Clear session data and knowledge base</div>
                   <div className="text-[11px] text-ink-4 mt-0.5 leading-snug">
-                    Wipes saved call summaries, calendar cache, transponder layout and auto-start flag from this browser.
+                    Wipes saved call summaries, calendar cache, transponder layout, auto-start flag and every knowledge base entry from this browser.
                     API keys and integration credentials are kept.
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export function SettingsPanel({ open, onClose }: Props) {
                   onClick={() => setWipeState("confirm")}
                   className="px-3 py-1.5 text-[11px] font-semibold text-red-300 border border-red-500/40 hover:border-red-500/70 hover:bg-red-500/10 transition-colors"
                 >
-                  Clear session data…
+                  Clear session data and KB…
                 </button>
               )}
             </div>
