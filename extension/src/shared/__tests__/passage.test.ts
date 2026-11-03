@@ -8,6 +8,12 @@ describe("queryTerms", () => {
   it("keeps short acronyms and drops stopwords", () => {
     expect(queryTerms("Is MFA required for SSO and the ERP?")).toEqual(["mfa", "required", "sso", "erp"]);
   });
+
+  it("keeps non-ASCII words whole", () => {
+    expect(queryTerms("Café pricing? मूल्य क्या है")).toEqual(["café", "pricing", "मूल्य", "क्या", "है"]);
+    expect(bestPassage(`${"x ".repeat(200)}Le café coûte 4 euros. ${"y ".repeat(200)}`, queryTerms("café"), 60)).toContain("café coûte 4 euros.");
+    expect(countTermHits("हमारा मूल्य स्थिर है", queryTerms("मूल्य"))).toBe(1);
+  });
 });
 
 describe("countTermHits", () => {
@@ -60,5 +66,76 @@ describe("relevantExcerpt", () => {
     expect(out).toContain("retained for seven years");
     expect(out).toContain("30 days of exit");
     expect(out).toContain("[...]");
+  });
+});
+
+// The quadratic implementation bestPassage replaced, kept to check the
+// sliding-window rewrite returns exactly the same windows.
+function oldBestPassage(text: string, terms: string[], maxChars: number): string {
+  const windowEnd = (start: number) => {
+    const limit = start + maxChars;
+    if (limit >= text.length) return text.length;
+    if (/\s/.test(text[limit])) return limit;
+    const at = Math.max(text.lastIndexOf(" ", limit), text.lastIndexOf("\n", limit));
+    return at > start ? at : limit;
+  };
+  if (text.length <= maxChars) return text;
+  const hay = text.toLowerCase();
+  const matches: { term: number; start: number; end: number }[] = [];
+  terms.forEach((t, term) => {
+    const re = t.length <= 3 ? new RegExp(`\\b${t}\\b`, "g") : new RegExp(t, "g");
+    for (const m of hay.matchAll(re)) matches.push({ term, start: m.index, end: m.index + m[0].length });
+  });
+  if (!matches.length) return text.slice(0, windowEnd(0)).trim();
+  const sentenceStarts = new Set<number>([0]);
+  for (const m of text.matchAll(/[.!?]["')\]]*\s+|\n+/g)) sentenceStarts.add(m.index + m[0].length);
+  const candidates = new Set<number>(sentenceStarts);
+  for (const m of matches) {
+    let s = m.start;
+    while (s > 0 && !/\s/.test(text[s - 1])) s--;
+    candidates.add(s);
+  }
+  let best = { start: 0, end: 0, distinct: -1, total: -1, sentence: false };
+  for (const start of [...candidates].sort((a, b) => a - b)) {
+    if (start >= text.length) continue;
+    const end = windowEnd(start);
+    const inside = matches.filter((m) => m.start >= start && m.end <= end);
+    const distinct = new Set(inside.map((m) => m.term)).size;
+    const total = inside.length;
+    const sentence = sentenceStarts.has(start);
+    const better =
+      distinct > best.distinct ||
+      (distinct === best.distinct && total > best.total) ||
+      (distinct === best.distinct && total === best.total && (sentence || !best.sentence));
+    if (better) best = { start, end, distinct, total, sentence };
+  }
+  return text.slice(best.start, best.end).trim();
+}
+
+describe("bestPassage performance", () => {
+  it("matches the old implementation on small inputs", () => {
+    let seed = 7;
+    const rnd = (n: number) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+    const vocab = ["sso", "lesson", "mfa", "invoice", "invoices", "approval", "tier", "the", "Data.", "exit!", "plan?", "x", "retention", "SSO,", "erp"];
+    const seps = [" ", " ", " ", "\n", "\n\n", "  "];
+    for (let n = 0; n < 400; n++) {
+      const words = Array.from({ length: 20 + rnd(150) }, () => vocab[rnd(vocab.length)] + seps[rnd(seps.length)]);
+      const text = words.join("");
+      const terms = queryTerms(Array.from({ length: 1 + rnd(4) }, () => vocab[rnd(vocab.length)]).join(" "));
+      const max = 20 + rnd(200);
+      expect(bestPassage(text, terms, max)).toBe(oldBestPassage(text, terms, max));
+    }
+  });
+
+  it("handles a dense ~300 KB entry quickly", () => {
+    const sentence = "SSO and MFA are required for every invoice approval tier in the ERP. ";
+    const text = sentence.repeat(Math.ceil(300_000 / sentence.length));
+    expect(text.length).toBeGreaterThanOrEqual(300_000);
+    const t0 = performance.now();
+    const out = bestPassage(text, queryTerms("Is SSO or MFA required for invoice approval in the ERP?"), 500);
+    const ms = performance.now() - t0;
+    console.log(`bestPassage on ${text.length} chars: ${ms.toFixed(1)} ms`);
+    expect(out.length).toBeLessThanOrEqual(500);
+    expect(ms).toBeLessThan(200);
   });
 });

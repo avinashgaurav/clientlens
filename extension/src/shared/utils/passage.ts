@@ -18,14 +18,19 @@ const STOPWORDS = new Set(
 
 /** Lowercased, de-duplicated search terms of a query (stopwords dropped). */
 export function queryTerms(query: string): string[] {
-  const terms = query.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 2 && !STOPWORDS.has(t));
+  // Letters, combining marks and digits in any script, so "café" and Hindi
+  // words (whose vowel signs are combining marks) survive as whole terms.
+  const terms = query.toLowerCase().split(/[^\p{L}\p{M}\p{N}]+/u).filter((t) => t.length >= 2 && !STOPWORDS.has(t));
   return [...new Set(terms)];
 }
 
 // Terms of 3 characters or fewer match whole words only ("sso" must not hit
 // "lesson"); longer terms match as substrings, so "invoice" also finds "invoices".
+// Terms hold only letters, marks and digits, so they need no regex escaping.
 function termPattern(term: string): RegExp {
-  return term.length <= 3 ? new RegExp(`\\b${term}\\b`, "g") : new RegExp(term, "g");
+  return term.length <= 3
+    ? new RegExp(`(?<![\\p{L}\\p{M}\\p{N}])${term}(?![\\p{L}\\p{M}\\p{N}])`, "gu")
+    : new RegExp(term, "gu");
 }
 
 /** How many distinct terms occur in text. */
@@ -48,14 +53,23 @@ function findMatches(text: string, terms: string[]): Match[] {
   return out;
 }
 
+/** For each index, the last space or newline at or before it (-1 if none). */
+function lastBreaks(text: string): Int32Array {
+  const out = new Int32Array(text.length);
+  let last = -1;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === " " || text[i] === "\n") last = i;
+    out[i] = last;
+  }
+  return out;
+}
+
 /** End of a window that starts at `start`: at most maxChars on, cut at a word boundary. */
-function windowEnd(text: string, start: number, maxChars: number): number {
+function windowEnd(text: string, start: number, maxChars: number, breaks?: Int32Array): number {
   const limit = start + maxChars;
   if (limit >= text.length) return text.length;
   if (/\s/.test(text[limit])) return limit;
-  const cut = text.lastIndexOf(" ", limit);
-  const nl = text.lastIndexOf("\n", limit);
-  const at = Math.max(cut, nl);
+  const at = breaks ? breaks[limit] : Math.max(text.lastIndexOf(" ", limit), text.lastIndexOf("\n", limit));
   return at > start ? at : limit;
 }
 
@@ -64,6 +78,10 @@ function windowEnd(text: string, start: number, maxChars: number): number {
  * (then the most matches). Windows open on a sentence start where possible,
  * otherwise on the matched word, and end on a word boundary. Text that fits
  * is returned whole; with no match the start of the text is returned.
+ *
+ * Candidate starts are visited in order with a sliding window over the
+ * matches (one pointer adds matches by end, one drops them by start), so a
+ * long entry costs about O(text + matches), not candidates x matches.
  */
 export function bestPassage(text: string, terms: string[], maxChars: number): string {
   if (text.length <= maxChars) return text;
@@ -73,19 +91,46 @@ export function bestPassage(text: string, terms: string[], maxChars: number): st
   const sentenceStarts = new Set<number>([0]);
   for (const m of text.matchAll(/[.!?]["')\]]*\s+|\n+/g)) sentenceStarts.add(m.index + m[0].length);
   const candidates = new Set<number>(sentenceStarts);
-  for (const m of matches) {
-    let s = m.start;
-    while (s > 0 && !/\s/.test(text[s - 1])) s--;
-    candidates.add(s);
+  // Start of the word containing each match.
+  let wordStart = 0;
+  const byStart = [...matches].sort((a, b) => a.start - b.start);
+  let scanned = 0;
+  for (const m of byStart) {
+    for (; scanned < m.start; scanned++) if (/\s/.test(text[scanned])) wordStart = scanned + 1;
+    candidates.add(wordStart);
   }
+
+  const ids = new Map(matches.map((m, i) => [m, i]));
+  const byEnd = [...matches].sort((a, b) => a.end - b.end);
+  const state = new Uint8Array(matches.length); // 0 not yet in, 1 in window, 2 dropped
+  const perTerm = new Int32Array(terms.length);
+  let distinct = 0;
+  let total = 0;
+  let drop = 0;
+  let add = 0;
+  const breaks = lastBreaks(text);
 
   let best = { start: 0, end: 0, distinct: -1, total: -1, sentence: false };
   for (const start of [...candidates].sort((a, b) => a - b)) {
     if (start >= text.length) continue;
-    const end = windowEnd(text, start, maxChars);
-    const inside = matches.filter((m) => m.start >= start && m.end <= end);
-    const distinct = new Set(inside.map((m) => m.term)).size;
-    const total = inside.length;
+    const end = windowEnd(text, start, maxChars, breaks);
+    for (; drop < byStart.length && byStart[drop].start < start; drop++) {
+      const m = byStart[drop];
+      const id = ids.get(m)!;
+      if (state[id] === 1) {
+        total--;
+        if (--perTerm[m.term] === 0) distinct--;
+      }
+      state[id] = 2;
+    }
+    for (; add < byEnd.length && byEnd[add].end <= end; add++) {
+      const m = byEnd[add];
+      const id = ids.get(m)!;
+      if (state[id] !== 0) continue;
+      state[id] = 1;
+      total++;
+      if (perTerm[m.term]++ === 0) distinct++;
+    }
     const sentence = sentenceStarts.has(start);
     // Ties go to a sentence start, then to the later start, which puts the
     // matched sentence at the top of the window rather than at its tail.
