@@ -662,7 +662,7 @@ export async function runLiveKbAsk(
   let raw = "";
   try {
     if (cfg.provider === "ollama" || cfg.provider === "custom") {
-      raw = await makeLLMClient(cfg).call(KB_ASK_SYSTEM, user, 350);
+      raw = await makeLLMClient(cfg).call(KB_ASK_SYSTEM, user, 350, signal);
     } else {
       const jwt = await backendJwt();
       const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {

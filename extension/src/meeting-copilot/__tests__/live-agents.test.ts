@@ -12,7 +12,7 @@ vi.mock("../../shared/agents/llm-client", () => ({
     apiKey: "",
     model: override?.model ?? `${llm.provider}-settings-model`,
   }),
-  makeLLMClient: (cfg: unknown) => ({ call: (s: string, u: string, m: number) => llm.call(cfg, s, u, m) }),
+  makeLLMClient: (cfg: unknown) => ({ call: (s: string, u: string, m: number, sig?: AbortSignal) => llm.call(cfg, s, u, m, sig) }),
   embedText: llm.embedText,
   backendUrl: () => "http://backend.test",
   backendJwt: async () => "jwt",
@@ -117,9 +117,11 @@ describe("Ask-KB model", () => {
   it.each(["ollama", "custom"])("calls %s directly with the user's model, not through the backend", async (provider) => {
     llm.provider = provider;
     llm.call.mockResolvedValue('{"answer":"Not in KB.","sources":[]}');
-    await runLiveKbAsk("Is MFA on?", session, [entry("kb-1", "MFA is on.")]);
+    const signal = new AbortController().signal;
+    await runLiveKbAsk("Is MFA on?", session, [entry("kb-1", "MFA is on.")], signal);
     expect(sent).toBeNull();
     expect(llm.call.mock.calls[0][0]).toMatchObject({ provider, model: `${provider}-settings-model` });
+    expect(llm.call.mock.calls[0][4]).toBe(signal);
   });
 });
 
