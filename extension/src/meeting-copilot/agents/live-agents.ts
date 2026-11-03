@@ -18,6 +18,7 @@ import type {
 import { searchChunks, type SearchHit } from "../../shared/utils/kb-vector-store";
 import { computeWikiCoachMap } from "../../shared/utils/wiki-index";
 import { bestPassage, countTermHits, queryTerms } from "../../shared/utils/passage";
+import { KB_SAFETY_INSTRUCTION, kbSnippetsToPromptBlock } from "../../shared/agents/prompt-safety";
 
 const WINDOW_CHARS = 2400;
 // Live agents (coach + sentiment) only need the last few turns to stay in
@@ -134,8 +135,9 @@ async function callLiveLLM(
 //   3. If the embed call itself throws (no Gemini key, quota hit), degrade
 //      gracefully to pure lexical for the whole KB.
 //
-// Returns objects shaped like the LLM-prompt snippets we used to build by
-// hand, so the call sites just JSON.stringify the result.
+// Call sites render the result with kbSnippetsToPromptBlock (sanitized,
+// <kb_source>-wrapped) and add KB_SAFETY_INSTRUCTION to the system prompt,
+// the same prompt-injection defence the pitch councils use.
 
 export interface RetrievedSnippet {
   id: string;            // kb_entry_id (carries through to source citations)
@@ -315,7 +317,8 @@ Rules:
 - Only urgent suggestions (high) if the prospect just raised an objection or a buying signal.
 - Quote KB entries verbatim when grounding an answer.
 - Never invent facts. If KB does not support a claim, skip.
-- ALWAYS include a rationale: the rep needs to know *why* you raised this.`;
+- ALWAYS include a rationale: the rep needs to know *why* you raised this.
+${KB_SAFETY_INSTRUCTION}`;
 
 export async function runCoachAgent(
   session: MeetingSession,
@@ -346,7 +349,7 @@ ${JSON.stringify(wikiMap.toc)}
 Top concepts: ${JSON.stringify(wikiMap.top_concepts)}
 
 KB excerpts most relevant to the current transcript window (use these to ground specific claims):
-${JSON.stringify(kbSnippets)}
+${kbSnippetsToPromptBlock(kbSnippets)}
 
 Live transcript (latest chunk):
 ${window}
@@ -436,7 +439,8 @@ Rules:
 - REJECT if the body invents a customer name, metric, price, or roadmap item.
 - REVISE if the suggestion is directionally right but over-promises; rewrite to be grounded.
 - APPROVE if the suggestion is purely a coaching nudge (e.g. "ask about their timeline") with no factual claims needed.
-- Brand voice: clear, specific, no marketing puffery, no emojis.`;
+- Brand voice: clear, specific, no marketing puffery, no emojis.
+${KB_SAFETY_INSTRUCTION}`;
 
 export interface LiveValidationOutcome {
   verdict: "approve" | "revise" | "reject";
@@ -500,7 +504,7 @@ Suggestion under review:
 ${JSON.stringify({ kind: suggestion.kind, title: suggestion.title, body: suggestion.body, sources: suggestion.sources })}
 
 KB grounding available:
-${JSON.stringify(kbSnippets)}
+${kbSnippetsToPromptBlock(kbSnippets)}
 
 Review the suggestion. JSON only.`;
 
@@ -590,7 +594,8 @@ Return JSON only:
 { "answer": "one or two crisp sentences", "sources": [{"kb_entry_id": "...", "quote": "..."}] }
 Rules:
 - If the KB does not answer the question, return { "answer": "Not in KB.", "sources": [] }.
-- Never invent. Quote KB verbatim when grounding.`;
+- Never invent. Quote KB verbatim when grounding.
+${KB_SAFETY_INSTRUCTION}`;
 
 export async function runLiveKbAsk(
   question: string,
@@ -604,9 +609,9 @@ export async function runLiveKbAsk(
   // Semantic top-K with lexical fallback for un-indexed entries. Replaces
   // the old keyword prefilter, which missed paraphrases (e.g. "how much for
   // big customers?" never matched a chunk titled "enterprise pricing").
-  const kbJson = await retrieveKB(q, kb, 6, 500);
+  const kbSnippets = await retrieveKB(q, kb, 6, 500);
 
-  const user = `Question: ${q}\n\nKB:\n${JSON.stringify(kbJson)}\n\nJSON only.`;
+  const user = `Question: ${q}\n\nKB:\n${kbSnippetsToPromptBlock(kbSnippets)}\n\nJSON only.`;
 
   // Mid-call latency: use a small fast model (8B) on a separate OpenRouter
   // rate-limit pool from the coach (20B). KB output is ≤350 tokens, no
