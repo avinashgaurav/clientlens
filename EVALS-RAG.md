@@ -61,7 +61,9 @@ My automatic checks flagged 6 writable decks (6 figures not found in the KB, 1 f
 - **Pitches cut long entries too**, at 1,500 characters. A prospect asked about "data retention and a clear exit plan". No deck gave the seven-year retention or the 30-day export, which sit past that cut. In one run the first role skipped that entry, yet the deck was verified and writable, with a slide titled "Clear Exit Path, No Lock-In Surprises" and no exit facts.
 - **The fact check caught slips.** In 2 runs the drafter said the SOC 2 report was "available on request" or "under NDA". The KB says neither. Both decks were held.
 
-## Bugs found in code (found by reading code, not fixed)
+## Bugs found in code
+
+I found these by reading the code. All 9 were fixed on 2026-11-04 (see "After the fixes" below), each with a regression test.
 
 1. **Ask-KB fails unless the provider is OpenRouter.** It always asks for `meta-llama/llama-3.1-8b-instruct:free` (`extension/src/meeting-copilot/agents/live-agents.ts:617`) under the user's provider (`:615`). The backend allows that name only for OpenRouter (`backend/api/routes/llm.py:438-448`, checked at `:1011`). Calling that check directly gave 400 for Anthropic, Gemini and Groq, so the rep sees "Error reaching backend" (`live-agents.ts:637`).
 2. **The app's default Anthropic model does not match the backend's list.** `extension/src/shared/agents/llm-client.ts:24` defaults to `claude-opus-4-7`. The backend's default Anthropic list (`llm.py:439`) lacks it; a direct check gave 400. It works only if `ALLOWED_MODELS_ANTHROPIC` is set.
@@ -72,6 +74,43 @@ My automatic checks flagged 6 writable decks (6 figures not found in the KB, 1 f
 7. **`GEMINI_API_KEY` is missing from `backend/.env.example`** (it is only in `docs/configuration.md:36`).
 8. **Pitch prompts cut each entry at 1,500 characters** (`extension/src/shared/agents/council.ts:110`), so neither drafter nor fact check sees the rest.
 9. **The chunker splits mid-word and reports wrong positions.** In the long entry, the second piece starts mid-word ("ets have a first-response...") and its recorded start (character 1,796) is about 180 characters off (`extension/src/shared/utils/chunker.ts`).
+
+## After the fixes (2026-11-04)
+
+I fixed all 9 bugs, then reran the search-only test and Ask-KB (3 runs, same 30 questions, same answer key). I did not rerun the pitch pipeline.
+
+- Ask-KB now asks for the provider's fast model (here `claude-haiku-4-5-20251001`), so the backend accepts it. The default Anthropic model is now `claude-sonnet-4-6`, which the backend allows.
+- Search sends the part of a piece that matches the question, not its first 500 characters. Keyword search keeps short terms like SSO and MFA.
+- Every Ask-KB quote must be copied exactly from a passage it was given, or the answer becomes "Not in KB.". This check rejected 0 answers in the rerun.
+- Live prompts now wrap KB text and tell the AI to ignore instructions inside it, like pitches do.
+- Pitches keep the start of a long entry plus the parts that match the prospect, so the drafter and the fact check see facts past 1,500 characters.
+- The chunker splits on word and sentence boundaries, and its positions are exact.
+
+**Search only** (23 answerable questions; right entry in results / key text inside what the AI sees / right entry ranked first)
+
+| Search | Before | After |
+|---|---|---|
+| Keyword fallback, Ask-KB | 15 / 11 / 12 | 18 / 18 / 16 |
+| Keyword fallback, coach | 15 / 9 / 12 | 18 / 17 / 15 |
+| Stand-in, Ask-KB | 19 / 16 / 19 | 19 / 18 / 19 |
+| Stand-in, coach | 20 / 13 / 17 | 20 / 17 / 17 |
+
+**Ask-KB end to end**
+
+| Measure | Keyword before | Keyword after | Stand-in before | Stand-in after |
+|---|---|---|---|---|
+| Right answer | 36 / 69 | **57 / 69** | 51 / 69 | **57 / 69** |
+| ...simple facts | 33 / 45 | 45 / 45 | 39 / 45 | 45 / 45 |
+| ...reworded | 0 / 15 | 3 / 15 | 3 / 15 | 3 / 15 |
+| ...needing two entries | 3 / 9 | 9 / 9 | 9 / 9 | 9 / 9 |
+| Said "Not in KB." though the KB had it | 27 / 69 | 12 / 69 | 12 / 69 | 9 / 69 |
+| Wrong figure from a cut passage | 0 / 69 | 0 / 69 | 3 / 69 | 0 / 69 |
+| Unanswerable handled right | 21 / 21 | 21 / 21 | 21 / 21 | 21 / 21 |
+| Right answer when the key text reached it | 33 / 33 | 54 / 54 | 48 / 48 | 54 / 54 |
+
+Every simple fact and every two-entry question is now right with both searches. What still fails is the reworded questions (p01, p02, p04, p05 wrong in every run): neither keyword search nor the word-count stand-in can match a question that shares no words with the answer. That is the job of real meaning-based search, which is still untested.
+
+These after-fix numbers are on the same questions I wrote the fixes against, so treat them as a best case. Results: `evals/results/2026-11-04-rag-after-*.json`. CLI-reported usage: 180 calls, $0.54.
 
 ## Limits
 
@@ -84,10 +123,10 @@ My automatic checks flagged 6 writable decks (6 figures not found in the KB, 1 f
 
 ## What to do next
 
-1. Fix bugs 1 and 2, then rerun Ask-KB in the live app.
-2. Send the matching part of a piece, not its first 500 characters. Raise or replace the 1,500-character pitch cut.
-3. Keep 3-letter terms in keyword search.
-4. Test Gemini search with a working key on this answer key.
+1. Rerun Ask-KB in the live app with each provider, now that the model fix is in.
+2. Test Gemini search with a working key on this answer key, starting with the reworded questions.
+3. Rerun the pitch pipeline after the long-entry change, and write new questions the fixes were never tuned on.
+4. The model picker still offers some models the backend rejects by default (`claude-opus-4-7`, OpenRouter `anthropic/claude-3.5-sonnet`). Decide whether to hide them or allow them.
 
 ## Run it yourself
 
