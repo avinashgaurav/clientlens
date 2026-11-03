@@ -108,9 +108,7 @@ function Popup() {
   }
 
   function openInsights() {
-    // Future hook: pass a tab hint to App.tsx via storage so the sidebar
-    // opens straight onto the Insights tab. Today it opens the sidebar
-    // and the user clicks Insights manually.
+    // Tab hint for App.tsx, which opens the panel on Insights and clears it.
     try {
       chrome.storage?.local?.set?.({ clientlens_open_tab: "insights" }, () => { /* noop */ });
     } catch { /* non-extension env */ }
