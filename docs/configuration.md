@@ -30,6 +30,8 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `JWT_SECRET` | The project's legacy JWT secret (`SUPABASE_JWT_SECRET` also accepted). Used only when `JWT_ALGORITHMS` includes `HS256`, and then it must be the real secret (32+ characters) | Only with HS256 |
 | `GLOBAL_DAILY_TOKEN_BUDGET` | LLM tokens per UTC day across all users (default 20,000,000) | No |
 | `ALLOWED_MODELS_ANTHROPIC` / `_GROQ` / `_OPENROUTER` | Comma-separated models callers may use on the server's keys (defaults: the models the extension offers; Gemini has its own list in `llm.py`) | No |
+| `GEMINI_FALLBACK_MODELS` | Models tried in order when the requested Gemini model's daily allowance is spent or it is retired for the key (default `gemini-3-flash-preview,gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-flash-lite-latest`). On a free-tier key each model has its own small daily allowance | No |
+| `GEMINI_THINKING_LEVEL` | Thinking level for current Gemini models (default `minimal`, so short answers aren't spent on thinking) | No |
 | `MAX_INFLIGHT_PER_USER` | LLM calls one user may have running at once, per instance (default 3) | No |
 | `ASSETS_MAX_PER_USER` / `ASSETS_MAX_BYTES_PER_USER` | Upload quota per user (default 200 files, 100 MB) | No |
 | `ANTHROPIC_API_KEY` | Anthropic Claude key | If used |
