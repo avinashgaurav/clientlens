@@ -10,6 +10,8 @@ const DEV_USER: User = { id: "local-user", email: "local@clientlens.app", name: 
 // The knowledge base, settings and call history live in this browser, not on
 // the server. When a different account signs in here, clear them so it can't
 // see the previous account's data; the Supabase session keys (sb-*) stay.
+// That covers chrome.storage.local, localStorage, sessionStorage (admin
+// unlock, dismissed banners) and the KB vectors in IndexedDB.
 const OWNER_KEY = "clientlens_account_owner";
 
 async function claimLocalData(userId: string): Promise<boolean> {
@@ -19,6 +21,11 @@ async function claimLocalData(userId: string): Promise<boolean> {
     const all = await chrome.storage.local.get(null);
     await chrome.storage.local.remove(Object.keys(all).filter((k) => !k.startsWith("sb-")));
     try { localStorage.clear(); } catch { /* storage unavailable */ }
+    try { sessionStorage.clear(); } catch { /* storage unavailable */ }
+    try {
+      const { clearAllChunks } = await import("../../shared/utils/kb-vector-store");
+      await clearAllChunks();
+    } catch { /* IndexedDB unavailable: nothing stored there */ }
     await chrome.storage.local.set({ [OWNER_KEY]: userId });
     return true;
   }
