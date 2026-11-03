@@ -1,0 +1,3099 @@
+{
+  "method": "Arm A: retrieval only, no model calls. Real semanticChunk, retrieveKB, lexicalFallback, rankChunks via runLiveKbAsk and runCoachAgent with the model call captured and skipped. 'offline' uses a TF-IDF stand-in embedder, NOT the production Gemini embedder.",
+  "summary": {
+    "cases": 30,
+    "answerable": 23,
+    "chunking": [
+      {
+        "id": "kb-overview",
+        "chars": 543,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 543,
+            "startChar": 0,
+            "endChar": 543
+          }
+        ]
+      },
+      {
+        "id": "kb-case-quarry",
+        "chars": 282,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 282,
+            "startChar": 0,
+            "endChar": 282
+          }
+        ]
+      },
+      {
+        "id": "kb-case-harbor",
+        "chars": 203,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 203,
+            "startChar": 0,
+            "endChar": 203
+          }
+        ]
+      },
+      {
+        "id": "kb-security",
+        "chars": 390,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 390,
+            "startChar": 0,
+            "endChar": 390
+          }
+        ]
+      },
+      {
+        "id": "kb-pricing",
+        "chars": 205,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 205,
+            "startChar": 0,
+            "endChar": 205
+          }
+        ]
+      },
+      {
+        "id": "kb-pricing-scale",
+        "chars": 265,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 265,
+            "startChar": 0,
+            "endChar": 265
+          }
+        ]
+      },
+      {
+        "id": "kb-identity",
+        "chars": 397,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 397,
+            "startChar": 0,
+            "endChar": 397
+          }
+        ]
+      },
+      {
+        "id": "kb-erp",
+        "chars": 410,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 410,
+            "startChar": 0,
+            "endChar": 410
+          }
+        ]
+      },
+      {
+        "id": "kb-limits",
+        "chars": 375,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 375,
+            "startChar": 0,
+            "endChar": 375
+          }
+        ]
+      },
+      {
+        "id": "kb-handbook",
+        "chars": 2207,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 1794,
+            "startChar": 0,
+            "endChar": 1794
+          },
+          {
+            "index": 1,
+            "chars": 627,
+            "startChar": 1796,
+            "endChar": 2207
+          }
+        ]
+      }
+    ],
+    "lexical.askKB_k6_500": {
+      "all": {
+        "cases": 23,
+        "allGoldEntriesRetrieved": 15,
+        "allGoldPassagesSeen": 11,
+        "firstGoldRankHistogram": {
+          "1": 12,
+          "2": 3,
+          "3": 1,
+          "4": 1,
+          "none": 6
+        },
+        "emptyRetrievals": 2
+      },
+      "single_fact": {
+        "cases": 15,
+        "allGoldEntriesRetrieved": 14,
+        "allGoldPassagesSeen": 11,
+        "firstGoldRankHistogram": {
+          "1": 10,
+          "2": 3,
+          "4": 1,
+          "none": 1
+        },
+        "emptyRetrievals": 1
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 0,
+        "allGoldPassagesSeen": 0,
+        "firstGoldRankHistogram": {
+          "none": 5
+        },
+        "emptyRetrievals": 1
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 1,
+        "allGoldPassagesSeen": 0,
+        "firstGoldRankHistogram": {
+          "1": 2,
+          "3": 1
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "lexical.coach_k4_240": {
+      "all": {
+        "cases": 23,
+        "allGoldEntriesRetrieved": 15,
+        "allGoldPassagesSeen": 9,
+        "firstGoldRankHistogram": {
+          "1": 12,
+          "2": 3,
+          "3": 2,
+          "none": 6
+        },
+        "emptyRetrievals": 0
+      },
+      "single_fact": {
+        "cases": 15,
+        "allGoldEntriesRetrieved": 14,
+        "allGoldPassagesSeen": 9,
+        "firstGoldRankHistogram": {
+          "1": 11,
+          "2": 2,
+          "3": 1,
+          "none": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 0,
+        "allGoldPassagesSeen": 0,
+        "firstGoldRankHistogram": {
+          "none": 5
+        },
+        "emptyRetrievals": 0
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 1,
+        "allGoldPassagesSeen": 0,
+        "firstGoldRankHistogram": {
+          "1": 1,
+          "2": 1,
+          "3": 1
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "offline.askKB_k6_500": {
+      "all": {
+        "cases": 23,
+        "allGoldEntriesRetrieved": 19,
+        "allGoldPassagesSeen": 16,
+        "firstGoldRankHistogram": {
+          "1": 19,
+          "3": 1,
+          "none": 3
+        },
+        "emptyRetrievals": 0
+      },
+      "single_fact": {
+        "cases": 15,
+        "allGoldEntriesRetrieved": 15,
+        "allGoldPassagesSeen": 13,
+        "firstGoldRankHistogram": {
+          "1": 15
+        },
+        "emptyRetrievals": 0
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 2,
+        "allGoldPassagesSeen": 1,
+        "firstGoldRankHistogram": {
+          "1": 1,
+          "3": 1,
+          "none": 3
+        },
+        "emptyRetrievals": 0
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 2,
+        "allGoldPassagesSeen": 2,
+        "firstGoldRankHistogram": {
+          "1": 3
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "offline.coach_k4_240": {
+      "all": {
+        "cases": 23,
+        "allGoldEntriesRetrieved": 20,
+        "allGoldPassagesSeen": 13,
+        "firstGoldRankHistogram": {
+          "1": 17,
+          "2": 2,
+          "3": 1,
+          "none": 3
+        },
+        "emptyRetrievals": 0
+      },
+      "single_fact": {
+        "cases": 15,
+        "allGoldEntriesRetrieved": 15,
+        "allGoldPassagesSeen": 9,
+        "firstGoldRankHistogram": {
+          "1": 14,
+          "2": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 2,
+        "allGoldPassagesSeen": 1,
+        "firstGoldRankHistogram": {
+          "2": 1,
+          "3": 1,
+          "none": 3
+        },
+        "emptyRetrievals": 0
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 3,
+        "allGoldPassagesSeen": 3,
+        "firstGoldRankHistogram": {
+          "1": 3
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "unanswerableEmptyRetrievals": {
+      "lexical": 0,
+      "offline": 0
+    },
+    "askKBRequestedModels": [
+      "anthropic / meta-llama/llama-3.1-8b-instruct:free"
+    ]
+  },
+  "results": [
+    {
+      "id": "s01",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-erp",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-erp"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-security",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-security"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s02",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-limits",
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-erp"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-limits",
+            "kb-pricing"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-limits",
+            "kb-identity",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s03",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-quarry",
+            "kb-erp"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-quarry",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-quarry",
+            "kb-pricing",
+            "kb-erp"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-quarry",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-quarry",
+            "kb-erp",
+            "kb-overview",
+            "kb-case-harbor",
+            "kb-security",
+            "kb-pricing"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-quarry",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-quarry",
+            "kb-pricing",
+            "kb-erp",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-quarry",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s04",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-harbor",
+            "kb-handbook",
+            "kb-overview",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-limits"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-harbor",
+            "kb-handbook",
+            "kb-overview",
+            "kb-pricing"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-harbor",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-overview",
+            "kb-handbook",
+            "kb-limits"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-harbor",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s05",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-security",
+            "kb-limits",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-security",
+            "kb-pricing",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-pricing",
+            "kb-case-harbor",
+            "kb-pricing-scale",
+            "kb-case-quarry",
+            "kb-limits"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-pricing",
+            "kb-case-harbor",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s06",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-pricing"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s07",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-harbor",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-erp"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 4,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 4,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-case-harbor",
+            "kb-overview",
+            "kb-handbook",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-case-harbor",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s08",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-overview",
+            "kb-case-harbor",
+            "kb-pricing"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-pricing",
+            "kb-identity"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-pricing",
+            "kb-case-harbor",
+            "kb-overview",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-pricing",
+            "kb-identity",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s09",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook",
+            "kb-limits",
+            "kb-security",
+            "kb-overview",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook",
+            "kb-limits",
+            "kb-security"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s10",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-identity",
+            "kb-pricing-scale",
+            "kb-handbook"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-identity",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-identity",
+            "kb-pricing-scale",
+            "kb-pricing",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-identity",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s11",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-identity",
+            "kb-case-harbor",
+            "kb-security",
+            "kb-pricing",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-pricing",
+            "kb-identity",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 3,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-identity",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-identity",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s12",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [],
+          "returnedCount": 0,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-identity",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-security",
+            "kb-pricing"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-identity",
+            "kb-pricing",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-identity",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s13",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-erp",
+            "kb-handbook",
+            "kb-identity",
+            "kb-limits",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-erp",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-erp",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-identity"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-erp",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-erp",
+            "kb-handbook",
+            "kb-identity",
+            "kb-limits",
+            "kb-overview",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-erp",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-erp",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-identity"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-erp",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s14",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-pricing",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-pricing",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-case-harbor",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook",
+            "kb-overview",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "s15",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-pricing",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-pricing",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-case-harbor",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "p01",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing",
+            "kb-case-quarry",
+            "kb-handbook",
+            "kb-erp",
+            "kb-overview",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 3,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-case-quarry",
+            "kb-handbook",
+            "kb-erp"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 3,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 11
+      }
+    },
+    {
+      "id": "p02",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-pricing",
+            "kb-handbook"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook",
+            "kb-security",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook",
+            "kb-security",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 10
+      }
+    },
+    {
+      "id": "p03",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-security",
+            "kb-pricing"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "p04",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-quarry",
+            "kb-erp",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-case-quarry",
+            "kb-erp",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 11
+      }
+    },
+    {
+      "id": "p05",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [],
+          "returnedCount": 0,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-security",
+            "kb-pricing",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 10
+      }
+    },
+    {
+      "id": "m01",
+      "category": "two_entry",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-identity",
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-case-harbor",
+            "kb-security"
+          ],
+          "returnedCount": 5,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 3,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            },
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-identity",
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 3,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            },
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            },
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-pricing",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-pricing-scale",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "m02",
+      "category": "two_entry",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-limits",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-limits",
+            "kb-handbook",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-limits",
+            "kb-pricing",
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-pricing",
+            "kb-limits",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "m03",
+      "category": "two_entry",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-case-harbor",
+            "kb-overview",
+            "kb-pricing-scale",
+            "kb-case-quarry",
+            "kb-pricing"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-case-harbor",
+            "kb-overview",
+            "kb-pricing"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-harbor",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-pricing-scale",
+            "kb-pricing",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-harbor",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-harbor",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "u01",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-pricing"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-case-quarry",
+            "kb-case-harbor",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-overview",
+            "kb-handbook",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "u02",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-case-harbor",
+            "kb-erp"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-handbook",
+            "kb-overview",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-pricing",
+            "kb-case-harbor",
+            "kb-case-quarry",
+            "kb-pricing-scale",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-overview",
+            "kb-case-harbor",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "u03",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-handbook",
+            "kb-case-harbor",
+            "kb-security"
+          ],
+          "returnedCount": 5,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-handbook",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-pricing",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-scale",
+            "kb-identity",
+            "kb-pricing",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "u04",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-security",
+            "kb-pricing-scale",
+            "kb-limits"
+          ],
+          "returnedCount": 5,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-security",
+            "kb-pricing"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-handbook",
+            "kb-security",
+            "kb-pricing-scale",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-pricing",
+            "kb-overview",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "u05",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-security",
+            "kb-limits",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-security",
+            "kb-pricing"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-overview",
+            "kb-pricing",
+            "kb-case-harbor",
+            "kb-pricing-scale",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing",
+            "kb-security",
+            "kb-overview",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "u06",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-overview",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-pricing-scale"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-pricing",
+            "kb-case-harbor",
+            "kb-pricing-scale",
+            "kb-case-quarry"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-pricing",
+            "kb-handbook",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "u07",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-limits",
+            "kb-identity",
+            "kb-erp",
+            "kb-overview",
+            "kb-case-quarry",
+            "kb-case-harbor"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-limits",
+            "kb-pricing",
+            "kb-identity",
+            "kb-erp"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "meta-llama/llama-3.1-8b-instruct:free",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-limits",
+            "kb-pricing-scale",
+            "kb-erp",
+            "kb-identity",
+            "kb-security",
+            "kb-pricing"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-limits",
+            "kb-pricing",
+            "kb-pricing-scale",
+            "kb-erp"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    }
+  ]
+}
