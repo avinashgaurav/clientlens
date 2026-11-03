@@ -6,7 +6,7 @@
 // Each agent is a pure function over (session state, KB) that returns
 // an incremental update. Orchestration cadence lives in live-orchestrator.ts.
 
-import { embedText, makeLLMClient, resolveLLMConfig, backendUrl, backendJwt, type LLMProvider } from "../../shared/agents/llm-client";
+import { embedText, makeLLMClient, resolveLLMConfig, backendUrl, backendJwt, LIVE_TIMEOUT_MS, type LLMProvider } from "../../shared/agents/llm-client";
 import type {
   AgendaItem,
   CoachSuggestion,
@@ -102,7 +102,7 @@ function firstSentenceFallback(raw: string): string | null {
 async function callLLM(system: string, user: string, maxTokens = 500): Promise<string> {
   const cfg = resolveLLMConfig();
   if ("error" in cfg) throw new Error(cfg.error);
-  const client = makeLLMClient(cfg);
+  const client = makeLLMClient(cfg, { timeoutMs: LIVE_TIMEOUT_MS });
   return client.call(system, user, maxTokens);
 }
 
@@ -117,7 +117,7 @@ async function callLiveLLM(
 ): Promise<string> {
   const cfg = resolveLLMConfig(liveModelOverride());
   if ("error" in cfg) throw new Error(cfg.error);
-  const client = makeLLMClient(cfg);
+  const client = makeLLMClient(cfg, { timeoutMs: LIVE_TIMEOUT_MS });
   if (onDelta && client.callStream) return client.callStream(system, user, maxTokens, onDelta);
   return client.call(system, user, maxTokens);
 }
@@ -187,7 +187,7 @@ async function retrieveKB(
 
   let semanticHits: SearchHit[] = [];
   try {
-    const queryVec = await embedText(query);
+    const queryVec = await embedText(query, LIVE_TIMEOUT_MS);
     semanticHits = await searchChunks(queryVec, topK, [...indexedIds]);
   } catch (err) {
     // Embed failed (key bad, quota, network). Fall through to lexical for

@@ -36,21 +36,24 @@ const GEMINI_EMBED_MODEL = "gemini-embedding-001"; // 768 dims (the backend asks
 // free-tier Llama; users override via Settings or the ModelPicker.
 const OPENROUTER_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
 
-// Timeout constants. AbortSignal.timeout() is Chrome 103+ (2022), safe for
-// an extension that only runs in modern Chrome.
-// Non-streaming calls go through the backend, which may retry a busy model and
-// fall back through several free-tier Gemini models before answering, so allow
-// as long as a stream.
+// Timeout constants. Background work (pitches, summaries, indexing) goes
+// through the backend, which may retry a busy model and fall back through
+// several free-tier Gemini models before answering, so it gets as long as a
+// stream. Live-meeting calls want a fast failure instead and pass
+// LIVE_TIMEOUT_MS.
 const LLM_TIMEOUT_MS = 120_000;
+export const LIVE_TIMEOUT_MS = 30_000;
 const STREAM_TIMEOUT_MS = 120_000; // streaming: allow up to 2 min for large models
 
 export const TIMEOUT_MESSAGE = "The AI took too long to answer. Try again in a minute.";
+export const EMBED_TIMEOUT_MESSAGE = "Indexing took too long. Try again in a minute.";
 
 // Like AbortSignal.timeout, but the request fails with a readable message
-// instead of the browser's "signal timed out".
-export function timeoutSignal(ms: number): AbortSignal {
+// instead of the browser's "signal timed out". The timer isn't cleared after a
+// fast response; aborting a finished request is a no-op.
+export function timeoutSignal(ms: number, message = TIMEOUT_MESSAGE): AbortSignal {
   const controller = new AbortController();
-  setTimeout(() => controller.abort(new Error(TIMEOUT_MESSAGE)), ms);
+  setTimeout(() => controller.abort(new Error(message)), ms);
   return controller.signal;
 }
 
@@ -246,14 +249,19 @@ async function* readSSE(
  * direct-only: see `makeLLMClient` for dispatch.
  */
 class ProxiedLLMClient implements LLMClient {
-  constructor(private provider: "anthropic" | "gemini" | "groq" | "openrouter", private model: string, private label: string) {}
+  constructor(
+    private provider: "anthropic" | "gemini" | "groq" | "openrouter",
+    private model: string,
+    private label: string,
+    private timeoutMs = LLM_TIMEOUT_MS,
+  ) {}
 
   async call(system: string, user: string, maxTokens: number): Promise<string> {
     const url = `${backendUrl()}/api/v1/llm/complete`;
     const jwt = await backendJwt();
     const res = await fetch(url, {
       method: "POST",
-      signal: timeoutSignal(LLM_TIMEOUT_MS),
+      signal: timeoutSignal(this.timeoutMs),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${jwt}`,
@@ -330,12 +338,12 @@ class ProxiedLLMClient implements LLMClient {
 // Groq is proxied via the backend (#1). See ProxiedLLMClient.
 
 class OllamaClient implements LLMClient {
-  constructor(private cfg: LLMConfig) {}
+  constructor(private cfg: LLMConfig, private timeoutMs = LLM_TIMEOUT_MS) {}
   async call(system: string, user: string, maxTokens: number): Promise<string> {
     const base = this.cfg.baseUrl ?? OLLAMA_BASE;
     const res = await fetch(`${base}/v1/chat/completions`, {
       method: "POST",
-      signal: timeoutSignal(LLM_TIMEOUT_MS),
+      signal: timeoutSignal(this.timeoutMs),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: this.cfg.model,
@@ -360,7 +368,7 @@ class OllamaClient implements LLMClient {
 // Gemini is proxied via the backend (#1). See ProxiedLLMClient.
 
 class CustomOpenAICompatClient implements LLMClient {
-  constructor(private cfg: LLMConfig) {}
+  constructor(private cfg: LLMConfig, private timeoutMs = LLM_TIMEOUT_MS) {}
   async call(system: string, user: string, maxTokens: number): Promise<string> {
     const base = (this.cfg.baseUrl ?? "").replace(/\/$/, "");
     const url = base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
@@ -368,7 +376,7 @@ class CustomOpenAICompatClient implements LLMClient {
     if (this.cfg.apiKey) headers.Authorization = `Bearer ${this.cfg.apiKey}`;
     const res = await fetch(url, {
       method: "POST",
-      signal: timeoutSignal(LLM_TIMEOUT_MS),
+      signal: timeoutSignal(this.timeoutMs),
       headers,
       body: JSON.stringify({
         model: this.cfg.model,
@@ -405,13 +413,13 @@ interface ProxyEmbedResponse {
   dims: number;
 }
 
-async function postEmbed(texts: string[]): Promise<number[][]> {
+async function postEmbed(texts: string[], timeoutMs = LLM_TIMEOUT_MS): Promise<number[][]> {
   if (texts.length === 0) return [];
   const url = `${backendUrl()}/api/v1/llm/embed`;
   const jwt = await backendJwt();
   const res = await fetch(url, {
     method: "POST",
-    signal: timeoutSignal(LLM_TIMEOUT_MS),
+    signal: timeoutSignal(timeoutMs, EMBED_TIMEOUT_MESSAGE),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${jwt}`,
@@ -433,8 +441,8 @@ async function postEmbed(texts: string[]): Promise<number[][]> {
  * Embed a single string. Returns 768 floats.
  * Throws a friendlyLLMError-style message on credential / quota failures.
  */
-export async function embedText(text: string): Promise<number[]> {
-  const vecs = await postEmbed([text]);
+export async function embedText(text: string, timeoutMs = LLM_TIMEOUT_MS): Promise<number[]> {
+  const vecs = await postEmbed([text], timeoutMs);
   const vec = vecs[0];
   if (!vec || !Array.isArray(vec)) throw new Error("Gemini embed returned no vector");
   return vec;
@@ -459,21 +467,22 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
   return out;
 }
 
-export function makeLLMClient(cfg: LLMConfig): LLMClient {
+export function makeLLMClient(cfg: LLMConfig, opts: { timeoutMs?: number } = {}): LLMClient {
+  const t = opts.timeoutMs ?? LLM_TIMEOUT_MS;
   // Anthropic / Gemini / Groq route through the backend proxy (#1).
   // Custom / Ollama stay direct: see notes on each.
   const inner: LLMClient =
     cfg.provider === "anthropic"
-      ? new ProxiedLLMClient("anthropic", cfg.model, "Claude")
+      ? new ProxiedLLMClient("anthropic", cfg.model, "Claude", t)
       : cfg.provider === "gemini"
-      ? new ProxiedLLMClient("gemini", cfg.model, "Gemini")
+      ? new ProxiedLLMClient("gemini", cfg.model, "Gemini", t)
       : cfg.provider === "groq"
-      ? new ProxiedLLMClient("groq", cfg.model, "Groq")
+      ? new ProxiedLLMClient("groq", cfg.model, "Groq", t)
       : cfg.provider === "openrouter"
-      ? new ProxiedLLMClient("openrouter", cfg.model, "OpenRouter")
+      ? new ProxiedLLMClient("openrouter", cfg.model, "OpenRouter", t)
       : cfg.provider === "ollama"
-      ? new OllamaClient(cfg)
-      : new CustomOpenAICompatClient(cfg);
+      ? new OllamaClient(cfg, t)
+      : new CustomOpenAICompatClient(cfg, t);
   return {
     async call(system, user, maxTokens) {
       const out = await inner.call(system, user, maxTokens);
