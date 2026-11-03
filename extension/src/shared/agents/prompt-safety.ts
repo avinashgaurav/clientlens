@@ -61,6 +61,9 @@ const INJECTION_PATTERNS: RegExp[] = [
   /^\s*(system|assistant|user)\s*:/gim,
   // Markdown-section instruction headers
   /^\s*#{1,3}\s*(instruction|instructions|directive|prompt)\s*$/gim,
+  // Our own wrapper tags: KB text must not close its <kb_source> or open a
+  // fake one. Tolerates spaces ("< / kb_source >") and a missing ">".
+  /<\s*\/?\s*kb_source\b[^>\n]*>?/gi,
 ];
 
 const ESCAPED_INJECTION_MARKER = "[redacted]";

@@ -604,12 +604,13 @@ export interface KbAskResult {
 }
 
 const NOT_IN_KB = "Not in KB.";
+const MIN_QUOTE_CHARS = 12;
 
 /**
  * Deterministic check of a model's Ask-KB answer, no extra model call. An
  * answer passes only if it cites at least one source and every source quote
- * is an exact substring of an excerpt sent for that kb_entry_id (as sanitized
- * into the prompt). Otherwise the rep gets "Not in KB." with rejected: true.
+ * is at least MIN_QUOTE_CHARS long (trimmed) and an exact substring of an
+ * excerpt sent for that kb_entry_id (as sanitized into the prompt). Otherwise the rep gets "Not in KB." with rejected: true.
  * This proves the quotes are real, not that the answer sentence follows
  * from them.
  */
@@ -623,7 +624,9 @@ export function verifyKbAnswer(
   const excerpts = sent.map((s) => ({ id: s.id, text: sanitizeKBContent(s.excerpt) }));
   const quoted = (src: unknown): src is { kb_entry_id: string; quote: string } => {
     const s = src as { kb_entry_id?: unknown; quote?: unknown } | null;
-    if (!s || typeof s.kb_entry_id !== "string" || typeof s.quote !== "string" || !s.quote.trim()) return false;
+    if (!s || typeof s.kb_entry_id !== "string" || typeof s.quote !== "string") return false;
+    // A very short quote ("SSO", "30 days") proves little about the answer.
+    if (s.quote.trim().length < MIN_QUOTE_CHARS) return false;
     return excerpts.some((e) => e.id === s.kb_entry_id && e.text.includes(s.quote as string));
   };
   if (!answer || sources.length === 0 || !sources.every(quoted)) {
