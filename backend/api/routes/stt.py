@@ -10,16 +10,40 @@ Requires DEEPGRAM_API_KEY + DEEPGRAM_PROJECT_ID in .env.
 Get your project ID from https://console.deepgram.com → Settings → Projects.
 """
 
+import os
+
 from fastapi import APIRouter, HTTPException, Request
 import httpx
 import structlog
 
 from config import settings
+from db.supabase_client import supabase_client
 
 router = APIRouter()
 log = structlog.get_logger()
 
 _DEEPGRAM_KEYS_URL = "https://api.deepgram.com/v1/projects/{project_id}/keys"
+
+# Each temp key starts one live transcription session, billed to the server's
+# Deepgram account, so every user gets a daily number of them (migration 004).
+DAILY_USER_STT_SESSIONS: int = int(os.environ.get("DAILY_USER_STT_SESSIONS", 30))
+
+
+def _enforce_stt_cap(user_id: str) -> None:
+    """Refuse (429) past the daily session cap; refuse (503) if the count can't be read."""
+    if settings.dev_mode:
+        return
+    try:
+        used = int(supabase_client().rpc("user_stt_sessions_today", {"uid": user_id}).execute().data or 0)
+    except Exception as e:  # noqa: BLE001
+        log.warning("stt.cap_query_failed", error=str(e), user_id=user_id)
+        raise HTTPException(status_code=503, detail="Usage check is unavailable right now. Try again in a minute.")
+    if used >= DAILY_USER_STT_SESSIONS:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Daily live-transcription limit reached ({DAILY_USER_STT_SESSIONS} sessions). Resets at UTC 00:00.",
+            headers={"Retry-After": "3600"},
+        )
 
 
 @router.get("/v1/stt/token")
@@ -39,6 +63,8 @@ async def get_stt_token(request: Request) -> dict:
             status_code=503,
             detail="STT service is not configured on this server.",
         )
+
+    _enforce_stt_cap(user["id"])
 
     url = _DEEPGRAM_KEYS_URL.format(project_id=settings.deepgram_project_id)
     try:
@@ -71,4 +97,10 @@ async def get_stt_token(request: Request) -> dict:
         raise HTTPException(status_code=502, detail="Deepgram response missing key field.")
 
     log.info("stt.token.issued", user_id=user.get("id"), key_id=data.get("api_key_id"))
+    if not settings.dev_mode:
+        # Counted only once a key was actually issued.
+        try:
+            supabase_client().table("stt_sessions").insert({"user_id": user["id"]}).execute()
+        except Exception as e:  # noqa: BLE001
+            log.warning("stt.session_log_failed", error=str(e), user_id=user.get("id"))
     return {"token": temp_key, "expires_in": 60}

@@ -20,7 +20,9 @@ log = structlog.get_logger()
 # in memory, preventing a single large upload from OOMing the FastAPI process.
 # 25 MB is generous for sales decks / PDFs / docs and well under any reasonable
 # proxy default. Override via ASSETS_MAX_UPLOAD_BYTES if a deployment needs more.
-MAX_UPLOAD_BYTES: int = int(os.environ.get("ASSETS_MAX_UPLOAD_BYTES", 25 * 1024 * 1024))
+# Vercel refuses request bodies over 4.5 MB before they reach the app, so the
+# default stays under that; raise it only on a host without the limit.
+MAX_UPLOAD_BYTES: int = int(os.environ.get("ASSETS_MAX_UPLOAD_BYTES", 4 * 1024 * 1024))
 
 ASSET_NAMESPACE_MAP = {
     "design_system": "brand_guidelines",
@@ -127,7 +129,8 @@ async def upload_asset(
     file_id = str(uuid.uuid4())
     safe_name = _safe_filename(file.filename)
     safe_ext = _safe_extension(file.filename)
-    path = f"{type}/{file_id}{safe_ext}"
+    # Each user's files live under their own folder.
+    path = f"{user['id']}/{type}/{file_id}{safe_ext}"
 
     supabase_client().storage.from_("assets").upload(path, content)
 
@@ -160,7 +163,8 @@ async def list_assets(request: Request, type: str | None = None):
     user = request.state.user
     require_permission(user["role"], "assets:read")
 
-    query = supabase_client().table("assets").select("*").order("created_at", desc=True)
+    # Everyone sees only their own uploads (open sign-up: accounts are separate workspaces).
+    query = supabase_client().table("assets").select("*").eq("uploaded_by", user["id"]).order("created_at", desc=True)
     if type:
         query = query.eq("type", type)
 
@@ -173,8 +177,8 @@ async def delete_asset(request: Request, asset_id: str):
     user = request.state.user
     require_permission(user["role"], "assets:delete")
 
-    asset = supabase_client().table("assets").select("*").eq("id", asset_id).single().execute()
-    if not asset.data:
+    asset = supabase_client().table("assets").select("*").eq("id", asset_id).eq("uploaded_by", user["id"]).maybe_single().execute()
+    if not asset or not asset.data:
         raise HTTPException(404, "Asset not found")
 
     a = asset.data

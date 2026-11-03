@@ -22,7 +22,8 @@ class UserRoleUpdate(BaseModel):
 async def get_brand_voice(request: Request):
     user = request.state.user
     require_permission(user["role"], "brand_voice:read")
-    result = supabase_client().table("brand_voice").select("*").order("created_at", desc=True).limit(1).execute()
+    # Each workspace has its own brand voice: the latest one this user saved.
+    result = supabase_client().table("brand_voice").select("*").eq("updated_by", user["id"]).order("created_at", desc=True).limit(1).execute()
     return result.data[0] if result.data else {}
 
 

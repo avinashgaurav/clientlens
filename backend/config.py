@@ -1,3 +1,4 @@
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings
 from typing import List
 
@@ -15,9 +16,10 @@ class Settings(BaseSettings):
     openrouter_referer: str = "https://clientlens.example.com"
     openrouter_title: str = "ClientLens"
 
-    # Supabase
+    # Supabase. The Vercel Supabase integration injects SUPABASE_SERVICE_ROLE_KEY
+    # and SUPABASE_JWT_SECRET, so both spellings are accepted.
     supabase_url: str
-    supabase_service_key: str
+    supabase_service_key: str = Field(validation_alias=AliasChoices("SUPABASE_SERVICE_KEY", "SUPABASE_SERVICE_ROLE_KEY"))
 
     # Deepgram: kept server-side so the API key is never baked into the
     # extension bundle. The /api/v1/stt/token endpoint mints short-lived
@@ -44,7 +46,9 @@ class Settings(BaseSettings):
     # that accepts any unpacked-extension build + any localhost port, so this
     # default only matters for production-style boots. Closes #13.
     allowed_origins: List[str] = ["http://localhost:3000"]
-    jwt_secret: str = "change-me-in-production"
+    # The Supabase project's JWT secret: verifies HS256 access tokens locally.
+    # Projects on asymmetric signing keys are verified against the JWKS instead.
+    jwt_secret: str = Field(default="change-me-in-production", validation_alias=AliasChoices("SUPABASE_JWT_SECRET", "JWT_SECRET"))
 
     # Local dev: skip JWT verification, inject stub user in AuthMiddleware.
     # Never enable in production.

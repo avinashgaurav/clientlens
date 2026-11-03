@@ -194,9 +194,8 @@ async def _log_usage(
 # section reads `llm_usage` for the caller's UTC-day-to-date consumption and
 # rejects calls that would push them over `DAILY_USER_TOKEN_BUDGET`.
 #
-# Fail-open posture: if the Supabase query itself errors we LET THE CALL
-# THROUGH (logged as warning). Reasoning: a Supabase outage should not
-# wedge the whole product. The budget is a soft ceiling, not a hard gate.
+# Fail-closed posture: with open sign-up, a usage check that cannot run must
+# not become unlimited free usage, so a failed query refuses the call (503).
 
 DAILY_USER_TOKEN_BUDGET: int = int(
     os.environ.get("DAILY_USER_TOKEN_BUDGET", 1_000_000)  # 1M tokens / user / day
@@ -212,30 +211,17 @@ MAX_EMBED_TEXT_BYTES: int = int(os.environ.get("MAX_EMBED_TEXT_BYTES", 50 * 1024
 async def _user_tokens_today(user_id: str) -> int:
     """
     Sum of (input + output) tokens recorded against `user_id` since the start
-    of the current UTC day. Returns 0 in dev_mode and on any query failure
-    (fail-open, see module-level note).
+    of the current UTC day, summed in the database (migration 004). Returns 0
+    in dev_mode. Raises 503 if the sum can't be read (fail closed).
     """
     if settings.dev_mode:
         return 0
     try:
-        today_start = datetime.now(timezone.utc).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        )
-        res = (
-            supabase_client()
-            .table("llm_usage")
-            .select("input_tokens, output_tokens")
-            .eq("user_id", user_id)
-            .gte("created_at", today_start.isoformat())
-            .execute()
-        )
-        return sum(
-            (row.get("input_tokens") or 0) + (row.get("output_tokens") or 0)
-            for row in (res.data or [])
-        )
+        res = supabase_client().rpc("user_tokens_today", {"uid": user_id}).execute()
+        return int(res.data or 0)
     except Exception as e:  # noqa: BLE001
         log.warning("token_budget.query_failed", error=str(e), user_id=user_id)
-        return 0
+        raise HTTPException(status_code=503, detail="Usage check is unavailable right now. Try again in a minute.")
 
 
 def _estimate_request_tokens(req: "LLMRequest") -> int:
@@ -371,8 +357,7 @@ async def _stream_anthropic(req: LLMRequest, user_id: str) -> AsyncIterator[byte
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
         # Fire-and-forget so logging never blocks teardown.
-        asyncio.create_task(
-            _log_usage(
+        await (_log_usage(
                 user_id=user_id,
                 provider=req.provider,
                 model=req.model,
@@ -551,8 +536,7 @@ async def _stream_gemini(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
         yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        asyncio.create_task(
-            _log_usage(
+        await (_log_usage(
                 user_id=user_id,
                 provider=req.provider,
                 model=req.model,
@@ -676,8 +660,7 @@ async def _stream_groq(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
         yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        asyncio.create_task(
-            _log_usage(
+        await (_log_usage(
                 user_id=user_id,
                 provider=req.provider,
                 model=req.model,
@@ -840,8 +823,7 @@ async def _stream_openrouter(req: LLMRequest, user_id: str) -> AsyncIterator[byt
         yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        asyncio.create_task(
-            _log_usage(user_id=user_id, provider=req.provider, model=req.model,
+        await (_log_usage(user_id=user_id, provider=req.provider, model=req.model,
                        input_tokens=input_tokens, output_tokens=output_tokens,
                        duration_ms=elapsed_ms, streamed=True,
                        request_id=request_id, error=error_msg)
@@ -941,8 +923,7 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
         out_tok = response.usage.output_tokens if response else 0
         req_id = response.request_id if response else None
         # Fire-and-forget so logging never blocks the response.
-        asyncio.create_task(
-            _log_usage(
+        await (_log_usage(
                 user_id=user["id"],
                 provider=body.provider,
                 model=body.model,
@@ -1091,8 +1072,7 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
         raise
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        asyncio.create_task(
-            _log_usage(
+        await (_log_usage(
                 user_id=user["id"],
                 provider="gemini-embed",
                 model=body.model,
