@@ -24,6 +24,7 @@ import { InsightsPanel } from "./components/InsightsPanel";
 import { isMeetingCopilotEnabled } from "../shared/meeting-copilot/feature-flag";
 import { listKB } from "../shared/utils/kb-storage";
 import { getSettings } from "../shared/utils/settings-storage";
+import { isOnboardingComplete } from "../shared/utils/onboarding";
 import { FileText, BookOpen, Radio, BarChart3 } from "lucide-react";
 
 type AdminTab = "form" | "kb" | "copilot" | "insights";
@@ -68,7 +69,19 @@ export default function App() {
 
   useEffect(() => {
     detectContext();
-    listKB().then((entries) => setKbCount(entries.length)).catch(() => { /* ignore */ });
+    const refreshKbCount = () => {
+      listKB().then((entries) => setKbCount(entries.length)).catch(() => { /* ignore */ });
+    };
+    refreshKbCount();
+    // KB writes land in chrome.storage.local; recount so the checklist's KB
+    // step ticks as soon as an entry or the sample data is added.
+    const onStorageChanged = (changes: Record<string, chrome.storage.StorageChange>, area: string) => {
+      if (area === "local" && "clientlens_kb" in changes) refreshKbCount();
+    };
+    try { chrome.storage?.onChanged?.addListener(onStorageChanged); } catch { /* non-extension env */ }
+    return () => {
+      try { chrome.storage?.onChanged?.removeListener(onStorageChanged); } catch { /* noop */ }
+    };
   }, []);
 
   // #79: auto-switch to Copilot tab when the rep has a Meet open and hasn't
@@ -100,14 +113,7 @@ export default function App() {
   const [onboardingDone, setOnboardingDone] = useState(false);
   useEffect(() => {
     try {
-      const s = getSettings();
-      const keyOk =
-        !!s.geminiKey ||
-        !!s.anthropicKey ||
-        !!s.groqKey ||
-        (!!s.customBaseUrl && !!s.customModel);
-      const anyIntegration = Object.values(s.integrations).some((c) => c.connected);
-      setOnboardingDone(keyOk && anyIntegration && kbCount > 0);
+      setOnboardingDone(isOnboardingComplete(getSettings(), kbCount));
     } catch {
       setOnboardingDone(false);
     }
