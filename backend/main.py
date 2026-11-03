@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 import sys
 from contextlib import asynccontextmanager
 import structlog
@@ -49,10 +50,16 @@ async def lifespan(app: FastAPI):
     log.info("shutdown")
 
 
+# The interactive docs and schema are for local development; a public backend
+# doesn't publish its whole API surface.
+_docs = settings.dev_mode or not os.environ.get("VERCEL")
 app = FastAPI(
     title="ClientLens: Sales Copilot API",
     version="1.0.0",
     lifespan=lifespan,
+    docs_url="/docs" if _docs else None,
+    redoc_url="/redoc" if _docs else None,
+    openapi_url="/openapi.json" if _docs else None,
 )
 
 # CORS: in production only the listed origins get credentialed access.

@@ -1,5 +1,8 @@
 from fastapi import APIRouter, Request, HTTPException
-from pydantic import BaseModel
+import json
+from typing import Annotated
+
+from pydantic import BaseModel, Field, model_validator
 from db.supabase_client import supabase_client
 from rbac.roles import require_permission, Role
 
@@ -7,10 +10,18 @@ router = APIRouter()
 
 
 class BrandVoiceUpdate(BaseModel):
-    tone_adjectives: list[str]
-    avoid_words: list[str]
+    tone_adjectives: list[Annotated[str, Field(max_length=60)]] = Field(max_length=50)
+    avoid_words: list[Annotated[str, Field(max_length=60)]] = Field(max_length=200)
     messaging_framework: dict
     icp_tone_overrides: dict = {}
+
+    @model_validator(mode="after")
+    def _bounded(self) -> "BrandVoiceUpdate":
+        # The two free-form objects are stored as JSON; keep each under 20 KB.
+        for name in ("messaging_framework", "icp_tone_overrides"):
+            if len(json.dumps(getattr(self, name))) > 20_000:
+                raise ValueError(f"{name} is too large (20 KB max).")
+        return self
 
 
 class UserRoleUpdate(BaseModel):
@@ -32,13 +43,14 @@ async def update_brand_voice(request: Request, body: BrandVoiceUpdate):
     user = request.state.user
     require_permission(user["role"], "brand_voice:write")
 
-    result = supabase_client().table("brand_voice").insert({
+    # One brand voice per user: saving replaces it (migration 007).
+    result = supabase_client().table("brand_voice").upsert({
         "tone_adjectives": body.tone_adjectives,
         "avoid_words": body.avoid_words,
         "messaging_framework": body.messaging_framework,
         "icp_tone_overrides": body.icp_tone_overrides,
         "updated_by": user["id"],
-    }).execute()
+    }, on_conflict="updated_by").execute()
 
     return result.data[0]
 

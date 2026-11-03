@@ -1,3 +1,5 @@
+import os
+
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings
 from typing import List
@@ -46,13 +48,20 @@ class Settings(BaseSettings):
     # that accepts any unpacked-extension build + any localhost port, so this
     # default only matters for production-style boots. Closes #13.
     allowed_origins: List[str] = ["http://localhost:3000"]
-    # The Supabase project's JWT secret: verifies HS256 access tokens locally.
-    # Projects on asymmetric signing keys are verified against the JWKS instead.
+    # Which token algorithms are accepted. Supabase projects on signing keys
+    # issue ES256 (or RS256); add HS256 only for a project still on the legacy
+    # shared secret, and then set JWT_SECRET to that project's secret.
+    jwt_algorithms: str = "ES256,RS256"
+    # The Supabase project's legacy JWT secret, used only when HS256 is enabled.
     jwt_secret: str = Field(default="change-me-in-production", validation_alias=AliasChoices("SUPABASE_JWT_SECRET", "JWT_SECRET"))
 
     # Local dev: skip JWT verification, inject stub user in AuthMiddleware.
     # Never enable in production.
     dev_mode: bool = False
+
+    @property
+    def allowed_jwt_algorithms(self) -> frozenset[str]:
+        return frozenset(a.strip() for a in self.jwt_algorithms.split(",") if a.strip()) & {"HS256", "ES256", "RS256"}
 
     class Config:
         env_file = ".env"
@@ -61,11 +70,18 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Fail-fast if someone ships the placeholder jwt_secret to a non-dev deployment.
-# pydantic-settings silently accepts it, so we guard here instead.
-if settings.jwt_secret == "change-me-in-production" and not settings.dev_mode:
+# HS256 tokens are only as strong as the secret they're signed with, so a
+# deployment that accepts them must have the project's real secret, not a
+# placeholder or a short value typed to get past this check.
+if "HS256" in settings.allowed_jwt_algorithms and not settings.dev_mode and (
+    settings.jwt_secret == "change-me-in-production" or len(settings.jwt_secret) < 32
+):
     raise RuntimeError(
-        "JWT_SECRET is still set to the placeholder value 'change-me-in-production'. "
-        "Set a real secret in your .env before starting the server. "
-        "If you are running local dev without JWT auth, set DEV_MODE=true."
+        "JWT_ALGORITHMS includes HS256, but JWT_SECRET is the placeholder or shorter than 32 "
+        "characters. Set it to your Supabase project's JWT secret, or remove HS256."
     )
+
+# DEV_MODE accepts every request as a stub user. Refuse it on Vercel, where the
+# backend is reachable from the internet.
+if settings.dev_mode and os.environ.get("VERCEL"):
+    raise RuntimeError("DEV_MODE must not be enabled on a Vercel deployment.")

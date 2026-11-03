@@ -23,7 +23,6 @@ import asyncio
 import json
 import os
 import time
-from datetime import datetime, timezone
 from typing import AsyncIterator, Optional
 
 import httpx
@@ -54,8 +53,12 @@ _OR_MIN_GAP_S = 3.0                   # minimum seconds between calls
 
 
 async def _or_post(headers: dict, body: dict) -> httpx.Response:
-    """Rate-limited POST to OpenRouter. Queues callers instead of 429-ing."""
+    """POST to OpenRouter. Free-tier models (`:free`) share one throttled queue,
+    since their limit is per account; paid models go straight through, so one
+    user's burst of free calls can't hold up everyone else's paid ones."""
     global _or_last_call
+    if not str(body.get("model", "")).endswith(":free"):
+        return await _http().post(OPENROUTER_URL, headers=headers, json=body)
     async with _or_lock:
         gap = _OR_MIN_GAP_S - (time.monotonic() - _or_last_call)
         if gap > 0:
@@ -75,9 +78,12 @@ class LLMRequest(BaseModel):
 
     provider: str = Field(..., description="anthropic | groq | gemini | custom")
     model: str
-    system: Optional[str] = None
-    user: str
-    max_tokens: int = Field(default=2048, ge=1, le=64_000)
+    # Bounded per request, so one call can't spend a large share of the daily
+    # budget (or the provider's per-minute quota) on its own. Generous for
+    # pitch prompts that carry knowledge-base context.
+    system: Optional[str] = Field(default=None, max_length=100_000)
+    user: str = Field(..., max_length=200_000)
+    max_tokens: int = Field(default=2048, ge=1, le=16_000)
     temperature: Optional[float] = Field(default=None, ge=0.0, le=2.0)
 
 
@@ -162,14 +168,27 @@ async def _log_usage(
     streamed: bool,
     request_id: Optional[str] = None,
     error: Optional[str] = None,
+    reservation: Optional[str] = None,
 ) -> None:
     """
-    Record one LLM call to the `llm_usage` table. Best-effort, a Supabase
-    failure must not break the user-facing call. See migration 002_llm_usage.sql.
+    Record one LLM call in `llm_usage`. With a reservation (migration 007) the
+    reserved row is finished instead: the provider's real token counts replace
+    the estimate only when the call reported them, so an aborted or failed call
+    stays charged at its estimate. Best-effort: a Supabase failure must not
+    break the user-facing call.
     """
     # Dev-mode stub user has no row in user_profiles, skip DB write to avoid
     # FK violation noise in logs. Usage tracking is irrelevant for local dev.
     if settings.dev_mode:
+        return
+    if reservation:
+        update: dict = {"duration_ms": duration_ms, "streamed": streamed, "request_id": request_id, "error": error}
+        if input_tokens + output_tokens > 0:
+            update.update(input_tokens=input_tokens, output_tokens=output_tokens)
+        try:
+            supabase_client().table("llm_usage").update(update).eq("id", reservation).execute()
+        except Exception as e:  # noqa: BLE001
+            log.warning("llm_usage.finish_failed", error=str(e), user_id=user_id)
         return
     try:
         supabase_client().table("llm_usage").insert(
@@ -208,22 +227,6 @@ DAILY_USER_TOKEN_BUDGET: int = int(
 MAX_EMBED_TEXT_BYTES: int = int(os.environ.get("MAX_EMBED_TEXT_BYTES", 50 * 1024))
 
 
-async def _user_tokens_today(user_id: str) -> int:
-    """
-    Sum of (input + output) tokens recorded against `user_id` since the start
-    of the current UTC day, summed in the database (migration 004). Returns 0
-    in dev_mode. Raises 503 if the sum can't be read (fail closed).
-    """
-    if settings.dev_mode:
-        return 0
-    try:
-        res = supabase_client().rpc("user_tokens_today", {"uid": user_id}).execute()
-        return int(res.data or 0)
-    except Exception as e:  # noqa: BLE001
-        log.warning("token_budget.query_failed", error=str(e), user_id=user_id)
-        raise HTTPException(status_code=503, detail="Usage check is unavailable right now. Try again in a minute.")
-
-
 def _estimate_request_tokens(req: "LLMRequest") -> int:
     """
     Conservative upper bound on what one /complete or /stream call could
@@ -235,31 +238,37 @@ def _estimate_request_tokens(req: "LLMRequest") -> int:
     return (prompt_chars // 4) + req.max_tokens
 
 
-async def _enforce_token_budget(user_id: str, projected_tokens: int) -> None:
+# Ceiling across all users per UTC day, so a burst of new accounts can't run
+# the shared provider keys past a known daily amount.
+GLOBAL_DAILY_TOKEN_BUDGET: int = int(os.environ.get("GLOBAL_DAILY_TOKEN_BUDGET", 20_000_000))
+
+
+async def _reserve_tokens(user_id: str, projected_tokens: int, provider: str, model: str) -> Optional[str]:
     """
-    Reject with 429 if this call would push the user over the daily budget.
-    Skipped in dev_mode (same skip as `_log_usage`).
+    Reserve `projected_tokens` against the user's and the deployment's daily
+    budgets (migration 007) and return the reservation id for _log_usage.
+    429 when either budget would be exceeded; 503 if the reservation can't be
+    made (fail closed). Skipped in dev_mode.
     """
     if settings.dev_mode:
-        return
-    used = await _user_tokens_today(user_id)
-    if used + projected_tokens > DAILY_USER_TOKEN_BUDGET:
-        log.info(
-            "token_budget.exceeded",
-            user_id=user_id,
-            used=used,
-            projected=projected_tokens,
-            budget=DAILY_USER_TOKEN_BUDGET,
-        )
-        raise HTTPException(
-            status_code=429,
-            detail=(
-                f"Daily token budget exceeded "
-                f"({used}/{DAILY_USER_TOKEN_BUDGET} used). "
-                f"Resets at UTC 00:00."
-            ),
-            headers={"Retry-After": "3600"},
-        )
+        return None
+    try:
+        res = supabase_client().rpc("reserve_llm_tokens", {
+            "uid": user_id, "est": projected_tokens, "user_cap": DAILY_USER_TOKEN_BUDGET,
+            "global_cap": GLOBAL_DAILY_TOKEN_BUDGET, "p_provider": provider, "p_model": model,
+        }).execute()
+        out = res.data or {}
+    except Exception as e:  # noqa: BLE001
+        log.warning("token_budget.reserve_failed", error=str(e), user_id=user_id)
+        raise HTTPException(status_code=503, detail="Usage check is unavailable right now. Try again in a minute.")
+    if out.get("id"):
+        return out["id"]
+    log.info("token_budget.exceeded", user_id=user_id, reason=out.get("reason"), used=out.get("used"), projected=projected_tokens)
+    if out.get("reason") == "global":
+        detail = "ClientLens has reached today's overall usage limit. It resets at UTC 00:00."
+    else:
+        detail = f"Daily token budget exceeded ({out.get('used', 0)}/{DAILY_USER_TOKEN_BUDGET} used). Resets at UTC 00:00."
+    raise HTTPException(status_code=429, detail=detail, headers={"Retry-After": "3600"})
 
 
 # ── Provider dispatchers ─────────────────────────────────────────────────────
@@ -302,7 +311,7 @@ async def _complete_anthropic(req: LLMRequest) -> LLMResponse:
     )
 
 
-async def _stream_anthropic(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
+async def _stream_anthropic(req: LLMRequest, user_id: str, reservation: Optional[str] = None) -> AsyncIterator[bytes]:
     """SSE relay: re-emit Anthropic's stream events as plain SSE.
 
     Logs to llm_usage in a finally block so disconnects and provider errors
@@ -357,18 +366,17 @@ async def _stream_anthropic(req: LLMRequest, user_id: str) -> AsyncIterator[byte
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
         # Fire-and-forget so logging never blocks teardown.
-        await (_log_usage(
+        await _log_usage(
                 user_id=user_id,
                 provider=req.provider,
                 model=req.model,
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 duration_ms=elapsed_ms,
-                streamed=True,
+                streamed=True, reservation=reservation,
                 request_id=request_id,
                 error=error_msg,
             )
-        )
 
 
 # ── Gemini dispatch ──────────────────────────────────────────────────────────
@@ -423,6 +431,76 @@ def _gemini_url(model: str, action: str) -> str:
     return f"https://generativelanguage.googleapis.com/v1beta/models/{_validate_gemini_model(model)}:{action}"
 
 
+# ── Model allowlists for the server-keyed providers ──────────────────────────
+# With open sign-up, whoever holds an account spends the server's keys, so a
+# caller may only pick from these models (the ones the extension offers).
+# Override per provider with a comma-separated ALLOWED_MODELS_<PROVIDER>.
+_DEFAULT_ALLOWED_MODELS: dict[str, frozenset[str]] = {
+    "anthropic": frozenset({"claude-haiku-4-5-20251001", "claude-sonnet-4-6"}),
+    "groq": frozenset({"llama-3.3-70b-versatile", "llama-3.1-8b-instant"}),
+    "openrouter": frozenset({
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "meta-llama/llama-3.1-8b-instruct:free",
+        "openai/gpt-oss-20b:free",
+        "deepseek/deepseek-chat:free",
+        "openai/gpt-4o-mini",
+    }),
+}
+
+
+def _allowed_models(provider: str) -> frozenset[str]:
+    raw = os.environ.get(f"ALLOWED_MODELS_{provider.upper()}", "")
+    names = frozenset(m.strip() for m in raw.split(",") if m.strip())
+    return names or _DEFAULT_ALLOWED_MODELS.get(provider, frozenset())
+
+
+def _check_model(provider: str, model: str) -> None:
+    """400 unless `model` is allowed for `provider` (Gemini has its own list above)."""
+    if provider in ("gemini", "gemini-embed"):
+        _validate_gemini_model(model)
+        return
+    if model not in _allowed_models(provider):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Model {model!r} isn't enabled for {provider} on this server. Allowed: {sorted(_allowed_models(provider))}.",
+        )
+
+
+# ── Per-user concurrency ─────────────────────────────────────────────────────
+# A few calls in flight per user (per server instance), so one account can't
+# tie up the instance or queue everyone else behind its requests.
+MAX_INFLIGHT_PER_USER: int = int(os.environ.get("MAX_INFLIGHT_PER_USER", 3))
+_inflight: dict[str, int] = {}
+
+
+def _acquire_slot(user_id: str) -> None:
+    if _inflight.get(user_id, 0) >= MAX_INFLIGHT_PER_USER:
+        raise HTTPException(status_code=429, detail="Too many requests at once. Wait for one to finish.", headers={"Retry-After": "5"})
+    _inflight[user_id] = _inflight.get(user_id, 0) + 1
+
+
+def _release_slot(user_id: str) -> None:
+    n = _inflight.get(user_id, 0) - 1
+    if n > 0:
+        _inflight[user_id] = n
+    else:
+        _inflight.pop(user_id, None)
+
+
+async def _released_after(gen: AsyncIterator[bytes], user_id: str) -> AsyncIterator[bytes]:
+    """Pass a stream through, freeing the user's slot when it ends (or is cancelled)."""
+    try:
+        async for chunk in gen:
+            yield chunk
+    finally:
+        try:
+            # Close the provider stream now so its own `finally` records usage
+            # before the function ends, rather than whenever it's collected.
+            await gen.aclose()
+        finally:
+            _release_slot(user_id)
+
+
 def _gemini_body(req: LLMRequest, *, json_mode: bool = True) -> dict:
     """
     Build a Gemini generateContent body. Council prompts expect JSON-only
@@ -443,17 +521,41 @@ def _gemini_body(req: LLMRequest, *, json_mode: bool = True) -> dict:
         body["systemInstruction"] = {"parts": [{"text": sys_text}]}
     if json_mode:
         body["generationConfig"]["responseMimeType"] = "application/json"
+    # Gemini 3 models think before answering, and thinking tokens come out of
+    # maxOutputTokens: with ClientLens's short limits (a few hundred tokens)
+    # the model could spend them all thinking and return empty text. Minimal
+    # thinking keeps short answers whole (and cheaper). GEMINI_THINKING_LEVEL
+    # overrides it (minimal | low | medium | high).
+    if req.model.startswith("gemini-3"):
+        body["generationConfig"]["thinkingConfig"] = {"thinkingLevel": GEMINI_THINKING_LEVEL}
     return body
+
+
+_GEMINI_RETRY_DELAYS = (2.0, 5.0)
+
+
+async def _no_lines() -> AsyncIterator[str]:
+    """An empty line stream, for a response that is being retried."""
+    return
+    yield
+GEMINI_THINKING_LEVEL: str = os.environ.get("GEMINI_THINKING_LEVEL", "minimal")
 
 
 async def _complete_gemini(req: LLMRequest) -> LLMResponse:
     api_key = _gemini_key()
     url = _gemini_url(req.model, "generateContent")
-    res = await _http().post(
-        url,
-        headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-        json=_gemini_body(req),
-    )
+    # "High demand" (503) and brief rate limits (429) usually clear in seconds,
+    # so retry twice before giving up. A spent quota fails the same way again.
+    for delay in (*_GEMINI_RETRY_DELAYS, None):
+        res = await _http().post(
+            url,
+            headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+            json=_gemini_body(req),
+        )
+        if res.status_code not in (429, 503) or delay is None or "exceeded your current quota" in res.text:
+            break
+        log.info("gemini.retry", status=res.status_code, delay_s=delay, model=req.model)
+        await asyncio.sleep(delay)
     if res.status_code >= 400:
         raise HTTPException(status_code=res.status_code, detail=f"Gemini {res.status_code}: {res.text[:300]}")
     data = res.json()
@@ -468,13 +570,13 @@ async def _complete_gemini(req: LLMRequest) -> LLMResponse:
         model=req.model,
         usage=LLMUsage(
             input_tokens=usage.get("promptTokenCount", 0),
-            output_tokens=usage.get("candidatesTokenCount", 0),
+            output_tokens=usage.get("candidatesTokenCount", 0) + usage.get("thoughtsTokenCount", 0),
         ),
         request_id=None,
     )
 
 
-async def _stream_gemini(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
+async def _stream_gemini(req: LLMRequest, user_id: str, reservation: Optional[str] = None) -> AsyncIterator[bytes]:
     """
     Gemini streaming via :streamGenerateContent.
     Returns a JSON array streamed in chunks, each chunk a partial generateContent
@@ -489,39 +591,53 @@ async def _stream_gemini(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
     started = time.perf_counter()
 
     try:
-        async with _http().stream(
-            "POST",
-            url,
-            headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-            json=_gemini_body(req),
-        ) as res:
-            if res.status_code >= 400:
-                body = await res.aread()
-                error_msg = f"gemini_status_{res.status_code}: {body[:300].decode(errors='replace')}"
-                yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
-                return
+        # Retry "high demand" (503) and brief rate limits (429) before any
+        # text is sent; once deltas have gone out the stream can't restart.
+        for delay in (*_GEMINI_RETRY_DELAYS, None):
+            async with _http().stream(
+                "POST",
+                url,
+                headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+                json=_gemini_body(req),
+            ) as res:
+                if res.status_code >= 400:
+                    body = await res.aread()
+                    if res.status_code in (429, 503) and delay is not None and b"exceeded your current quota" not in body:
+                        log.info("gemini.stream_retry", status=res.status_code, delay_s=delay, model=req.model)
+                        retry = True
+                    else:
+                        error_msg = f"gemini_status_{res.status_code}: {body[:300].decode(errors='replace')}"
+                        yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
+                        return
+                else:
+                    retry = False
 
-            async for line in res.aiter_lines():
-                line = line.strip()
-                if not line or not line.startswith("data:"):
-                    continue
-                payload = line[5:].strip()
-                if not payload or payload == "[DONE]":
-                    continue
-                try:
-                    chunk = json.loads(payload)
-                except json.JSONDecodeError:
-                    continue
-                # Extract text from candidates[0].content.parts[*].text
-                cand = (chunk.get("candidates") or [{}])[0]
-                parts = cand.get("content", {}).get("parts") or []
-                delta = "".join(p.get("text", "") for p in parts)
-                if delta:
-                    yield f"event: delta\ndata: {json.dumps({'text': delta})}\n\n".encode()
-                # Some chunks carry running usage; keep last seen.
-                u = chunk.get("usageMetadata") or {}
-                input_tokens = u.get("promptTokenCount", input_tokens)
-                output_tokens = u.get("candidatesTokenCount", output_tokens)
+                async for line in (_no_lines() if retry else res.aiter_lines()):
+                    line = line.strip()
+                    if not line or not line.startswith("data:"):
+                        continue
+                    payload = line[5:].strip()
+                    if not payload or payload == "[DONE]":
+                        continue
+                    try:
+                        chunk = json.loads(payload)
+                    except json.JSONDecodeError:
+                        continue
+                    # Extract text from candidates[0].content.parts[*].text
+                    cand = (chunk.get("candidates") or [{}])[0]
+                    parts = cand.get("content", {}).get("parts") or []
+                    delta = "".join(p.get("text", "") for p in parts)
+                    if delta:
+                        yield f"event: delta\ndata: {json.dumps({'text': delta})}\n\n".encode()
+                    # Some chunks carry running usage; keep last seen.
+                    u = chunk.get("usageMetadata") or {}
+                    input_tokens = u.get("promptTokenCount", input_tokens)
+                    # Thinking tokens are billed as output too.
+                    output_tokens = u.get("candidatesTokenCount", 0) + u.get("thoughtsTokenCount", 0) or output_tokens
+
+            if not retry:
+                break
+            await asyncio.sleep(delay)
 
         done = json.dumps(
             {
@@ -536,17 +652,16 @@ async def _stream_gemini(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
         yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        await (_log_usage(
+        await _log_usage(
                 user_id=user_id,
                 provider=req.provider,
                 model=req.model,
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 duration_ms=elapsed_ms,
-                streamed=True,
+                streamed=True, reservation=reservation,
                 error=error_msg,
             )
-        )
 
 
 # ── Groq dispatch (OpenAI-compatible chat completions) ────────────────────────
@@ -600,7 +715,7 @@ async def _complete_groq(req: LLMRequest) -> LLMResponse:
     )
 
 
-async def _stream_groq(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
+async def _stream_groq(req: LLMRequest, user_id: str, reservation: Optional[str] = None) -> AsyncIterator[bytes]:
     """Groq SSE re-emit. Groq returns standard OpenAI chunked SSE."""
     api_key = _groq_key()
     input_tokens = 0
@@ -660,18 +775,17 @@ async def _stream_groq(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
         yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        await (_log_usage(
+        await _log_usage(
                 user_id=user_id,
                 provider=req.provider,
                 model=req.model,
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 duration_ms=elapsed_ms,
-                streamed=True,
+                streamed=True, reservation=reservation,
                 request_id=request_id,
                 error=error_msg,
             )
-        )
 
 
 # ── OpenRouter dispatch (OpenAI-compatible chat completions) ─────────────────
@@ -760,7 +874,7 @@ async def _complete_openrouter(req: LLMRequest) -> LLMResponse:
     )
 
 
-async def _stream_openrouter(req: LLMRequest, user_id: str) -> AsyncIterator[bytes]:
+async def _stream_openrouter(req: LLMRequest, user_id: str, reservation: Optional[str] = None) -> AsyncIterator[bytes]:
     """OpenRouter SSE re-emit. Standard OpenAI chunked SSE.
 
     Retries up to 2 times on 429 with short sleeps before opening the stream,
@@ -823,21 +937,22 @@ async def _stream_openrouter(req: LLMRequest, user_id: str) -> AsyncIterator[byt
         yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        await (_log_usage(user_id=user_id, provider=req.provider, model=req.model,
+        await _log_usage(user_id=user_id, provider=req.provider, model=req.model,
                        input_tokens=input_tokens, output_tokens=output_tokens,
-                       duration_ms=elapsed_ms, streamed=True,
+                       duration_ms=elapsed_ms, streamed=True, reservation=reservation,
                        request_id=request_id, error=error_msg)
-        )
 
 
-# ── Embeddings (Gemini text-embedding-004) ───────────────────────────────────
+# ── Embeddings (Gemini gemini-embedding-001, 768 dimensions) ─────────────────
+
+EMBED_DIMS = 768
 
 
 class EmbedRequest(BaseModel):
     """One or many texts to embed. Gemini accepts up to 100 per batch call."""
 
     texts: list[str] = Field(..., min_length=1, max_length=100)
-    model: str = Field(default="text-embedding-004")
+    model: str = Field(default="gemini-embedding-001")
 
 
 class EmbedResponse(BaseModel):
@@ -893,7 +1008,13 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
     user = request.state.user
     require_permission(user["role"], "generate:create")
     _reject_unproxied(body.provider)
-    await _enforce_token_budget(user["id"], _estimate_request_tokens(body))
+    _check_model(body.provider, body.model)
+    _acquire_slot(user["id"])
+    try:
+        reservation = await _reserve_tokens(user["id"], _estimate_request_tokens(body), body.provider, body.model)
+    except BaseException:
+        _release_slot(user["id"])
+        raise
 
     started = time.perf_counter()
     error_msg: Optional[str] = None
@@ -922,8 +1043,9 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
         in_tok = response.usage.input_tokens if response else 0
         out_tok = response.usage.output_tokens if response else 0
         req_id = response.request_id if response else None
-        # Fire-and-forget so logging never blocks the response.
-        await (_log_usage(
+        _release_slot(user["id"])
+        # Awaited: on serverless a background task can be frozen and lost.
+        await _log_usage(
                 user_id=user["id"],
                 provider=body.provider,
                 model=body.model,
@@ -933,8 +1055,8 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
                 streamed=False,
                 request_id=req_id,
                 error=error_msg,
+                reservation=reservation,
             )
-        )
 
 
 @router.post("/v1/llm/stream")
@@ -953,22 +1075,29 @@ async def stream(request: Request, body: LLMRequest) -> StreamingResponse:
     user = request.state.user
     require_permission(user["role"], "generate:create")
     _reject_unproxied(body.provider)
-    await _enforce_token_budget(user["id"], _estimate_request_tokens(body))
+    _check_model(body.provider, body.model)
+    _acquire_slot(user["id"])
+    try:
+        reservation = await _reserve_tokens(user["id"], _estimate_request_tokens(body), body.provider, body.model)
+    except BaseException:
+        _release_slot(user["id"])
+        raise
 
     if body.provider == "anthropic":
-        gen = _stream_anthropic(body, user["id"])
+        gen = _stream_anthropic(body, user["id"], reservation)
     elif body.provider == "gemini":
-        gen = _stream_gemini(body, user["id"])
+        gen = _stream_gemini(body, user["id"], reservation)
     elif body.provider == "groq":
-        gen = _stream_groq(body, user["id"])
+        gen = _stream_groq(body, user["id"], reservation)
     elif body.provider == "openrouter":
-        gen = _stream_openrouter(body, user["id"])
+        gen = _stream_openrouter(body, user["id"], reservation)
     else:
         # Unreachable: _reject_unproxied above guards this.
+        _release_slot(user["id"])
         raise HTTPException(status_code=500, detail="provider dispatch fell through")
 
     return StreamingResponse(
-        gen,
+        _released_after(gen, user["id"]),
         media_type="text/event-stream",
         headers={
             # Disable proxy buffering so deltas arrive promptly.
@@ -1010,7 +1139,8 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
 
     # Conservative pre-flight: ~ total input bytes / 4 chars per token.
     projected = sum(len(t) for t in body.texts) // 4
-    await _enforce_token_budget(user["id"], projected)
+    _check_model("gemini-embed", body.model)
+    reservation = await _reserve_tokens(user["id"], projected, "gemini-embed", body.model)
 
     api_key = _gemini_key()
     started = time.perf_counter()
@@ -1019,44 +1149,32 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
     vectors: list[list[float]] = []
 
     try:
-        # Use batchEmbedContents for >1, embedContent for 1 (smaller payload).
-        if len(body.texts) == 1:
-            url = _gemini_url(body.model, "embedContent")
-            res = await _http().post(
-                url,
-                headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-                json={"content": {"parts": [{"text": body.texts[0]}]}},
-            )
-            if res.status_code >= 400:
-                raise HTTPException(status_code=res.status_code, detail=f"Gemini embed {res.status_code}: {res.text[:300]}")
-            data = res.json()
-            v = (data.get("embedding") or {}).get("values") or []
+        # Always batchEmbedContents: on keys created today the single
+        # embedContent call 404s while the batch call works. 768 dimensions
+        # matches what the in-browser knowledge base stores.
+        url = _gemini_url(body.model, "batchEmbedContents")
+        res = await _http().post(
+            url,
+            headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+            json={
+                "requests": [
+                    {
+                        "model": f"models/{body.model}",
+                        "content": {"parts": [{"text": t}]},
+                        "outputDimensionality": EMBED_DIMS,
+                    }
+                    for t in body.texts
+                ],
+            },
+        )
+        if res.status_code >= 400:
+            raise HTTPException(status_code=res.status_code, detail=f"Gemini embed batch {res.status_code}: {res.text[:300]}")
+        data = res.json()
+        for emb in data.get("embeddings") or []:
+            v = emb.get("values") or []
             if not isinstance(v, list):
-                raise HTTPException(status_code=502, detail="Gemini embed returned no vector")
+                raise HTTPException(status_code=502, detail="Gemini batch embed returned a malformed vector")
             vectors.append(v)
-        else:
-            url = _gemini_url(body.model, "batchEmbedContents")
-            res = await _http().post(
-                url,
-                headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-                json={
-                    "requests": [
-                        {
-                            "model": f"models/{body.model}",
-                            "content": {"parts": [{"text": t}]},
-                        }
-                        for t in body.texts
-                    ],
-                },
-            )
-            if res.status_code >= 400:
-                raise HTTPException(status_code=res.status_code, detail=f"Gemini embed batch {res.status_code}: {res.text[:300]}")
-            data = res.json()
-            for emb in data.get("embeddings") or []:
-                v = emb.get("values") or []
-                if not isinstance(v, list):
-                    raise HTTPException(status_code=502, detail="Gemini batch embed returned a malformed vector")
-                vectors.append(v)
 
         dims = len(vectors[0]) if vectors else 0
         # Approximate input token usage as total characters / 4. Gemini doesn't
@@ -1072,7 +1190,7 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
         raise
     finally:
         elapsed_ms = int((time.perf_counter() - started) * 1000)
-        await (_log_usage(
+        await _log_usage(
                 user_id=user["id"],
                 provider="gemini-embed",
                 model=body.model,
@@ -1081,8 +1199,8 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
                 duration_ms=elapsed_ms,
                 streamed=False,
                 error=error_msg,
+                reservation=reservation,
             )
-        )
 
 
 @router.get("/v1/llm/health")

@@ -1,8 +1,10 @@
 from supabase import create_client, Client
 from config import settings
 from typing import Optional
+import asyncio
 import time
 
+import httpx
 import jwt
 import structlog
 
@@ -47,47 +49,76 @@ async def init_supabase():
 
 
 # Profiles change rarely (a role edit), so each is cached briefly instead of
-# costing a database round trip on every request.
+# costing a database round trip on every request. Bounded so it can't grow
+# with every account that ever signs in.
 _PROFILE_TTL_S = 60
+_PROFILE_CACHE_MAX = 2000
 _profile_cache: dict[str, tuple[float, dict]] = {}
-_jwks_client = None
+
+# The project's public signing keys, fetched at most once a minute. A token
+# naming an unknown key id inside that window is refused without a fetch, so
+# anonymous callers can't make every request trigger an outbound call.
+_JWKS_MIN_REFETCH_S = 60
+_jwks: dict[str, object] = {}
+_jwks_fetched_at: Optional[float] = None  # None: never fetched
+
+
+class AuthUnavailable(RuntimeError):
+    """The token may be fine but the user's profile couldn't be read (503, not 401)."""
+
+
+def _issuer() -> str:
+    return settings.supabase_url.rstrip("/") + "/auth/v1"
+
+
+def _jwks_key(kid: str):
+    global _jwks, _jwks_fetched_at
+    # The first fetch always happens: the monotonic clock counts from boot, so a
+    # fresh serverless instance may be younger than the refetch window.
+    if kid not in _jwks and (_jwks_fetched_at is None or time.monotonic() - _jwks_fetched_at > _JWKS_MIN_REFETCH_S):
+        _jwks_fetched_at = time.monotonic()
+        try:
+            res = httpx.get(_issuer() + "/.well-known/jwks.json", timeout=3.0)
+            res.raise_for_status()
+            _jwks = {k.key_id: k.key for k in jwt.PyJWKSet.from_dict(res.json()).keys if k.key_id}
+        except Exception as e:  # noqa: BLE001
+            log.warning("auth.jwks_fetch_failed", error=str(e))
+    return _jwks.get(kid)
 
 
 def _claims(token: str) -> Optional[dict]:
     """Verify a Supabase access token locally and return its claims, or None.
 
-    HS256 tokens are checked with the project's JWT secret. Projects that moved
-    to asymmetric signing keys (ES256/RS256) are checked against the project's
-    published JWKS. Audience must be `authenticated`, so anon and service keys
-    (which are also JWTs) are refused.
+    Asymmetric tokens (ES256/RS256) are checked against the project's JWKS.
+    HS256 is accepted only when listed in JWT_ALGORITHMS, with the project's
+    JWT secret. Audience must be `authenticated` (anon and service keys are
+    refused), the standard claims must be present, and anonymous sign-ins are
+    refused.
     """
-    global _jwks_client
     try:
-        alg = jwt.get_unverified_header(token).get("alg")
-        issuer = settings.supabase_url.rstrip("/") + "/auth/v1"
+        header = jwt.get_unverified_header(token)
+        alg = header.get("alg")
+        if alg not in settings.allowed_jwt_algorithms:
+            return None
         if alg == "HS256":
             key = settings.jwt_secret
-        elif alg in ("ES256", "RS256"):
-            if _jwks_client is None:
-                _jwks_client = jwt.PyJWKClient(issuer + "/.well-known/jwks.json", cache_keys=True, lifespan=600)
-            key = _jwks_client.get_signing_key_from_jwt(token).key
         else:
-            return None
-        return jwt.decode(token, key, algorithms=[alg], audience="authenticated", issuer=issuer, leeway=30)
+            key = _jwks_key(header.get("kid") or "")
+            if key is None:
+                return None
+        claims = jwt.decode(
+            token, key, algorithms=[alg], audience="authenticated", issuer=_issuer(), leeway=30,
+            options={"require": ["exp", "iat", "sub", "aud", "iss"]},
+        )
     except jwt.PyJWTError as e:
         log.info("auth.token_rejected", reason=type(e).__name__)
         return None
-
-
-async def verify_token(token: str) -> Optional[dict]:
-    """Verify a Supabase JWT and return the caller's profile (id, email, name, role)."""
-    claims = _claims(token)
-    if not claims or not claims.get("sub"):
+    if claims.get("is_anonymous"):
         return None
-    user_id = claims["sub"]
-    hit = _profile_cache.get(user_id)
-    if hit and time.monotonic() - hit[0] < _PROFILE_TTL_S:
-        return hit[1]
+    return claims
+
+
+def _load_profile(user_id: str) -> Optional[dict]:
     try:
         profile = (
             supabase_client()
@@ -99,8 +130,29 @@ async def verify_token(token: str) -> Optional[dict]:
         )
     except Exception as e:  # noqa: BLE001
         log.warning("auth.profile_lookup_failed", error=str(e))
+        raise AuthUnavailable(str(e)) from e
+    return profile.data if profile and profile.data else None
+
+
+async def verify_token(token: str) -> Optional[dict]:
+    """Verify a Supabase JWT and return the caller's profile (id, email, name, role).
+
+    None means the token or account isn't valid (401). AuthUnavailable means
+    the profile couldn't be read right now (503). The blocking work (a rare
+    JWKS fetch, the profile query) runs off the event loop.
+    """
+    claims = await asyncio.to_thread(_claims, token)
+    if not claims or not claims.get("sub"):
         return None
-    if not profile or not profile.data:
+    user_id = claims["sub"]
+    hit = _profile_cache.get(user_id)
+    if hit and time.monotonic() - hit[0] < _PROFILE_TTL_S:
+        return hit[1]
+    profile = await asyncio.to_thread(_load_profile, user_id)
+    if profile is None:
+        _profile_cache.pop(user_id, None)
         return None
-    _profile_cache[user_id] = (time.monotonic(), profile.data)
-    return profile.data
+    if len(_profile_cache) >= _PROFILE_CACHE_MAX:
+        _profile_cache.pop(next(iter(_profile_cache)))
+    _profile_cache[user_id] = (time.monotonic(), profile)
+    return profile

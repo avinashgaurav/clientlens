@@ -20,6 +20,21 @@ from pydantic import BaseModel
 from config import settings
 from rbac.roles import require_permission
 
+# Token exchanges use the server's Zoho client secret, and every sign-up can
+# connect Zoho, so each user gets a few per hour (per server instance).
+_ZOHO_CALLS_PER_HOUR = 20
+_zoho_calls: dict[str, list[float]] = {}
+
+
+def _zoho_rate_limit(user_id: str) -> None:
+    import time
+    now = time.monotonic()
+    recent = [t for t in _zoho_calls.get(user_id, []) if now - t < 3600]
+    if len(recent) >= _ZOHO_CALLS_PER_HOUR:
+        raise HTTPException(429, "Too many Zoho connection attempts. Try again in an hour.", headers={"Retry-After": "3600"})
+    recent.append(now)
+    _zoho_calls[user_id] = recent
+
 router = APIRouter()
 log = structlog.get_logger()
 
@@ -66,6 +81,7 @@ async def zoho_exchange(request: Request, body: ZohoExchangeRequest):
     """
     user = request.state.user
     require_permission(user["role"], "crm:connect")
+    _zoho_rate_limit(user["id"])
 
     # Audit log the state token. Missing state = legacy caller or a CSRF
     # attempt that bypassed the extension's client-side check. We log but
@@ -105,7 +121,8 @@ async def zoho_exchange(request: Request, body: ZohoExchangeRequest):
 
     data = resp.json()
     if "access_token" not in data:
-        raise HTTPException(502, f"Zoho returned no access_token: {data}")
+        log.warning("zoho.no_access_token", error=str(data.get("error", ""))[:100])
+        raise HTTPException(502, "Zoho didn't return an access token. Reconnect Zoho and try again.")
 
     return {
         "access_token": data["access_token"],
@@ -124,6 +141,7 @@ async def zoho_refresh(request: Request, body: ZohoRefreshRequest):
     """
     user = request.state.user
     require_permission(user["role"], "crm:connect")
+    _zoho_rate_limit(user["id"])
 
     client_id = settings.zoho_client_id
     client_secret = settings.zoho_client_secret
@@ -154,7 +172,8 @@ async def zoho_refresh(request: Request, body: ZohoRefreshRequest):
 
     data = resp.json()
     if "access_token" not in data:
-        raise HTTPException(502, f"Zoho returned no access_token: {data}")
+        log.warning("zoho.no_access_token", error=str(data.get("error", ""))[:100])
+        raise HTTPException(502, "Zoho didn't return an access token. Reconnect Zoho and try again.")
 
     return {
         "access_token": data["access_token"],

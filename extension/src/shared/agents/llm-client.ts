@@ -26,7 +26,7 @@ const GROQ_MODEL = "llama-3.3-70b-versatile";
 const OLLAMA_MODEL = "llama3.1:8b";
 const OLLAMA_BASE = "http://localhost:11434";
 const GEMINI_MODEL = "gemini-3.6-flash";
-const GEMINI_EMBED_MODEL = "text-embedding-004"; // 768 dims, free tier
+const GEMINI_EMBED_MODEL = "gemini-embedding-001"; // 768 dims (the backend asks for 768)
 // NOT bumped to gemini-embedding-001 alongside the chat model: that returns
 // 3072 dims by default against a store provisioned for a different size, so it
 // is an index migration rather than a rename. Embeddings were not testable
@@ -353,7 +353,7 @@ class CustomOpenAICompatClient implements LLMClient {
 
 // ─── Gemini embeddings (proxied) ─────────────────────────────────────────────
 //
-// Embeddings use Gemini text-embedding-004. As of #1 they route through the
+// Embeddings use Gemini gemini-embedding-001 (768 dims). As of #1 they route through the
 // backend's `/api/v1/llm/embed` endpoint, so the extension never holds a
 // Gemini API key. The backend batches up to 100 texts per upstream call;
 // we keep that batching here so callers can pass arbitrarily long lists.
