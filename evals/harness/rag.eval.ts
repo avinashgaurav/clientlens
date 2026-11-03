@@ -91,12 +91,17 @@ mock.module(resolve(SHARED, "agents/llm-client.ts"), () => ({
   EMBEDDING_DIMS: 768,
 }));
 
+// Live prompts carry KB excerpts as <kb_source> blocks (kbSnippetsToPromptBlock).
+const parseKbBlock = (block: string) =>
+  [...block.matchAll(/<kb_source id="([^"]*)" namespace="([^"]*)" name="([^"]*)">\n([\s\S]*?)\n<\/kb_source>/g)]
+    .map((m) => ({ id: m[1], namespace: m[2], name: m[3], excerpt: m[4] }));
+
 // fetch is only used by runLiveKbAsk (the other paths go through makeLLMClient).
 globalThis.fetch = (async (_url: string, init: any) => {
   const ctx = EVAL_CTX.getStore() as any;
   const body = JSON.parse(init.body);
   const m = body.user.match(/\n\nKB:\n([\s\S]*)\n\nJSON only\.$/);
-  ctx.sent = { provider: body.provider, model: body.model, max_tokens: body.max_tokens, snippets: m ? JSON.parse(m[1]) : null };
+  ctx.sent = { provider: body.provider, model: body.model, max_tokens: body.max_tokens, snippets: m ? parseKbBlock(m[1]) : null };
   if (ctx.mode === "capture") return new Response(JSON.stringify({ text: '{"answer":"Not in KB.","sources":[]}' }), { status: 200 });
   const r = await callClaude({ model: B_MODEL, system: body.system, messages: [{ role: "user", content: body.user }], label: ctx.label });
   ctx.raw = r.text;
@@ -187,7 +192,7 @@ async function captureCoach(q: string, retriever: string) {
   await EVAL_CTX.run(ctx, async () => { try { await runCoachAgent(session(q), kb); } catch (e: any) { if (e.message !== "EVAL_CAPTURED") throw e; } });
   const u: string = ctx.captured?.user ?? "";
   const m = u.match(/use these to ground specific claims\):\n([\s\S]*?)\n\nLive transcript/);
-  return m ? JSON.parse(m[1]) : null;
+  return m ? parseKbBlock(m[1]) : null;
 }
 
 // ─── Arm A ───────────────────────────────────────────────────────────────────
