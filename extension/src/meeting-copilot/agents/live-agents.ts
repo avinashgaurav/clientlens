@@ -48,7 +48,7 @@ function liveWindow(transcript: TranscriptSegment[]): string {
 // For OpenRouter we pick the smallest reliable free model so parallel agent
 // calls don't stack up on the 429-prone 70B quota. 8B instant is ~3× faster
 // and shares a different rate-limit bucket from the main model.
-const LIVE_MODELS: Record<LLMProvider, string | undefined> = {
+export const LIVE_MODELS: Record<LLMProvider, string | undefined> = {
   anthropic: "claude-haiku-4-5-20251001",
   // gemini-3.6-flash is the only Gemini name a key created today can call; the
   // 2.x and 1.5 families 404 with "no longer available to new users".
@@ -613,37 +613,40 @@ export async function runLiveKbAsk(
 
   const user = `Question: ${q}\n\nKB:\n${kbSnippetsToPromptBlock(kbSnippets)}\n\nJSON only.`;
 
-  // Mid-call latency: use a small fast model (8B) on a separate OpenRouter
-  // rate-limit pool from the coach (20B). KB output is ≤350 tokens, no
-  // truncation risk at 8B. X-Priority header routes through the user lane
-  // on the backend (separate semaphore, no gap wait).
+  // Mid-call latency: use the provider's fast live-tier model (LIVE_MODELS),
+  // the same one the coach and sentiment agents use, so the request passes
+  // the backend's model allowlist for every provider. X-Priority routes it
+  // through the user lane on the backend (separate semaphore, no gap wait).
+  // Ollama and custom endpoints are direct-only: the backend refuses them.
   void session;
   const cfg = resolveLLMConfig(liveModelOverride());
-  const provider = "error" in cfg ? "openrouter" : cfg.provider;
-  // Force a fast small model for KB asks, separate rate pool from coach.
-  const KB_FAST_MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+  if ("error" in cfg) return { answer: cfg.error };
   let raw = "";
   try {
-    const jwt = await backendJwt();
-    const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {
-      method: "POST",
-      signal,  // AbortSignal: cancelled when rep asks a new question
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${jwt}`,
-        "X-Priority": "true",
-      },
-      body: JSON.stringify({
-        provider,
-        model: KB_FAST_MODEL,
-        system: KB_ASK_SYSTEM,
-        user,
-        max_tokens: 350,
-      }),
-    });
-    if (!res.ok) return { answer: "Error reaching backend" };
-    const data = await res.json() as { text?: string };
-    raw = data.text ?? "";
+    if (cfg.provider === "ollama" || cfg.provider === "custom") {
+      raw = await makeLLMClient(cfg).call(KB_ASK_SYSTEM, user, 350);
+    } else {
+      const jwt = await backendJwt();
+      const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {
+        method: "POST",
+        signal,  // AbortSignal: cancelled when rep asks a new question
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`,
+          "X-Priority": "true",
+        },
+        body: JSON.stringify({
+          provider: cfg.provider,
+          model: cfg.model,
+          system: KB_ASK_SYSTEM,
+          user,
+          max_tokens: 350,
+        }),
+      });
+      if (!res.ok) return { answer: "Error reaching backend" };
+      const data = await res.json() as { text?: string };
+      raw = data.text ?? "";
+    }
   } catch (err) {
     return { answer: `Error: ${String(err)}` };
   }

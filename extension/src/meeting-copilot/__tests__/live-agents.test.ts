@@ -21,7 +21,8 @@ vi.mock("../../shared/agents/llm-client", () => ({
 const store = vi.hoisted(() => ({ searchChunks: vi.fn() }));
 vi.mock("../../shared/utils/kb-vector-store", () => store);
 
-import { runCoachAgent, runLiveCouncilValidator, runLiveKbAsk } from "../agents/live-agents";
+import { LIVE_MODELS, runCoachAgent, runLiveCouncilValidator, runLiveKbAsk } from "../agents/live-agents";
+import { backendDefaultAllowlist } from "../../shared/__tests__/backend-allowlist";
 import { KB_SAFETY_INSTRUCTION } from "../../shared/agents/prompt-safety";
 import type { CoachSuggestion } from "../../shared/types";
 
@@ -100,5 +101,24 @@ describe("live prompts wrap KB text like the councils do", () => {
     await runLiveCouncilValidator(suggestion, session, poisoned);
     const [, system, user] = llm.call.mock.calls[0];
     expectWrapped(system, user);
+  });
+});
+
+describe("Ask-KB model", () => {
+  it.each(["anthropic", "gemini", "groq", "openrouter"])("asks the backend for the %s live model, which it allows", async (provider) => {
+    llm.provider = provider;
+    const res = await runLiveKbAsk("Is MFA on?", session, [entry("kb-1", "MFA is on.")]);
+    expect(res.answer).not.toBe("Error reaching backend");
+    expect(sent?.provider).toBe(provider);
+    expect(sent?.model).toBe(LIVE_MODELS[provider as keyof typeof LIVE_MODELS]);
+    expect(backendDefaultAllowlist()[provider]).toContain(sent?.model);
+  });
+
+  it.each(["ollama", "custom"])("calls %s directly with the user's model, not through the backend", async (provider) => {
+    llm.provider = provider;
+    llm.call.mockResolvedValue('{"answer":"Not in KB.","sources":[]}');
+    await runLiveKbAsk("Is MFA on?", session, [entry("kb-1", "MFA is on.")]);
+    expect(sent).toBeNull();
+    expect(llm.call.mock.calls[0][0]).toMatchObject({ provider, model: `${provider}-settings-model` });
   });
 });
