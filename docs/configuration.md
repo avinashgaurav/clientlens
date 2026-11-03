@@ -19,6 +19,7 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `VITE_MOCK_MODE` | `true` to short-circuit LLM calls for UI dev | No |
 | `VITE_GEMINI_MODEL` | Override default Gemini model | No |
 | `VITE_OPENROUTER_MODEL` | Override default OpenRouter model | No |
+| `VITE_PASSWORD_RESET` | `true` shows "Forgot password?" on the sign-in screen. Off by default: the reset link opens the Supabase Site URL, the extension has no "set new password" screen, and auth emails don't reach users yet ([#165](https://github.com/avinashgaurav/clientlens/issues/165)) | No |
 
 ### `backend/.env` (server-side, never bundled)
 

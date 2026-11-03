@@ -13,6 +13,7 @@ interface ImportMetaEnv {
   readonly VITE_BACKEND_URL?: string;
   readonly VITE_SUPABASE_URL?: string;
   readonly VITE_SUPABASE_ANON_KEY?: string;
+  readonly VITE_PASSWORD_RESET?: string;        // "true" shows "Forgot password?" (off until #165)
 
   // ─── V2 Meeting Copilot ────────────────────────────────────────────────────
   readonly VITE_MEETING_COPILOT?: string;       // "true" enables the live copilot feature

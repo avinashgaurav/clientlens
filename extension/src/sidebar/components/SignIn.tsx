@@ -9,6 +9,12 @@ const COPY: Record<Mode, { title: string; button: string; busy: string }> = {
   reset: { title: "Reset your password", button: "Email me a reset link", busy: "Sending…" },
 };
 
+// Password reset stays hidden until it works end to end: the reset email opens
+// the Supabase Site URL, the extension has no "set new password" screen, and
+// auth emails don't reach users yet (issue #165). Set VITE_PASSWORD_RESET=true
+// to show it.
+const PASSWORD_RESET = (import.meta.env.VITE_PASSWORD_RESET as string | undefined) === "true";
+
 // Email and password sign-in for the side panel. Anyone can create an account;
 // each account is its own workspace.
 export function SignIn({ notice }: { notice?: string }) {
@@ -92,7 +98,9 @@ export function SignIn({ notice }: { notice?: string }) {
           {mode === "sign-in" ? (
             <>
               <button type="button" onClick={() => switchTo("sign-up")} className="text-orange">Create an account</button>
-              <button type="button" onClick={() => switchTo("reset")} className="text-ink-3">Forgot password?</button>
+              {PASSWORD_RESET && (
+                <button type="button" onClick={() => switchTo("reset")} className="text-ink-3">Forgot password?</button>
+              )}
             </>
           ) : (
             <button type="button" onClick={() => switchTo("sign-in")} className="text-orange">Back to sign in</button>
