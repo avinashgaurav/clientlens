@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useAppStore } from "./stores/app-store";
 import { usePageContext } from "./hooks/usePageContext";
 import { useMeetDetection } from "./hooks/useMeetDetection";
+import { useAccount } from "./hooks/useAccount";
+import { SignIn } from "./components/SignIn";
 import { useMeetingCopilotStore } from "./stores/meeting-copilot-store";
 import { PersonalizationForm } from "./components/PersonalizationForm";
 import { AssetPreview } from "./components/AssetPreview";
@@ -81,16 +83,12 @@ export default function App() {
     setAdminTabState("copilot");
   }, [hasMeetTab, hasActiveSession, copilotFlagOn]);
 
+  // The signed-in account drives the app's user (sign-in, sign-out, profile).
+  const account = useAccount();
   useEffect(() => {
-    if (!user) {
-      setUser({
-        id: "local-user",
-        email: "local@clientlens.app",
-        name: "You",
-        role: "admin",
-      });
-    }
-  }, [user, setUser]);
+    if (account.status === "signed-in") setUser(account.user);
+    else if (account.status !== "loading") setUser(null);
+  }, [account, setUser]);
 
   // Onboarding completeness. MUST stay above the early return below: React
   // requires an identical hook sequence on every render, and this state used to
@@ -115,9 +113,11 @@ export default function App() {
     }
   }, [kbCount]);
 
+  if (account.status === "signed-out") return <SignIn />;
+  if (account.status === "error") return <SignIn notice={account.message} />;
   if (!user) return null;
 
-  const hasKBAccess = user.role === "admin" || user.role === "pmm" || user.role === "designer";
+  const hasKBAccess = user.role === "admin" || user.role === "owner" || user.role === "pmm" || user.role === "designer";
   const copilotOn = copilotFlagOn;
 
   const tabs: TabDef[] = [
@@ -284,7 +284,7 @@ export default function App() {
         {showTabs && adminTab === "kb" && (
           <>
             <KnowledgeBasePanel />
-            {(user.role === "designer" || user.role === "admin" || user.role === "pmm") && <DesignerPanel />}
+            {(user.role === "designer" || user.role === "admin" || user.role === "owner" || user.role === "pmm") && <DesignerPanel />}
           </>
         )}
 

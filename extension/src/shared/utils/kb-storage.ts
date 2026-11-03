@@ -6,6 +6,7 @@ const STORAGE_KEY = "clientlens_kb";
 // Admin can write anywhere; PMM owns brand_voice; Designer owns design_system.
 const ROLE_WRITE_SCOPE: Record<UserRole, KBNamespace[] | "all"> = {
   admin: "all",
+  owner: "all",
   pmm: ["brand_voice", "icp_profiles"],
   designer: ["design_system"],
   sales_rep: [],

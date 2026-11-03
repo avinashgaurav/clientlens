@@ -11,7 +11,9 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `VITE_BACKEND_URL` | FastAPI backend base URL. `http://localhost:8000` for the normal v1.0 self-hosted setup, which requires the dev build (`npm run dev`). A **release** build (`npm run build`) requires a public **https** URL and rejects loopback hosts: see [the two build modes](development.md#the-two-build-modes-and-which-one-you-want) | Yes |
 | `VITE_SUPABASE_URL` | Supabase project URL | Yes |
 | `VITE_SUPABASE_ANON_KEY` | Supabase publishable (anon) key | Yes |
-| `VITE_DEV_MODE` | Must be `true` in v1.0, and must match `DEV_MODE` in `backend/.env`. Sends a stub bearer instead of a Supabase JWT. Without it every backend call fails | Yes |
+| `VITE_DEV_MODE` | Local development only: skips sign-in and sends a stub bearer. Must match `DEV_MODE` in `backend/.env`. Leave unset for a real build | No |
+| `VITE_EXTENSION_KEY` | Public key that pins the unpacked extension's ID, so the Google OAuth client and `ALLOWED_ORIGINS` can name it | For a deployed backend |
+| `VITE_LLM_PROVIDER` | Default provider for new installs (for example `gemini`); the key stays on the backend | No |
 | `VITE_ALLOWED_DOMAIN` | Your company domain, used to infer the rep's own domain for team config. Does **not** gate sign-in | No |
 | `VITE_GOOGLE_CLIENT_ID` | Chrome OAuth client ID, injected into the built manifest's `oauth2.client_id` at build time. Needed **only** for Google Slides/Docs/Drive export and Calendar sync | No |
 | `VITE_LLM_PROVIDER` | Default provider (`gemini` / `groq` / `anthropic` / `openrouter` / `custom`) | Yes |
@@ -24,8 +26,8 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | Variable | Purpose | Required |
 |---|---|---|
 | `SUPABASE_URL` | Supabase URL | Yes |
-| `SUPABASE_SERVICE_KEY` | Supabase service-role key | Yes |
-| `JWT_SECRET` | Secret for JWT signing/verification | Yes |
+| `SUPABASE_SERVICE_KEY` | Supabase service-role key (`SUPABASE_SERVICE_ROLE_KEY` also accepted) | Yes |
+| `JWT_SECRET` | The Supabase project's JWT secret, used to verify HS256 access tokens (`SUPABASE_JWT_SECRET` also accepted). Projects on asymmetric signing keys are verified against the JWKS | Yes |
 | `ANTHROPIC_API_KEY` | Anthropic Claude key | If used |
 | `GEMINI_API_KEY` | Google Gemini key. On a key created today only `gemini-3.6-flash` works; the 1.5, 2.0 and 2.5 families return `404 no longer available to new users` and are absent from the API's model list | If used |
 | `GROQ_API_KEY` | Groq key | If used |
@@ -35,7 +37,9 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `DEEPGRAM_API_KEY` | Deepgram STT key | If using live mode |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | **Currently unused.** Defined in `config.py` but read by no backend code. Google auth is entirely client-side via `chrome.identity.getAuthToken`, which reads the manifest's `oauth2.client_id` (set `VITE_GOOGLE_CLIENT_ID` instead). Reserved for a future server-side flow | No |
 | `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` | Zoho OAuth | If using CRM push |
-| `DEV_MODE` | Must be `true` in v1.0. `AuthMiddleware` then accepts every request as a stub `sales_rep` user. Required because no code path creates a Supabase session. Keep such a backend off the public internet | Yes |
+| `DEV_MODE` | Local development only: `AuthMiddleware` accepts every request as a stub `sales_rep` user and the daily caps are skipped. Never set it on a deployed backend | No |
+| `DAILY_USER_TOKEN_BUDGET` | LLM tokens per user per UTC day (default 1,000,000) | No |
+| `DAILY_USER_STT_SESSIONS` | Live transcription sessions per user per UTC day (default 30) | No |
 | `BACKEND_URL` | Self URL (used in OAuth callbacks) | Yes |
 | `ALLOWED_ORIGINS` | CORS allowlist (extension + dev origins) | Yes |
 | `DAILY_USER_TOKEN_BUDGET` | Per-user daily LLM token cap (default `1000000`) | Optional |

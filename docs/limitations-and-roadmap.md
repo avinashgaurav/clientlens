@@ -7,7 +7,6 @@ What v1.0 does not do yet, where it is known to fall short, and what comes next.
 Worth knowing before you invest an evening in it:
 
 - **No Chrome Web Store listing.** Load unpacked. Setup is a developer task.
-- **Authentication is not wired.** See [Security model](security.md).
 - **Zoho is the only CRM**, and **Google Meet is the only meeting surface** that works end to end. HubSpot, Salesforce and Teams are on the roadmap.
 - **Python 3.11+ is a hard requirement.** Dependencies resolve on 3.9, but the backend then fails at import, so it breaks later and more confusingly than you would expect.
 - **No way to try it without installing it.** Mock mode avoids spending LLM credits but still routes through the backend, so there is no offline or hosted demo.
@@ -22,10 +21,9 @@ Worth knowing before you invest an evening in it:
 
 ## Roadmap
 
-1. **Wire real authentication.** Everything else is downstream of this: it is what gates a shared team deployment.
-2. Salesforce and HubSpot connectors, Microsoft Teams copilot.
-3. On-device STT (Whisper) for privacy-sensitive deployments.
-4. Multi-tenant mode with org-level KB isolation.
-5. A zero-setup way to try it. Mock mode still needs the backend running, so today there is no way to see the UI without a full install.
+1. Salesforce and HubSpot connectors, Microsoft Teams copilot.
+2. On-device STT (Whisper) for privacy-sensitive deployments.
+3. Multi-tenant mode with org-level KB isolation.
+4. A zero-setup way to try it. Mock mode still needs the backend running, so today there is no way to see the UI without a full install.
 
 The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/clientlens/issues/113). Items are largely independent, so pick any of them in any order.
