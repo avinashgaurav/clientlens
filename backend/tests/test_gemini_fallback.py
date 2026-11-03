@@ -117,3 +117,57 @@ class GeminiFallbackTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class UnbilledReleaseTest(unittest.TestCase):
+    """A call the provider refused before generating releases its reservation."""
+
+    def setUp(self):
+        self.updates: list[dict] = []
+        test = self
+
+        class Table:
+            def update(self, data):
+                test.updates.append(data)
+                return self
+
+            def eq(self, *_):
+                return self
+
+            def execute(self):
+                return None
+
+        class Client:
+            def table(self, _):
+                return Table()
+
+        self._orig = llm.supabase_client
+        llm.supabase_client = lambda: Client()
+        llm.settings.dev_mode = False
+
+    def tearDown(self):
+        llm.supabase_client = self._orig
+
+    def log(self, **kw):
+        base = dict(user_id="u", provider="gemini", model="m", input_tokens=0, output_tokens=0,
+                    duration_ms=1, streamed=False, reservation="r1")
+        asyncio.run(llm._log_usage(**{**base, **kw}))
+        return self.updates[-1]
+
+    def test_unbilled_failure_releases_the_estimate(self):
+        u = self.log(error="http_429", billed=False)
+        self.assertEqual((u["input_tokens"], u["output_tokens"]), (0, 0))
+
+    def test_billed_failure_keeps_the_estimate(self):
+        u = self.log(error="timeout", billed=True)
+        self.assertNotIn("input_tokens", u)
+
+    def test_success_records_real_counts(self):
+        u = self.log(input_tokens=12, output_tokens=3)
+        self.assertEqual((u["input_tokens"], u["output_tokens"]), (12, 3))
+
+    def test_unbilled_statuses(self):
+        self.assertTrue(llm._unbilled(llm.HTTPException(status_code=429)))
+        self.assertTrue(llm._unbilled(llm.HTTPException(status_code=503)))
+        self.assertFalse(llm._unbilled(llm.HTTPException(status_code=502)))
+        self.assertFalse(llm._unbilled(RuntimeError("network")))

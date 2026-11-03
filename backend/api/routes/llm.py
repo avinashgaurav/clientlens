@@ -172,12 +172,16 @@ async def _log_usage(
     request_id: Optional[str] = None,
     error: Optional[str] = None,
     reservation: Optional[str] = None,
+    billed: bool = True,
 ) -> None:
     """
     Record one LLM call in `llm_usage`. With a reservation (migration 007) the
     reserved row is finished instead: the provider's real token counts replace
     the estimate only when the call reported them, so an aborted or failed call
-    stays charged at its estimate. Best-effort: a Supabase failure must not
+    stays charged at its estimate. A call the provider refused before
+    generating anything (`billed=False`: a 4xx, a spent allowance, an
+    overload) releases its estimate, so repeated refusals can't fill the daily
+    caps with usage nobody paid for. Best-effort: a Supabase failure must not
     break the user-facing call.
     """
     # Dev-mode stub user has no row in user_profiles, skip DB write to avoid
@@ -187,7 +191,7 @@ async def _log_usage(
     if reservation:
         # The model is updated too: a call can be served by a fallback model.
         update: dict = {"model": model, "duration_ms": duration_ms, "streamed": streamed, "request_id": request_id, "error": error}
-        if input_tokens + output_tokens > 0:
+        if input_tokens + output_tokens > 0 or not billed:
             update.update(input_tokens=input_tokens, output_tokens=output_tokens)
         try:
             supabase_client().table("llm_usage").update(update).eq("id", reservation).execute()
@@ -210,6 +214,15 @@ async def _log_usage(
         ).execute()
     except Exception as e:  # noqa: BLE001
         log.warning("llm_usage.log_failed", error=str(e), user_id=user_id)
+
+
+# Upstream statuses that mean the provider refused the call before generating,
+# so nothing was billed.
+_UNBILLED_STATUSES = frozenset({400, 401, 403, 404, 409, 413, 422, 429, 503})
+
+
+def _unbilled(exc: BaseException) -> bool:
+    return isinstance(exc, HTTPException) and exc.status_code in _UNBILLED_STATUSES
 
 
 # ── Per-user token budget (closes #18) ───────────────────────────────────────
@@ -660,6 +673,7 @@ async def _stream_gemini(req: LLMRequest, user_id: str, reservation: Optional[st
     models = iter(_gemini_candidates(req.model))
     model = next(models)
     retries_used = 0
+    sent_text = False
     input_tokens = 0
     output_tokens = 0
     error_msg: Optional[str] = None
@@ -718,6 +732,7 @@ async def _stream_gemini(req: LLMRequest, user_id: str, reservation: Optional[st
                     parts = cand.get("content", {}).get("parts") or []
                     delta = "".join(p.get("text", "") for p in parts)
                     if delta:
+                        sent_text = True
                         yield f"event: delta\ndata: {json.dumps({'text': delta})}\n\n".encode()
                     # Some chunks carry running usage; keep last seen.
                     u = chunk.get("usageMetadata") or {}
@@ -750,7 +765,7 @@ async def _stream_gemini(req: LLMRequest, user_id: str, reservation: Optional[st
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 duration_ms=elapsed_ms,
-                streamed=True, reservation=reservation,
+                streamed=True, reservation=reservation, billed=sent_text or input_tokens + output_tokens > 0,
                 error=error_msg,
             )
 
@@ -1110,6 +1125,7 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
     started = time.perf_counter()
     error_msg: Optional[str] = None
     response: Optional[LLMResponse] = None
+    billed = True
     try:
         if body.provider == "anthropic":
             response = await _complete_anthropic(body)
@@ -1125,6 +1141,7 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
         return response
     except HTTPException as e:
         error_msg = f"http_{e.status_code}: {e.detail}"
+        billed = not _unbilled(e)
         raise
     except Exception as e:  # noqa: BLE001
         error_msg = str(e)
@@ -1148,6 +1165,7 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
                 request_id=req_id,
                 error=error_msg,
                 reservation=reservation,
+                billed=billed,
             )
 
 
@@ -1238,6 +1256,7 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
     started = time.perf_counter()
     error_msg: Optional[str] = None
     total_input_tokens = 0
+    billed = True
     vectors: list[list[float]] = []
 
     try:
@@ -1276,6 +1295,7 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
         return EmbedResponse(vectors=vectors, model=body.model, dims=dims)
     except HTTPException as e:
         error_msg = f"http_{e.status_code}: {e.detail}"
+        billed = not _unbilled(e)
         raise
     except Exception as e:  # noqa: BLE001
         error_msg = str(e)
@@ -1292,6 +1312,7 @@ async def embed(request: Request, body: EmbedRequest) -> EmbedResponse:
                 streamed=False,
                 error=error_msg,
                 reservation=reservation,
+                billed=billed,
             )
 
 
