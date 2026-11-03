@@ -60,7 +60,7 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 - [Architecture](docs/architecture.md): how the pieces fit, project layout, tech stack
 - [Development guide](docs/development.md): mock mode, build modes, running the CI checks locally
 - [Security model](docs/security.md): auth posture and what to lock down before deploying
-- [Evals](EVALS.md) · [Contributing](CONTRIBUTING.md)
+- [Evals](EVALS.md) · [Search-and-answer test](EVALS-RAG.md) · [Contributing](CONTRIBUTING.md)
 
 ## License
 

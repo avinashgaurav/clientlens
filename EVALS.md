@@ -1,5 +1,7 @@
 # ClientLens fact-check test
 
+A separate search-and-answer test (Ask-KB, keyword and meaning-based search, the pitch pipeline's source picking) is in [EVALS-RAG.md](EVALS-RAG.md).
+
 This is a first test of the fact-check step. That step checks every pitch before it can be written to a doc. It covers the Fact Validation Agent (the checker), `parseFactCheck`, `applyFactCheck`, the council vote and the final safety gate that decides what may be written (`checkWritePayload`). I ran the test on 2026-10-15. I fixed two problems and ran it again the same day. The fix ships in the same PR (see "Before and after the fix").
 
 **How it was run.** I ran the test through the Claude Code CLI (the command-line tool), using the app's own prompts and output format. I did not use the production API path. A rerun through the API is planned.
