@@ -23,6 +23,7 @@ import { ProviderChip } from "./ProviderChip";
 import { pushZohoNote, pushCustomTool } from "../../shared/utils/integrations";
 import { parsePastedInvite } from "../../shared/utils/meeting-parse";
 import { CopyButton } from "./CopyButton";
+import { getSttProvider } from "../../shared/meeting-copilot/feature-flag";
 import type { MeetingPostCallSummary } from "../../shared/types";
 
 // Three onboarding paths into a copilot session, in priority order:
@@ -703,6 +704,9 @@ export function MeetingCopilotPanel() {
             <div style={{ ...muted, fontVariantNumeric: "tabular-nums" }}>
               Transcript segments: {session.transcript.length}
             </div>
+            {getSttProvider() !== "deepgram" && (
+              <div style={muted}>Sample transcript: live audio isn't set up</div>
+            )}
           </div>
         )}
       </div>

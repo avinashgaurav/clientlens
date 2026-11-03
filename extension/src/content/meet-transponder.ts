@@ -83,6 +83,17 @@ const STORAGE_KEY = "clientlens.transponder.pos"; // legacy floating-panel posit
 const DOCK_KEY = "clientlens.transponder.dock";   // legacy vertical-dock prefs; ignored now
 const LAYOUT_KEY = "clientlens.transponder.layout";
 const AUTOSTART_KEY = "clientlens.autostart";
+
+// Same checks as isMeetingCopilotEnabled() and getSttProvider() in
+// shared/meeting-copilot/feature-flag.ts, inlined because a content script
+// can't load the shared chunk an import would create.
+const COPILOT_ENABLED = ["true", "1", "yes", "on"].includes(
+  String(import.meta.env.VITE_MEETING_COPILOT ?? "").trim().toLowerCase(),
+);
+// Only Deepgram is real audio; mock and the unimplemented AssemblyAI play a canned script.
+const SAMPLE_TRANSCRIPT = import.meta.env.VITE_STT_PROVIDER !== "deepgram";
+const SAMPLE_TRANSCRIPT_NOTE = "Sample transcript: live audio isn't set up";
+
 // User-pinned body height (px). Default 320; persists across sessions so the
 // rep's preferred panel size sticks. Re-renders never change height, only
 // dragging the resize grip does.
@@ -886,6 +897,8 @@ function render() {
         t.text))
     : [el("div", { class: "cl-primary-empty" },
         "Transcript will appear here as the call progresses.")];
+  // Mock STT plays a canned script; say so, so nobody reads it as the real call.
+  if (SAMPLE_TRANSCRIPT) logRows.unshift(el("div", { class: "cl-primary-empty" }, SAMPLE_TRANSCRIPT_NOTE));
   const drawerEl = el("div", { class: "cl-drawer" }, ...logRows);
 
   const silenceEl: HTMLElement | null = state.silenceWarning && state.status === "listening"
@@ -1337,7 +1350,10 @@ function showStartPrompt() {
   });
 }
 
+
 async function considerAutoLaunch() {
+  // With Copilot off, never offer or auto-start a session.
+  if (!COPILOT_ENABLED) return;
   if (!isExtensionAlive()) { teardownOrphan(); return; }
   if (sessionStarted) return;
   if (!isMeetingLive()) return;
