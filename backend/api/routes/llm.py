@@ -22,7 +22,10 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import time
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from typing import AsyncIterator, Optional
 
 import httpx
@@ -182,7 +185,8 @@ async def _log_usage(
     if settings.dev_mode:
         return
     if reservation:
-        update: dict = {"duration_ms": duration_ms, "streamed": streamed, "request_id": request_id, "error": error}
+        # The model is updated too: a call can be served by a fallback model.
+        update: dict = {"model": model, "duration_ms": duration_ms, "streamed": streamed, "request_id": request_id, "error": error}
         if input_tokens + output_tokens > 0:
             update.update(input_tokens=input_tokens, output_tokens=output_tokens)
         try:
@@ -531,7 +535,7 @@ def _gemini_body(req: LLMRequest, *, json_mode: bool = True) -> dict:
     # the model could spend them all thinking and return empty text. Minimal
     # thinking keeps short answers whole (and cheaper). GEMINI_THINKING_LEVEL
     # overrides it (minimal | low | medium | high).
-    if not req.model.startswith(("gemini-1", "gemini-2")):
+    if _takes_thinking_level(req.model):
         body["generationConfig"]["thinkingConfig"] = {"thinkingLevel": GEMINI_THINKING_LEVEL}
     return body
 
@@ -540,11 +544,23 @@ _GEMINI_RETRY_DELAYS = (2.0, 5.0)
 
 
 GEMINI_THINKING_LEVEL: str = os.environ.get("GEMINI_THINKING_LEVEL", "minimal")
+# Aliases verified to accept thinkingLevel; other aliases are left unconfigured.
+_THINKING_ALIASES = frozenset({"gemini-flash-lite-latest"})
+
+
+def _takes_thinking_level(model: str) -> bool:
+    """Gemini 3+ Flash and Flash-Lite models accept thinkingLevel. Pro models
+    reject "minimal", and older families and embedding models don't use it."""
+    if model in _THINKING_ALIASES:
+        return True
+    m = re.match(r"gemini-(\d+)", model)
+    return bool(m) and int(m.group(1)) >= 3 and "pro" not in model and "embedding" not in model
 
 # On a free-tier key each model has its own small daily request allowance, so
 # when the requested model's allowance is spent (or a model is retired for new
 # keys) the call moves to the next model here. Spent models are skipped until
-# the next UTC day on this instance. GEMINI_FALLBACK_MODELS overrides the list.
+# the next Pacific day (when Google resets them) on this instance; each new
+# instance rediscovers a spent model with one request. GEMINI_FALLBACK_MODELS overrides the list.
 GEMINI_FALLBACK_MODELS: tuple[str, ...] = tuple(
     m.strip()
     for m in os.environ.get(
@@ -553,17 +569,18 @@ GEMINI_FALLBACK_MODELS: tuple[str, ...] = tuple(
     ).split(",")
     if m.strip()
 )
-_gemini_spent: dict[str, str] = {}  # model -> UTC day its daily allowance ran out
+_gemini_spent: dict[str, str] = {}  # model -> Pacific day its daily allowance ran out
 
 
-def _utc_day() -> str:
-    return time.strftime("%Y-%m-%d", time.gmtime())
+def _quota_day() -> str:
+    """Gemini's daily allowances reset at midnight Pacific time."""
+    return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
 
 
 def _gemini_candidates(requested: str) -> list[str]:
     """The requested model, then the fallbacks, minus any spent today."""
-    day = _utc_day()
-    order = [requested, *(m for m in GEMINI_FALLBACK_MODELS if m != requested)]
+    day = _quota_day()
+    order = [requested, *(m for m in GEMINI_FALLBACK_MODELS if m != requested and m in _ALLOWED_GEMINI_MODELS)]
     return [m for m in order if _gemini_spent.get(m) != day] or [requested]
 
 
@@ -572,8 +589,11 @@ def _gemini_unavailable(status_code: int, body: str) -> bool:
     return (status_code == 429 and "PerDay" in body) or (status_code == 404 and "no longer available" in body)
 
 
+_GEMINI_EXHAUSTED = "The AI models are busy or used up for today. Try again later."
+
+
 def _mark_spent(model: str) -> None:
-    _gemini_spent[model] = _utc_day()
+    _gemini_spent[model] = _quota_day()
     log.info("gemini.model_unavailable_today", model=model)
 
 
@@ -589,7 +609,7 @@ async def _complete_gemini(req: LLMRequest) -> LLMResponse:
         attempt = req.model_copy(update={"model": model})
         url = _gemini_url(model, "generateContent")
         # "High demand" (503) and brief rate limits (429) usually clear in
-        # seconds, so retry twice. A spent daily allowance moves to the next model.
+        # seconds, so retry twice. A spent daily allowance moves straight on.
         for delay in (*_GEMINI_RETRY_DELAYS, None):
             res = await _http().post(
                 url,
@@ -604,7 +624,11 @@ async def _complete_gemini(req: LLMRequest) -> LLMResponse:
         if _gemini_unavailable(res.status_code, res.text):
             _mark_spent(model)
             continue
+        if res.status_code == 503:
+            continue  # still overloaded after the retries: another model may have room
         break
+    if _gemini_unavailable(res.status_code, res.text) or res.status_code == 503:
+        raise HTTPException(status_code=503, detail=_GEMINI_EXHAUSTED)
     if res.status_code >= 400:
         raise HTTPException(status_code=res.status_code, detail=f"Gemini {res.status_code}: {res.text[:300]}")
     data = res.json()
@@ -657,21 +681,23 @@ async def _stream_gemini(req: LLMRequest, user_id: str, reservation: Optional[st
                 if res.status_code >= 400:
                     body = await res.aread()
                     text_body = body.decode(errors="replace")
-                    nxt = None
-                    if _gemini_unavailable(res.status_code, text_body):
+                    unavailable = _gemini_unavailable(res.status_code, text_body)
+                    if unavailable:
                         _mark_spent(model)
-                        nxt = next(models, None)
-                    if nxt:
-                        model, retries_used, retry = nxt, 0, True
-                    elif (res.status_code in (429, 503) and retries_used < len(_GEMINI_RETRY_DELAYS)
-                          and "exceeded your current quota" not in text_body):
+                    if (not unavailable and res.status_code in (429, 503)
+                            and retries_used < len(_GEMINI_RETRY_DELAYS)
+                            and "exceeded your current quota" not in text_body):
                         delay = _GEMINI_RETRY_DELAYS[retries_used]
                         retries_used += 1
                         log.info("gemini.stream_retry", status=res.status_code, delay_s=delay, model=model)
                         retry = True
+                    elif (unavailable or res.status_code == 503) and (nxt := next(models, None)):
+                        # Spent, or still overloaded after the retries: try the next model.
+                        model, retries_used, retry = nxt, 0, True
                     else:
                         error_msg = f"gemini_status_{res.status_code}: {text_body[:300]}"
-                        yield f"event: error\ndata: {json.dumps({'error': error_msg})}\n\n".encode()
+                        client_msg = _GEMINI_EXHAUSTED if (unavailable or res.status_code == 503) else error_msg
+                        yield f"event: error\ndata: {json.dumps({'error': client_msg})}\n\n".encode()
                         return
                 else:
                     retry = False
@@ -720,7 +746,7 @@ async def _stream_gemini(req: LLMRequest, user_id: str, reservation: Optional[st
         await _log_usage(
                 user_id=user_id,
                 provider=req.provider,
-                model=req.model,
+                model=model,
                 input_tokens=input_tokens,
                 output_tokens=output_tokens,
                 duration_ms=elapsed_ms,
@@ -1108,12 +1134,13 @@ async def complete(request: Request, body: LLMRequest) -> LLMResponse:
         in_tok = response.usage.input_tokens if response else 0
         out_tok = response.usage.output_tokens if response else 0
         req_id = response.request_id if response else None
+        served_model = response.model if response else body.model
         _release_slot(user["id"])
         # Awaited: on serverless a background task can be frozen and lost.
         await _log_usage(
                 user_id=user["id"],
                 provider=body.provider,
-                model=body.model,
+                model=served_model,
                 input_tokens=in_tok,
                 output_tokens=out_tok,
                 duration_ms=elapsed_ms,

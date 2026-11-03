@@ -99,6 +99,9 @@ jobs:
           SUPABASE_SERVICE_KEY: ci-placeholder-not-a-real-key
         run: python -c "import main; assert any(r.path == '/health' for r in main.app.routes)"
 
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
       - name: Refuse to start when Supabase config is missing
         # The counterpart: with no key at all, the failure must stay a readable
         # message rather than regressing to a fourteen-frame starlette traceback.
