@@ -2,7 +2,8 @@
 RBAC: Role definitions and permission checks.
 
 Roles:
-  admin: full access
+  admin: full access, including other users
+  owner: full control of their own workspace (what an open sign-up gets), no user management
   designer: can manage Design System assets
   pmm: can manage Brand Voice & Tone
   sales_rep: can generate and use content
@@ -15,6 +16,7 @@ from fastapi import HTTPException, status
 
 class Role(str, Enum):
     ADMIN = "admin"
+    OWNER = "owner"
     DESIGNER = "designer"
     PMM = "pmm"
     SALES_REP = "sales_rep"
@@ -23,27 +25,27 @@ class Role(str, Enum):
 
 PERMISSIONS: dict[str, list[Role]] = {
     # Generation
-    "generate:create": [Role.ADMIN, Role.SALES_REP, Role.PMM, Role.DESIGNER],
-    "generate:read": [Role.ADMIN, Role.SALES_REP, Role.PMM, Role.DESIGNER, Role.VIEWER],
+    "generate:create": [Role.ADMIN, Role.OWNER, Role.SALES_REP, Role.PMM, Role.DESIGNER],
+    "generate:read": [Role.ADMIN, Role.OWNER, Role.SALES_REP, Role.PMM, Role.DESIGNER, Role.VIEWER],
 
     # Design System
-    "design_system:read": [Role.ADMIN, Role.DESIGNER, Role.PMM, Role.SALES_REP, Role.VIEWER],
-    "design_system:write": [Role.ADMIN, Role.DESIGNER],
-    "design_system:delete": [Role.ADMIN, Role.DESIGNER],
+    "design_system:read": [Role.ADMIN, Role.OWNER, Role.DESIGNER, Role.PMM, Role.SALES_REP, Role.VIEWER],
+    "design_system:write": [Role.ADMIN, Role.OWNER, Role.DESIGNER],
+    "design_system:delete": [Role.ADMIN, Role.OWNER, Role.DESIGNER],
 
     # Brand Voice
-    "brand_voice:read": [Role.ADMIN, Role.DESIGNER, Role.PMM, Role.SALES_REP, Role.VIEWER],
-    "brand_voice:write": [Role.ADMIN, Role.PMM],
-    "brand_voice:delete": [Role.ADMIN, Role.PMM],
+    "brand_voice:read": [Role.ADMIN, Role.OWNER, Role.DESIGNER, Role.PMM, Role.SALES_REP, Role.VIEWER],
+    "brand_voice:write": [Role.ADMIN, Role.OWNER, Role.PMM],
+    "brand_voice:delete": [Role.ADMIN, Role.OWNER, Role.PMM],
 
     # ICP Profiles
-    "icp:read": [Role.ADMIN, Role.SALES_REP, Role.PMM, Role.DESIGNER, Role.VIEWER],
-    "icp:write": [Role.ADMIN, Role.PMM],
+    "icp:read": [Role.ADMIN, Role.OWNER, Role.SALES_REP, Role.PMM, Role.DESIGNER, Role.VIEWER],
+    "icp:write": [Role.ADMIN, Role.OWNER, Role.PMM],
 
     # Assets (internal docs, case studies)
-    "assets:upload": [Role.ADMIN, Role.DESIGNER, Role.PMM],
-    "assets:read": [Role.ADMIN, Role.DESIGNER, Role.PMM, Role.SALES_REP],
-    "assets:delete": [Role.ADMIN],
+    "assets:upload": [Role.ADMIN, Role.OWNER, Role.DESIGNER, Role.PMM],
+    "assets:read": [Role.ADMIN, Role.OWNER, Role.DESIGNER, Role.PMM, Role.SALES_REP],
+    "assets:delete": [Role.ADMIN, Role.OWNER],
 
     # User management
     "users:read": [Role.ADMIN],
@@ -51,11 +53,11 @@ PERMISSIONS: dict[str, list[Role]] = {
     "users:assign_role": [Role.ADMIN],
 
     # Admin panel
-    "admin:access": [Role.ADMIN, Role.DESIGNER, Role.PMM],
+    "admin:access": [Role.ADMIN, Role.OWNER, Role.DESIGNER, Role.PMM],
 
     # CRM integration: minting Zoho OAuth tokens with full CRM scope.
     # Restricted to roles that push notes to CRM. Closes #34.
-    "crm:connect": [Role.ADMIN, Role.SALES_REP],
+    "crm:connect": [Role.ADMIN, Role.OWNER, Role.SALES_REP],
 }
 
 

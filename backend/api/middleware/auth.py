@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
-from db.supabase_client import verify_token
+from db.supabase_client import AuthUnavailable, verify_token
 
 log = structlog.get_logger()
 
@@ -42,7 +42,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return JSONResponse({"detail": "Missing or invalid Authorization header"}, status_code=401)
 
         token = auth_header.removeprefix("Bearer ").strip()
-        user = await verify_token(token)
+        try:
+            user = await verify_token(token)
+        except AuthUnavailable:
+            return JSONResponse({"detail": "Sign-in check is unavailable right now. Try again in a minute."}, status_code=503)
 
         if not user:
             return JSONResponse({"detail": "Invalid or expired token"}, status_code=401)

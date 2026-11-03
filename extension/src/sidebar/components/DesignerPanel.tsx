@@ -9,8 +9,8 @@ const ACCEPT = ".md,.markdown,.txt,.json,.csv";
 
 export function DesignerPanel() {
   const { user } = useAppStore();
-  const isDesigner = user?.role === "designer" || user?.role === "admin";
-  const isPMM = user?.role === "pmm" || user?.role === "admin";
+  const isDesigner = user?.role === "designer" || user?.role === "admin" || user?.role === "owner";
+  const isPMM = user?.role === "pmm" || user?.role === "admin" || user?.role === "owner";
 
   return (
     <div className="bg-slate-900 rounded-xl border border-slate-800 p-3 space-y-3">

@@ -26,7 +26,7 @@ const GROQ_MODEL = "llama-3.3-70b-versatile";
 const OLLAMA_MODEL = "llama3.1:8b";
 const OLLAMA_BASE = "http://localhost:11434";
 const GEMINI_MODEL = "gemini-3.6-flash";
-const GEMINI_EMBED_MODEL = "text-embedding-004"; // 768 dims, free tier
+const GEMINI_EMBED_MODEL = "gemini-embedding-001"; // 768 dims (the backend asks for 768)
 // NOT bumped to gemini-embedding-001 alongside the chat model: that returns
 // 3072 dims by default against a store provisioned for a different size, so it
 // is an index migration rather than a rename. Embeddings were not testable
@@ -157,17 +157,7 @@ export async function backendJwt(): Promise<string> {
   const { data } = await supabase.auth.getSession();
   const token = data?.session?.access_token;
   if (!token) {
-    // Do not tell the user to "sign in with Google": nothing in this codebase
-    // creates a Supabase session. signInWithGoogle() in shared/auth/google-sso.ts
-    // is exported but never called, and the sidebar provisions a local admin user
-    // instead. So with DEV_MODE off there is no path to a JWT and every backend
-    // call fails here. Point at the actual fix.
-    throw new Error(
-      "No backend session. ClientLens v1.0 is single-user self-hosted and does not " +
-        "wire real auth yet: set DEV_MODE=true in backend/.env and VITE_DEV_MODE=true " +
-        "in extension/.env, then restart the backend and rebuild. Only do this on a " +
-        "backend that is not reachable from the public internet.",
-    );
+    throw new Error("You're signed out. Sign in to ClientLens again to continue.");
   }
   return token;
 }
@@ -363,7 +353,7 @@ class CustomOpenAICompatClient implements LLMClient {
 
 // ─── Gemini embeddings (proxied) ─────────────────────────────────────────────
 //
-// Embeddings use Gemini text-embedding-004. As of #1 they route through the
+// Embeddings use Gemini gemini-embedding-001 (768 dims). As of #1 they route through the
 // backend's `/api/v1/llm/embed` endpoint, so the extension never holds a
 // Gemini API key. The backend batches up to 100 texts per upstream call;
 // we keep that batching here so callers can pass arbitrarily long lists.

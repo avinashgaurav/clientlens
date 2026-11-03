@@ -1,6 +1,6 @@
 // ─── User & Auth ────────────────────────────────────────────────────────────
 
-export type UserRole = "admin" | "designer" | "pmm" | "sales_rep" | "viewer";
+export type UserRole = "admin" | "owner" | "designer" | "pmm" | "sales_rep" | "viewer";
 
 export interface User {
   id: string;
@@ -229,7 +229,7 @@ export type KBIndexStatus = "pending" | "indexing" | "ready" | "failed";
 // not on the KBEntry itself, because chrome.storage.local has a 10MB cap.
 export interface KBChunk {
   text: string;
-  embedding: number[]; // Gemini text-embedding-004 → 768 floats
+  embedding: number[]; // Gemini gemini-embedding-001 → 768 floats
 }
 
 // ─── Wiki layer (Karpathy-style ingest-time knowledge compilation) ───────────

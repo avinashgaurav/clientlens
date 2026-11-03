@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Settings } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
+import { signOut } from "../hooks/useAccount";
 import { SettingsPanel } from "./SettingsPanel";
 import { UsageMeter } from "./UsageMeter";
 import { AdminGate } from "./AdminGate";
@@ -89,6 +90,17 @@ export function Header() {
           >
             <Settings size={14} />
           </button>
+          {(import.meta.env.VITE_DEV_MODE as string | undefined) !== "true" && (
+            <button
+              onClick={() => { void signOut(); }}
+              className="p-1.5 transition-colors hover:bg-[var(--surface-2)]"
+              style={{ color: "var(--ink-4)" }}
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <LogOut size={14} />
+            </button>
+          )}
         </div>
       </div>
 

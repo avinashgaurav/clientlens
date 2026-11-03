@@ -11,10 +11,11 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `VITE_BACKEND_URL` | FastAPI backend base URL. `http://localhost:8000` for the normal v1.0 self-hosted setup, which requires the dev build (`npm run dev`). A **release** build (`npm run build`) requires a public **https** URL and rejects loopback hosts: see [the two build modes](development.md#the-two-build-modes-and-which-one-you-want) | Yes |
 | `VITE_SUPABASE_URL` | Supabase project URL | Yes |
 | `VITE_SUPABASE_ANON_KEY` | Supabase publishable (anon) key | Yes |
-| `VITE_DEV_MODE` | Must be `true` in v1.0, and must match `DEV_MODE` in `backend/.env`. Sends a stub bearer instead of a Supabase JWT. Without it every backend call fails | Yes |
+| `VITE_DEV_MODE` | Local development only: skips sign-in and sends a stub bearer. Must match `DEV_MODE` in `backend/.env`. Leave unset for a real build | No |
+| `VITE_EXTENSION_KEY` | Public key that pins the unpacked extension's ID, so the Google OAuth client and `ALLOWED_ORIGINS` can name it | For a deployed backend |
 | `VITE_ALLOWED_DOMAIN` | Your company domain, used to infer the rep's own domain for team config. Does **not** gate sign-in | No |
 | `VITE_GOOGLE_CLIENT_ID` | Chrome OAuth client ID, injected into the built manifest's `oauth2.client_id` at build time. Needed **only** for Google Slides/Docs/Drive export and Calendar sync | No |
-| `VITE_LLM_PROVIDER` | Default provider (`gemini` / `groq` / `anthropic` / `openrouter` / `custom`) | Yes |
+| `VITE_LLM_PROVIDER` | Default provider for new installs (`gemini` / `groq` / `anthropic` / `openrouter` / `custom`). For the first four the key stays on the backend | Yes |
 | `VITE_MOCK_MODE` | `true` to short-circuit LLM calls for UI dev | No |
 | `VITE_GEMINI_MODEL` | Override default Gemini model | No |
 | `VITE_OPENROUTER_MODEL` | Override default OpenRouter model | No |
@@ -24,8 +25,13 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | Variable | Purpose | Required |
 |---|---|---|
 | `SUPABASE_URL` | Supabase URL | Yes |
-| `SUPABASE_SERVICE_KEY` | Supabase service-role key | Yes |
-| `JWT_SECRET` | Secret for JWT signing/verification | Yes |
+| `SUPABASE_SERVICE_KEY` | Supabase service-role key (`SUPABASE_SERVICE_ROLE_KEY` also accepted) | Yes |
+| `JWT_ALGORITHMS` | Accepted access-token algorithms (default `ES256,RS256`, verified against the project's JWKS). Add `HS256` only for a project still on the legacy shared secret | No |
+| `JWT_SECRET` | The project's legacy JWT secret (`SUPABASE_JWT_SECRET` also accepted). Used only when `JWT_ALGORITHMS` includes `HS256`, and then it must be the real secret (32+ characters) | Only with HS256 |
+| `GLOBAL_DAILY_TOKEN_BUDGET` | LLM tokens per UTC day across all users (default 20,000,000) | No |
+| `ALLOWED_MODELS_ANTHROPIC` / `_GROQ` / `_OPENROUTER` | Comma-separated models callers may use on the server's keys (defaults: the models the extension offers; Gemini has its own list in `llm.py`) | No |
+| `MAX_INFLIGHT_PER_USER` | LLM calls one user may have running at once, per instance (default 3) | No |
+| `ASSETS_MAX_PER_USER` / `ASSETS_MAX_BYTES_PER_USER` | Upload quota per user (default 200 files, 100 MB) | No |
 | `ANTHROPIC_API_KEY` | Anthropic Claude key | If used |
 | `GEMINI_API_KEY` | Google Gemini key. On a key created today only `gemini-3.6-flash` works; the 1.5, 2.0 and 2.5 families return `404 no longer available to new users` and are absent from the API's model list | If used |
 | `GROQ_API_KEY` | Groq key | If used |
@@ -35,7 +41,8 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 | `DEEPGRAM_API_KEY` | Deepgram STT key | If using live mode |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | **Currently unused.** Defined in `config.py` but read by no backend code. Google auth is entirely client-side via `chrome.identity.getAuthToken`, which reads the manifest's `oauth2.client_id` (set `VITE_GOOGLE_CLIENT_ID` instead). Reserved for a future server-side flow | No |
 | `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` | Zoho OAuth | If using CRM push |
-| `DEV_MODE` | Must be `true` in v1.0. `AuthMiddleware` then accepts every request as a stub `sales_rep` user. Required because no code path creates a Supabase session. Keep such a backend off the public internet | Yes |
+| `DEV_MODE` | Local development only: `AuthMiddleware` accepts every request as a stub `sales_rep` user and the daily caps are skipped. Never set it on a deployed backend | No |
+| `DAILY_USER_STT_SESSIONS` | Live transcription sessions per user per UTC day (default 30) | No |
 | `BACKEND_URL` | Self URL (used in OAuth callbacks) | Yes |
 | `ALLOWED_ORIGINS` | CORS allowlist (extension + dev origins) | Yes |
 | `DAILY_USER_TOKEN_BUDGET` | Per-user daily LLM token cap (default `1000000`) | Optional |
@@ -44,7 +51,7 @@ Every environment variable, plus the tuning knobs worth knowing about. Generate 
 
 ### Tuning the LLM token budget
 
-`DAILY_USER_TOKEN_BUDGET` (default 1M tokens / user / UTC day) is a soft ceiling enforced before each `/complete`, `/stream`, and `/embed` call. The check reads cumulative usage from the `llm_usage` table and returns `429 Retry-After: 3600` if the call would exceed the cap.
+`DAILY_USER_TOKEN_BUDGET` (default 1M tokens / user / UTC day) is enforced before each `/complete`, `/stream`, and `/embed` call. Each call first reserves its estimated tokens under a database lock (migration 007), so parallel calls can't all slip under the cap, and a call that ends early stays charged at its estimate. Over the cap returns `429 Retry-After: 3600`.
 
 When to raise it:
 
@@ -55,7 +62,7 @@ When to lower it:
 
 - **Untrusted users / multi-tenant.** Drop to **100K–250K** to keep costs bounded if a viewer-role user finds a way to call the proxy.
 
-The check is **fail-open**: if the Supabase query for today's usage errors, calls go through (logged as `token_budget.query_failed`). A Supabase outage shouldn't wedge your reps mid-call.
+The check is **fail-closed**: if the reservation can't be made, the call is refused with 503 (logged as `token_budget.reserve_failed`). With open sign-up, an unreadable budget must not become unlimited usage.
 
 ### First-time tabCapture permission grant
 

@@ -30,7 +30,7 @@ Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so
 ## Quick start
 
 > [!IMPORTANT]
-> **Authentication is not wired in v1.0.** The sidebar provisions a local admin and the backend runs with `DEV_MODE=true`, so **keep the backend off the public internet**. That is fine for the single-user, self-hosted case v1.0 targets, and not safe for a shared team deployment. Full posture: [Security model](docs/security.md).
+> **Sign-in is email and password, with open sign-up.** Every account is its own workspace, and each user has daily usage caps. Full posture: [Security model](docs/security.md). Deploying the backend to Vercel with Supabase: [Configuration](docs/configuration.md).
 
 Prerequisites: Node 20+, Python 3.11+ (`brew install python@3.11`), a Supabase project (free tier is fine), and one LLM provider key.
 
@@ -50,7 +50,7 @@ cd ../extension && npm install && npm run dev
 `npm run dev` is a watch build (`vite build --watch`), so it does not exit. Leave it
 running and open a second terminal for anything else.
 
-Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and click the extension icon. **There is no sign-in step**: the panel opens straight into an admin session.
+Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and click the extension icon. With `VITE_DEV_MODE=true` (local development) the panel skips sign-in; a real build opens on the sign-in screen.
 
 ## More
 

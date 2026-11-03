@@ -115,6 +115,13 @@ function copyStaticAssets(mode: string, env: Record<string, string>) {
         manifest.oauth2 = { ...manifest.oauth2, client_id: clientId };
       }
 
+      // Public key that pins the unpacked extension's ID, so the Google OAuth
+      // client and the backend's ALLOWED_ORIGINS can name it. Not a secret.
+      const extensionKey = env.VITE_EXTENSION_KEY?.trim();
+      if (extensionKey) {
+        manifest.key = extensionKey;
+      }
+
       // Real backend host replaces the placeholder entry.
       const backend = diagnoseBackendUrl(env.VITE_BACKEND_URL?.trim() || "", mode);
       const backendHost = backend.host;

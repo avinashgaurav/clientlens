@@ -20,7 +20,13 @@ log = structlog.get_logger()
 # in memory, preventing a single large upload from OOMing the FastAPI process.
 # 25 MB is generous for sales decks / PDFs / docs and well under any reasonable
 # proxy default. Override via ASSETS_MAX_UPLOAD_BYTES if a deployment needs more.
-MAX_UPLOAD_BYTES: int = int(os.environ.get("ASSETS_MAX_UPLOAD_BYTES", 25 * 1024 * 1024))
+# Vercel refuses request bodies over 4.5 MB before they reach the app, so the
+# default stays under that; raise it only on a host without the limit.
+MAX_UPLOAD_BYTES: int = int(os.environ.get("ASSETS_MAX_UPLOAD_BYTES", 4 * 1024 * 1024))
+
+# Per-user storage quota, so scripted accounts can't fill the shared project.
+MAX_ASSETS_PER_USER: int = int(os.environ.get("ASSETS_MAX_PER_USER", 200))
+MAX_ASSET_BYTES_PER_USER: int = int(os.environ.get("ASSETS_MAX_BYTES_PER_USER", 100 * 1024 * 1024))
 
 ASSET_NAMESPACE_MAP = {
     "design_system": "brand_guidelines",
@@ -124,10 +130,19 @@ async def upload_asset(
     # (closes #35) without re-opening the path-traversal risk: only known
     # safe extensions pass `_safe_extension`, and the file_id is a UUID
     # that cannot collide or escape its prefix.
+    existing = (
+        supabase_client().table("assets").select("bytes").eq("uploaded_by", user["id"]).execute().data or []
+    )
+    if len(existing) >= MAX_ASSETS_PER_USER:
+        raise HTTPException(413, f"You've reached the limit of {MAX_ASSETS_PER_USER} files. Delete some to upload more.")
+    if sum(r.get("bytes") or 0 for r in existing) + len(content) > MAX_ASSET_BYTES_PER_USER:
+        raise HTTPException(413, f"You've reached your {MAX_ASSET_BYTES_PER_USER // (1024 * 1024)} MB storage limit. Delete some files to upload more.")
+
     file_id = str(uuid.uuid4())
     safe_name = _safe_filename(file.filename)
     safe_ext = _safe_extension(file.filename)
-    path = f"{type}/{file_id}{safe_ext}"
+    # Each user's files live under their own folder.
+    path = f"{user['id']}/{type}/{file_id}{safe_ext}"
 
     supabase_client().storage.from_("assets").upload(path, content)
 
@@ -137,14 +152,20 @@ async def upload_asset(
     namespace = ASSET_NAMESPACE_MAP[type]
 
     # Record in DB: sanitized name as display label, file_id as the storage key.
-    supabase_client().table("assets").insert({
-        "id": file_id,
-        "name": safe_name,
-        "type": type,
-        "storage_path": path,
-        "uploaded_by": user["id"],
-        "namespace": namespace,
-    }).execute()
+    try:
+        supabase_client().table("assets").insert({
+            "id": file_id,
+            "name": safe_name,
+            "type": type,
+            "storage_path": path,
+            "uploaded_by": user["id"],
+            "namespace": namespace,
+            "bytes": len(content),
+        }).execute()
+    except Exception:
+        # Don't leave a stored file with no row pointing at it.
+        supabase_client().storage.from_("assets").remove([path])
+        raise
 
     log.info(
         "asset.uploaded",
@@ -160,7 +181,8 @@ async def list_assets(request: Request, type: str | None = None):
     user = request.state.user
     require_permission(user["role"], "assets:read")
 
-    query = supabase_client().table("assets").select("*").order("created_at", desc=True)
+    # Everyone sees only their own uploads (open sign-up: accounts are separate workspaces).
+    query = supabase_client().table("assets").select("*").eq("uploaded_by", user["id"]).order("created_at", desc=True)
     if type:
         query = query.eq("type", type)
 
@@ -172,9 +194,13 @@ async def list_assets(request: Request, type: str | None = None):
 async def delete_asset(request: Request, asset_id: str):
     user = request.state.user
     require_permission(user["role"], "assets:delete")
+    try:
+        uuid.UUID(asset_id)
+    except ValueError:
+        raise HTTPException(404, "Asset not found")
 
-    asset = supabase_client().table("assets").select("*").eq("id", asset_id).single().execute()
-    if not asset.data:
+    asset = supabase_client().table("assets").select("*").eq("id", asset_id).eq("uploaded_by", user["id"]).maybe_single().execute()
+    if not asset or not asset.data:
         raise HTTPException(404, "Asset not found")
 
     a = asset.data
@@ -183,7 +209,7 @@ async def delete_asset(request: Request, asset_id: str):
     supabase_client().storage.from_("assets").remove([a["storage_path"]])
 
     # Delete from DB
-    supabase_client().table("assets").delete().eq("id", asset_id).execute()
+    supabase_client().table("assets").delete().eq("id", asset_id).eq("uploaded_by", user["id"]).execute()
 
     return {"deleted": asset_id}
 
