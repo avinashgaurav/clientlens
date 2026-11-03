@@ -4,7 +4,7 @@
 import { useMeetingCopilotStore } from "../../sidebar/stores/meeting-copilot-store";
 import type { KBEntry } from "../../shared/types";
 import { runAgendaTracker, runCoachAgent, runLiveCouncilValidator, runSentimentAgent } from "./live-agents";
-import { computeSentimentTrend, computeAgendaPacing, rejectionFromOutcome } from "./live-helpers";
+import { classifyRateLimit, computeSentimentTrend, computeAgendaPacing, rejectionFromOutcome } from "./live-helpers";
 
 const SENTIMENT_INTERVAL_MS = 45_000;   // was 20s, free-tier saves ~60% of quota
 const AGENDA_INTERVAL_MS = 60_000;      // was 30s, agenda changes slowly
@@ -49,17 +49,41 @@ let errorBanner: string | null = null;
 // off until this timestamp. Prevents the cascade where sentiment retries
 // immediately after coach's 429 and burns the remaining quota.
 let rateLimitUntil = 0;
+// Set when the daily budget is spent. Retrying every cooldown can't succeed
+// before UTC midnight, so the agents stay paused until the session ends or
+// resumeLiveAgents() is called.
+let stoppedForToday = false;
 
 function isRateLimited(): boolean {
-  return Date.now() < rateLimitUntil;
+  return stoppedForToday || Date.now() < rateLimitUntil;
 }
 
 function markRateLimited(err: unknown): void {
-  const msg = err instanceof Error ? err.message : String(err);
-  const status = (err as { status?: unknown } | null)?.status;
-  if (status === 429 || msg.toLowerCase().includes("rate limit") || msg.includes("429")) {
+  const kind = classifyRateLimit(err);
+  if (kind === "daily") {
+    if (stoppedForToday) return;
+    stoppedForToday = true;
+    // Say it once, in the server's words: the Meet overlay banner and the
+    // panel's session line.
+    const msg = friendlyErr(err);
+    errorBanner = msg;
+    mirrorToTab({ errorBanner: msg });
+    const store = useMeetingCopilotStore.getState();
+    if (store.session) store.setStatus(store.session.status, msg);
+    console.debug("[live-orch] daily limit reached, live agents paused for this session");
+  } else if (kind === "burst") {
     rateLimitUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
     console.debug(`[live-orch] 429 detected, all agents paused for ${RATE_LIMIT_COOLDOWN_MS / 1000}s`);
+  }
+}
+
+/** Manual resume after a daily-limit stop, e.g. once the budget has reset. */
+export function resumeLiveAgents(): void {
+  stoppedForToday = false;
+  rateLimitUntil = 0;
+  if (errorBanner) {
+    errorBanner = null;
+    mirrorToTab({ errorBanner: null });
   }
 }
 
@@ -85,7 +109,8 @@ function noteAgentSuccess(agent: "coach" | "sentiment" | "agenda"): void {
   if (agent === "coach") coachErrorStreak = 0;
   if (agent === "sentiment") sentimentErrorStreak = 0;
   if (agent === "agenda") agendaErrorStreak = 0;
-  if (errorBanner) {
+  // A call already in flight can land after the daily stop; keep its message up.
+  if (errorBanner && !stoppedForToday) {
     errorBanner = null;
     mirrorToTab({ errorBanner: null });
   }
@@ -280,4 +305,5 @@ export function stopLiveOrchestrator(): void {
   coachErrorStreak = 0; sentimentErrorStreak = 0; agendaErrorStreak = 0;
   errorBanner = null;
   rateLimitUntil = 0;
+  stoppedForToday = false;
 }

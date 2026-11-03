@@ -82,3 +82,21 @@ export function rejectionFromOutcome(
     confidence: outcome.confidence,
   };
 }
+
+// Server messages that mean the day's allowance is gone (Retry-After 3600):
+// the user or global daily token budget, or every Gemini model used up.
+const DAILY_LIMIT_RE = /daily token budget exceeded|overall usage limit|used up for today/i;
+
+/**
+ * How a failed live-agent call should pause the agents. "daily": the budget
+ * is spent until UTC midnight, so stop for the rest of the session. "burst":
+ * an ordinary 429 (too many at once, provider rate limit), worth a short
+ * cooldown. null: not a rate limit.
+ */
+export function classifyRateLimit(err: unknown): "daily" | "burst" | null {
+  const msg = err instanceof Error ? err.message : String(err);
+  const status = (err as { status?: unknown } | null)?.status;
+  if (DAILY_LIMIT_RE.test(msg)) return "daily";
+  if (status === 429 || msg.toLowerCase().includes("rate limit") || msg.includes("429")) return "burst";
+  return null;
+}
