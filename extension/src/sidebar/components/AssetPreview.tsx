@@ -81,7 +81,7 @@ export function AssetPreview() {
         <div className="flex items-start gap-2 bg-amber-900/30 border border-amber-700/50 rounded-lg px-3 py-2">
           <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
           <p className="text-xs text-amber-200">
-            Couldn't auto-fetch a logo. Try a different domain (e.g. <code>company.co.in</code>) and refetch, or upload one below.
+            Couldn't auto-fetch a logo. Try a different domain (e.g. <code>company.co.in</code>) and refetch, or upload one below. You can also continue without a logo.
           </p>
         </div>
       )}
@@ -172,7 +172,6 @@ export function AssetPreview() {
 
       <button
         onClick={handleConfirm}
-        disabled={!brandAssets.logo_url}
         className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
       >
         <Check size={14} /> Looks right: run agent council
