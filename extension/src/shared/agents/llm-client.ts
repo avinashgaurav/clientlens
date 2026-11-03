@@ -38,8 +38,21 @@ const OPENROUTER_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
 
 // Timeout constants. AbortSignal.timeout() is Chrome 103+ (2022), safe for
 // an extension that only runs in modern Chrome.
-const LLM_TIMEOUT_MS = 30_000;    // non-streaming: 30 s should be ample
+// Non-streaming calls go through the backend, which may retry a busy model and
+// fall back through several free-tier Gemini models before answering, so allow
+// as long as a stream.
+const LLM_TIMEOUT_MS = 120_000;
 const STREAM_TIMEOUT_MS = 120_000; // streaming: allow up to 2 min for large models
+
+export const TIMEOUT_MESSAGE = "The AI took too long to answer. Try again in a minute.";
+
+// Like AbortSignal.timeout, but the request fails with a readable message
+// instead of the browser's "signal timed out".
+export function timeoutSignal(ms: number): AbortSignal {
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(new Error(TIMEOUT_MESSAGE)), ms);
+  return controller.signal;
+}
 
 /**
  * The plain-text `detail` of a ClientLens backend error, or null. Details that
@@ -240,7 +253,7 @@ class ProxiedLLMClient implements LLMClient {
     const jwt = await backendJwt();
     const res = await fetch(url, {
       method: "POST",
-      signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+      signal: timeoutSignal(LLM_TIMEOUT_MS),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${jwt}`,
@@ -271,7 +284,7 @@ class ProxiedLLMClient implements LLMClient {
     const jwt = await backendJwt();
     const res = await fetch(url, {
       method: "POST",
-      signal: AbortSignal.timeout(STREAM_TIMEOUT_MS),
+      signal: timeoutSignal(STREAM_TIMEOUT_MS),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${jwt}`,
@@ -322,7 +335,7 @@ class OllamaClient implements LLMClient {
     const base = this.cfg.baseUrl ?? OLLAMA_BASE;
     const res = await fetch(`${base}/v1/chat/completions`, {
       method: "POST",
-      signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+      signal: timeoutSignal(LLM_TIMEOUT_MS),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: this.cfg.model,
@@ -355,7 +368,7 @@ class CustomOpenAICompatClient implements LLMClient {
     if (this.cfg.apiKey) headers.Authorization = `Bearer ${this.cfg.apiKey}`;
     const res = await fetch(url, {
       method: "POST",
-      signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+      signal: timeoutSignal(LLM_TIMEOUT_MS),
       headers,
       body: JSON.stringify({
         model: this.cfg.model,
@@ -398,7 +411,7 @@ async function postEmbed(texts: string[]): Promise<number[][]> {
   const jwt = await backendJwt();
   const res = await fetch(url, {
     method: "POST",
-    signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+    signal: timeoutSignal(LLM_TIMEOUT_MS),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${jwt}`,
