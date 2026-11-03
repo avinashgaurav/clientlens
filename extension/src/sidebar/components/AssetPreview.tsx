@@ -172,7 +172,7 @@ export function AssetPreview() {
 
       <button
         onClick={handleConfirm}
-        className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+        className="w-full py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
       >
         <Check size={14} /> Looks right: run agent council
       </button>

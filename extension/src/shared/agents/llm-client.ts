@@ -55,7 +55,8 @@ function backendDetail(body: string): string | null {
   }
   if (typeof detail !== "string") return null;
   const d = detail.trim();
-  if (!d || /^Error code: \d{3}/.test(d) || /^[A-Za-z][\w ]* \d{3}: /.test(d)) return null;
+  // The backend's own messages are one short sentence; anything long is a dump.
+  if (!d || d.length > 200 || /^Error code: \d{3}/.test(d) || /^[A-Za-z][\w ]* \d{3}: /.test(d)) return null;
   return d;
 }
 

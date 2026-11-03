@@ -26,6 +26,7 @@ describe("friendlyLLMError", () => {
     expect(friendlyLLMError("Gemini (proxy)", 429, body({ error: "upstream_error" })).message).toBe(generic);
     expect(friendlyLLMError("Gemini (proxy)", 429, body('Gemini 429: {"error":{"code":429}}')).message).toBe(generic);
     expect(friendlyLLMError("Gemini (proxy)", 429, body("Error code: 429 - rate_limit_error")).message).toBe(generic);
+    expect(friendlyLLMError("Gemini (proxy)", 503, body("x".repeat(201))).message).not.toBe("x".repeat(201));
   });
 
   it("leaves other statuses on the existing mapping", () => {
