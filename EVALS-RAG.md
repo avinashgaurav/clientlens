@@ -34,7 +34,7 @@ The keyword fallback found 0 of 5 reworded questions.
 | ...reworded | 0 / 15 | 3 / 15 |
 | ...needing two entries | 3 / 9 | 9 / 9 |
 | Said "Not in KB." though the KB had it | 27 / 69 | 12 / 69 |
-| Gave a figure from a look-alike passage | 0 / 69 | 3 / 69 |
+| Gave a wrong figure from a cut passage | 0 / 69 | 3 / 69 |
 | Unanswerable handled right | 21 / 21 | 21 / 21 |
 | Quotes copied exactly from what it saw | 54 / 54 | 75 / 75 |
 | Right answer when the key text reached it | 33 / 33 | 48 / 48 |
@@ -57,20 +57,21 @@ My automatic checks flagged 6 writable decks (6 figures not found in the KB, 1 f
 
 - **Facts past character 500 never reach the AI on the live path.** "What is the default matching tolerance per invoice line?" failed all 6 tries. The answer is at character 1,090 of the long entry, and every excerpt is cut to its first 500. "How many approval tiers?" failed the same way: the fact starts at character 517.
 - **Keyword search skips short words.** "Is MFA required for admins?" got no results: "MFA" has 3 letters, and no entry contains "required" or "admins". The AI rightly said "Not in KB." The stand-in got it right 3 of 3 times.
-- **A cut passage gave a wrong answer.** "How fast do you respond if our staff are locked out of signing off payables?" Stand-in, all 3 runs, for example: "Support tickets have a first-response target of one business day." The answer is one hour. The passage it was shown starts just after the one-hour sentence.
+- **A cut passage gave a wrong answer.** "How fast do you respond if our staff are locked out of signing off payables?" Stand-in, all 3 runs, for example: "Support tickets have a first-response target of one business day." The answer is one hour. The passage it was shown starts mid-word, after the one-hour sentence ("ets have a first-response target of one business day"), because the chunker splits mid-word (bug 9).
 - **Pitches cut long entries too**, at 1,500 characters. A prospect asked about "data retention and a clear exit plan". No deck gave the seven-year retention or the 30-day export, which sit past that cut. In one run the first role skipped that entry, yet the deck was verified and writable, with a slide titled "Clear Exit Path, No Lock-In Surprises" and no exit facts.
 - **The fact check caught slips.** In 2 runs the drafter said the SOC 2 report was "available on request" or "under NDA". The KB says neither. Both decks were held.
 
 ## Bugs found in code (found by reading code, not fixed)
 
 1. **Ask-KB fails unless the provider is OpenRouter.** It always asks for `meta-llama/llama-3.1-8b-instruct:free` (`extension/src/meeting-copilot/agents/live-agents.ts:617`) under the user's provider (`:615`). The backend allows that name only for OpenRouter (`backend/api/routes/llm.py:438-448`, checked at `:1011`). Calling that check directly gave 400 for Anthropic, Gemini and Groq, so the rep sees "Error reaching backend" (`live-agents.ts:637`).
-2. **The default Anthropic model is blocked.** `extension/src/shared/agents/llm-client.ts:24` defaults to `claude-opus-4-7`. The backend's default Anthropic list (`llm.py:439`) lacks it; a direct check gave 400. It works only if `ALLOWED_MODELS_ANTHROPIC` is set.
+2. **The app's default Anthropic model does not match the backend's list.** `extension/src/shared/agents/llm-client.ts:24` defaults to `claude-opus-4-7`. The backend's default Anthropic list (`llm.py:439`) lacks it; a direct check gave 400. It works only if `ALLOWED_MODELS_ANTHROPIC` is set.
 3. **Keyword fallback** drops words of 3 letters or fewer (`live-agents.ts:148`), drops entries with no match (`:160`), and returns only the first 500 characters of the entry (`:167`).
 4. **The meaning-based path also cuts at 500 characters** (`live-agents.ts:203`), though pieces are larger: the long entry's first piece was 1,794 characters.
 5. **Ask-KB has no fact check**, though its comment says answers are validated (`live-agents.ts:584-585`).
-6. **Live prompts skip the KB safety wrapper.** Coach, live checker and Ask-KB insert raw KB text (`live-agents.ts:347`, `:501`, `:607`). Pitches wrap it and tell the AI to ignore instructions inside (`council.ts:110`).
+6. **Live prompts skip the KB safety wrapper.** Coach, live checker and Ask-KB insert KB text as plain JSON, not cleaned or wrapped (`live-agents.ts:347`, `:501`, `:607`). Pitches wrap it (`council.ts:110`) and tell the AI to ignore instructions inside (`council.ts:31`).
 7. **`GEMINI_API_KEY` is missing from `backend/.env.example`** (it is only in `docs/configuration.md:36`).
 8. **Pitch prompts cut each entry at 1,500 characters** (`extension/src/shared/agents/council.ts:110`), so neither drafter nor fact check sees the rest.
+9. **The chunker splits mid-word and reports wrong positions.** In the long entry, the second piece starts mid-word ("ets have a first-response...") and its recorded start (character 1,796) is about 180 characters off (`extension/src/shared/utils/chunker.ts`).
 
 ## Limits
 
@@ -79,6 +80,7 @@ My automatic checks flagged 6 writable decks (6 figures not found in the KB, 1 f
 - The stand-in is not Gemini. Gemini may find reworded questions. It cannot fix the 500-character cut.
 - Haiku answered Ask-KB, not the hard-coded Llama model (which the backend rejects except on OpenRouter).
 - One AI vendor.
+- A few answer-key patterns are loose (p02, p04, s13 would accept some wrong "yes" answers). None changed a result here; tighten them before reusing the set.
 
 ## What to do next
 
