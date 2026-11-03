@@ -18,7 +18,7 @@ import type {
 import { searchChunks, type SearchHit } from "../../shared/utils/kb-vector-store";
 import { computeWikiCoachMap } from "../../shared/utils/wiki-index";
 import { bestPassage, countTermHits, queryTerms } from "../../shared/utils/passage";
-import { KB_SAFETY_INSTRUCTION, kbSnippetsToPromptBlock } from "../../shared/agents/prompt-safety";
+import { KB_SAFETY_INSTRUCTION, kbSnippetsToPromptBlock, sanitizeKBContent } from "../../shared/agents/prompt-safety";
 
 const WINDOW_CHARS = 2400;
 // Live agents (coach + sentiment) only need the last few turns to stay in
@@ -588,7 +588,7 @@ export const LIVE_COUNCIL_AGENTS = [
 
 // ─── Push-to-ask KB ────────────────────────────────────────────────────────
 // Rep types a question on the transponder mid-call. Retrieve → answer →
-// validate via the same council gate, then return the approved answer.
+// check the answer's quotes (verifyKbAnswer) → return it or "Not in KB.".
 const KB_ASK_SYSTEM = `You answer a salesperson's live question using ONLY the KB snippets provided.
 Return JSON only:
 { "answer": "one or two crisp sentences", "sources": [{"kb_entry_id": "...", "quote": "..."}] }
@@ -597,12 +597,47 @@ Rules:
 - Never invent. Quote KB verbatim when grounding.
 ${KB_SAFETY_INSTRUCTION}`;
 
+export interface KbAskResult {
+  answer: string;
+  sources?: { kb_entry_id: string; quote: string }[];
+  rejected?: boolean;
+}
+
+const NOT_IN_KB = "Not in KB.";
+
+/**
+ * Deterministic check of a model's Ask-KB answer, no extra model call. An
+ * answer passes only if it cites at least one source and every source quote
+ * is an exact substring of an excerpt sent for that kb_entry_id (as sanitized
+ * into the prompt). Otherwise the rep gets "Not in KB." with rejected: true.
+ * This proves the quotes are real, not that the answer sentence follows
+ * from them.
+ */
+export function verifyKbAnswer(
+  parsed: { answer?: unknown; sources?: unknown },
+  sent: RetrievedSnippet[],
+): KbAskResult {
+  const answer = typeof parsed.answer === "string" ? parsed.answer.trim() : "";
+  if (answer === NOT_IN_KB) return { answer: NOT_IN_KB, sources: [] };
+  const sources = Array.isArray(parsed.sources) ? parsed.sources : [];
+  const excerpts = sent.map((s) => ({ id: s.id, text: sanitizeKBContent(s.excerpt) }));
+  const quoted = (src: unknown): src is { kb_entry_id: string; quote: string } => {
+    const s = src as { kb_entry_id?: unknown; quote?: unknown } | null;
+    if (!s || typeof s.kb_entry_id !== "string" || typeof s.quote !== "string" || !s.quote.trim()) return false;
+    return excerpts.some((e) => e.id === s.kb_entry_id && e.text.includes(s.quote as string));
+  };
+  if (!answer || sources.length === 0 || !sources.every(quoted)) {
+    return { answer: NOT_IN_KB, sources: [], rejected: true };
+  }
+  return { answer, sources: sources as { kb_entry_id: string; quote: string }[] };
+}
+
 export async function runLiveKbAsk(
   question: string,
   session: MeetingSession,
   kb: KBEntry[],
   signal?: AbortSignal,
-): Promise<{ answer: string; sources?: { kb_entry_id: string; quote: string }[]; rejected?: boolean }> {
+): Promise<KbAskResult> {
   const q = question.trim();
   if (!q) return { answer: "Empty question." };
 
@@ -650,7 +685,7 @@ export async function runLiveKbAsk(
   } catch (err) {
     return { answer: `Error: ${String(err)}` };
   }
-  const parsed = safeJson<{ answer: string; sources?: { kb_entry_id: string; quote: string }[] }>(raw);
+  const parsed = safeJson<{ answer?: unknown; sources?: unknown }>(raw);
   if (!parsed?.answer) return { answer: "No answer available." };
-  return { answer: parsed.answer, sources: parsed.sources };
+  return verifyKbAnswer(parsed, kbSnippets);
 }

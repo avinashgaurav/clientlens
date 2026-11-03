@@ -21,7 +21,7 @@ vi.mock("../../shared/agents/llm-client", () => ({
 const store = vi.hoisted(() => ({ searchChunks: vi.fn() }));
 vi.mock("../../shared/utils/kb-vector-store", () => store);
 
-import { LIVE_MODELS, runCoachAgent, runLiveCouncilValidator, runLiveKbAsk } from "../agents/live-agents";
+import { LIVE_MODELS, runCoachAgent, runLiveCouncilValidator, runLiveKbAsk, verifyKbAnswer } from "../agents/live-agents";
 import { backendDefaultAllowlist } from "../../shared/__tests__/backend-allowlist";
 import { KB_SAFETY_INSTRUCTION } from "../../shared/agents/prompt-safety";
 import type { CoachSuggestion } from "../../shared/types";
@@ -120,5 +120,36 @@ describe("Ask-KB model", () => {
     await runLiveKbAsk("Is MFA on?", session, [entry("kb-1", "MFA is on.")]);
     expect(sent).toBeNull();
     expect(llm.call.mock.calls[0][0]).toMatchObject({ provider, model: `${provider}-settings-model` });
+  });
+});
+
+describe("Ask-KB answer check", () => {
+  const sentSnippets = [{ id: "kb-sso", name: "SSO", namespace: "product_overview", excerpt: "SSO via SAML costs $1,800 a year." }];
+  const ok = { answer: "SSO costs $1,800 a year.", sources: [{ kb_entry_id: "kb-sso", quote: "SSO via SAML costs $1,800 a year." }] };
+
+  it("passes an answer whose every quote is in a sent excerpt of that entry", () => {
+    expect(verifyKbAnswer(ok, sentSnippets)).toEqual(ok);
+  });
+
+  it.each([
+    ["a quote not in any excerpt", { ...ok, sources: [{ kb_entry_id: "kb-sso", quote: "SSO is free." }] }],
+    ["a quote credited to the wrong entry", { ...ok, sources: [{ kb_entry_id: "kb-other", quote: "SSO via SAML" }] }],
+    ["one good and one bad quote", { ...ok, sources: [...ok.sources, { kb_entry_id: "kb-sso", quote: "and SCIM" }] }],
+    ["an empty quote", { ...ok, sources: [{ kb_entry_id: "kb-sso", quote: "" }] }],
+    ["no sources", { answer: "SSO costs $1,800 a year.", sources: [] }],
+  ])("rejects %s", (_label, parsed) => {
+    expect(verifyKbAnswer(parsed, sentSnippets)).toEqual({ answer: "Not in KB.", sources: [], rejected: true });
+  });
+
+  it("passes Not in KB. through and drops any sources on it", () => {
+    expect(verifyKbAnswer({ answer: "Not in KB.", sources: [{ kb_entry_id: "x", quote: "y" }] }, sentSnippets)).toEqual({ answer: "Not in KB.", sources: [] });
+  });
+
+  it("is applied to the live answer, against the excerpts actually sent", async () => {
+    const kb = [entry("kb-sso", "SSO via SAML costs $1,800 a year.")];
+    reply = JSON.stringify({ answer: "SSO is free.", sources: [{ kb_entry_id: "kb-sso", quote: "SSO is free." }] });
+    expect(await runLiveKbAsk("How much is SSO?", session, kb)).toEqual({ answer: "Not in KB.", sources: [], rejected: true });
+    reply = JSON.stringify({ answer: "It costs $1,800 a year.", sources: [{ kb_entry_id: "kb-sso", quote: "costs $1,800 a year" }] });
+    expect(await runLiveKbAsk("How much is SSO?", session, kb)).toMatchObject({ answer: "It costs $1,800 a year." });
   });
 });
