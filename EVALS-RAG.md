@@ -2,7 +2,7 @@
 
 ## What was tested and why
 
-My CV calls ClientLens "multi-agent RAG": the app searches a knowledge base (the KB) for passages, then has an AI answer using only those passages. This test checks that claim against the code. What the code has: pitches come from 4 AI roles in a fixed order (pick sources, draft, brand check, fact check). Search by meaning (Gemini turns text into number fingerprints and compares them) exists only on the live call path: Ask-KB, the live coach and the live checker. That Gemini search has never been tested, and I could not test it: there is no Gemini key here. When it fails, the app falls back to keyword matching. I ran the test on 2026-11-03.
+I describe ClientLens as "multi-agent RAG": the app searches a knowledge base (the KB) for passages, then has an AI answer using only those passages. This test checks that claim against the code. What the code has: pitches come from 4 AI roles in a fixed order (pick sources, draft, brand check, fact check). Search by meaning (Gemini turns text into number fingerprints and compares them) exists only on the live call path: Ask-KB, the live coach and the live checker. That Gemini search has never been tested, and I could not test it: there is no Gemini key here. When it fails, the app falls back to keyword matching. I ran the test on 2026-11-03.
 
 ## How it was measured
 
