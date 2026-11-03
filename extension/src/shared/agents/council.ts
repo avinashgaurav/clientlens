@@ -29,6 +29,7 @@ import { ICP_PROFILES } from "../constants/icp-profiles";
 import { type LLMClient, makeLLMClient, resolveLLMConfig } from "./llm-client";
 import { runResearch, briefToPrompt } from "./research";
 import { KB_SAFETY_INSTRUCTION, kbToPromptBlock } from "./prompt-safety";
+import { relevantExcerpt } from "../utils/passage";
 
 export type CouncilEvent =
   | { type: "stage"; stage: string; message: string }
@@ -103,11 +104,22 @@ function rankKBByQuery(kb: KBEntry[], query: string): KBEntry[] {
   });
 }
 
-function summarizeKB(kb: KBEntry[], query?: string): string {
+// What the target cares about. Ranks entries and picks the parts of long
+// entries that reach the prompt; one string for every agent, so the drafter
+// and the fact validator see the same text.
+function kbQuery(input: PersonalizationInput): string {
+  return `${input.company_name} ${input.pain_points ?? ""} ${input.competitor ?? ""}`;
+}
+
+const PER_ENTRY_CHARS = 1500;
+
+function summarizeKB(kb: KBEntry[], query: string): string {
   // KB content is wrapped in <kb_source> tags + sanitized. Pair with
   // KB_SAFETY_INSTRUCTION in every agent's system prompt. Closes #11.
-  const ranked = query ? rankKBByQuery(kb, query) : kb;
-  return kbToPromptBlock(ranked, { limit: 20, perEntryChars: 1500 });
+  // Entries over PER_ENTRY_CHARS keep their opening plus the parts that match
+  // the query, instead of only their first PER_ENTRY_CHARS characters.
+  const fitted = rankKBByQuery(kb, query).map((e) => ({ ...e, content: relevantExcerpt(e.content ?? "", query, PER_ENTRY_CHARS) }));
+  return kbToPromptBlock(fitted, { limit: 20, perEntryChars: PER_ENTRY_CHARS });
 }
 
 export function extractJson<T>(text: string): T | null {
@@ -213,7 +225,7 @@ async function retrievalAgent(
 - Pain points: ${input.pain_points ?? "n/a"}
 ${brief ? `\nPROSPECT RESEARCH:\n${briefToPrompt(brief)}\n` : ""}
 KB:
-${summarizeKB(filtered, `${input.company_name} ${input.pain_points ?? ""} ${input.competitor ?? ""}`)}
+${summarizeKB(filtered, kbQuery(input))}
 
 Return JSON:
 {
@@ -292,7 +304,7 @@ Desired format: ${format.replace(/_/g, " ")}${customHint ? `\nCustom doc hint: $
 Brand accent (target): ${brandAssets.primary_color}
 ${brief ? `\nPROSPECT RESEARCH (use this to personalize, pattern-match to their actual tech stack / pain signals):\n${briefToPrompt(brief)}\n` : ""}
 SOURCES (use ONLY these: cite source_id on each claim):
-${summarizeKB(usedSources)}
+${summarizeKB(usedSources, kbQuery(input))}
 
 Output JSON (COMPACT, every character counts, keep content tight):
 {
@@ -821,6 +833,7 @@ async function validationAgent(
   draft: DraftOutput,
   kb: KBEntry[],
   retrieval: RetrievalOutput,
+  input: PersonalizationInput,
 ): Promise<AgentResult & { slides: SlideContent[]; verification: VerificationResult }> {
   const usedSources = kb.filter((e) => retrieval.relevant_source_ids.includes(e.id));
   // applyFactCheck reads slide_index as a position in draft.slides, so stamp
@@ -830,7 +843,7 @@ async function validationAgent(
 
   const system = `You are the Fact Validation Agent. Audit every numeric and named claim in the draft. Mark "hallucinated" for any claim not supported by the cited sources. Quote each claim exactly as it appears in the draft. Output strict JSON. ${KB_SAFETY_INSTRUCTION}`;
   const user = `SOURCES (ground truth):
-${summarizeKB(usedSources)}
+${summarizeKB(usedSources, kbQuery(input))}
 
 The SOURCES above are the ONLY ground truth. There is no allowlist of claims that
 bypass this check: a validator that carries its own facts is not a validator.
@@ -950,7 +963,7 @@ export async function* runCouncil(opts: {
 
     // 4. Validation
     yield { type: "stage", stage: "validation", message: "Validating every claim against KB…" };
-    const validationResult = await validationAgent(client, draft, kb, retrievalOutput);
+    const validationResult = await validationAgent(client, draft, kb, retrievalOutput, input);
     yield { type: "agent", result: validationResult };
 
     // 5. Council vote
