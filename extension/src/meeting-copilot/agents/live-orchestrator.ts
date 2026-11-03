@@ -56,7 +56,8 @@ function isRateLimited(): boolean {
 
 function markRateLimited(err: unknown): void {
   const msg = err instanceof Error ? err.message : String(err);
-  if (msg.toLowerCase().includes("rate limit") || msg.includes("429")) {
+  const status = (err as { status?: unknown } | null)?.status;
+  if (status === 429 || msg.toLowerCase().includes("rate limit") || msg.includes("429")) {
     rateLimitUntil = Date.now() + RATE_LIMIT_COOLDOWN_MS;
     console.debug(`[live-orch] 429 detected, all agents paused for ${RATE_LIMIT_COOLDOWN_MS / 1000}s`);
   }

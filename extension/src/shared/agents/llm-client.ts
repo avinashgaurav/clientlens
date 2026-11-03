@@ -42,11 +42,36 @@ const LLM_TIMEOUT_MS = 30_000;    // non-streaming: 30 s should be ample
 const STREAM_TIMEOUT_MS = 120_000; // streaming: allow up to 2 min for large models
 
 /**
- * Translate a raw upstream error body into a concise user-facing message.
- * Credential / quota / rate-limit failures get a hint pointing to Settings;
- * everything else falls through as a trimmed raw message.
+ * The plain-text `detail` of a ClientLens backend error, or null. Details that
+ * only echo an upstream provider's raw response ("Gemini 429: {...}",
+ * "Error code: 429 - ...") are not meant for users, so they count as absent.
  */
-function friendlyLLMError(provider: string, status: number, body: string): Error {
+function backendDetail(body: string): string | null {
+  let detail: unknown;
+  try {
+    detail = (JSON.parse(body) as { detail?: unknown }).detail;
+  } catch {
+    return null;
+  }
+  if (typeof detail !== "string") return null;
+  const d = detail.trim();
+  if (!d || /^Error code: \d{3}/.test(d) || /^[A-Za-z][\w ]* \d{3}: /.test(d)) return null;
+  return d;
+}
+
+/**
+ * Translate a raw upstream error body into a concise user-facing message.
+ * The backend's own 429/503 messages (daily budget, concurrency, usage check,
+ * models used up) are shown as written. Other credential / quota / rate-limit
+ * failures get a hint pointing to Settings; everything else falls through as
+ * a trimmed raw message.
+ */
+export function friendlyLLMError(provider: string, status: number, body: string): Error {
+  if (status === 429 || status === 503) {
+    const detail = backendDetail(body);
+    // Keep the status on the error: the live orchestrator pauses on a 429.
+    if (detail) return Object.assign(new Error(detail), { status });
+  }
   const text = body.toLowerCase();
   const isAuth =
     status === 401 ||
