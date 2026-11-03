@@ -17,6 +17,7 @@ import type {
 } from "../../shared/types";
 import { searchChunks, type SearchHit } from "../../shared/utils/kb-vector-store";
 import { computeWikiCoachMap } from "../../shared/utils/wiki-index";
+import { bestPassage, countTermHits, queryTerms } from "../../shared/utils/passage";
 
 const WINDOW_CHARS = 2400;
 // Live agents (coach + sentiment) only need the last few turns to stay in
@@ -144,19 +145,17 @@ export interface RetrievedSnippet {
   score?: number;        // cosine score when from vector store; lexical = match count
 }
 
+// Keyword match over raw entries. Short terms count (SSO, MFA, ERP), and each
+// excerpt is the window around the matched terms, not the entry's opening.
 function lexicalFallback(query: string, entries: KBEntry[], topK: number, maxChars: number): RetrievedSnippet[] {
-  const terms = query.toLowerCase().split(/\W+/).filter((t) => t.length > 3);
+  const terms = queryTerms(query);
   if (terms.length === 0) {
     return entries.slice(0, topK).map((e) => ({
-      id: e.id, name: e.name, namespace: e.namespace, excerpt: (e.content || "").slice(0, maxChars), score: 0,
+      id: e.id, name: e.name, namespace: e.namespace, excerpt: bestPassage(e.content || "", [], maxChars), score: 0,
     }));
   }
   return entries
-    .map((entry) => {
-      const hay = `${entry.name}\n${entry.content || ""}`.toLowerCase();
-      const score = terms.reduce((a, t) => a + (hay.includes(t) ? 1 : 0), 0);
-      return { entry, score };
-    })
+    .map((entry) => ({ entry, score: countTermHits(`${entry.name}\n${entry.content || ""}`, terms) }))
     .filter((r) => r.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, topK)
@@ -164,7 +163,7 @@ function lexicalFallback(query: string, entries: KBEntry[], topK: number, maxCha
       id: r.entry.id,
       name: r.entry.name,
       namespace: r.entry.namespace,
-      excerpt: (r.entry.content || "").slice(0, maxChars),
+      excerpt: bestPassage(r.entry.content || "", terms, maxChars),
       score: r.score,
     }));
 }
@@ -196,11 +195,14 @@ async function retrieveKB(
     return lexicalFallback(query, kb, topK, maxCharsPerSnippet);
   }
 
+  // A chunk can run to ~1,800 chars, past the per-snippet budget: send the
+  // part of it that matches the query rather than its first maxChars.
+  const terms = queryTerms(query);
   const semantic: RetrievedSnippet[] = semanticHits.map((h) => ({
     id: h.entryId,
     name: h.entryName,
     namespace: h.namespace,
-    excerpt: h.text.length > maxCharsPerSnippet ? h.text.slice(0, maxCharsPerSnippet) : h.text,
+    excerpt: bestPassage(h.text, terms, maxCharsPerSnippet),
     score: h.score,
   }));
 
