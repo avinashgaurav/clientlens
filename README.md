@@ -37,7 +37,7 @@ Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so
 > | Planted claims that could still be written to a doc | **0 / 13** |
 > | Fully supported decks wrongly flagged | **0 / 6** |
 > | Ask-KB answers right with keyword search, after fixing 9 bugs (same questions, so a best case) | **57 / 69** (was 36 / 69) |
-> | Ask-KB answers right with real Gemini search (same questions, best case) | **66 / 69** |
+> | Ask-KB answers right with real Gemini search (same questions, best case; embedding called directly, backend bypassed) | **66 / 69** |
 >
 > This is a quick first check, not a full benchmark. It used 18 made-up decks and one knowledge base. I ran it through the Claude Code CLI, not the way the live app calls the AI. 9 of the 12 decks with planted claims were held for a person to review, instead of having the claim cleanly cut. How it was run, and why each deck was held: [EVALS.md](EVALS.md). The search test, its 9 bugs and the rerun after the fixes: [EVALS-RAG.md](EVALS-RAG.md).
 
