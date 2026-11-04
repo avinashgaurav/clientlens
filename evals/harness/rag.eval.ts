@@ -24,7 +24,7 @@
  *   EVAL_ONLY=s01,c01  (subset; writes -partial files)
  */
 import { mock, test } from "bun:test";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { CALL_LOG, EVAL_CTX, callClaude } from "./claude-cli.mjs";
 
@@ -134,7 +134,13 @@ const cases = DS.cases.filter((c: any) => !ONLY || ONLY.includes(c.id));
 const targets = DS.pitch_targets.filter((t: any) => !ONLY || ONLY.includes(t.id));
 const rx = (s: string) => new RegExp(s, "i");
 const today = process.env.EVAL_DATE ?? new Date().toISOString().slice(0, 10);
-const outFile = (name: string) => resolve(import.meta.dir, "../results", `${today}-rag-${name}${ONLY ? "-partial" : ""}.json`);
+// Never overwrite an existing (possibly committed) results file: add -2, -3, ...
+const outFile = (name: string) => {
+  const base = resolve(import.meta.dir, "../results", `${today}-rag-${name}${ONLY ? "-partial" : ""}`);
+  let path = `${base}.json`;
+  for (let n = 2; existsSync(path); n++) path = `${base}-${n}.json`;
+  return path;
+};
 const session = (q: string) => ({ id: "eval", status: "active", platform: "google_meet", input: { company_name: "Brindlewood Supply", persona_role: "CFO", agenda: [] }, transcript: [{ id: "t1", speaker: "prospect", text: q, ts_start: 0, ts_end: 1000, is_final: true }], sentiment_history: [], suggestions: [], agenda: [] });
 
 async function pool<T>(items: T[], n: number, fn: (x: T) => Promise<void>) {
@@ -260,7 +266,7 @@ async function armB() {
     const ctx: any = { mode: "live", retriever, label: `B:${retriever}:${run}:${c.id}` };
     const res = await EVAL_CTX.run(ctx, () => runLiveKbAsk(c.question, session(c.question), kb));
     const snippets = ctx.sent?.snippets ?? [];
-    rows.push({ id: c.id, category: c.category, answerable: c.answerable, retriever, run, retrieval: scoreRetrieval(c, snippets), requested: { provider: ctx.sent?.provider, model: ctx.sent?.model }, ...scoreAnswer(c, res, snippets), raw: ctx.raw, ms: ctx.rec?.ms, model: ctx.rec?.models });
+    rows.push({ id: c.id, category: c.category, answerable: c.answerable, retriever, run, retrieval: scoreRetrieval(c, snippets), requested: { provider: ctx.sent?.provider, model: ctx.sent?.model }, ...scoreAnswer(c, res, snippets), rejected: res?.rejected === true, raw: ctx.raw, ms: ctx.rec?.ms, model: ctx.rec?.models });
   });
   rows.sort((a, b) => (a.retriever + a.run + a.id).localeCompare(b.retriever + b.run + b.id));
   const summary: any = { wallMs: Date.now() - t0, configuredModel: B_MODEL, runs: RUNS, appRequestedModels: [...new Set(rows.map((r) => `${r.requested.provider} / ${r.requested.model}`))] };
@@ -287,6 +293,7 @@ async function armB() {
       quotesExactInSameEntryExcerpt: rs.reduce((a, r) => a + r.quoteChecks.filter((q: any) => q.exactInSameEntryExcerpt).length, 0),
       quotesExactInAnyExcerpt: rs.reduce((a, r) => a + r.quoteChecks.filter((q: any) => q.exactInAnyExcerpt).length, 0),
       quotesNormalizedInAnyExcerpt: rs.reduce((a, r) => a + r.quoteChecks.filter((q: any) => q.normalizedInAnyExcerpt).length, 0),
+      answersRejectedByQuoteCheck: rs.filter((r) => r.rejected).length,
       unparsedAnswers: rs.filter((r) => r.answer === "No answer available." || r.answer === "Error reaching backend").length,
       casesCorrectInAllRuns: perCaseAllRuns((r) => r.pass),
       casesCorrectInNoRun: [...new Set(rs.map((r) => r.id))].filter((id) => rs.filter((r) => r.id === id).every((r) => !r.pass)),
