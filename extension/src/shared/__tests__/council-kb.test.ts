@@ -42,5 +42,7 @@ describe("pitch council KB context", () => {
     expect(drafter).toContain("Handbook overview for new customers.");
     expect(drafter).toContain("Short pricing note.");
     expect(validator).toBe(drafter);
+    // The fitted excerpt reaches the prompt whole, ending on its last sentence.
+    expect(drafter).toMatch(/within 30 days of exit\.\n<\/kb_source>/);
   });
 });

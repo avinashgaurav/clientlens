@@ -119,7 +119,10 @@ function summarizeKB(kb: KBEntry[], query: string): string {
   // Entries over PER_ENTRY_CHARS keep their opening plus the parts that match
   // the query, instead of only their first PER_ENTRY_CHARS characters.
   const fitted = rankKBByQuery(kb, query).map((e) => ({ ...e, content: relevantExcerpt(e.content ?? "", query, PER_ENTRY_CHARS) }));
-  return kbToPromptBlock(fitted, { limit: 20, perEntryChars: PER_ENTRY_CHARS });
+  // relevantExcerpt already enforces the budget. Sanitizing afterwards can
+  // lengthen the text slightly ("[redacted]" markers), so the cap here is
+  // only a loose backstop that will not clip a fitted excerpt mid-word.
+  return kbToPromptBlock(fitted, { limit: 20, perEntryChars: 2 * PER_ENTRY_CHARS });
 }
 
 export function extractJson<T>(text: string): T | null {
