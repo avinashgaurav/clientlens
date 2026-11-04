@@ -18,3 +18,11 @@ test("missing claude binary resolves ok:false quickly", async () => {
     process.env.PATH = savedPath;
   }
 });
+
+test("spawn that throws synchronously resolves ok:false", async () => {
+  // A NUL byte in an argument makes spawn throw before any process exists.
+  const r: any = await callClaude({ model: "x", system: "bad\u0000arg", messages: [{ role: "user", content: "hi" }], label: "spawn-throw" });
+  expect(r.ok).toBe(false);
+  expect(r.rec.result_head).toContain("could not be started");
+  expect(CALL_LOG.filter((c: any) => c.label === "spawn-throw").length).toBe(1);
+});
