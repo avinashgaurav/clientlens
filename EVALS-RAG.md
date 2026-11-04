@@ -2,7 +2,7 @@
 
 ## What was tested and why
 
-I describe ClientLens as "multi-agent RAG": the app searches a knowledge base (the KB) for passages, then has an AI answer using only those passages. This test checks that claim against the code. What the code has: pitches come from 4 AI roles in a fixed order (pick sources, draft, brand check, fact check). Search by meaning (Gemini turns text into number fingerprints and compares them) exists only on the live call path: Ask-KB, the live coach and the live checker. That Gemini search has never been tested, and I could not test it: there is no Gemini key here. When it fails, the app falls back to keyword matching. I ran the test on 2026-11-03.
+I describe ClientLens as "multi-agent RAG": the app searches a knowledge base (the KB) for passages, then has an AI answer using only those passages. This test checks that claim against the code. What the code has: pitches come from 4 AI roles in a fixed order (pick sources, draft, brand check, fact check). Search by meaning (Gemini turns text into number fingerprints and compares them) exists only on the live call path: Ask-KB, the live coach and the live checker. That Gemini search had never been tested, and at first I could not test it: there was no Gemini key here. When it fails, the app falls back to keyword matching. I ran the test on 2026-11-03, and tested real Gemini search with a key on 2026-11-04 (see "Real Gemini search" below).
 
 ## How it was measured
 
@@ -108,9 +108,57 @@ I fixed all 9 bugs, then reran the search-only test and Ask-KB (3 runs, same 30 
 | Unanswerable handled right | 21 / 21 | 21 / 21 | 21 / 21 | 21 / 21 |
 | Right answer when the key text reached it | 33 / 33 | 54 / 54 | 48 / 48 | 54 / 54 |
 
-Every simple fact and every two-entry question is now right with both searches. What still fails is the reworded questions (p01, p02, p04, p05 wrong in every run): neither keyword search nor the word-count stand-in can match a question that shares no words with the answer. That is the job of real meaning-based search, which is still untested.
+Every simple fact and every two-entry question is now right with both searches. What still fails is the reworded questions (p01, p02, p04, p05 wrong in every run): neither keyword search nor the word-count stand-in can match a question that shares no words with the answer. That is the job of real meaning-based search, which was still untested at this point (see the next section).
 
 These after-fix numbers are on the same questions I wrote the fixes against, so treat them as a best case. Results: `evals/results/2026-11-04-rag-after-*.json`. CLI-reported usage: 180 calls, $0.54.
+
+## Real Gemini search (2026-11-04)
+
+With a working Gemini key I tested the real search on the code after the fixes. Meaning-based search works like this: Gemini turns the question and every KB piece into a list of 768 numbers that captures what the text means, and the app hands the AI the pieces whose numbers sit closest to the question's, even when they share no words.
+
+- **Same test.** Same 10 entries, same 30 questions, same answer key (`rag.json` unchanged), same scoring rules.
+- **Real code.** The app's chunker, ranking, Ask-KB and coach code ran unchanged. Only the embedding call was swapped: the test called Gemini `gemini-embedding-001` directly, with the same request the backend sends (768 numbers, no task type, up to 100 texts per call). The backend proxy itself was bypassed.
+- **Ask-KB answers.** `claude-haiku-4-5-20251001` through the Claude Code CLI, 3 runs, as before.
+
+**Search only** (right entry in results / key text inside what the AI sees / right entry ranked first; all 23 answerable questions, then the 5 reworded ones)
+
+| Search | Ask-KB, all 23 | Ask-KB, reworded 5 | Coach, all 23 | Coach, reworded 5 |
+|---|---|---|---|---|
+| Keyword fallback, after fixes | 18 / 18 / 16 | 1 / 1 / 1 | 18 / 17 / 15 | 1 / 0 / 0 |
+| Word-count stand-in, after fixes | 19 / 18 / 19 | 2 / 1 / 1 | 20 / 17 / 17 | 2 / 0 / 0 |
+| Real Gemini | **23 / 22 / 23** | **5 / 4 / 5** | **23 / 20 / 21** | **5 / 3 / 3** |
+
+**Ask-KB end to end** (3 runs: 69 tries on answerable questions, 21 on the rest)
+
+| Measure | Keyword after fixes | Stand-in after fixes | Real Gemini |
+|---|---|---|---|
+| Right answer | 57 / 69 | 57 / 69 | **66 / 69** |
+| ...simple facts | 45 / 45 | 45 / 45 | 45 / 45 |
+| ...reworded | 3 / 15 | 3 / 15 | **12 / 15** |
+| ...needing two entries | 9 / 9 | 9 / 9 | 9 / 9 |
+| Said "Not in KB." though the KB had it | 12 / 69 | 9 / 69 | 3 / 69 |
+| Wrong figure from a cut passage | 0 / 69 | 0 / 69 | 0 / 69 |
+| Unanswerable handled right | 21 / 21 | 21 / 21 | 21 / 21 |
+| Quotes copied exactly from what it saw | 75 / 75 | 78 / 78 | 87 / 87 |
+| Right answer when the key text reached it | 54 / 54 | 54 / 54 | 66 / 66 |
+
+**The reworded questions, the open question from before: real Gemini search finds them.** It put the right entry first for all 5, and Ask-KB went from 3 of 15 to 12 of 15. p02, p04 and p05, wrong in every run with both earlier searches, were right in all 3 runs, and p03 stayed right. One reworded question still fails: p01 ("How fast do you respond if our staff are locked out of signing off payables?") got "Not in KB." in all 3 runs. Gemini ranked the right piece first, but that piece is 1,794 characters long and the answer starts at character 1,523. The app sends a 500-character window of it, chosen by words the question shares with the piece (`extension/src/shared/utils/passage.ts`). This question shares none, so the window is the piece's first 500 characters, and the one-hour answer never reached the AI. Search now works for reworded questions; the window cut is what is left.
+
+Other results:
+
+- Gemini always returns a full top 6, even for questions the KB cannot answer. The AI still said exactly "Not in KB." on all 12 unanswerable tries and denied all 9 traps.
+- The quote check rejected 0 answers: all 87 quotes were exact copies.
+- Coach misses: the key text fell outside the 240-character window for p01, p03 and m02, and p02 and p03 had the right entry second.
+
+Gemini usage per full run: 61 calls (one call for the 11 KB pieces, then one per question for Ask-KB and the coach), 0 rate-limit retries, 0 errors. I ran it twice: the first run's results file had a summary bug in the test code (fixed), so I discarded it. Its answers scored the same, 66 / 69, with the same 3 p01 misses. Results: `evals/results/2026-11-04-rag-gemini-*.json`. CLI-reported usage for the kept run: 90 calls, $0.29.
+
+Limits of this test:
+
+- Same 30 questions, and the fixes were tuned on them, so treat these numbers as a best case.
+- Tiny KB: 11 pieces in all, and Ask-KB returns 6, so "right entry in results" is easy here. "Ranked first" and "key text inside what the AI sees" are the stricter measures.
+- The backend proxy was bypassed: a direct call with the same model and settings.
+- One embedding model, one setting (no task type).
+- Haiku answered through the Claude Code CLI, not the live app, with no 350-token reply cap.
 
 ## Limits
 
@@ -124,15 +172,15 @@ These after-fix numbers are on the same questions I wrote the fixes against, so 
 ## What to do next
 
 1. Rerun Ask-KB in the live app with each provider, now that the model fix is in.
-2. Test Gemini search with a working key on this answer key, starting with the reworded questions.
-3. Rerun the pitch pipeline after the long-entry change, and write new questions the fixes were never tuned on.
-4. The model picker still offers some models the backend rejects by default (`claude-opus-4-7`, OpenRouter `anthropic/claude-3.5-sonnet`). Decide whether to hide them or allow them.
+2. Rerun the pitch pipeline after the long-entry change, and write new questions the fixes were never tuned on.
+3. The model picker still offers some models the backend rejects by default (`claude-opus-4-7`, OpenRouter `anthropic/claude-3.5-sonnet`). Decide whether to hide them or allow them.
 
 ## Run it yourself
 
 ```sh
 bun test ./evals/harness/rag.eval.ts --timeout 7200000   # all arms, 252 CLI calls
 EVAL_ARMS=A bun test ./evals/harness/rag.eval.ts          # search only, no AI calls
+EVAL_ARMS=D bun test ./evals/harness/rag.eval.ts --timeout 7200000   # real Gemini search, then Ask-KB; needs GEMINI_API_KEY
 ```
 
 Results are in `evals/results/2026-11-03-rag-*.json`. CLI-reported usage: Ask-KB 180 calls, $0.55; pitches 72 calls, $3.14. That is list-price usage on the CLI, not app cost.
