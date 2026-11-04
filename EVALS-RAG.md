@@ -173,7 +173,8 @@ Limits of this test:
 
 1. Rerun Ask-KB in the live app with each provider, now that the model fix is in.
 2. Rerun the pitch pipeline after the long-entry change, and write new questions the fixes were never tuned on.
-3. The model picker still offers some models the backend rejects by default (`claude-opus-4-7`, OpenRouter `anthropic/claude-3.5-sonnet`). Decide whether to hide them or allow them.
+3. Pick the passage window by meaning, not only by shared words. With real Gemini search, the right piece for p01 ranked first, but the answer sits past the 500-character window the AI sees, so it said "Not in KB." in all 3 runs.
+4. The model picker still offers some models the backend rejects by default (`claude-opus-4-7`, OpenRouter `anthropic/claude-3.5-sonnet`). Decide whether to hide them or allow them.
 
 ## Run it yourself
 
