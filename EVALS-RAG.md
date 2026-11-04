@@ -213,11 +213,13 @@ My automatic checks flagged 2 writable decks for figures not in the KB. These fl
 Limits of this check:
 
 - Still small and made up: 10 entries, 31 questions, 6 prospects, one AI vendor. I wrote both sets, so they share my habits.
+- 24 answerable questions times 3 runs is a small sample: a difference of one or two answers is noise. Gemini at 96% on the tuned set and 93% on the new set (66 of 69, 67 of 72) is the same result, not a drop.
 - The pitch pipeline ran once, not 3 times, so its numbers have no run-to-run spread.
+- One answer-key pattern is loose. For n-u04 ("How many contractors use Tidewell Dispatch today?") any number of two or more digits counts as wrong, and an answer like "nine contractors were in the 2025 study" would be defensible. It did not change a result (all 3 runs of each search said "Not in KB."), and I left the key as committed.
 - The stand-in was scored on search only; Ask-KB ran with keyword search and Gemini.
 - Same set-up limits as above: Claude Code CLI with no 350-token reply cap, and the backend's Gemini proxy bypassed. Gemini made 63 calls with 0 retries and 0 errors.
 
-Results: `evals/results/2026-11-04-rag-new-*.json`. CLI-reported usage: Ask-KB 186 calls, $0.59; pitches 24 calls, $1.05.
+Results: `evals/results/2026-11-04-rag-new-*.json`. CLI-reported usage: Ask-KB 186 calls, $0.59 (93 with keyword search, $0.28; 93 with Gemini, $0.31); pitches 24 calls, $1.05. Both Ask-KB arms ran in one process and the call log is cumulative, so the call and cost totals in `rag-new-gemini-askkb.json` (186 calls, $0.59) already include the keyword arm's 93 calls. Do not add the two files' totals together.
 
 ## Limits
 
