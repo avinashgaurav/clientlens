@@ -81,7 +81,7 @@ I fixed all 9 bugs, then reran the search-only test and Ask-KB (3 runs, same 30 
 
 - Ask-KB now asks for the provider's fast model (here `claude-haiku-4-5-20251001`), so the backend accepts it. The default Anthropic model is now `claude-sonnet-4-6`, which the backend allows.
 - Search sends the part of a piece that matches the question, not its first 500 characters. Keyword search keeps short terms like SSO and MFA.
-- Every Ask-KB quote must be copied exactly from a passage it was given, or the answer becomes "Not in KB.". This check rejected 0 answers in the rerun.
+- Every Ask-KB quote must be at least 12 characters and copied exactly from a passage it was given, or the answer becomes "Not in KB.". In the rerun, all 75 and 78 quotes were exact copies, so the check had nothing to reject.
 - Live prompts now wrap KB text and tell the AI to ignore instructions inside it, like pitches do.
 - Pitches keep the start of a long entry plus the parts that match the prospect, so the drafter and the fact check see facts past 1,500 characters.
 - The chunker splits on word and sentence boundaries, and its positions are exact.
