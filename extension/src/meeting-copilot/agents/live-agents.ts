@@ -6,7 +6,7 @@
 // Each agent is a pure function over (session state, KB) that returns
 // an incremental update. Orchestration cadence lives in live-orchestrator.ts.
 
-import { embedText, makeLLMClient, resolveLLMConfig, backendUrl, backendJwt, type LLMProvider } from "../../shared/agents/llm-client";
+import { embedText, makeLLMClient, resolveLLMConfig, backendUrl, backendJwt, type LLMProvider, LIVE_TIMEOUT_MS, withTimeout } from "../../shared/agents/llm-client";
 import type {
   AgendaItem,
   CoachSuggestion,
@@ -104,7 +104,7 @@ function firstSentenceFallback(raw: string): string | null {
 async function callLLM(system: string, user: string, maxTokens = 500): Promise<string> {
   const cfg = resolveLLMConfig();
   if ("error" in cfg) throw new Error(cfg.error);
-  const client = makeLLMClient(cfg);
+  const client = makeLLMClient(cfg, { timeoutMs: LIVE_TIMEOUT_MS });
   return client.call(system, user, maxTokens);
 }
 
@@ -119,7 +119,9 @@ async function callLiveLLM(
 ): Promise<string> {
   const cfg = resolveLLMConfig(liveModelOverride());
   if ("error" in cfg) throw new Error(cfg.error);
-  const client = makeLLMClient(cfg);
+  // Live coach output is short (a few hundred tokens), so a whole stream fits
+  // inside the live limit.
+  const client = makeLLMClient(cfg, { timeoutMs: LIVE_TIMEOUT_MS, streamTimeoutMs: LIVE_TIMEOUT_MS });
   if (onDelta && client.callStream) return client.callStream(system, user, maxTokens, onDelta);
   return client.call(system, user, maxTokens);
 }
@@ -188,7 +190,7 @@ async function retrieveKB(
 
   let semanticHits: SearchHit[] = [];
   try {
-    const queryVec = await embedText(query);
+    const queryVec = await embedText(query, LIVE_TIMEOUT_MS);
     semanticHits = await searchChunks(queryVec, topK, [...indexedIds]);
   } catch (err) {
     // Embed failed (key bad, quota, network). Fall through to lexical for
@@ -662,12 +664,13 @@ export async function runLiveKbAsk(
   let raw = "";
   try {
     if (cfg.provider === "ollama" || cfg.provider === "custom") {
-      raw = await makeLLMClient(cfg).call(KB_ASK_SYSTEM, user, 350, signal);
+      raw = await makeLLMClient(cfg, { timeoutMs: LIVE_TIMEOUT_MS }).call(KB_ASK_SYSTEM, user, 350, signal);
     } else {
       const jwt = await backendJwt();
       const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {
         method: "POST",
-        signal,  // AbortSignal: cancelled when rep asks a new question
+        // Cancelled when the rep asks a new question, or after the live limit.
+        signal: withTimeout(signal, LIVE_TIMEOUT_MS),
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${jwt}`,
@@ -686,7 +689,7 @@ export async function runLiveKbAsk(
       raw = data.text ?? "";
     }
   } catch (err) {
-    return { answer: `Error: ${String(err)}` };
+    return { answer: `Error: ${err instanceof Error ? err.message : String(err)}` };
   }
   const parsed = safeJson<{ answer?: unknown; sources?: unknown }>(raw);
   if (!parsed?.answer) return { answer: "No answer available." };
