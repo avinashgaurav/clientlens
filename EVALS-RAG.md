@@ -150,13 +150,13 @@ Other results:
 - The quote check rejected 0 answers: all 87 quotes were exact copies.
 - Coach misses: the key text fell outside the 240-character window for p01, p03 and m02, and p02 and p03 had the right entry second.
 
-Gemini usage per full run: 61 calls (one call for the 11 KB pieces, then one per question for Ask-KB and the coach), 0 rate-limit retries, 0 errors. I ran it twice: the first run's results file had a summary bug in the test code (fixed), so I discarded it. Its answers scored the same, 66 / 69, with the same 3 p01 misses. Results: `evals/results/2026-11-04-rag-gemini-*.json`. CLI-reported usage for the kept run: 90 calls, $0.29.
+Gemini usage per full run: 61 calls (one call for the 11 KB pieces, then one per question for Ask-KB and the coach), 0 rate-limit retries, 0 errors. I ran it twice: the first run's results file had a summary bug in the test code (fixed), so I discarded it. By my notes from that run, its answers scored the same (66 / 69, with the same 3 p01 misses); its files were not kept, so that cannot be checked here.
 
 Limits of this test:
 
 - Same 30 questions, and the fixes were tuned on them, so treat these numbers as a best case.
 - Tiny KB: 11 pieces in all, and Ask-KB returns 6, so "right entry in results" is easy here. "Ranked first" and "key text inside what the AI sees" are the stricter measures.
-- The backend proxy was bypassed: a direct call with the same model and settings.
+- The backend proxy was bypassed: a direct call with the same model and settings. The test also retried on rate limits and reused embeddings within a run; the backend does neither. Neither changes the vectors (0 retries happened).
 - One embedding model, one setting (no task type).
 - Haiku answered through the Claude Code CLI, not the live app, with no 350-token reply cap.
 
