@@ -15,11 +15,18 @@
  *     EVAL_B_MODEL (default claude-haiku-4-5-20251001, the app's Anthropic live tier).
  *  C  Pitch council: real runCouncil; Retrieval, ICP drafter, Brand and Fact
  *     Validation all answered by EVAL_C_MODEL (default claude-opus-4-7).
+ *  D  Real Gemini search. Same production chunking (semanticChunk) and ranking
+ *     (rankChunks), reached through the real runLiveKbAsk and runCoachAgent, with
+ *     embedText/embedTexts calling Gemini gemini-embedding-001 directly (same
+ *     request as backend/api/routes/llm.py: batchEmbedContents, 768 dimensions,
+ *     no task type, up to 100 texts per call). The backend proxy is bypassed.
+ *     D-search scores retrieval like A; D-answer runs Ask-KB like B. Needs
+ *     GEMINI_API_KEY in the environment. Not in the default arm list.
  *
  * Scoring is fixed code rules only. No AI grader.
  *
  * Run: bun test ./evals/harness/rag.eval.ts --timeout 7200000
- *   EVAL_ARMS=A        (A, B, C or a comma list; default A,B,C)
+ *   EVAL_ARMS=A        (A, B, C, D or a comma list; default A,B,C)
  *   EVAL_RUNS=3        (runs per case for B and C)
  *   EVAL_ONLY=s01,c01  (subset; writes -partial files)
  */
@@ -44,6 +51,57 @@ const tokenize = (s: string) =>
   s.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 2 && !STOP.has(t))
     .map((t) => (t.length > 3 && t.endsWith("s") && !t.endsWith("ss") ? t.slice(0, -1) : t));
 
+// ─── Real Gemini embedder (D). Direct call, same request as the backend /embed. ─
+// Read the key once, then drop it from the environment so child processes
+// (the Claude CLI) never inherit it. Never logged: it goes only in a header.
+const GEMINI_KEY = process.env.GEMINI_API_KEY ?? "";
+delete process.env.GEMINI_API_KEY;
+const GEMINI_MODEL = "gemini-embedding-001";
+const GEMINI_DIMS = 768;
+const GEMINI_BATCH = 100;
+const realFetch = globalThis.fetch;
+const GEMINI_CACHE = new Map<string, number[]>();
+const GEMINI_LOG = { calls: 0, ok: 0, retries: 0, errors: [] as string[], textsEmbedded: 0, cacheHits: 0 };
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+async function geminiBatch(texts: string[]): Promise<number[][]> {
+  if (!GEMINI_KEY) throw new Error("GEMINI_API_KEY not set");
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:batchEmbedContents`;
+  const body = JSON.stringify({ requests: texts.map((t) => ({ model: `models/${GEMINI_MODEL}`, content: { parts: [{ text: t }] }, outputDimensionality: GEMINI_DIMS })) });
+  for (let attempt = 0; ; attempt++) {
+    GEMINI_LOG.calls++;
+    let status = 0; let detail = "";
+    try {
+      const res = await realFetch(url, { method: "POST", headers: { "x-goog-api-key": GEMINI_KEY, "Content-Type": "application/json" }, body });
+      status = res.status;
+      if (res.ok) {
+        const data: any = await res.json();
+        const vecs = (data.embeddings ?? []).map((e: any) => e.values);
+        if (vecs.length !== texts.length || vecs.some((v: any) => !Array.isArray(v) || v.length !== GEMINI_DIMS)) throw new Error(`malformed response: ${vecs.length} vectors for ${texts.length} texts`);
+        GEMINI_LOG.ok++;
+        GEMINI_LOG.textsEmbedded += texts.length;
+        return vecs;
+      }
+      detail = (await res.text()).slice(0, 200);
+    } catch (e: any) { detail = String(e?.message ?? e).slice(0, 200); }
+    const retryable = status === 0 || status === 429 || status >= 500;
+    GEMINI_LOG.errors.push(`HTTP ${status || "network"}: ${detail}`.replaceAll(GEMINI_KEY || "\u0000", "[key]"));
+    if (!retryable || attempt >= 6) throw new Error(`Gemini embed failed (HTTP ${status})`);
+    GEMINI_LOG.retries++;
+    await sleep(Math.min(60_000, 2_000 * 2 ** attempt));
+  }
+}
+async function geminiEmbedMany(texts: string[]): Promise<number[][]> {
+  const missing = [...new Set(texts.filter((t) => !GEMINI_CACHE.has(t)))];
+  GEMINI_LOG.cacheHits += texts.length - missing.length;
+  for (let i = 0; i < missing.length; i += GEMINI_BATCH) {
+    const slice = missing.slice(i, i + GEMINI_BATCH);
+    const vecs = await geminiBatch(slice);
+    slice.forEach((t, j) => GEMINI_CACHE.set(t, vecs[j]));
+  }
+  return texts.map((t) => GEMINI_CACHE.get(t)!);
+}
+let GEMINI_RECORDS: any[] = [];
+
 // ─── Mocks: only the network edges are replaced ─────────────────────────────
 const realStore = await import(resolve(SHARED, "utils/kb-vector-store.ts"));
 const realRankChunks = realStore.rankChunks;
@@ -62,10 +120,14 @@ mock.module(resolve(SHARED, "utils/kb-vector-store.ts"), () => ({
   ...realStore,
   rankChunks: realRankChunks,
   // IndexedDB is not available outside the browser: rank the in-memory records instead.
-  searchChunks: async (q: number[], topK: number, ids?: string[]) => realRankChunks(RECORDS, q, topK, ids),
+  searchChunks: async (q: number[], topK: number, ids?: string[]) =>
+    realRankChunks((EVAL_CTX.getStore() as any)?.retriever === "gemini" ? GEMINI_RECORDS : RECORDS, q, topK, ids),
 }));
 
+// Keep the real module's other exports (timeouts, helpers); replace only the network edges.
+const realLLM = await import(resolve(SHARED, "agents/llm-client.ts"));
 mock.module(resolve(SHARED, "agents/llm-client.ts"), () => ({
+  ...realLLM,
   resolveLLMConfig: (override?: { provider: string; model: string }) => ({ provider: "anthropic", apiKey: "", model: override?.model || C_MODEL }),
   makeLLMClient: (cfg: { model: string }) => {
     const call = async (system: string, user: string) => {
@@ -84,10 +146,14 @@ mock.module(resolve(SHARED, "agents/llm-client.ts"), () => ({
   backendJwt: async () => "eval",
   embedText: async (text: string) => {
     const ctx = EVAL_CTX.getStore() as any;
+    if (ctx?.retriever === "gemini") {
+      // A throw here would silently send retrieveKB to the lexical fallback: record it.
+      try { return (await geminiEmbedMany([text]))[0]; } catch (e) { ctx.embedFailed = true; throw e; }
+    }
     if (ctx?.retriever !== "offline") throw new Error("eval: no Gemini embedder (forces the production lexical fallback)");
     return offlineEmbed(text);
   },
-  embedTexts: async (texts: string[]) => texts.map(offlineEmbed),
+  embedTexts: async (texts: string[]) => ((EVAL_CTX.getStore() as any)?.retriever === "gemini" ? geminiEmbedMany(texts) : texts.map(offlineEmbed)),
   EMBEDDING_DIMS: 768,
 }));
 
@@ -191,26 +257,28 @@ function offlineFullRank(c: any) {
 async function captureAsk(q: string, retriever: string) {
   const ctx: any = { mode: "capture", retriever, label: "A" };
   await EVAL_CTX.run(ctx, () => runLiveKbAsk(q, session(q), kb));
+  if (ctx.embedFailed) throw new Error("Gemini embed failed; retrieval fell back to keywords");
   return ctx.sent;
 }
 async function captureCoach(q: string, retriever: string) {
   const ctx: any = { mode: "capture", retriever, label: "A" };
   await EVAL_CTX.run(ctx, async () => { try { await runCoachAgent(session(q), kb); } catch (e: any) { if (e.message !== "EVAL_CAPTURED") throw e; } });
+  if (ctx.embedFailed) throw new Error("Gemini embed failed; retrieval fell back to keywords");
   const u: string = ctx.captured?.user ?? "";
   const m = u.match(/use these to ground specific claims\):\n([\s\S]*?)\n\nLive transcript/);
   return m ? parseKbBlock(m[1]) : null;
 }
 
 // ─── Arm A ───────────────────────────────────────────────────────────────────
-async function armA() {
+async function armA(RETRIEVERS = ["lexical", "offline"], name = "retrieval") {
   const rows: any[] = [];
   for (const c of cases) {
     const row: any = { id: c.id, category: c.category, answerable: c.answerable };
-    for (const retriever of ["lexical", "offline"]) {
+    for (const retriever of RETRIEVERS) {
       const ask = await captureAsk(c.question, retriever);
       const coach = await captureCoach(c.question, retriever);
-      row[retriever] = { askKB_k6_500: scoreRetrieval(c, ask?.snippets), coach_k4_240: scoreRetrieval(c, coach), ...(retriever === "offline" ? { fullDepthPassageRank: offlineFullRank(c) } : {}) };
-      if (retriever === "lexical") row.askKBRequest = { provider: ask?.provider, model: ask?.model, max_tokens: ask?.max_tokens };
+      row[retriever] = { askKB_k6_500: scoreRetrieval(c, ask?.snippets), coach_k4_240: scoreRetrieval(c, coach), ...(retriever === "offline" ? { fullDepthPassageRank: offlineFullRank(c) } : {}), ...(retriever === "gemini" ? { fullDepthPassageRank: await geminiFullRank(c) } : {}) };
+      if (retriever === RETRIEVERS[0]) row.askKBRequest = { provider: ask?.provider, model: ask?.model, max_tokens: ask?.max_tokens };
     }
     rows.push(row);
   }
@@ -226,11 +294,17 @@ async function armA() {
     };
   };
   const summary: any = { cases: rows.length, answerable: ans.length, chunking: chunkInfo };
-  for (const ret of ["lexical", "offline"]) for (const key of ["askKB_k6_500", "coach_k4_240"]) {
+  for (const ret of RETRIEVERS) for (const key of ["askKB_k6_500", "coach_k4_240"]) {
     summary[`${ret}.${key}`] = { all: summ(ret, key), ...Object.fromEntries(["single_fact", "paraphrase", "two_entry"].map((cat) => [cat, summ(ret, key, cat)])) };
   }
-  summary.unanswerableEmptyRetrievals = Object.fromEntries(["lexical", "offline"].map((ret) => [ret, rows.filter((r) => !r.answerable && r[ret].askKB_k6_500.returnedCount === 0).length]));
+  summary.unanswerableEmptyRetrievals = Object.fromEntries(RETRIEVERS.map((ret) => [ret, rows.filter((r) => !r.answerable && r[ret].askKB_k6_500.returnedCount === 0).length]));
   summary.askKBRequestedModels = [...new Set(rows.map((r) => `${r.askKBRequest.provider} / ${r.askKBRequest.model}`))];
+  if (RETRIEVERS.includes("gemini")) {
+    summary.geminiEmbedCallsSoFarThisRun = geminiSummary();
+    writeFileSync(outFile(name), JSON.stringify({ method: GEMINI_METHOD + " D-search: retrieval only, no chat model; captured prompts from runLiveKbAsk (top 6, 500 chars) and runCoachAgent (top 4, 240 chars).", summary, results: rows }, null, 2));
+    console.log("ARM D-search", JSON.stringify(Object.fromEntries(Object.entries(summary).filter(([k]) => k !== "chunking")), null, 1));
+    return;
+  }
   writeFileSync(outFile("retrieval"), JSON.stringify({ method: "Arm A: retrieval only, no model calls. Real semanticChunk, retrieveKB, lexicalFallback, rankChunks via runLiveKbAsk and runCoachAgent with the model call captured and skipped. 'offline' uses a TF-IDF stand-in embedder, NOT the production Gemini embedder.", summary, results: rows }, null, 2));
   console.log("ARM A", JSON.stringify(Object.fromEntries(Object.entries(summary).filter(([k]) => k !== "chunking")), null, 1));
 }
@@ -258,19 +332,20 @@ function scoreAnswer(c: any, res: any, snippets: any[]) {
   return { answer, sources: sources.length, notInKB, mustOk, forbiddenHit: forbidden, quotesOk, quoteChecks, pass };
 }
 
-async function armB() {
-  const jobs = ["lexical", "offline"].flatMap((retriever) => Array.from({ length: RUNS }, (_, run) => cases.map((c: any) => ({ c, retriever, run })))).flat();
+async function armB(RETRIEVERS = ["lexical", "offline"], name = "askkb") {
+  const jobs = RETRIEVERS.flatMap((retriever) => Array.from({ length: RUNS }, (_, run) => cases.map((c: any) => ({ c, retriever, run })))).flat();
   const rows: any[] = [];
   const t0 = Date.now();
   await pool(jobs, POOL, async ({ c, retriever, run }) => {
     const ctx: any = { mode: "live", retriever, label: `B:${retriever}:${run}:${c.id}` };
     const res = await EVAL_CTX.run(ctx, () => runLiveKbAsk(c.question, session(c.question), kb));
+    if (ctx.embedFailed) throw new Error(`Gemini embed failed for ${c.id}; retrieval fell back to keywords`);
     const snippets = ctx.sent?.snippets ?? [];
     rows.push({ id: c.id, category: c.category, answerable: c.answerable, retriever, run, retrieval: scoreRetrieval(c, snippets), requested: { provider: ctx.sent?.provider, model: ctx.sent?.model }, ...scoreAnswer(c, res, snippets), rejected: res?.rejected === true, raw: ctx.raw, ms: ctx.rec?.ms, model: ctx.rec?.models });
   });
   rows.sort((a, b) => (a.retriever + a.run + a.id).localeCompare(b.retriever + b.run + b.id));
   const summary: any = { wallMs: Date.now() - t0, configuredModel: B_MODEL, runs: RUNS, appRequestedModels: [...new Set(rows.map((r) => `${r.requested.provider} / ${r.requested.model}`))] };
-  for (const retriever of ["lexical", "offline"]) {
+  for (const retriever of RETRIEVERS) {
     const rs = rows.filter((r) => r.retriever === retriever);
     const ans = rs.filter((r) => r.answerable);
     const byCat = (cat: string) => { const x = rs.filter((r) => r.category === cat); return { attempts: x.length, pass: x.filter((r) => r.pass).length }; };
@@ -279,6 +354,7 @@ async function armB() {
       answerableAttempts: ans.length,
       answerableCorrect: ans.filter((r) => r.pass).length,
       answerableWithForbiddenText: ans.filter((r) => r.forbiddenHit.length).length,
+      paraphraseCorrectByCase: Object.fromEntries([...new Set(ans.filter((r) => r.category === "paraphrase").map((r) => r.id))].map((id) => [id, `${ans.filter((r) => r.id === id && r.pass).length} / ${ans.filter((r) => r.id === id).length}`])),
       answerableWronglyNotInKB: ans.filter((r) => r.notInKB).length,
       answerableWronglyNotInKBWhenPassageWasSeen: ans.filter((r) => r.notInKB && r.retrieval.allGoldPassagesSeen).length,
       answerableCorrectWhenPassageWasSeen: `${ans.filter((r) => r.pass && r.retrieval.allGoldPassagesSeen).length} / ${ans.filter((r) => r.retrieval.allGoldPassagesSeen).length}`,
@@ -301,6 +377,12 @@ async function armB() {
   }
   const stats = callStats((l) => l.startsWith("B:"));
   Object.assign(summary, { ...stats, calls: undefined });
+  if (RETRIEVERS.includes("gemini")) {
+    summary.geminiEmbedCallsSoFarThisRun = geminiSummary();
+    writeFileSync(outFile(name), JSON.stringify({ method: GEMINI_METHOD + ` D-answer: real runLiveKbAsk (retrieveKB + KB_ASK_SYSTEM prompt + safeJson + quote check), fetch shimmed to the Claude Code CLI with ${B_MODEL}. No max_tokens limit on the CLI.`, summary, results: rows, calls: stats.calls }, null, 2));
+    console.log("ARM D-answer", JSON.stringify(summary, null, 1));
+    return;
+  }
   writeFileSync(outFile("askkb"), JSON.stringify({ method: `Arm B: real runLiveKbAsk (retrieveKB + KB_ASK_SYSTEM prompt + safeJson), fetch shimmed to the Claude Code CLI with ${B_MODEL}. Not the production API path; no max_tokens limit on the CLI.`, summary, results: rows, calls: stats.calls }, null, 2));
   console.log("ARM B", JSON.stringify(summary, null, 1));
 }
@@ -365,8 +447,31 @@ async function armC() {
   console.log("ARM C", JSON.stringify(summary, null, 1));
 }
 
+// ─── Arm D ───────────────────────────────────────────────────────────────────
+const GEMINI_METHOD = `Arm D: real Gemini search. Production semanticChunk and rankChunks (via the mocked searchChunks) reached through the real runLiveKbAsk and runCoachAgent; embedText/embedTexts call Gemini ${GEMINI_MODEL} directly with outputDimensionality ${GEMINI_DIMS} and no task type (the same request backend/api/routes/llm.py sends), batches of up to ${GEMINI_BATCH}. The backend proxy is bypassed. Embeddings cached within the run.`;
+const geminiSummary = () => ({ model: GEMINI_MODEL, dims: GEMINI_DIMS, chunksIndexed: GEMINI_RECORDS.reduce((a, r) => a + r.chunks.length, 0), uniqueTextsCached: GEMINI_CACHE.size, httpCalls: GEMINI_LOG.calls, httpOk: GEMINI_LOG.ok, retries: GEMINI_LOG.retries, textsEmbedded: GEMINI_LOG.textsEmbedded, cacheHits: GEMINI_LOG.cacheHits, errors: [...GEMINI_LOG.errors] });
+async function indexGemini() {
+  if (GEMINI_RECORDS.length) return;
+  const vecs = await geminiEmbedMany(chunked.flatMap((c: any) => c.chunks.map((ch: any) => ch.text)));
+  let i = 0;
+  GEMINI_RECORDS = chunked.map((c: any) => ({ entryId: c.e.id, namespace: c.e.namespace, name: c.e.name, updated_at: "", chunks: c.chunks.map((ch: any) => ({ text: ch.text, embedding: vecs[i++] })) }));
+}
+// Full-depth rank of the first chunk containing the gold passage (Gemini).
+async function geminiFullRank(c: any) {
+  if (!c.gold_entry_ids.length) return null;
+  const hits = realRankChunks(GEMINI_RECORDS, (await geminiEmbedMany([c.question]))[0], 1000);
+  const r = hits.findIndex((h: any) => c.gold_entry_ids.some((g: string, j: number) => h.entryId === g && h.text.includes(c.gold_chunk_substr[j])));
+  return r >= 0 ? r + 1 : null;
+}
+async function armD() {
+  await indexGemini();
+  await armA(["gemini"], "gemini-retrieval");
+  if (process.env.EVAL_D_ANSWER !== "0") await armB(["gemini"], "gemini-askkb");
+}
+
 test("clientlens retrieval eval", async () => {
   if (ARMS.includes("A")) await armA();
   if (ARMS.includes("B")) await armB();
   if (ARMS.includes("C")) await armC();
+  if (ARMS.includes("D")) await armD();
 });
