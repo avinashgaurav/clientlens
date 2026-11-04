@@ -7,10 +7,10 @@
   <title>ClientLens: Open-Source Sales Copilot</title>
   <meta
     name="description"
-    content="An open-source AI copilot that sits in your browser sidebar: pitch generation, live meeting coaching, objection handling, and post-call insights for B2B sales reps. MIT licensed, runs on your own LLM keys."
+    content="An open-source AI copilot that sits in your browser sidebar: pitch generation, live meeting coaching, objection handling, and post-call insights for B2B sales reps. MIT licensed. Use the hosted backend or self-host it on your own LLM keys."
   />
   <meta property="og:title" content="ClientLens: Open-Source Sales Copilot" />
-  <meta property="og:description" content="Live meeting coaching, grounded pitch generation, objection handling, and post-call insights. Open source, MIT licensed, and it runs on your own LLM keys. No ClientLens server in the middle." />
+  <meta property="og:description" content="Live meeting coaching, grounded pitch generation, objection handling, and post-call insights. Open source, MIT licensed. Use the hosted backend or self-host it on your own LLM keys." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://avinashgaurav.github.io/clientlens/" />
   <meta property="og:image" content="https://avinashgaurav.github.io/clientlens/og.png" />
@@ -19,7 +19,7 @@
   <meta property="og:image:alt" content="ClientLens: open-source sales copilot for your browser sidebar." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ClientLens: Open-Source Sales Copilot" />
-  <meta name="twitter:description" content="Live meeting coaching, grounded pitch generation, objection handling. Open source, MIT licensed, runs on your own LLM keys." />
+  <meta name="twitter:description" content="Live meeting coaching, grounded pitch generation, objection handling. Open source, MIT licensed. Hosted backend, or self-host on your own LLM keys." />
   <meta name="twitter:image" content="https://avinashgaurav.github.io/clientlens/og.png" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -40,12 +40,14 @@
         <span class="brand__name">ClientLens</span>
       </a>
       <div class="nav-links">
+        <a href="#try">Try it</a>
+        <a href="#watch">Watch</a>
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
         <a href="#install">Install</a>
         <a href="https://github.com/avinashgaurav/clientlens">GitHub</a>
       </div>
-      <a class="nav-cta" href="#install">Open source</a>
+      <a class="nav-cta" href="#try">Try it</a>
     </div>
   </nav>
 
@@ -59,14 +61,14 @@
       </h1>
       <p class="hero__lede">
         Live coaching, grounded pitches, objections answered on the spot. It sits in your
-        Chrome sidebar and runs on your own keys. There is no ClientLens server.
+        Chrome sidebar. Use the hosted backend, or self-host it on your own keys.
       </p>
       <div class="hero__cta-row">
-        <a class="btn-pill btn-pill--primary" href="#install">
-          Run it yourself
+        <a class="btn-pill btn-pill--primary" href="#try">
+          Try it now
           <span aria-hidden="true">→</span>
         </a>
-        <a class="btn-pill btn-pill--ghost" href="#how">See how it works</a>
+        <a class="btn-pill btn-pill--ghost" href="#watch">Watch the videos</a>
       </div>
 
 
@@ -76,8 +78,8 @@
           <div class="hero__stat__label">Licensed. Fork it, ship it, sell with it</div>
         </div>
         <div>
-          <div class="hero__stat__value num">100%</div>
-          <div class="hero__stat__label">Bring your own LLM keys</div>
+          <div class="hero__stat__value num">Hosted</div>
+          <div class="hero__stat__label">Or self-host it on your own LLM keys</div>
         </div>
         <div>
           <div class="hero__stat__value num">0</div>
@@ -87,6 +89,85 @@
           <div class="hero__stat__value num">6</div>
           <div class="hero__stat__label">ICP profiles tuned out of the box</div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── TRY IT (self sign-up, PostHog skin like How it works) ────────── -->
+  <section id="try" class="band try">
+    <div class="container">
+      <div class="how__heading">
+        <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">Try it in a few minutes</div>
+        <h2>Load it, sign up, generate.</h2>
+        <p>
+          No backend to run. Load the extension, create an account on the hosted backend,
+          and draft a pitch from sample data.
+        </p>
+      </div>
+      <ol class="how__grid try__steps">
+        <li class="how__card">
+          <div class="how__card__step">1</div>
+          <h3>Download the extension</h3>
+          <p>
+            Get <code>ClientLens-extension.zip</code> from the
+            <a href="https://github.com/avinashgaurav/clientlens/releases/latest">latest release</a>
+            and unzip it.
+          </p>
+        </li>
+        <li class="how__card">
+          <div class="how__card__step">2</div>
+          <h3>Load it unpacked</h3>
+          <p>
+            Open <code>chrome://extensions</code>, turn on Developer mode, click Load unpacked
+            and pick the unzipped folder.
+          </p>
+        </li>
+        <li class="how__card">
+          <div class="how__card__step">3</div>
+          <h3>Create an account and generate</h3>
+          <p>
+            Click the ClientLens icon to open the side panel, click Create an account and sign up
+            with your email and a password of at least 8 characters. Open Quick settings, turn on
+            Try ClientLens with sample data, then open the Generate tab and draft a pitch.
+          </p>
+        </li>
+      </ol>
+
+      <div class="how__caveat try__know">
+        <p class="how__caveat__label">Good to know</p>
+        <ul>
+          <li>Each account is its own private workspace with a daily AI allowance.</li>
+          <li>There's no email step to sign up. Password reset isn't available yet, so keep your password somewhere safe.</li>
+          <li>The AI runs on a free-tier key with a small daily quota, so it can say it is busy or used up for today. Try again later if you see that.</li>
+          <li><strong>Needs setup:</strong> export to Google Slides and Docs (needs a Google OAuth client ID) and live coaching in Google Meet (needs a Deepgram key).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ────────── WATCH (two videos, hosted on the v1.1.0 release) ────────── -->
+  <section id="watch" class="band see watch">
+    <div class="container">
+      <div class="see__head">
+        <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">Watch</div>
+        <h2>See it before you load it.</h2>
+        <p>A 43-second launch cut, and a 72-second recording of one user's path, start to finish.</p>
+      </div>
+      <div class="watch__grid">
+        <figure class="watch__item watch__item--portrait">
+          <video controls muted playsinline preload="metadata" poster="img/launch-video-poster.png" width="1080" height="1350" aria-label="ClientLens launch video, 43 seconds">
+            <source src="https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-brag.mp4" type="video/mp4" />
+            <a href="https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-brag.mp4">Download the launch video</a>
+          </video>
+          <figcaption><strong>Launch video.</strong> 43 s. Start with your own docs and case studies, say who you are pitching, and four agents build the draft: retrieve context, brand compliance, ICP personalization, fact check. A claim that cannot be backed up is held, not shipped. It closes on the first eval (13/13 planted false claims caught, 0/13 could still be written to a doc, 0/6 supported decks wrongly flagged) and the pitch, email and objection formats.</figcaption>
+        </figure>
+        <figure class="watch__item">
+          <video controls muted playsinline preload="metadata" poster="img/user-journey-poster.png" width="1920" height="1080" aria-label="ClientLens user journey video, 72 seconds">
+            <source src="https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-user-journey.mp4" type="video/mp4" />
+            <a href="https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-user-journey.mp4">Download the user journey video</a>
+          </video>
+          <figcaption><strong>User journey.</strong> 72 s. Real recording. Eight steps on sample data and a fictional company: sign in with email and password, load sample data from Quick settings, the knowledge base, fill in the pitch, the four agents run, the result with two claims held for review, the weekly insights, and sign out. It ends with the two things that need your own setup.</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -398,8 +479,8 @@
         <div class="eyebrow eyebrow--light" style="margin-bottom:16px;">From install to first close</div>
         <h2>Three steps. Your keys, your infrastructure.</h2>
         <p>
-          Nothing to install on the prospect's side, no IT ticket, no account to create.
-          Setup is a developer task once. v1.0 is built for one rep on their own backend.
+          This is the self-host path. Nothing to install on the prospect's side and no IT
+          ticket. Setup is a developer task once. To just try it, use the hosted backend above.
         </p>
       </div>
       <div class="how__grid">
@@ -431,11 +512,10 @@
       <div class="how__caveat">
         <p class="how__caveat__label">Read this before you deploy it</p>
         <p>
-          <strong>Authentication is not wired in v1.0.</strong> The sidebar provisions a local
-          admin and the backend runs in dev mode, so anything that can reach the backend is
-          treated as an admin request. Keep it bound to localhost. That is fine for one rep
-          self-hosting, which is exactly what v1.0 targets, and it is not safe for a shared
-          team deployment or for a backend on a public address.
+          <strong>Sign-in is email and password.</strong> Anyone can create an account, and
+          each account is its own workspace with daily usage caps. That holds on the hosted
+          backend and on one you run yourself. Leave dev mode off on any backend you deploy:
+          it accepts a stub user, skips the caps and is for local development only.
         </p>
         <p>
           Also worth knowing up front: you load it unpacked, there is no Web Store listing yet,
@@ -453,7 +533,7 @@
   <section id="install" class="cta">
     <div class="cta__inner">
       <div class="hero__eyebrow" style="justify-content:center;color:#F58549;margin-bottom:24px;">
-        Bring your own keys · MIT licensed · No SaaS lock-in
+        Hosted, or self-host on your own keys · MIT licensed
       </div>
       <h2>Stop juggling tabs.<br />Start closing deals.</h2>
       <p>
@@ -493,6 +573,7 @@
         <div class="footer__col">
           <h4>Product</h4>
           <ul>
+            <li><a href="#try">Try it</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#how">How it works</a></li>
             <li><a href="#install">Install</a></li>
@@ -520,7 +601,7 @@
       </div>
       <div class="footer__legal">
         <span>© ClientLens · MIT licensed</span>
-        <a class="mono" href="https://github.com/avinashgaurav/clientlens/releases/tag/v1.0.0" style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:inherit;text-decoration:none;">v1.0.0</a>
+        <a class="mono" href="https://github.com/avinashgaurav/clientlens/releases/tag/v1.1.0" style="font-size:11px;text-transform:uppercase;letter-spacing:0.14em;color:inherit;text-decoration:none;">v1.1.0</a>
       </div>
     </div>
   </footer>
