@@ -9,7 +9,7 @@ Worth knowing before you invest an evening in it:
 - **No Chrome Web Store listing.** Load unpacked. Setup is a developer task.
 - **Zoho is the only CRM**, and **Google Meet is the only meeting surface** that works end to end. HubSpot, Salesforce and Teams are on the roadmap.
 - **Python 3.11+ is a hard requirement.** Dependencies resolve on 3.9, but the backend then fails at import, so it breaks later and more confusingly than you would expect.
-- **No way to try it without installing it.** Mock mode avoids spending LLM credits but still routes through the backend, so there is no offline or hosted demo.
+- **Installing is still a developer step.** The extension loads unpacked in Developer mode (no Chrome Web Store listing yet). Once installed, the hosted backend and open sign-up let you try it with sample data without running a server.
 
 ### Known limitations
 
@@ -27,13 +27,13 @@ These features exist in the code and work once the hosted backend has the right 
 
 | Feature | What it needs | Status |
 |---|---|---|
-| Write pitches into Google Slides and Docs, Google Calendar sync | A Google OAuth client ID for the extension's fixed ID (`VITE_GOOGLE_CLIENT_ID`) | Built. Without it, copy the draft instead. |
+| Write pitches into Google Slides and Docs, Google Calendar sync | A Google OAuth client ID for the extension's fixed ID (`VITE_GOOGLE_CLIENT_ID`) | Built. Without it, copy the draft instead; Calendar sync is unavailable. |
 | Live coaching in Google Meet | A Deepgram API key and project ID on the backend, and the Copilot flag in the build (`VITE_MEETING_COPILOT=true`, `VITE_STT_PROVIDER=deepgram`) | Built, off in the shared build. Follow-ups in [#168](https://github.com/avinashgaurav/clientlens/issues/168). |
 
 ### Accounts and email
 
 - **Password reset.** Needs a custom email provider (for example Resend) on the Supabase project; Supabase's built-in sender only reaches the project team. "Forgot password" stays hidden behind `VITE_PASSWORD_RESET` until then. [#165](https://github.com/avinashgaurav/clientlens/issues/165)
-- **Sign-up protection:** CAPTCHA and a minimum password length of 8 enforced by the server, set in Supabase > Authentication > Attack Protection. Sign-up is open, so this matters before wider sharing.
+- **Sign-up protection:** turn on CAPTCHA and set a server-side minimum password length of 8 in Supabase > Authentication > Attack Protection (the extension already asks for 8). Sign-up is open, so this matters before wider sharing.
 
 ### Product
 
