@@ -6,7 +6,7 @@ Every surface, in full. For the short version see the [README](../README.md).
 
 **The open-source AI sales copilot that lives in your browser sidebar.**
 
-Live coaching during Google Meet calls, pitch generation grounded in your own knowledge base, and objection handling on tap. Runs on your LLM keys, on your infrastructure. There is no ClientLens server.
+Live coaching during Google Meet calls, pitch generation grounded in your own knowledge base, and objection handling on tap. Use the hosted backend with an email and password account, or self-host it on your own LLM keys and infrastructure.
 
 A sales rep's typical hour: jump into Google Meet, lose track of the agenda, fumble the objection, take a half-page of notes, paste them into the CRM, then forget the follow-up. ClientLens compresses that loop.
 
@@ -124,18 +124,18 @@ The `ModelPicker` in the sidebar lets each user pick their preferred provider/mo
 
 Backed by Supabase RLS and a `rbac/roles.py` permission matrix on the backend.
 
-> [!WARNING]
-> **In v1.0 this matrix is effectively dormant.** The permission checks are real and they run, but because auth is not wired (see [Security model](security.md)), the extension self-assigns the `admin` role and the backend runs in `DEV_MODE`, treating every caller as a stub `sales_rep` user. The table below describes the intended model and what the code enforces once a real JWT is present, not what constrains a user today.
+Sign-in is email and password (see [Security model](security.md)), and the backend checks each request against the caller's role. An open sign-up gets the `owner` role: full control of its own workspace, no user management.
 
 | Role | Capabilities |
 |---|---|
 | **Designer** | Upload/update Design System tokens, manage templates |
 | **PMM** | Update Brand Voice, manage messaging framework, banned word list |
 | **Sales Rep** | Generate pitches, use meeting copilot, access KB, push to CRM |
+| **Owner** | Everything a Designer, PMM and Sales Rep can do, in their own workspace; no user management. What every sign-up gets |
 | **Admin** | Everything above + user management + KB wipe + RBAC editing |
 
 Critical operations are permission-gated:
-- `crm:connect`: minting Zoho OAuth tokens with full CRM scope. Restricted to `ADMIN`, `SALES_REP`. A viewer-role JWT cannot exchange the server's client_secret for an access_token.
+- `crm:connect`: minting Zoho OAuth tokens with full CRM scope. Restricted to `ADMIN`, `OWNER`, `SALES_REP`. A viewer-role JWT cannot exchange the server's client_secret for an access_token.
 
 ### 9. Settings & Onboarding
 
