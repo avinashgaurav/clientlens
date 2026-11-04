@@ -29,6 +29,8 @@
  *   EVAL_ARMS=A        (A, B, C, D or a comma list; default A,B,C)
  *   EVAL_RUNS=3        (runs per case for B and C)
  *   EVAL_ONLY=s01,c01  (subset; writes -partial files)
+ *   EVAL_DATASET=rag-new.json  (second test set; default rag.json)
+ *   EVAL_B_RETRIEVERS=lexical  (arm B retrievers; default lexical,offline)
  */
 import { mock, test } from "bun:test";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -37,12 +39,17 @@ import { CALL_LOG, EVAL_CTX, callClaude } from "./claude-cli.mjs";
 
 const SRC = resolve(import.meta.dir, "../../extension/src");
 const SHARED = resolve(SRC, "shared");
-const DS = JSON.parse(readFileSync(resolve(import.meta.dir, "../datasets/rag.json"), "utf8"));
+// EVAL_DATASET picks the test set (default rag.json; rag-new.json is the second set). Results files are named after it.
+const DS_FILE = process.env.EVAL_DATASET ?? "rag.json";
+const DS_TAG = DS_FILE.replace(/\.json$/, "");
+const DS = JSON.parse(readFileSync(resolve(import.meta.dir, "../datasets", DS_FILE), "utf8"));
 const ARMS = (process.env.EVAL_ARMS ?? "A,B,C").split(",").map((s) => s.trim());
 const RUNS = Number(process.env.EVAL_RUNS ?? 3);
 const ONLY = process.env.EVAL_ONLY?.split(",");
 const B_MODEL = process.env.EVAL_B_MODEL ?? "claude-haiku-4-5-20251001";
 const C_MODEL = process.env.EVAL_C_MODEL ?? "claude-opus-4-7";
+// Retrievers for arm B (default lexical,offline).
+const B_RETRIEVERS = (process.env.EVAL_B_RETRIEVERS ?? "lexical,offline").split(",").map((s) => s.trim());
 const POOL = Number(process.env.EVAL_POOL ?? 4);
 
 // ─── Offline stand-in embedder (A2). NOT the production embedder. ────────────
@@ -202,12 +209,12 @@ const rx = (s: string) => new RegExp(s, "i");
 const today = process.env.EVAL_DATE ?? new Date().toISOString().slice(0, 10);
 // Never overwrite an existing (possibly committed) results file: add -2, -3, ...
 const outFile = (name: string) => {
-  const base = resolve(import.meta.dir, "../results", `${today}-rag-${name}${ONLY ? "-partial" : ""}`);
+  const base = resolve(import.meta.dir, "../results", `${today}-${DS_TAG}-${name}${ONLY ? "-partial" : ""}`);
   let path = `${base}.json`;
   for (let n = 2; existsSync(path); n++) path = `${base}-${n}.json`;
   return path;
 };
-const session = (q: string) => ({ id: "eval", status: "active", platform: "google_meet", input: { company_name: "Brindlewood Supply", persona_role: "CFO", agenda: [] }, transcript: [{ id: "t1", speaker: "prospect", text: q, ts_start: 0, ts_end: 1000, is_final: true }], sentiment_history: [], suggestions: [], agenda: [] });
+const session = (q: string) => ({ id: "eval", status: "active", platform: "google_meet", input: { company_name: DS.session_company ?? "Brindlewood Supply", persona_role: "CFO", agenda: [] }, transcript: [{ id: "t1", speaker: "prospect", text: q, ts_start: 0, ts_end: 1000, is_final: true }], sentiment_history: [], suggestions: [], agenda: [] });
 
 async function pool<T>(items: T[], n: number, fn: (x: T) => Promise<void>) {
   let i = 0;
@@ -332,7 +339,7 @@ function scoreAnswer(c: any, res: any, snippets: any[]) {
   return { answer, sources: sources.length, notInKB, mustOk, forbiddenHit: forbidden, quotesOk, quoteChecks, pass };
 }
 
-async function armB(RETRIEVERS = ["lexical", "offline"], name = "askkb") {
+async function armB(RETRIEVERS = B_RETRIEVERS, name = "askkb") {
   const jobs = RETRIEVERS.flatMap((retriever) => Array.from({ length: RUNS }, (_, run) => cases.map((c: any) => ({ c, retriever, run })))).flat();
   const rows: any[] = [];
   const t0 = Date.now();
