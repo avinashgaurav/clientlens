@@ -774,8 +774,8 @@ button { font: inherit; cursor: pointer; }
    page. Scoped to last-of-type so the lede above the buttons is unaffected. */
 .cta__inner > p:last-of-type { margin-top: 30px; margin-bottom: 0; }
 
-/* ═══ v3: Try it (self sign-up), Good to know, Watch. Nothing above this line
-   was changed. Try it reuses the How it works cards and caveat panel so the two
+/* ═══ v3: Try it (self sign-up), Good to know, Watch. Above this line only the
+   .how__caveat comment was reworded. Try it reuses the How it works cards and caveat panel so the two
    cream bands read as one system; Watch reuses the dark .see band. ═══ */
 .try { background: #EEEFE9; color: #23251D; }
 .try__steps { list-style: none; padding: 0; margin-top: 16px; }
