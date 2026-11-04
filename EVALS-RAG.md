@@ -160,6 +160,65 @@ Limits of this test:
 - One embedding model, one setting (no task type).
 - Haiku answered through the Claude Code CLI, not the live app, with no 350-token reply cap.
 
+## Results on new cases (2026-11-04)
+
+Every number above comes from the 30 questions I wrote the fixes against, so they are a best case. To check them, I wrote a second test set the code was never tuned on and ran the same tests on it.
+
+- **New test data** (`evals/datasets/rag-new.json`). A new made-up KB of 10 entries about a different product: Tidewell Dispatch, a scheduling app for heating and plumbing contractors, by Orrinmoor Systems. No people, products or wording from the Lumora Ledger set. One long entry (2,141 characters) holds key facts past character 1,000, four of them past 1,500. Two pricing entries look alike ($39 and $64 per technician), and so do the two case studies. Some facts use 3-letter terms (SMS, ETA, GPS, API, CRM, TAM). One entry lists what the product does not do, and the security entry says the SOC 2 Type II audit is not finished. 31 questions: 16 simple facts, 5 reworded to share no key words with the answer, 3 needing two entries, and 7 the KB cannot answer (3 are traps the KB denies, like the year of that SOC 2 Type II audit). Plus 6 new pitch prospects.
+- **Answers first.** I committed the questions and answer key ("Add new test cases and answer key, before any model call") before any AI or Gemini call.
+- **Same code, models and scoring.** The code after the fixes, unchanged. Same scoring rules, written as fixed code checks. Search by keyword, word-count stand-in and real Gemini (`gemini-embedding-001`, called directly as before). Ask-KB answered by `claude-haiku-4-5-20251001`, 3 runs, with keyword search and with Gemini (not with the stand-in). Pitches by `claude-opus-4-7` for all 4 roles, 1 run only, to keep cost down. All AI calls went through the Claude Code CLI.
+
+**Search only** (right entry in results / key text inside what the AI sees / right entry ranked first)
+
+| Search | Tuned set, Ask-KB (23) | New set, Ask-KB (24) | New set, reworded only (5) | Tuned set, coach (23) | New set, coach (24) |
+|---|---|---|---|---|---|
+| Keyword fallback | 18 / 18 / 16 | 21 / 20 / 20 | 2 / 1 / 2 | 18 / 17 / 15 | 21 / 19 / 20 |
+| Word-count stand-in | 19 / 18 / 19 | 23 / 21 / 21 | 4 / 2 / 2 | 20 / 17 / 17 | 23 / 20 / 21 |
+| Real Gemini | 23 / 22 / 23 | **24 / 23 / 23** | **5 / 4 / 5** | 23 / 20 / 21 | 24 / 21 / 23 |
+
+**Ask-KB end to end** (tuned set: 69 tries on answerable questions and 21 on the rest; new set: 72 and 21)
+
+| Measure | Keyword, tuned | Keyword, new | Gemini, tuned | Gemini, new |
+|---|---|---|---|---|
+| Right answer | 57 / 69 | **60 / 72** | 66 / 69 | **67 / 72** |
+| ...simple facts | 45 / 45 | 48 / 48 | 45 / 45 | 48 / 48 |
+| ...reworded | 3 / 15 | 3 / 15 | 12 / 15 | 12 / 15 |
+| ...needing two entries | 9 / 9 | 9 / 9 | 9 / 9 | 7 / 9 |
+| Said "Not in KB." though the KB had it | 12 / 69 | 12 / 72 | 3 / 69 | 4 / 72 |
+| Unanswerable handled right | 21 / 21 | 21 / 21 | 21 / 21 | 21 / 21 |
+| Answers turned into "Not in KB." by the quote check | 0 | 0 | 0 | 2 |
+| Right answer when the key text reached it | 54 / 54 | 60 / 60 | 66 / 66 | 67 / 69 |
+| Right answers per run | 19, 19, 19 | 20, 20, 20 | 22, 22, 22 | 22, 22, 23 |
+
+The results held on questions the code was never tuned on: about 83% right with keyword search on both sets (57 of 69, 60 of 72), and 96% and 93% with Gemini (66 of 69, 67 of 72). Every simple fact was right in every run. With both searches the AI said exactly "Not in KB." on all 12 unanswerable tries and turned down all 9 traps, and every quote it kept was copied exactly from what it saw (78 of 78 with keywords, 84 of 84 with Gemini).
+
+What still fails:
+
+- **Keyword search still misses reworded questions.** n-p01, n-p02, n-p03 and n-p05 got "Not in KB." in all 3 runs, for example "Can we run the software on machines in our own office?" (the KB says it "cannot be hosted on-premises"). Gemini got n-p02, n-p03, n-p04 and n-p05 right in all 3 runs.
+- **The same passage window miss as p01 in the first set.** n-p01: "If our crews can't get their assignments at 2am, how quickly will someone reply?" The answer, 30 minutes, sits at character 1,529 of the long entry. Gemini ranked that piece first in every run, but the 500-character window the AI sees is picked by shared words, and the question shares none with that sentence. Two runs said "Not in KB."; the third quoted the four-business-hours rule and said the KB does not cover urgent cases, which my check scores wrong. This is item 3 in "What to do next", now seen on a second set.
+- **The quote check threw away 2 right answers.** n-m01 asked how the two plans compare on price. With Gemini, in 2 of 3 runs Haiku gave the right answer ($39 and $64) but its quote joined two sentences of the Fleet entry and skipped the one in between. The check only accepts exact copies, so the rep would have seen "Not in KB.". The check did what it was built to do; the cost here was 2 right answers lost in 93 Gemini tries.
+
+**Pitch pipeline, 1 run** (6 decks; the tuned set had 3 runs, 18 decks)
+
+| Measure | Tuned set | New set |
+|---|---|---|
+| Right sources picked by the first role | 23 / 24 | 7 / 7 |
+| Decks with every right source picked | 17 / 18 | 6 / 6 |
+| Status: verified / redacted / held for review | 12 / 1 / 5 | 5 / 0 / 1 |
+| Decks allowed to be written to a doc | 13 / 18 | 5 / 6 |
+| Writable decks matching a false-claim pattern | 0 / 13 | 0 / 5 |
+
+My automatic checks flagged 2 writable decks for figures not in the KB. These flags were read by an AI reviewer (Claude Opus 5.5), not by me: one deck printed the brand colour "#335577" as slide text again, and one worked out "90 techs = $5,760/month, ~$69,120/year" from the $64 Fleet price, which is correct arithmetic but not a KB figure. The held deck (n-c02) was held because the fact check could not back "Reduces PCI scope on your integration surface", a reading of the KB's line that card payments go through a separate processor. The long-entry fix worked on new data: the data-retention deck (n-c06) gave five years, 14 days and 60 days, all past character 1,500 of the long entry.
+
+Limits of this check:
+
+- Still small and made up: 10 entries, 31 questions, 6 prospects, one AI vendor. I wrote both sets, so they share my habits.
+- The pitch pipeline ran once, not 3 times, so its numbers have no run-to-run spread.
+- The stand-in was scored on search only; Ask-KB ran with keyword search and Gemini.
+- Same set-up limits as above: Claude Code CLI with no 350-token reply cap, and the backend's Gemini proxy bypassed. Gemini made 63 calls with 0 retries and 0 errors.
+
+Results: `evals/results/2026-11-04-rag-new-*.json`. CLI-reported usage: Ask-KB 186 calls, $0.59; pitches 24 calls, $1.05.
+
 ## Limits
 
 - Made-up, small KB: 10 entries, 30 questions, 6 prospects.
@@ -172,7 +231,7 @@ Limits of this test:
 ## What to do next
 
 1. Rerun Ask-KB in the live app with each provider, now that the model fix is in.
-2. Rerun the pitch pipeline after the long-entry change, and write new questions the fixes were never tuned on.
+2. Rerun the pitch pipeline 3 times on both test sets (the new set got 1 run; see "Results on new cases").
 3. Pick the passage window by meaning, not only by shared words. With real Gemini search, the right piece for p01 ranked first, but the answer sits past the 500-character window the AI sees, so it said "Not in KB." in all 3 runs.
 4. The model picker still offers some models the backend rejects by default (`claude-opus-4-7`, OpenRouter `anthropic/claude-3.5-sonnet`). Decide whether to hide them or allow them.
 
@@ -182,6 +241,7 @@ Limits of this test:
 bun test ./evals/harness/rag.eval.ts --timeout 7200000   # all arms, 252 CLI calls
 EVAL_ARMS=A bun test ./evals/harness/rag.eval.ts          # search only, no AI calls
 EVAL_ARMS=D bun test ./evals/harness/rag.eval.ts --timeout 7200000   # real Gemini search, then Ask-KB; needs GEMINI_API_KEY
+EVAL_DATASET=rag-new.json EVAL_ARMS=A bun test ./evals/harness/rag.eval.ts   # the new test set; results files are named rag-new-*
 ```
 
 Results are in `evals/results/2026-11-03-rag-*.json`. CLI-reported usage: Ask-KB 180 calls, $0.55; pitches 72 calls, $3.14. That is list-price usage on the CLI, not app cost.
