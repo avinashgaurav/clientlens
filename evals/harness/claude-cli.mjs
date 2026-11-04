@@ -66,15 +66,44 @@ export function callClaude({ model, system, messages, schema, label = '' }) {
   }
   const t0 = Date.now();
   return new Promise((resolve) => {
-    const p = spawn('claude', args, { cwd: CWD, env: { ...process.env, CLAUDE_CODE_DISABLE_CLAUDE_MDS: '1' } });
+    // A spawn failure reports once, either thrown here or via the 'error' event below.
+    let settled = false;
+    const failStart = (e) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      const ms = Date.now() - t0;
+      const rec = {
+        label, ms, exit: null, is_error: true,
+        result_head: `claude CLI could not be started: ${e?.code ?? ''} ${e?.message ?? e}`.trim().slice(0, 300),
+        models: [], usage: null, cost_usd_list: null, num_turns: undefined,
+      };
+      CALL_LOG.push(rec);
+      resolve({ ok: false, structured: null, text: '', envelope: null, ms, rec, limitHit: false });
+    };
+    let timer;
+    let p;
+    try {
+      p = spawn('claude', args, { cwd: CWD, env: { ...process.env, CLAUDE_CODE_DISABLE_CLAUDE_MDS: '1' } });
+    } catch (e) {
+      failStart(e);
+      return;
+    }
     let out = '';
     let err = '';
     let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; p.kill('SIGKILL'); }, TIMEOUT_MS);
+    timer = setTimeout(() => { timedOut = true; p.kill('SIGKILL'); }, TIMEOUT_MS);
     p.stdout.on('data', (d) => (out += d));
     p.stderr.on('data', (d) => (err += d));
+    // Writing to a process that never started raises EPIPE on stdin; the 'error' handler below
+    // reports that case. Any other stdin error is kept with stderr, which 'close' reports.
+    p.stdin.on('error', (e) => { if (e?.code !== 'EPIPE') err += `\nstdin error: ${e?.message ?? e}`; });
     p.stdin.end(stdin);
+    // Without this, a missing `claude` binary (ENOENT) hangs until the timeout.
+    p.on('error', failStart);
     p.on('close', (code) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       const ms = Date.now() - t0;
       let env = null;
