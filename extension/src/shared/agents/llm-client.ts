@@ -253,14 +253,15 @@ async function* readSSE(
  * direct-only: see `makeLLMClient` for dispatch.
  */
 class ProxiedLLMClient implements LLMClient {
-  constructor(private provider: "anthropic" | "gemini" | "groq" | "openrouter", private model: string, private label: string, private timeoutMs = LLM_TIMEOUT_MS) {}
+  constructor(private provider: "anthropic" | "gemini" | "groq" | "openrouter", private model: string, private label: string, private timeoutMs = LLM_TIMEOUT_MS,
+    private streamTimeoutMs = STREAM_TIMEOUT_MS) {}
 
-  async call(system: string, user: string, maxTokens: number): Promise<string> {
+  async call(system: string, user: string, maxTokens: number, signal?: AbortSignal): Promise<string> {
     const url = `${backendUrl()}/api/v1/llm/complete`;
     const jwt = await backendJwt();
     const res = await fetch(url, {
       method: "POST",
-      signal: timeoutSignal(this.timeoutMs),
+      signal: withTimeout(signal, this.timeoutMs),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${jwt}`,
@@ -291,7 +292,7 @@ class ProxiedLLMClient implements LLMClient {
     const jwt = await backendJwt();
     const res = await fetch(url, {
       method: "POST",
-      signal: timeoutSignal(STREAM_TIMEOUT_MS),
+      signal: timeoutSignal(this.streamTimeoutMs),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${jwt}`,
@@ -337,7 +338,7 @@ class ProxiedLLMClient implements LLMClient {
 // Groq is proxied via the backend (#1). See ProxiedLLMClient.
 
 // The non-streaming timeout, plus the caller's signal when there is one.
-function withTimeout(signal: AbortSignal | undefined, ms: number): AbortSignal {
+export function withTimeout(signal: AbortSignal | undefined, ms: number): AbortSignal {
   const timeout = timeoutSignal(ms);
   return signal ? AbortSignal.any([timeout, signal]) : timeout;
 }
@@ -472,19 +473,20 @@ export async function embedTexts(texts: string[]): Promise<number[][]> {
   return out;
 }
 
-export function makeLLMClient(cfg: LLMConfig, opts: { timeoutMs?: number } = {}): LLMClient {
+export function makeLLMClient(cfg: LLMConfig, opts: { timeoutMs?: number; streamTimeoutMs?: number } = {}): LLMClient {
   const t = opts.timeoutMs ?? LLM_TIMEOUT_MS;
+  const st = opts.streamTimeoutMs ?? STREAM_TIMEOUT_MS;
   // Anthropic / Gemini / Groq route through the backend proxy (#1).
   // Custom / Ollama stay direct: see notes on each.
   const inner: LLMClient =
     cfg.provider === "anthropic"
-      ? new ProxiedLLMClient("anthropic", cfg.model, "Claude", t)
+      ? new ProxiedLLMClient("anthropic", cfg.model, "Claude", t, st)
       : cfg.provider === "gemini"
-      ? new ProxiedLLMClient("gemini", cfg.model, "Gemini", t)
+      ? new ProxiedLLMClient("gemini", cfg.model, "Gemini", t, st)
       : cfg.provider === "groq"
-      ? new ProxiedLLMClient("groq", cfg.model, "Groq", t)
+      ? new ProxiedLLMClient("groq", cfg.model, "Groq", t, st)
       : cfg.provider === "openrouter"
-      ? new ProxiedLLMClient("openrouter", cfg.model, "OpenRouter", t)
+      ? new ProxiedLLMClient("openrouter", cfg.model, "OpenRouter", t, st)
       : cfg.provider === "ollama"
       ? new OllamaClient(cfg, t)
       : new CustomOpenAICompatClient(cfg, t);

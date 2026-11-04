@@ -6,7 +6,7 @@
 // Each agent is a pure function over (session state, KB) that returns
 // an incremental update. Orchestration cadence lives in live-orchestrator.ts.
 
-import { embedText, makeLLMClient, resolveLLMConfig, backendUrl, backendJwt, type LLMProvider, LIVE_TIMEOUT_MS } from "../../shared/agents/llm-client";
+import { embedText, makeLLMClient, resolveLLMConfig, backendUrl, backendJwt, type LLMProvider, LIVE_TIMEOUT_MS, withTimeout } from "../../shared/agents/llm-client";
 import type {
   AgendaItem,
   CoachSuggestion,
@@ -119,7 +119,9 @@ async function callLiveLLM(
 ): Promise<string> {
   const cfg = resolveLLMConfig(liveModelOverride());
   if ("error" in cfg) throw new Error(cfg.error);
-  const client = makeLLMClient(cfg, { timeoutMs: LIVE_TIMEOUT_MS });
+  // Live coach output is short (a few hundred tokens), so a whole stream fits
+  // inside the live limit.
+  const client = makeLLMClient(cfg, { timeoutMs: LIVE_TIMEOUT_MS, streamTimeoutMs: LIVE_TIMEOUT_MS });
   if (onDelta && client.callStream) return client.callStream(system, user, maxTokens, onDelta);
   return client.call(system, user, maxTokens);
 }
@@ -667,7 +669,8 @@ export async function runLiveKbAsk(
       const jwt = await backendJwt();
       const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {
         method: "POST",
-        signal,  // AbortSignal: cancelled when rep asks a new question
+        // Cancelled when the rep asks a new question, or after the live limit.
+        signal: withTimeout(signal, LIVE_TIMEOUT_MS),
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${jwt}`,
@@ -686,7 +689,7 @@ export async function runLiveKbAsk(
       raw = data.text ?? "";
     }
   } catch (err) {
-    return { answer: `Error: ${String(err)}` };
+    return { answer: `Error: ${err instanceof Error ? err.message : String(err)}` };
   }
   const parsed = safeJson<{ answer?: unknown; sources?: unknown }>(raw);
   if (!parsed?.answer) return { answer: "No answer available." };

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { EMBED_TIMEOUT_MESSAGE, LIVE_TIMEOUT_MS, TIMEOUT_MESSAGE, timeoutSignal } from "../agents/llm-client";
+import { EMBED_TIMEOUT_MESSAGE, LIVE_TIMEOUT_MS, TIMEOUT_MESSAGE, timeoutSignal, withTimeout } from "../agents/llm-client";
 
 describe("timeoutSignal", () => {
   beforeEach(() => { vi.useFakeTimers(); });
@@ -20,7 +20,17 @@ describe("timeoutSignal", () => {
     await expect(fetch("https://example.invalid", { signal })).rejects.toThrow(EMBED_TIMEOUT_MESSAGE);
   });
 
-  it("live calls fail faster than background work", () => {
-    expect(LIVE_TIMEOUT_MS).toBeLessThan(120_000);
+  it("a caller abort stays distinct from the timeout", () => {
+    const caller = new AbortController();
+    const combined = withTimeout(caller.signal, 1000);
+    caller.abort();
+    expect(combined.aborted).toBe(true);
+    expect((combined.reason as Error).message).not.toBe(TIMEOUT_MESSAGE);
+  });
+
+  it("the timeout fires through the combined signal", () => {
+    const combined = withTimeout(new AbortController().signal, LIVE_TIMEOUT_MS);
+    vi.advanceTimersByTime(LIVE_TIMEOUT_MS);
+    expect((combined.reason as Error).message).toBe(TIMEOUT_MESSAGE);
   });
 });

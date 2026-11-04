@@ -6,6 +6,8 @@ const llm = vi.hoisted(() => ({
   embedText: vi.fn(),
   call: vi.fn(),
   timeouts: [] as Array<number | undefined>,
+  streamTimeouts: [] as Array<number | undefined>,
+  fetchTimeouts: [] as number[],
 }));
 vi.mock("../../shared/agents/llm-client", () => ({
   resolveLLMConfig: (override?: { provider: string; model: string }) => ({
@@ -13,9 +15,14 @@ vi.mock("../../shared/agents/llm-client", () => ({
     apiKey: "",
     model: override?.model ?? `${llm.provider}-settings-model`,
   }),
-  makeLLMClient: (cfg: unknown, opts?: { timeoutMs?: number }) => {
+  makeLLMClient: (cfg: unknown, opts?: { timeoutMs?: number; streamTimeoutMs?: number }) => {
     llm.timeouts.push(opts?.timeoutMs);
+    llm.streamTimeouts.push(opts?.streamTimeoutMs);
     return { call: (s: string, u: string, m: number, sig?: AbortSignal) => llm.call(cfg, s, u, m, sig) };
+  },
+  withTimeout: (signal: AbortSignal | undefined, ms: number) => {
+    llm.fetchTimeouts.push(ms);
+    return signal ?? new AbortController().signal;
   },
   embedText: llm.embedText,
   LIVE_TIMEOUT_MS: 30_000,
@@ -48,6 +55,8 @@ beforeEach(() => {
   llm.provider = "anthropic";
   llm.embedText.mockReset();
   llm.timeouts.length = 0;
+  llm.streamTimeouts.length = 0;
+  llm.fetchTimeouts.length = 0;
   llm.call.mockReset();
   store.searchChunks.mockReset();
   vi.stubGlobal("fetch", vi.fn(async (_url: string, init: { body: string }) => {
@@ -168,11 +177,25 @@ describe("Ask-KB answer check", () => {
 });
 
 describe("live calls fail fast", () => {
-  it("every live LLM client is made with the 30 s live timeout", async () => {
+  it("direct-provider Ask KB builds its client with the 30 s live timeout", async () => {
     llm.provider = "ollama";
     llm.call.mockResolvedValue("{}");
     await runLiveKbAsk("Is MFA on?", session, [entry("kb-security", "MFA is enforced for every admin.")]).catch(() => undefined);
+    expect(llm.timeouts).toEqual([30_000]);
+  });
+
+  it("backend Ask KB request is bounded by the live timeout", async () => {
+    await runLiveKbAsk("Is MFA on?", session, [entry("kb-security", "MFA is enforced for every admin.")]);
+    expect(llm.fetchTimeouts).toEqual([30_000]);
+  });
+
+  it("the streaming coach uses the live limit for calls and streams", async () => {
+    llm.provider = "ollama";
+    llm.call.mockResolvedValue("{}");
+    const live = { ...session, transcript: [{ id: "t1", speaker: "prospect", text: "Is MFA on?", ts_start: 0, ts_end: 1, is_final: true }] } as unknown as MeetingSession;
+    await runCoachAgent(live, [entry("kb-security", "MFA is enforced for every admin.")]).catch(() => undefined);
     expect(llm.timeouts.length).toBeGreaterThan(0);
     expect(llm.timeouts.every((t) => t === 30_000)).toBe(true);
+    expect(llm.streamTimeouts.every((t) => t === 30_000)).toBe(true);
   });
 });
