@@ -71,10 +71,30 @@ export function callClaude({ model, system, messages, schema, label = '' }) {
     let err = '';
     let timedOut = false;
     const timer = setTimeout(() => { timedOut = true; p.kill('SIGKILL'); }, TIMEOUT_MS);
+    // Resolve once: a failed spawn can emit 'error' and then 'close'.
+    let settled = false;
     p.stdout.on('data', (d) => (out += d));
     p.stderr.on('data', (d) => (err += d));
+    // Writing to a process that never started raises EPIPE on stdin; the 'error' handler below reports it.
+    p.stdin.on('error', () => {});
     p.stdin.end(stdin);
+    // Without this, a missing `claude` binary (ENOENT) hangs until the timeout.
+    p.on('error', (e) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      const ms = Date.now() - t0;
+      const rec = {
+        label, ms, exit: null, is_error: true,
+        result_head: `claude CLI could not be started: ${e?.code ?? ''} ${e?.message ?? e}`.trim().slice(0, 300),
+        models: [], usage: null, cost_usd_list: null, num_turns: undefined,
+      };
+      CALL_LOG.push(rec);
+      resolve({ ok: false, structured: null, text: '', envelope: null, ms, rec, limitHit: false });
+    });
     p.on('close', (code) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       const ms = Date.now() - t0;
       let env = null;
