@@ -1,8 +1,30 @@
 # ClientLens
 
-Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so ClientLens is an open-source Chrome sidebar that drafts pitches from your own knowledge base and coaches you live in Google Meet, on your own LLM keys.
+Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so ClientLens is an open-source Chrome sidebar that drafts pitches from your own knowledge base and coaches you live in Google Meet. Use the hosted backend, or self-host it on your own LLM keys.
 
 **Demo site:** https://avinashgaurav.github.io/clientlens/
+
+## Watch
+
+<a href="https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-brag.mp4"><img src="docs/media/launch-video-poster.png" alt="Play the ClientLens launch video (43 seconds)" width="200" /></a>
+<a href="https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-user-journey.mp4"><img src="docs/media/user-journey-poster.png" alt="Play the ClientLens user journey video (72 seconds)" width="444" /></a>
+
+- [Launch video](https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-brag.mp4) (43 s): Start with your own docs and case studies, say who you are pitching, and four agents build the draft: retrieve context, brand compliance, ICP personalization, fact check. A claim that cannot be backed up is held, not shipped. It closes on the first eval (13/13 planted false claims caught, 0/13 could still be written to a doc, 0/6 supported decks wrongly flagged) and the pitch, email and objection formats.
+- [User journey](https://github.com/avinashgaurav/clientlens/releases/download/v1.1.0/ClientLens-user-journey.mp4) (72 s): Eight steps on sample data and a fictional company: sign in with email and password, load sample data from Quick settings, the knowledge base, fill in the pitch, the four agents run, the result with two claims held for review, the weekly insights, and sign out. It ends with the two things that need your own setup.
+
+## Try it
+
+1. Download `ClientLens-extension.zip` from the [latest release](https://github.com/avinashgaurav/clientlens/releases/latest) and unzip it.
+2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the unzipped folder.
+3. Click the ClientLens icon to open the side panel, click **Create an account** and sign up with your email and a password of at least 8 characters.
+4. Open **Quick settings** and turn on **Try ClientLens with sample data**, then open the **Generate** tab and draft a pitch.
+
+## Good to know
+
+- Each account is its own private workspace with a daily AI allowance.
+- There's no email step to sign up. Password reset isn't available yet, so keep your password somewhere safe.
+- The AI runs on a free-tier key with a small daily quota, so it can say it is busy or used up for today. Try again later if you see that.
+- **Needs setup:** export to Google Slides and Docs (needs a Google OAuth client ID) and live coaching in Google Meet (needs a Deepgram key).
 
 <img src="docs/demo.gif" alt="ClientLens sidebar with sample data: weekly insights, all calls, pitch setup and the knowledge base." width="380" />
 
@@ -29,6 +51,8 @@ Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so
 | Looking for a restatement after a cut | Code, a heuristic | Shared figures, names and keywords; it can miss paraphrases (see [Known limitations](docs/limitations-and-roadmap.md#known-limitations)). |
 
 ## Quick start
+
+Run your own: host ClientLens on your own backend and keys instead of using the hosted one. Setup details: [Configuration](docs/configuration.md).
 
 > [!IMPORTANT]
 > **Sign-in is email and password, with open sign-up.** Every account is its own workspace, and each user has daily usage caps. Full posture: [Security model](docs/security.md). Deploying the backend to Vercel with Supabase: [Configuration](docs/configuration.md).
@@ -67,4 +91,4 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 
 [MIT](LICENSE) © 2026 Avinash Gaurav.
 
-Free to use, modify and distribute. Bring-your-own-keys means you run it on your own provider accounts: there is no ClientLens-hosted service and no telemetry.
+Free to use, modify and distribute. You can use the hosted backend, or self-host it and run it on your own provider accounts. There is no telemetry.
