@@ -22,6 +22,7 @@ Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so
 ## Good to know
 
 - Each account is its own private workspace with a daily AI allowance.
+- There's no email step to sign up. Password reset isn't available yet, so keep your password somewhere safe.
 - The AI runs on a free-tier key with a small daily quota, so it can say it is busy or used up for today. Try again later if you see that.
 - **Needs setup:** export to Google Slides and Docs (needs a Google OAuth client ID) and live coaching in Google Meet (needs a Deepgram key).
 
