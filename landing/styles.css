@@ -544,8 +544,8 @@ button { font: inherit; cursor: pointer; }
   color: #4D4F46;
 }
 
-/* The README leads with the unwired-auth caveat; this is the same disclosure on
-   the page that actually receives traffic. Brand orange is 2.52:1 on white, so it
+/* The deployment notes the README covers, on the page that actually receives
+   traffic. Brand orange is 2.52:1 on white, so it
    is confined to the decorative rule and never carries text. */
 .how__caveat {
   margin-top: 32px;
@@ -773,3 +773,54 @@ button { font: inherit; cursor: pointer; }
    buttons; the one after them had nothing above it. Same bug exists on the live
    page. Scoped to last-of-type so the lede above the buttons is unaffected. */
 .cta__inner > p:last-of-type { margin-top: 30px; margin-bottom: 0; }
+
+/* ═══ v3: Try it (self sign-up), Good to know, Watch. Nothing above this line
+   was changed. Try it reuses the How it works cards and caveat panel so the two
+   cream bands read as one system; Watch reuses the dark .see band. ═══ */
+.try { background: #EEEFE9; color: #23251D; }
+.try__steps { list-style: none; padding: 0; margin-top: 16px; }
+.try code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.92em;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.try .how__card a, .try__know a {
+  color: #8A4B1E;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.try__know ul { list-style: none; padding: 0; max-width: 78ch; }
+.try__know li {
+  font-size: 15px; line-height: 1.6; color: #23251D;
+  padding: 8px 0;
+  border-top: 1px solid #E6E5E0;
+}
+.try__know li:first-child { border-top: none; padding-top: 0; }
+
+.watch__grid {
+  display: grid;
+  /* 1 : 2.22 makes the 4:5 launch cut and the 16:9 journey the same height. */
+  grid-template-columns: 1fr 2.22fr;
+  gap: 24px;
+  align-items: start;
+}
+.watch__item { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.watch__item video {
+  display: block; width: 100%; height: auto;
+  background: #0B0C10;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 10px;
+}
+.watch__item figcaption { font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.55); }
+.watch__item figcaption strong { color: #fff; font-weight: 600; }
+
+@media (max-width: 900px) {
+  .watch__grid { grid-template-columns: 1fr; }
+  .watch__item--portrait { max-width: 360px; width: 100%; margin: 0 auto; }
+}
+
+/* The fixed 64px nav covered the heading of whatever section a nav link or CTA
+   jumped to. */
+section[id] { scroll-margin-top: 64px; }

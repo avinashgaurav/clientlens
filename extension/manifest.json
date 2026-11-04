@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ClientLens: Sales Copilot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Live meeting copilot for sales \u2014 pitch generation, objection handling, on-screen transponder, and manual Zoho / Meet / Zoom integrations.",
   "icons": {
     "16": "icons/icon16.png",
