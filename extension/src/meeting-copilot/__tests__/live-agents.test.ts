@@ -5,6 +5,7 @@ const llm = vi.hoisted(() => ({
   provider: "anthropic" as string,
   embedText: vi.fn(),
   call: vi.fn(),
+  timeouts: [] as Array<number | undefined>,
 }));
 vi.mock("../../shared/agents/llm-client", () => ({
   resolveLLMConfig: (override?: { provider: string; model: string }) => ({
@@ -12,8 +13,12 @@ vi.mock("../../shared/agents/llm-client", () => ({
     apiKey: "",
     model: override?.model ?? `${llm.provider}-settings-model`,
   }),
-  makeLLMClient: (cfg: unknown) => ({ call: (s: string, u: string, m: number, sig?: AbortSignal) => llm.call(cfg, s, u, m, sig) }),
+  makeLLMClient: (cfg: unknown, opts?: { timeoutMs?: number }) => {
+    llm.timeouts.push(opts?.timeoutMs);
+    return { call: (s: string, u: string, m: number, sig?: AbortSignal) => llm.call(cfg, s, u, m, sig) };
+  },
   embedText: llm.embedText,
+  LIVE_TIMEOUT_MS: 30_000,
   backendUrl: () => "http://backend.test",
   backendJwt: async () => "jwt",
 }));
@@ -42,6 +47,7 @@ beforeEach(() => {
   reply = '{"answer":"Not in KB.","sources":[]}';
   llm.provider = "anthropic";
   llm.embedText.mockReset();
+  llm.timeouts.length = 0;
   llm.call.mockReset();
   store.searchChunks.mockReset();
   vi.stubGlobal("fetch", vi.fn(async (_url: string, init: { body: string }) => {
@@ -158,5 +164,15 @@ describe("Ask-KB answer check", () => {
     expect(await runLiveKbAsk("How much is SSO?", session, kb)).toEqual({ answer: "Not in KB.", sources: [], rejected: true });
     reply = JSON.stringify({ answer: "It costs $1,800 a year.", sources: [{ kb_entry_id: "kb-sso", quote: "costs $1,800 a year" }] });
     expect(await runLiveKbAsk("How much is SSO?", session, kb)).toMatchObject({ answer: "It costs $1,800 a year." });
+  });
+});
+
+describe("live calls fail fast", () => {
+  it("every live LLM client is made with the 30 s live timeout", async () => {
+    llm.provider = "ollama";
+    llm.call.mockResolvedValue("{}");
+    await runLiveKbAsk("Is MFA on?", session, [entry("kb-security", "MFA is enforced for every admin.")]).catch(() => undefined);
+    expect(llm.timeouts.length).toBeGreaterThan(0);
+    expect(llm.timeouts.every((t) => t === 30_000)).toBe(true);
   });
 });
