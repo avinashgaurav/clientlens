@@ -1,0 +1,887 @@
+{
+  "method": "Arm C: real runCouncil (Retrieval, ICP drafter, Brand, Fact Validation, applyFactCheck, vote) with every agent answered through the Claude Code CLI by claude-opus-4-7; checkWritePayload decides what is writable. Not the production API path.",
+  "summary": {
+    "wallMs": 101071,
+    "configuredModel": "claude-opus-4-7",
+    "runs": 1,
+    "councils": 6,
+    "councilErrors": [],
+    "goldSourcesPicked": "7 / 7",
+    "councilsWithAllGoldPicked": 6,
+    "meanSourcesPicked": 3.33,
+    "statusCounts": {
+      "verified": 5,
+      "needs_review": 1
+    },
+    "writable": 5,
+    "writableWithFalseClaim": 0,
+    "writableWithFigureNotInKB": 2,
+    "unsupportedInWritableDoc": 2,
+    "anyFalseClaimInDraftOutput": 0,
+    "cliCalls": 24,
+    "cliErrors": 0,
+    "modelsAnswered": [
+      "claude-opus-4-7"
+    ],
+    "callLatencyMs": {
+      "n": 24,
+      "p50": 14291,
+      "p90": 18759,
+      "max": 22527
+    },
+    "usageTotals": {
+      "input": 59434,
+      "output": 20645
+    },
+    "costUsdReportedByCli": 1.0486
+  },
+  "results": [
+    {
+      "id": "n-c01",
+      "run": 0,
+      "error": null,
+      "agents": [
+        {
+          "agent": "retrieval",
+          "status": "pass"
+        },
+        {
+          "agent": "icp_personalization",
+          "status": "pass"
+        },
+        {
+          "agent": "brand_compliance",
+          "status": "pass",
+          "issues": []
+        },
+        {
+          "agent": "validation",
+          "status": "pass",
+          "issues": []
+        }
+      ],
+      "sourcesUsed": [
+        "kb-overview",
+        "kb-case-bramble",
+        "kb-case-saltmarsh",
+        "kb-field-app",
+        "kb-handbook",
+        "kb-pricing-fleet"
+      ],
+      "goldPicked": 2,
+      "goldTotal": 2,
+      "calls": [
+        {
+          "agent": "Retrieval Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"relevant_source_ids\": [\"kb-overview\", \"kb-case-bramble\", \"kb-case-saltmarsh\", \"kb-field-app\", \"kb-handbook\", \"kb-pricing-fleet\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-overview\",\n      \"quote\": \"In Orrinmoor's 2025 study of 41,000 completed jobs across nine contractors, average drive time per job fell 18%.\",\n      \"claim\": \"Routing engine reduces drive time, directly addressing technician overtime caused by excessive travel between jobs.\"\n    },\n    {\n      \"source_id\": \"kb-case-bramble\",\n      \"quote\": \"First-time fix rate rose from 71% to 84% within six months. Technician overtime hours fell 27% over the same period.\",\n      \"claim\": \"Proven reduction in both repeat visits (via first-time fix) and overtime hours at a comparably sized contractor - directly matches the Operations Director's pain points.\"\n    },\n    {\n      \"source_id\": \"kb-case-saltmarsh\",\n      \"quote\": \"Completed jobs per technician per day rose from 4.1 to 5.3. Missed appointment windows dropped to 3% of bookings.\",\n      \"claim\": \"Higher jobs-per-day throughput reduces need for overtime and demonstrates operational efficiency gains.\"\n    },\n    {\n      \"source_id\": \"kb-field-app\",\n      \"quote\": \"Technicians see their day's jobs, customer notes and job history on iOS and Android phones and tablets.\",\n      \"claim\": \"Access to customer notes and job history helps technicians arrive prepared, reducing repeat visits to finish a job.\"\n    },\n    {\n      \"source_id\": \"kb-handbook\",\n      \"quote\": \"Skills and certifications are imported per technician, for example gas-safe or backflow-certified, so that jobs are only offered to qualified people.\",\n      \"claim\": \"Skills-based assignment ensures the right technician goes the first time, reducing repeat visits.\"\n    },\n    {\n      \"source_id\": \"kb-handbook\",\n      \"quote\": \"By default the scheduler never books a technician for more than 10 hours in a day and leaves a 15-minute buffer between consecutive jobs; both values can be changed per team.\",\n      \"claim\": \"Built-in guardrails on daily hours directly address runaway technician overtime.\"\n    },\n    {\n      \"source_id\": \"kb-pricing-fleet\",\n      \"quote\": \"Tidewell Dispatch Fleet plan pricing is $64 per technician per month, with a minimum of 75 technicians.\",\n      \"claim\": \"Fleet plan pricing aligns with the 100k-1m deal size band for a mid-to-large mechanical contractor.\"\n    }\n  ],\n  \"missing_info\": [\n    \"No information on cloud hosting across all three major clouds (AWS, Azure, GCP) - KB only mentions Canada Central and UK South regions without naming the cloud provider.\",\n    \"No regional data or case studies specific to mechanical (HVAC/plumbing combined) contractors at Larchmont's specific scale.\",\n    \"No parts inventory or purchase order management, which can be a driver of repeat visits when parts are missing.\",\n    \"No quantified ROI calculator or payback period tied to overtime reduction for a prospect's own technician count.\",\n    \"No discovery-stage materials such as a readiness assessment or baseline overtime/first-time-fix benchmark worksheet.\",\n    \"No competitor comparison content (competitor field is n/a but Operations Directors often ask).\",\n    \"No details on change-management or dispatcher training specifics beyond the high-level rollout stages.\"\n  ]\n}"
+        },
+        {
+          "agent": "ICP Personalization Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "```json\n{\"slides\":[{\"index\":0,\"title\":\"Architecture Targets Overtime And Repeat Visits\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Routing engine sequences each tech's day to cut drive time [kb-overview]\\n• Skills/certifications gate job assignment, so qualified tech arrives first [kb-handbook]\\n• Live board scales to 60 technicians per dispatcher seat [kb-overview]\\n\\nTakeaway: Fewer miles, fewer wrong-tech rollouts.\"},{\"type\":\"text_block\",\"content\":\"Accent: #335577\"}],\"speaker_notes\":\"Frame Tidewell as scheduling + skills-aware routing. Directly addresses overtime and repeat-visit pain via qualified-tech matching.\"},{\"index\":1,\"title\":\"Integrations, Offline Field App, Uptime\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Native integrations: Quillfeather Books, Hollins Payroll [kb-overview]\\n• iOS/Android app caches 7 days of jobs offline; syncs on reconnect [kb-field-app]\\n• Fleet plan: 99.9% uptime SLA; Sev-1 response 30 min [kb-pricing-fleet][kb-handbook]\\n\\nTakeaway: Resilient edge, clean back-office data flow.\"}],\"speaker_notes\":\"Covers integration points, offline resilience, and operational SLAs an engineering leader will scrutinize before approving rollout.\"},{\"index\":2,\"title\":\"Evidence On Overtime And First-Time Fix\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Bramblecote (140 techs): overtime −27%, first-time fix 71%→84% in six months [kb-case-bramble]\\n• Saltmarsh: jobs/tech/day 4.1→5.3; missed windows 3% [kb-case-saltmarsh]\\n• 41,000-job study: drive time per job −18% [kb-overview]\\n\\nTakeaway: Measured impact on Larchmont's exact pains.\"}],\"speaker_notes\":\"Tie each metric back to Larchmont's stated pains: overtime and repeat visits. All figures sourced, no estimates.\"}]}\n```"
+        },
+        {
+          "agent": "Brand Compliance Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}"
+        },
+        {
+          "agent": "Fact Validation Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Routing engine sequences each tech's day to cut drive time\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Skills/certifications gate job assignment, so qualified tech arrives first\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Live board scales to 60 technicians per dispatcher seat\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Native integrations: Quillfeather Books, Hollins Payroll\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"iOS/Android app caches 7 days of jobs offline; syncs on reconnect\",\n      \"source_id\": \"kb-field-app\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Fleet plan: 99.9% uptime SLA; Sev-1 response 30 min\",\n      \"source_id\": \"kb-pricing-fleet\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Bramblecote (140 techs): overtime −27%, first-time fix 71%→84% in six months\",\n      \"source_id\": \"kb-case-bramble\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Saltmarsh: jobs/tech/day 4.1→5.3; missed windows 3%\",\n      \"source_id\": \"kb-case-saltmarsh\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"41,000-job study: drive time per job −18%\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}"
+        }
+      ],
+      "status": "verified",
+      "writable": true,
+      "removed": [],
+      "unresolved": [],
+      "falseClaimHits": [],
+      "figuresNotInKB": [
+        "335577"
+      ],
+      "figuresOnlyPast1500": [],
+      "finalText": "Architecture Targets Overtime And Repeat Visits\n• Routing engine sequences each tech's day to cut drive time [kb-overview]\n• Skills/certifications gate job assignment, so qualified tech arrives first [kb-handbook]\n• Live board scales to 60 technicians per dispatcher seat [kb-overview]\n\nTakeaway: Fewer miles, fewer wrong-tech rollouts.\nAccent: #335577\nFrame Tidewell as scheduling + skills-aware routing. Directly addresses overtime and repeat-visit pain via qualified-tech matching.\nIntegrations, Offline Field App, Uptime\n• Native integrations: Quillfeather Books, Hollins Payroll [kb-overview]\n• iOS/Android app caches 7 days of jobs offline; syncs on reconnect [kb-field-app]\n• Fleet plan: 99.9% uptime SLA; Sev-1 response 30 min [kb-pricing-fleet][kb-handbook]\n\nTakeaway: Resilient edge, clean back-office data flow.\nCovers integration points, offline resilience, and operational SLAs an engineering leader will scrutinize before approving rollout.\nEvidence On Overtime And First-Time Fix\n• Bramblecote (140 techs): overtime −27%, first-time fix 71%→84% in six months [kb-case-bramble]\n• Saltmarsh: jobs/tech/day 4.1→5.3; missed windows 3% [kb-case-saltmarsh]\n• 41,000-job study: drive time per job −18% [kb-overview]\n\nTakeaway: Measured impact on Larchmont's exact pains.\nTie each metric back to Larchmont's stated pains: overtime and repeat visits. All figures sourced, no estimates.",
+      "unsupportedInWritableDoc": true
+    },
+    {
+      "id": "n-c02",
+      "run": 0,
+      "error": null,
+      "agents": [
+        {
+          "agent": "retrieval",
+          "status": "pass"
+        },
+        {
+          "agent": "icp_personalization",
+          "status": "pass"
+        },
+        {
+          "agent": "brand_compliance",
+          "status": "pass",
+          "issues": []
+        },
+        {
+          "agent": "validation",
+          "status": "fail",
+          "issues": [
+            "Unsupported claim left in draft: Reduces PCI scope on your integration surface [kb-security]"
+          ]
+        }
+      ],
+      "sourcesUsed": [
+        "kb-security"
+      ],
+      "goldPicked": 1,
+      "goldTotal": 1,
+      "calls": [
+        {
+          "agent": "Retrieval Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"relevant_source_ids\": [\"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Orrinmoor Systems holds ISO 27001 certification, first achieved in 2024 and renewed annually.\",\n      \"claim\": \"Confirms ISO 27001 certification is in place, directly addressing one of Hollybrook's stated pain points.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Its SOC 2 report is Type I; a SOC 2 Type II audit is underway and has not been completed.\",\n      \"claim\": \"Transparently addresses the SOC 2 Type II requirement: currently Type I only, with Type II in progress but not yet available.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Customer data is stored in a Canada Central region or a UK South region, chosen by the customer at signup.\",\n      \"claim\": \"Confirms UK data residency is supported via the UK South region option at signup.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Data is encrypted with AES-256 at rest and TLS 1.3 in transit.\",\n      \"claim\": \"Supporting technical security detail relevant for a CTO tech deep dive.\"\n    }\n  ],\n  \"missing_info\": [\n    \"No information on which cloud providers (AWS, Azure, GCP) Tidewell Dispatch runs on — the target uses all three clouds, but the KB does not describe multi-cloud support or hosting architecture.\",\n    \"No confirmed completion date or ETA for the SOC 2 Type II audit that is 'underway'.\",\n    \"No details on UK-specific compliance frameworks beyond data residency (e.g., UK GDPR, Cyber Essentials, DPA 2018).\",\n    \"No information on subprocessors, data processing agreements, or cross-border data transfer controls relevant to UK residency.\",\n    \"No architecture, tenancy model, or infrastructure deep-dive content typically expected at the tech_deep_dive stage for a CTO persona.\",\n    \"No pricing guidance specifically for the 100k–1m deal size band beyond generic per-technician Fleet/Crew rates.\"\n  ]\n}"
+        },
+        {
+          "agent": "ICP Personalization Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "```json\n{\"slides\":[{\"index\":0,\"title\":\"Compliance Posture: Certifications Status\",\"components\":[{\"type\":\"text_block\",\"content\":\"• ISO 27001 certified since 2024, renewed annually [kb-security]\\n• SOC 2 Type I complete; Type II audit underway, not yet issued [kb-security]\\n• Not HIPAA compliant [kb-security]\\n\\nTakeaway: ISO 27001 met today; SOC 2 Type II pending completion.\"}],\"speaker_notes\":\"Transparent on gap: Type II in progress per kb-security. Confirm your acceptance criteria for interim Type I evidence.\"},{\"index\":1,\"title\":\"UK Data Residency And Encryption\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Customer-selectable region: UK South or Canada Central [kb-security]\\n• AES-256 at rest; TLS 1.3 in transit [kb-security]\\n• Region pinned at signup [kb-security]\\n\\nTakeaway: UK South residency requirement satisfied at provisioning.\"}],\"speaker_notes\":\"UK South region directly addresses Hollybrook residency pain point. Encryption standards per kb-security.\"},{\"index\":2,\"title\":\"Payment Isolation And Scope Reduction\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Card data processed by Pennyroyal Pay [kb-security]\\n• Card numbers never touch Tidewell servers [kb-security]\\n• Reduces PCI scope on your integration surface [kb-security]\\n\\nTakeaway: Offloaded card handling narrows audit and risk boundary.\"}],\"speaker_notes\":\"Architecture decision reduces in-scope systems. Source: kb-security. Clarify remaining Type II timeline before contract.\"}]}\n```"
+        },
+        {
+          "agent": "Brand Compliance Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}"
+        },
+        {
+          "agent": "Fact Validation Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"ISO 27001 certified since 2024, renewed annually [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"SOC 2 Type I complete; Type II audit underway, not yet issued [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"Not HIPAA compliant [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Customer-selectable region: UK South or Canada Central [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"AES-256 at rest; TLS 1.3 in transit [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Region pinned at signup [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Card data processed by Pennyroyal Pay [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Card numbers never touch Tidewell servers [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Reduces PCI scope on your integration surface [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"hallucinated\"}\n  ],\n  \"hallucinations\": [\"Reduces PCI scope on your integration surface [kb-security]\"]\n}"
+        }
+      ],
+      "status": "needs_review",
+      "writable": false,
+      "removed": [],
+      "unresolved": [
+        "Reduces PCI scope on your integration surface [kb-security]"
+      ],
+      "falseClaimHits": [],
+      "figuresNotInKB": [],
+      "figuresOnlyPast1500": [],
+      "finalText": "Compliance Posture: Certifications Status\n• ISO 27001 certified since 2024, renewed annually [kb-security]\n• SOC 2 Type I complete; Type II audit underway, not yet issued [kb-security]\n• Not HIPAA compliant [kb-security]\n\nTakeaway: ISO 27001 met today; SOC 2 Type II pending completion.\nTransparent on gap: Type II in progress per kb-security. Confirm your acceptance criteria for interim Type I evidence.\nUK Data Residency And Encryption\n• Customer-selectable region: UK South or Canada Central [kb-security]\n• AES-256 at rest; TLS 1.3 in transit [kb-security]\n• Region pinned at signup [kb-security]\n\nTakeaway: UK South residency requirement satisfied at provisioning.\nUK South region directly addresses Hollybrook residency pain point. Encryption standards per kb-security.\nPayment Isolation And Scope Reduction\n• Card data processed by Pennyroyal Pay [kb-security]\n• Card numbers never touch Tidewell servers [kb-security]\n\nTakeaway: Offloaded card handling narrows audit and risk boundary.\nArchitecture decision reduces in-scope systems. Source: kb-security. Clarify remaining Type II timeline before contract.",
+      "unsupportedInWritableDoc": false
+    },
+    {
+      "id": "n-c03",
+      "run": 0,
+      "error": null,
+      "agents": [
+        {
+          "agent": "retrieval",
+          "status": "pass"
+        },
+        {
+          "agent": "icp_personalization",
+          "status": "pass"
+        },
+        {
+          "agent": "brand_compliance",
+          "status": "pass",
+          "issues": []
+        },
+        {
+          "agent": "validation",
+          "status": "pass",
+          "issues": []
+        }
+      ],
+      "sourcesUsed": [
+        "kb-pricing-fleet",
+        "kb-handbook",
+        "kb-security"
+      ],
+      "goldPicked": 1,
+      "goldTotal": 1,
+      "calls": [
+        {
+          "agent": "Retrieval Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"relevant_source_ids\": [\"kb-pricing-fleet\", \"kb-handbook\", \"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-pricing-fleet\",\n      \"quote\": \"Tidewell Dispatch Fleet plan pricing is $64 per technician per month, with a minimum of 75 technicians.\",\n      \"claim\": \"Supports budgeting for ~90 technicians on the Fleet plan (90 × $64 = $5,760/month, ~$69k/year), fitting the 100k-1m deal size range.\"\n    },\n    {\n      \"source_id\": \"kb-pricing-fleet\",\n      \"quote\": \"Fleet customers get a dedicated onboarding lead and a 99.9% uptime commitment in the service agreement.\",\n      \"claim\": \"Directly addresses the Financial Controller's requirement for a contractual uptime commitment.\"\n    },\n    {\n      \"source_id\": \"kb-handbook\",\n      \"quote\": \"Severity-one incidents, meaning the dispatch board is down or technicians cannot receive jobs, have a first-response target of 30 minutes at any hour.\",\n      \"claim\": \"Reinforces service reliability commitments that back the uptime SLA.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Customer data is stored in a Canada Central region or a UK South region, chosen by the customer at signup.\",\n      \"claim\": \"Relevant to the 'all three clouds' interest - clarifies that Tidewell is a managed cloud service with specific data residency options rather than multi-cloud customer choice.\"\n    }\n  ],\n  \"missing_info\": [\n    \"No support for multi-cloud or 'all three clouds' (AWS/Azure/GCP) deployment; KB only mentions Canada Central and UK South regions.\",\n    \"No explicit financial ROI model or TCO calculator tailored for a Financial Controller persona.\",\n    \"No contractual terms around penalties or service credits tied to the 99.9% uptime SLA.\",\n    \"No POC/pilot program details specific to the poc_scoping stage for Fleet plan customers (only a 14-day trial on Crew plan is mentioned).\",\n    \"No regional pricing or currency information (region listed as n/a).\",\n    \"No competitive differentiation content (competitor listed as n/a but no comparison material exists in KB).\"\n  ]\n}"
+        },
+        {
+          "agent": "ICP Personalization Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\"slides\":[{\"index\":0,\"title\":\"Fleet Plan: Priced For 90 Techs\",\"components\":[{\"type\":\"text_block\",\"content\":\"• $64 per technician / month [kb-pricing-fleet]\\n• 90 techs = $5,760/month, ~$69,120/year [kb-pricing-fleet]\\n• Clears 75-tech Fleet minimum [kb-pricing-fleet]\"}],\"speaker_notes\":\"Fleet pricing fits Kestrel's 90-technician budget cleanly above the 75-tech floor [kb-pricing-fleet].\"},{\"index\":1,\"title\":\"Uptime Commitment, Contractually Guaranteed\",\"components\":[{\"type\":\"text_block\",\"content\":\"• 99.9% uptime in service agreement [kb-pricing-fleet]\\n• Sev-1 first response: 30 minutes, any hour [kb-handbook]\\n• Support 7am–7pm ET, phone + chat [kb-handbook]\"}],\"speaker_notes\":\"Addresses Controller's contractual uptime requirement with written SLA and rapid incident response [kb-pricing-fleet][kb-handbook].\"},{\"index\":2,\"title\":\"Low-Risk Onboarding And Controls\",\"components\":[{\"type\":\"text_block\",\"content\":\"• 8-week onboarding, dedicated lead [kb-pricing-fleet]\\n• ISO 27001 certified, renewed annually [kb-security]\\n• AES-256 at rest, TLS 1.3 in transit [kb-security]\"}],\"speaker_notes\":\"Predictable 8-week ramp plus ISO 27001 and encryption reduce financial and audit risk [kb-pricing-fleet][kb-security].\"}]}"
+        },
+        {
+          "agent": "Brand Compliance Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}"
+        },
+        {
+          "agent": "Fact Validation Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"$64 per technician / month\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"90 techs = $5,760/month, ~$69,120/year\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"Clears 75-tech Fleet minimum\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"Fleet pricing fits Kestrel's 90-technician budget cleanly above the 75-tech floor\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"99.9% uptime in service agreement\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Sev-1 first response: 30 minutes, any hour\", \"source_id\": \"kb-handbook\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Support 7am–7pm ET, phone + chat\", \"source_id\": \"kb-handbook\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Addresses Controller's contractual uptime requirement with written SLA and rapid incident response\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"8-week onboarding, dedicated lead\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"ISO 27001 certified, renewed annually\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"AES-256 at rest, TLS 1.3 in transit\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Predictable 8-week ramp plus ISO 27001 and encryption reduce financial and audit risk\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"}\n  ],\n  \"hallucinations\": []\n}"
+        }
+      ],
+      "status": "verified",
+      "writable": true,
+      "removed": [],
+      "unresolved": [],
+      "falseClaimHits": [],
+      "figuresNotInKB": [
+        "$5760",
+        "$69120"
+      ],
+      "figuresOnlyPast1500": [],
+      "finalText": "Fleet Plan: Priced For 90 Techs\n• $64 per technician / month [kb-pricing-fleet]\n• 90 techs = $5,760/month, ~$69,120/year [kb-pricing-fleet]\n• Clears 75-tech Fleet minimum [kb-pricing-fleet]\nFleet pricing fits Kestrel's 90-technician budget cleanly above the 75-tech floor [kb-pricing-fleet].\nUptime Commitment, Contractually Guaranteed\n• 99.9% uptime in service agreement [kb-pricing-fleet]\n• Sev-1 first response: 30 minutes, any hour [kb-handbook]\n• Support 7am–7pm ET, phone + chat [kb-handbook]\nAddresses Controller's contractual uptime requirement with written SLA and rapid incident response [kb-pricing-fleet][kb-handbook].\nLow-Risk Onboarding And Controls\n• 8-week onboarding, dedicated lead [kb-pricing-fleet]\n• ISO 27001 certified, renewed annually [kb-security]\n• AES-256 at rest, TLS 1.3 in transit [kb-security]\nPredictable 8-week ramp plus ISO 27001 and encryption reduce financial and audit risk [kb-pricing-fleet][kb-security].",
+      "unsupportedInWritableDoc": true
+    },
+    {
+      "id": "n-c04",
+      "run": 0,
+      "error": null,
+      "agents": [
+        {
+          "agent": "retrieval",
+          "status": "pass"
+        },
+        {
+          "agent": "icp_personalization",
+          "status": "pass"
+        },
+        {
+          "agent": "brand_compliance",
+          "status": "pass",
+          "issues": []
+        },
+        {
+          "agent": "validation",
+          "status": "pass",
+          "issues": []
+        }
+      ],
+      "sourcesUsed": [
+        "kb-security",
+        "kb-overview",
+        "kb-pricing-fleet",
+        "kb-limits"
+      ],
+      "goldPicked": 1,
+      "goldTotal": 1,
+      "calls": [
+        {
+          "agent": "Retrieval Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"relevant_source_ids\": [\"kb-security\", \"kb-overview\", \"kb-pricing-fleet\", \"kb-limits\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Tidewell Dispatch is not HIPAA compliant.\",\n      \"claim\": \"Directly addresses the CFO's stated HIPAA pain point - a critical disqualifier that must be surfaced before a tech deep dive proceeds.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Orrinmoor Systems holds ISO 27001 certification, first achieved in 2024 and renewed annually. Its SOC 2 report is Type I; a SOC 2 Type II audit is underway and has not been completed.\",\n      \"claim\": \"Supports the CFO's compliance posture review during technical due diligence, even though HIPAA is not covered.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Customer data is stored in a Canada Central region or a UK South region, chosen by the customer at signup. Data is encrypted with AES-256 at rest and TLS 1.3 in transit.\",\n      \"claim\": \"Supports data protection and residency questions a CFO will ask when patient details flow through work orders.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Card payments are processed by Pennyroyal Pay, so card numbers never touch Tidewell servers.\",\n      \"claim\": \"Relevant to CFO scope-reduction discussions on sensitive data handling.\"\n    },\n    {\n      \"source_id\": \"kb-overview\",\n      \"quote\": \"It is built for heating, plumbing and electrical contractors with 20 to 500 field technicians.\",\n      \"claim\": \"Flags a fit concern - product is scoped to HVAC/plumbing/electrical trades, not clinic maintenance workflows with PHI.\"\n    },\n    {\n      \"source_id\": \"kb-pricing-fleet\",\n      \"quote\": \"Tidewell Dispatch Fleet plan pricing is $64 per technician per month, with a minimum of 75 technicians.\",\n      \"claim\": \"Supports the 100k-1m deal-size framing for CFO ROI conversation.\"\n    },\n    {\n      \"source_id\": \"kb-pricing-fleet\",\n      \"quote\": \"Fleet customers get a dedicated onboarding lead and a 99.9% uptime commitment in the service agreement.\",\n      \"claim\": \"Supports CFO-level contractual assurances typically reviewed at tech deep dive.\"\n    },\n    {\n      \"source_id\": \"kb-limits\",\n      \"quote\": \"Tidewell Dispatch runs only as a cloud service and cannot be hosted on-premises.\",\n      \"claim\": \"Material for a CFO evaluating all-three-cloud deployments; no on-prem/private-cloud option limits HIPAA risk-mitigation paths.\"\n    }\n  ],\n  \"missing_info\": [\n    \"No HIPAA compliance, BAA (Business Associate Agreement), or PHI-handling controls - the core pain point is explicitly unmet.\",\n    \"No evidence of healthcare, clinic, or hospital-facilities customer references; all case studies are HVAC/plumbing.\",\n    \"No multi-cloud deployment details (AWS/Azure/GCP) despite the target running 'all three' clouds - only Canada Central and UK South regions are listed, with no cloud provider named.\",\n    \"No SOC 2 Type II report available yet, which CFOs typically require at this deal size.\",\n    \"No data residency option in the US, which is typically required for US hospital/clinic PHI.\",\n    \"No audit logging, access controls, or encryption key management specifics for a tech deep dive.\",\n    \"No role-based permissions, data retention, or deletion policy details relevant to HIPAA-adjacent workflows.\",\n    \"No security questionnaire, penetration testing, or vulnerability disclosure program references.\",\n    \"No pricing/ROI calculator tailored to clinic maintenance economics (deal size 100k-1m framing not substantiated by sector benchmarks).\"\n  ]\n}"
+        },
+        {
+          "agent": "ICP Personalization Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\"slides\":[{\"index\":0,\"title\":\"18% Drive Time Cut\",\"components\":[{\"type\":\"text_block\",\"content\":\"• 18% average drive-time reduction per job [kb-overview]\\n• Study: 41,000 jobs, 9 contractors [kb-overview]\\n• One dispatcher covers 60 techs [kb-overview]\\n\\nTakeaway: Routing engine converts windshield time into billable revenue.\"}],\"speaker_notes\":\"Lead with the 18% drive-time cut as the core ROI lever for finance [kb-overview].\"},{\"index\":1,\"title\":\"Fleet Economics And Payback\",\"components\":[{\"type\":\"text_block\",\"content\":\"• $64 per tech / month [kb-pricing-fleet]\\n• 75-technician minimum on Fleet [kb-pricing-fleet]\\n• 8-week onboarding, 99.9% uptime SLA [kb-pricing-fleet]\\n\\nTakeaway: Predictable per-seat cost with contractual uptime commitment.\"}],\"speaker_notes\":\"Frame $64 per tech against drive-time savings; onboarding is eight weeks [kb-pricing-fleet].\"},{\"index\":2,\"title\":\"HIPAA Gap: Material Financial Risk\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Tidewell Dispatch is NOT HIPAA compliant [kb-security]\\n• ISO 27001 + SOC 2 Type I only; Type II in progress [kb-security]\\n• Data residency: Canada Central or UK South [kb-security]\\n\\nTakeaway: Patient-detail workflows fall outside current compliance scope.\"}],\"speaker_notes\":\"Disclose HIPAA gap upfront; material risk given patient data in work orders [kb-security].\"}]}"
+        },
+        {
+          "agent": "Brand Compliance Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}"
+        },
+        {
+          "agent": "Fact Validation Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"18% average drive-time reduction per job\", \"source_id\": \"kb-overview\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"Study: 41,000 jobs, 9 contractors\", \"source_id\": \"kb-overview\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"One dispatcher covers 60 techs\", \"source_id\": \"kb-overview\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"Lead with the 18% drive-time cut as the core ROI lever for finance\", \"source_id\": \"kb-overview\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"$64 per tech / month\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"75-technician minimum on Fleet\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"8-week onboarding, 99.9% uptime SLA\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Frame $64 per tech against drive-time savings; onboarding is eight weeks\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Tidewell Dispatch is NOT HIPAA compliant\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"ISO 27001 + SOC 2 Type I only; Type II in progress\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Data residency: Canada Central or UK South\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Disclose HIPAA gap upfront; material risk given patient data in work orders\", \"source_id\": \"kb-security\", \"status\": \"verified\"}\n  ],\n  \"hallucinations\": []\n}"
+        }
+      ],
+      "status": "verified",
+      "writable": true,
+      "removed": [],
+      "unresolved": [],
+      "falseClaimHits": [],
+      "figuresNotInKB": [],
+      "figuresOnlyPast1500": [],
+      "finalText": "18% Drive Time Cut\n• 18% average drive-time reduction per job [kb-overview]\n• Study: 41,000 jobs, 9 contractors [kb-overview]\n• One dispatcher covers 60 techs [kb-overview]\n\nTakeaway: Routing engine converts windshield time into billable revenue.\nLead with the 18% drive-time cut as the core ROI lever for finance [kb-overview].\nFleet Economics And Payback\n• $64 per tech / month [kb-pricing-fleet]\n• 75-technician minimum on Fleet [kb-pricing-fleet]\n• 8-week onboarding, 99.9% uptime SLA [kb-pricing-fleet]\n\nTakeaway: Predictable per-seat cost with contractual uptime commitment.\nFrame $64 per tech against drive-time savings; onboarding is eight weeks [kb-pricing-fleet].\nHIPAA Gap: Material Financial Risk\n• Tidewell Dispatch is NOT HIPAA compliant [kb-security]\n• ISO 27001 + SOC 2 Type I only; Type II in progress [kb-security]\n• Data residency: Canada Central or UK South [kb-security]\n\nTakeaway: Patient-detail workflows fall outside current compliance scope.\nDisclose HIPAA gap upfront; material risk given patient data in work orders [kb-security].",
+      "unsupportedInWritableDoc": false
+    },
+    {
+      "id": "n-c05",
+      "run": 0,
+      "error": null,
+      "agents": [
+        {
+          "agent": "retrieval",
+          "status": "pass"
+        },
+        {
+          "agent": "icp_personalization",
+          "status": "pass"
+        },
+        {
+          "agent": "brand_compliance",
+          "status": "pass",
+          "issues": []
+        },
+        {
+          "agent": "validation",
+          "status": "pass",
+          "issues": []
+        }
+      ],
+      "sourcesUsed": [
+        "kb-integrations",
+        "kb-overview",
+        "kb-limits",
+        "kb-security"
+      ],
+      "goldPicked": 1,
+      "goldTotal": 1,
+      "calls": [
+        {
+          "agent": "Retrieval Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"relevant_source_ids\": [\"kb-integrations\", \"kb-overview\", \"kb-limits\", \"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-integrations\",\n      \"quote\": \"Ravenmoor CRM connects only through Zapier; there is no native Ravenmoor connector.\",\n      \"claim\": \"Directly addresses the prospect's Ravenmoor CRM integration question: integration is available via Zapier, but no native connector exists.\"\n    },\n    {\n      \"source_id\": \"kb-integrations\",\n      \"quote\": \"The public REST API allows 120 requests per minute per account, and webhooks fire when a job is created, completed or cancelled.\",\n      \"claim\": \"Supports VP Engineering tech deep dive by documenting the REST API rate limits and webhook events available for custom Ravenmoor integration work.\"\n    },\n    {\n      \"source_id\": \"kb-integrations\",\n      \"quote\": \"Quillfeather Books syncs two ways: completed jobs become draft invoices, and payment status returns every 10 minutes. Hollins Payroll receives approved timesheets once a week, every Monday.\",\n      \"claim\": \"Provides reference examples of native integration sync patterns and cadences that a VP Engineering can compare against the Zapier-mediated Ravenmoor flow.\"\n    },\n    {\n      \"source_id\": \"kb-overview\",\n      \"quote\": \"Native integrations: Quillfeather Books for invoicing and Hollins Payroll for timesheets.\",\n      \"claim\": \"Confirms the scope of native integrations, making clear that Ravenmoor is not among them and must be handled via Zapier or the public API.\"\n    },\n    {\n      \"source_id\": \"kb-limits\",\n      \"quote\": \"Tidewell Dispatch runs only as a cloud service and cannot be hosted on-premises.\",\n      \"claim\": \"Relevant to a VP Engineering evaluating deployment model across all three clouds; clarifies cloud-only architecture that affects how Ravenmoor integration is deployed.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Customer data is stored in a Canada Central region or a UK South region, chosen by the customer at signup.\",\n      \"claim\": \"Addresses VP Engineering concerns on data residency and the underlying cloud footprint that any Ravenmoor integration traffic would traverse.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Data is encrypted with AES-256 at rest and TLS 1.3 in transit.\",\n      \"claim\": \"Supports a tech deep dive on the security posture for data moving between Tidewell and Ravenmoor via Zapier or the REST API.\"\n    }\n  ],\n  \"missing_info\": [\n    \"Whether Tidewell Dispatch is deployed on AWS, Azure, and/or GCP (prospect selected 'all three' clouds)\",\n    \"Specific list of Ravenmoor CRM objects, triggers, and actions exposed through the Zapier connector\",\n    \"Authentication method (OAuth, API key, etc.) and scopes for the public REST API\",\n    \"Field-level data mapping between Tidewell jobs/customers and Ravenmoor CRM records\",\n    \"Roadmap or timeline for a native Ravenmoor CRM connector\",\n    \"Bulk/batch API endpoints or event-streaming options beyond 120 req/min and webhooks\",\n    \"SLA, error handling, and retry semantics for the Zapier-based Ravenmoor integration\",\n    \"Reference customers in the 100k-1m deal band who integrate Tidewell with Ravenmoor CRM\",\n    \"Electrical-contractor-specific case studies (Fenwick Electrical vertical fit)\",\n    \"SOC 2 Type II completion date, relevant for VP Engineering security review\"\n  ]\n}"
+        },
+        {
+          "agent": "ICP Personalization Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\"slides\":[{\"index\":0,\"title\":\"Ravenmoor CRM: Zapier-only integration\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Ravenmoor connects only through Zapier [kb-integrations]\\n• No native Ravenmoor connector exists [kb-integrations]\\n• Native syncs limited to Quillfeather Books and Hollins Payroll [kb-integrations]\\n\\nTakeaway: Plan Ravenmoor sync as a Zapier workflow, not a native pipe.\"}],\"speaker_notes\":\"Lead with the honest tradeoff: Ravenmoor is Zapier-mediated only. Set expectations before scoping integration work.\"},{\"index\":1,\"title\":\"Build custom glue: REST + webhooks\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Public REST API: 120 requests/min per account [kb-integrations]\\n• Webhooks fire on job created, completed, cancelled [kb-integrations]\\n• Quillfeather sync returns payment status every 10 minutes [kb-integrations]\\n\\nTakeaway: Event-driven hooks plus rate-limited REST cover gaps Zapier leaves.\"}],\"speaker_notes\":\"For VP Eng: webhooks reduce polling. 120 rpm cap shapes your batch and retry design around Ravenmoor sync.\"},{\"index\":2,\"title\":\"Platform constraints your team should know\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Cloud-only; no on-prem hosting [kb-limits]\\n• ISO 27001 certified; SOC 2 Type II still underway [kb-security]\\n• Data resides in Canada Central or UK South, chosen at signup [kb-security]\\n\\nTakeaway: Multi-cloud footprint is moot — Tidewell is SaaS with fixed regions.\"}],\"speaker_notes\":\"Flag honestly: no on-prem, SOC 2 Type II not yet complete, two region choices. Shapes your compliance review.\"}]}"
+        },
+        {
+          "agent": "Brand Compliance Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}"
+        },
+        {
+          "agent": "Fact Validation Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"Ravenmoor connects only through Zapier\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"No native Ravenmoor connector exists\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"Native syncs limited to Quillfeather Books and Hollins Payroll\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Public REST API: 120 requests/min per account\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Webhooks fire on job created, completed, cancelled\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"slide_index\": 1, \"claim\": \"Quillfeather sync returns payment status every 10 minutes\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Cloud-only; no on-prem hosting\", \"source_id\": \"kb-limits\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"ISO 27001 certified; SOC 2 Type II still underway\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 2, \"claim\": \"Data resides in Canada Central or UK South, chosen at signup\", \"source_id\": \"kb-security\", \"status\": \"verified\"}\n  ],\n  \"hallucinations\": []\n}"
+        }
+      ],
+      "status": "verified",
+      "writable": true,
+      "removed": [],
+      "unresolved": [],
+      "falseClaimHits": [],
+      "figuresNotInKB": [],
+      "figuresOnlyPast1500": [],
+      "finalText": "Ravenmoor CRM: Zapier-only integration\n• Ravenmoor connects only through Zapier [kb-integrations]\n• No native Ravenmoor connector exists [kb-integrations]\n• Native syncs limited to Quillfeather Books and Hollins Payroll [kb-integrations]\n\nTakeaway: Plan Ravenmoor sync as a Zapier workflow, not a native pipe.\nLead with the honest tradeoff: Ravenmoor is Zapier-mediated only. Set expectations before scoping integration work.\nBuild custom glue: REST + webhooks\n• Public REST API: 120 requests/min per account [kb-integrations]\n• Webhooks fire on job created, completed, cancelled [kb-integrations]\n• Quillfeather sync returns payment status every 10 minutes [kb-integrations]\n\nTakeaway: Event-driven hooks plus rate-limited REST cover gaps Zapier leaves.\nFor VP Eng: webhooks reduce polling. 120 rpm cap shapes your batch and retry design around Ravenmoor sync.\nPlatform constraints your team should know\n• Cloud-only; no on-prem hosting [kb-limits]\n• ISO 27001 certified; SOC 2 Type II still underway [kb-security]\n• Data resides in Canada Central or UK South, chosen at signup [kb-security]\n\nTakeaway: Multi-cloud footprint is moot — Tidewell is SaaS with fixed regions.\nFlag honestly: no on-prem, SOC 2 Type II not yet complete, two region choices. Shapes your compliance review.",
+      "unsupportedInWritableDoc": false
+    },
+    {
+      "id": "n-c06",
+      "run": 0,
+      "error": null,
+      "agents": [
+        {
+          "agent": "retrieval",
+          "status": "pass"
+        },
+        {
+          "agent": "icp_personalization",
+          "status": "pass"
+        },
+        {
+          "agent": "brand_compliance",
+          "status": "pass",
+          "issues": []
+        },
+        {
+          "agent": "validation",
+          "status": "pass",
+          "issues": []
+        }
+      ],
+      "sourcesUsed": [
+        "kb-handbook",
+        "kb-security"
+      ],
+      "goldPicked": 1,
+      "goldTotal": 1,
+      "calls": [
+        {
+          "agent": "Retrieval Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"relevant_source_ids\": [\"kb-handbook\", \"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-handbook\",\n      \"quote\": \"Job records, photos and signatures are kept for five years by default, and the retention period can be shortened on request.\",\n      \"claim\": \"Directly addresses the COO's pain point about how long job photos and records are kept, with a configurable default of five years.\"\n    },\n    {\n      \"source_id\": \"kb-handbook\",\n      \"quote\": \"If a customer leaves, Orrinmoor exports all job records as CSV and JSON files within 14 days of the request, and then deletes the customer's data within a further 60 days.\",\n      \"claim\": \"Addresses the COO's pain point about what happens to their data if they leave, with clear export and deletion commitments.\"\n    },\n    {\n      \"source_id\": \"kb-handbook\",\n      \"quote\": \"Backups are encrypted and kept for 30 days.\",\n      \"claim\": \"Supports data governance assurances at commercial close by clarifying backup retention.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Customer data is stored in a Canada Central region or a UK South region, chosen by the customer at signup.\",\n      \"claim\": \"Reinforces data custody story relevant to 'what happens to our data' concerns.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Data is encrypted with AES-256 at rest and TLS 1.3 in transit.\",\n      \"claim\": \"Supports data protection posture for COO due diligence at commercial close.\"\n    },\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Orrinmoor Systems holds ISO 27001 certification, first achieved in 2024 and renewed annually.\",\n      \"claim\": \"Provides third-party assurance that underpins retention and exit commitments.\"\n    }\n  ],\n  \"missing_info\": [\n    \"No mention of support for 'all three' major clouds (AWS, Azure, GCP); KB only lists Canada Central and UK South regions without naming cloud providers.\",\n    \"No commercial-close artifacts such as DPA, MSA templates, or contractual exit/termination clauses specific to a 100k-1m deal.\",\n    \"No SOC 2 Type II report available yet (only Type I), which a COO may request.\",\n    \"No specific retention-shortening SLAs or minimum retention floors beyond the five-year default.\",\n    \"No details on data residency or portability options outside Canada Central and UK South (region 'n/a' not addressed).\",\n    \"No COO-persona ROI model tailored to the 100k-1m deal band.\",\n    \"No information on sub-processor list or breach notification timelines.\"\n  ]\n}"
+        },
+        {
+          "agent": "ICP Personalization Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\"slides\":[{\"index\":0,\"title\":\"Your Data, Your Records: Clear Answers\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Job records, photos, signatures kept 5 years by default [kb-handbook]\\n• Retention period shortens on request [kb-handbook]\\n• Encrypted AES-256 at rest, TLS 1.3 in transit [kb-security]\\n\\nTakeaway: Ashcombe controls retention, not us.\"}],\"speaker_notes\":\"Lead with retention control. Five-year default, shortenable on request. Encryption standards back operational trust [kb-handbook][kb-security].\"},{\"index\":1,\"title\":\"Leaving? Full Export in 14 Days\",\"components\":[{\"type\":\"text_block\",\"content\":\"• All records exported as CSV and JSON within 14 days [kb-handbook]\\n• Data deleted within further 60 days [kb-handbook]\\n• Encrypted backups retained 30 days [kb-handbook]\\n\\nTakeaway: Clean exit, no operational lock-in.\"}],\"speaker_notes\":\"No hostage data. Operations leaders need exit certainty before signing. Portable formats mean team keeps working [kb-handbook].\"},{\"index\":2,\"title\":\"Rollout Keeps Dispatchers Productive\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Three stages: import, tune, launch [kb-handbook]\\n• 24 months job history imported for routing accuracy [kb-handbook]\\n• Scheduler caps 10-hour days, 15-minute job buffers [kb-handbook]\\n\\nTakeaway: Structured switch, protected technician workload.\"}],\"speaker_notes\":\"Operational guardrails built in. History import trains routing; day caps protect crews. Three stages reduce launch risk [kb-handbook].\"}]}"
+        },
+        {
+          "agent": "Brand Compliance Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}"
+        },
+        {
+          "agent": "Fact Validation Agent",
+          "requestedModel": "claude-opus-4-7",
+          "text": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Job records, photos, signatures kept 5 years by default\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Retention period shortens on request\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Encrypted AES-256 at rest, TLS 1.3 in transit\",\n      \"source_id\": \"kb-security\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"All records exported as CSV and JSON within 14 days\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Data deleted within further 60 days\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 1,\n      \"claim\": \"Encrypted backups retained 30 days\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Three stages: import, tune, launch\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"24 months job history imported for routing accuracy\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 2,\n      \"claim\": \"Scheduler caps 10-hour days, 15-minute job buffers\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    }\n  ],\n  \"hallucinations\": []\n}"
+        }
+      ],
+      "status": "verified",
+      "writable": true,
+      "removed": [],
+      "unresolved": [],
+      "falseClaimHits": [],
+      "figuresNotInKB": [],
+      "figuresOnlyPast1500": [],
+      "finalText": "Your Data, Your Records: Clear Answers\n• Job records, photos, signatures kept 5 years by default [kb-handbook]\n• Retention period shortens on request [kb-handbook]\n• Encrypted AES-256 at rest, TLS 1.3 in transit [kb-security]\n\nTakeaway: Ashcombe controls retention, not us.\nLead with retention control. Five-year default, shortenable on request. Encryption standards back operational trust [kb-handbook][kb-security].\nLeaving? Full Export in 14 Days\n• All records exported as CSV and JSON within 14 days [kb-handbook]\n• Data deleted within further 60 days [kb-handbook]\n• Encrypted backups retained 30 days [kb-handbook]\n\nTakeaway: Clean exit, no operational lock-in.\nNo hostage data. Operations leaders need exit certainty before signing. Portable formats mean team keeps working [kb-handbook].\nRollout Keeps Dispatchers Productive\n• Three stages: import, tune, launch [kb-handbook]\n• 24 months job history imported for routing accuracy [kb-handbook]\n• Scheduler caps 10-hour days, 15-minute job buffers [kb-handbook]\n\nTakeaway: Structured switch, protected technician workload.\nOperational guardrails built in. History import trains routing; day caps protect crews. Three stages reduce launch risk [kb-handbook].",
+      "unsupportedInWritableDoc": false
+    }
+  ],
+  "calls": [
+    {
+      "label": "C:0:n-c03:Retrieval Agent",
+      "ms": 12689,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"relevant_source_ids\": [\"kb-pricing-fleet\", \"kb-handbook\", \"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-pricing-fleet\",\n      \"quote\": \"Tidewell Dispatch Fleet plan pricing is $64 per technician per month, with a minimum of 75 technicians.\",\n      \"claim\": \"Supports budgeting fo",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 792,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 3059,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.05041999999999999,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c02:Retrieval Agent",
+      "ms": 12737,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"relevant_source_ids\": [\"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Orrinmoor Systems holds ISO 27001 certification, first achieved in 2024 and renewed annually.\",\n      \"claim\": \"Confirms ISO 27001 certification is in place, directly addressing one o",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 747,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 3158,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.050285,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c01:Retrieval Agent",
+      "ms": 17604,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"relevant_source_ids\": [\"kb-overview\", \"kb-case-bramble\", \"kb-case-saltmarsh\", \"kb-field-app\", \"kb-handbook\", \"kb-pricing-fleet\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-overview\",\n      \"quote\": \"In Orrinmoor's 2025 study of 41,000 completed jobs across nine contractors, average drive ti",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1212,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 3231,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.06264,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c03:ICP Personalization Agent",
+      "ms": 11385,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\"slides\":[{\"index\":0,\"title\":\"Fleet Plan: Priced For 90 Techs\",\"components\":[{\"type\":\"text_block\",\"content\":\"• $64 per technician / month [kb-pricing-fleet]\\n• 90 techs = $5,760/month, ~$69,120/year [kb-pricing-fleet]\\n• Clears 75-tech Fleet minimum [kb-pricing-fleet]\"}],\"speaker_notes\":\"Fleet pric",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 772,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2104,
+        "thinking_tokens": 188
+      },
+      "cost_usd_list": 0.04037,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c03:Brand Compliance Agent",
+      "ms": 2617,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 1714,
+        "output_tokens": 35,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.009444999999999999,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c02:ICP Personalization Agent",
+      "ms": 15258,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "```json\n{\"slides\":[{\"index\":0,\"title\":\"Compliance Posture: Certifications Status\",\"components\":[{\"type\":\"text_block\",\"content\":\"• ISO 27001 certified since 2024, renewed annually [kb-security]\\n• SOC 2 Type I complete; Type II audit underway, not yet issued [kb-security]\\n• Not HIPAA compliant [kb-s",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 1653,
+        "output_tokens": 1016,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "thinking_tokens": 413
+      },
+      "cost_usd_list": 0.033665,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c02:Brand Compliance Agent",
+      "ms": 2669,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 1728,
+        "output_tokens": 35,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.009515,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c01:ICP Personalization Agent",
+      "ms": 18759,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "```json\n{\"slides\":[{\"index\":0,\"title\":\"Architecture Targets Overtime And Repeat Visits\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Routing engine sequences each tech's day to cut drive time [kb-overview]\\n• Skills/certifications gate job assignment, so qualified tech arrives first [kb-handbook]",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1173,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2822,
+        "thinking_tokens": 421
+      },
+      "cost_usd_list": 0.057575,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c01:Brand Compliance Agent",
+      "ms": 2873,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 1886,
+        "output_tokens": 35,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.010305000000000002,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c03:Fact Validation Agent",
+      "ms": 17496,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"$64 per technician / month\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"90 techs = $5,760/month, ~$69,120/year\", \"source_id\": \"kb-pricing-fleet\", \"status\": \"verified\"},\n    {\"slide_inde",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1688,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2579,
+        "thinking_tokens": 915
+      },
+      "cost_usd_list": 0.06802,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c02:Fact Validation Agent",
+      "ms": 16655,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": false,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"ISO 27001 certified since 2024, renewed annually [kb-security]\", \"source_id\": \"kb-security\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"SOC 2 Type I complete; Type II audit underway, not yet issued [kb-security]\", \"so",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1430,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2142,
+        "thinking_tokens": 831
+      },
+      "cost_usd_list": 0.0572,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c01:Fact Validation Agent",
+      "ms": 14291,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Routing engine sequences each tech's day to cut drive time\",\n      \"source_id\": \"kb-overview\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Skills/certifications gate job assignment, ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1371,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 3484,
+        "thinking_tokens": 660
+      },
+      "cost_usd_list": 0.06914500000000001,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c05:Retrieval Agent",
+      "ms": 19226,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"relevant_source_ids\": [\"kb-integrations\", \"kb-overview\", \"kb-limits\", \"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-integrations\",\n      \"quote\": \"Ravenmoor CRM connects only through Zapier; there is no native Ravenmoor connector.\",\n      \"claim\": \"Directly addresses the prospec",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1279,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 3283,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.064835,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c04:Retrieval Agent",
+      "ms": 22527,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"relevant_source_ids\": [\"kb-security\", \"kb-overview\", \"kb-pricing-fleet\", \"kb-limits\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-security\",\n      \"quote\": \"Tidewell Dispatch is not HIPAA compliant.\",\n      \"claim\": \"Directly addresses the CFO's stated HIPAA pain point - a critical disqualif",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1376,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 3002,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.06445000000000001,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c06:Retrieval Agent",
+      "ms": 14574,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"relevant_source_ids\": [\"kb-handbook\", \"kb-security\"],\n  \"citations\": [\n    {\n      \"source_id\": \"kb-handbook\",\n      \"quote\": \"Job records, photos and signatures are kept for five years by default, and the retention period can be shortened on request.\",\n      \"claim\": \"Directly addresses the CO",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 898,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 3221,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.05469,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c06:ICP Personalization Agent",
+      "ms": 11243,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\"slides\":[{\"index\":0,\"title\":\"Your Data, Your Records: Clear Answers\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Job records, photos, signatures kept 5 years by default [kb-handbook]\\n• Retention period shortens on request [kb-handbook]\\n• Encrypted AES-256 at rest, TLS 1.3 in transit [kb-secu",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 613,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2096,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.03631500000000001,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c06:Brand Compliance Agent",
+      "ms": 2693,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 1745,
+        "output_tokens": 35,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.009600000000000001,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c04:ICP Personalization Agent",
+      "ms": 16896,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\"slides\":[{\"index\":0,\"title\":\"18% Drive Time Cut\",\"components\":[{\"type\":\"text_block\",\"content\":\"• 18% average drive-time reduction per job [kb-overview]\\n• Study: 41,000 jobs, 9 contractors [kb-overview]\\n• One dispatcher covers 60 techs [kb-overview]\\n\\nTakeaway: Routing engine converts windshield",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1107,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2290,
+        "thinking_tokens": 504
+      },
+      "cost_usd_list": 0.050605,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c05:ICP Personalization Agent",
+      "ms": 17118,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\"slides\":[{\"index\":0,\"title\":\"Ravenmoor CRM: Zapier-only integration\",\"components\":[{\"type\":\"text_block\",\"content\":\"• Ravenmoor connects only through Zapier [kb-integrations]\\n• No native Ravenmoor connector exists [kb-integrations]\\n• Native syncs limited to Quillfeather Books and Hollins Payroll ",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1116,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2306,
+        "thinking_tokens": 440
+      },
+      "cost_usd_list": 0.050989999999999994,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c04:Brand Compliance Agent",
+      "ms": 2702,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 1733,
+        "output_tokens": 35,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.00954,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c05:Brand Compliance Agent",
+      "ms": 2699,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"pass\": true,\n  \"violations\": [],\n  \"tone_score\": 0.95\n}",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 1806,
+        "output_tokens": 35,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "thinking_tokens": 0
+      },
+      "cost_usd_list": 0.009905,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c06:Fact Validation Agent",
+      "ms": 12231,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Job records, photos, signatures kept 5 years by default\",\n      \"source_id\": \"kb-handbook\",\n      \"status\": \"verified\"\n    },\n    {\n      \"slide_index\": 0,\n      \"claim\": \"Retention period shortens on request\",\n      \"",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1175,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2626,
+        "thinking_tokens": 555
+      },
+      "cost_usd_list": 0.055665,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c05:Fact Validation Agent",
+      "ms": 12784,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"Ravenmoor connects only through Zapier\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"No native Ravenmoor connector exists\", \"source_id\": \"kb-integrations\", \"status\": \"verified\"},\n    {\"sl",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1198,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2885,
+        "thinking_tokens": 649
+      },
+      "cost_usd_list": 0.05883,
+      "num_turns": 1
+    },
+    {
+      "label": "C:0:n-c04:Fact Validation Agent",
+      "ms": 14731,
+      "exit": 0,
+      "is_error": false,
+      "result_head": "{\n  \"grounded\": true,\n  \"claims\": [\n    {\"slide_index\": 0, \"claim\": \"18% average drive-time reduction per job\", \"source_id\": \"kb-overview\", \"status\": \"verified\"},\n    {\"slide_index\": 0, \"claim\": \"Study: 41,000 jobs, 9 contractors\", \"source_id\": \"kb-overview\", \"status\": \"verified\"},\n    {\"slide_index",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1472,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 2779,
+        "thinking_tokens": 740
+      },
+      "cost_usd_list": 0.06462,
+      "num_turns": 1
+    }
+  ]
+}

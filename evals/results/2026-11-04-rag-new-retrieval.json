@@ -1,0 +1,3195 @@
+{
+  "method": "Arm A: retrieval only, no model calls. Real semanticChunk, retrieveKB, lexicalFallback, rankChunks via runLiveKbAsk and runCoachAgent with the model call captured and skipped. 'offline' uses a TF-IDF stand-in embedder, NOT the production Gemini embedder.",
+  "summary": {
+    "cases": 31,
+    "answerable": 24,
+    "chunking": [
+      {
+        "id": "kb-overview",
+        "chars": 645,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 645,
+            "startChar": 0,
+            "endChar": 645
+          }
+        ]
+      },
+      {
+        "id": "kb-case-bramble",
+        "chars": 321,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 321,
+            "startChar": 0,
+            "endChar": 321
+          }
+        ]
+      },
+      {
+        "id": "kb-case-saltmarsh",
+        "chars": 219,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 219,
+            "startChar": 0,
+            "endChar": 219
+          }
+        ]
+      },
+      {
+        "id": "kb-security",
+        "chars": 488,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 488,
+            "startChar": 0,
+            "endChar": 488
+          }
+        ]
+      },
+      {
+        "id": "kb-pricing-crew",
+        "chars": 234,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 234,
+            "startChar": 0,
+            "endChar": 234
+          }
+        ]
+      },
+      {
+        "id": "kb-pricing-fleet",
+        "chars": 263,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 263,
+            "startChar": 0,
+            "endChar": 263
+          }
+        ]
+      },
+      {
+        "id": "kb-field-app",
+        "chars": 450,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 450,
+            "startChar": 0,
+            "endChar": 450
+          }
+        ]
+      },
+      {
+        "id": "kb-integrations",
+        "chars": 424,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 424,
+            "startChar": 0,
+            "endChar": 424
+          }
+        ]
+      },
+      {
+        "id": "kb-limits",
+        "chars": 469,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 469,
+            "startChar": 0,
+            "endChar": 469
+          }
+        ]
+      },
+      {
+        "id": "kb-handbook",
+        "chars": 2141,
+        "chunks": [
+          {
+            "index": 0,
+            "chars": 1778,
+            "startChar": 0,
+            "endChar": 1778
+          },
+          {
+            "index": 1,
+            "chars": 556,
+            "startChar": 1585,
+            "endChar": 2141
+          }
+        ]
+      }
+    ],
+    "lexical.askKB_k6_500": {
+      "all": {
+        "cases": 24,
+        "allGoldEntriesRetrieved": 21,
+        "allGoldPassagesSeen": 20,
+        "firstGoldRankHistogram": {
+          "1": 20,
+          "2": 1,
+          "none": 3
+        },
+        "emptyRetrievals": 1
+      },
+      "single_fact": {
+        "cases": 16,
+        "allGoldEntriesRetrieved": 16,
+        "allGoldPassagesSeen": 16,
+        "firstGoldRankHistogram": {
+          "1": 15,
+          "2": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 2,
+        "allGoldPassagesSeen": 1,
+        "firstGoldRankHistogram": {
+          "1": 2,
+          "none": 3
+        },
+        "emptyRetrievals": 1
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 3,
+        "allGoldPassagesSeen": 3,
+        "firstGoldRankHistogram": {
+          "1": 3
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "lexical.coach_k4_240": {
+      "all": {
+        "cases": 24,
+        "allGoldEntriesRetrieved": 21,
+        "allGoldPassagesSeen": 19,
+        "firstGoldRankHistogram": {
+          "1": 20,
+          "2": 1,
+          "none": 3
+        },
+        "emptyRetrievals": 1
+      },
+      "single_fact": {
+        "cases": 16,
+        "allGoldEntriesRetrieved": 16,
+        "allGoldPassagesSeen": 16,
+        "firstGoldRankHistogram": {
+          "1": 15,
+          "2": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 2,
+        "allGoldPassagesSeen": 1,
+        "firstGoldRankHistogram": {
+          "1": 2,
+          "none": 3
+        },
+        "emptyRetrievals": 1
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 3,
+        "allGoldPassagesSeen": 2,
+        "firstGoldRankHistogram": {
+          "1": 3
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "offline.askKB_k6_500": {
+      "all": {
+        "cases": 24,
+        "allGoldEntriesRetrieved": 23,
+        "allGoldPassagesSeen": 21,
+        "firstGoldRankHistogram": {
+          "1": 21,
+          "2": 1,
+          "3": 1,
+          "none": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "single_fact": {
+        "cases": 16,
+        "allGoldEntriesRetrieved": 16,
+        "allGoldPassagesSeen": 16,
+        "firstGoldRankHistogram": {
+          "1": 16
+        },
+        "emptyRetrievals": 0
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 4,
+        "allGoldPassagesSeen": 2,
+        "firstGoldRankHistogram": {
+          "1": 2,
+          "2": 1,
+          "3": 1,
+          "none": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 3,
+        "allGoldPassagesSeen": 3,
+        "firstGoldRankHistogram": {
+          "1": 3
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "offline.coach_k4_240": {
+      "all": {
+        "cases": 24,
+        "allGoldEntriesRetrieved": 23,
+        "allGoldPassagesSeen": 20,
+        "firstGoldRankHistogram": {
+          "1": 21,
+          "2": 1,
+          "3": 1,
+          "none": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "single_fact": {
+        "cases": 16,
+        "allGoldEntriesRetrieved": 16,
+        "allGoldPassagesSeen": 16,
+        "firstGoldRankHistogram": {
+          "1": 16
+        },
+        "emptyRetrievals": 0
+      },
+      "paraphrase": {
+        "cases": 5,
+        "allGoldEntriesRetrieved": 4,
+        "allGoldPassagesSeen": 2,
+        "firstGoldRankHistogram": {
+          "1": 2,
+          "2": 1,
+          "3": 1,
+          "none": 1
+        },
+        "emptyRetrievals": 0
+      },
+      "two_entry": {
+        "cases": 3,
+        "allGoldEntriesRetrieved": 3,
+        "allGoldPassagesSeen": 2,
+        "firstGoldRankHistogram": {
+          "1": 3
+        },
+        "emptyRetrievals": 0
+      }
+    },
+    "unanswerableEmptyRetrievals": {
+      "lexical": 0,
+      "offline": 0
+    },
+    "askKBRequestedModels": [
+      "anthropic / claude-haiku-4-5-20251001"
+    ]
+  },
+  "results": [
+    {
+      "id": "n-s01",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-integrations",
+            "kb-case-saltmarsh",
+            "kb-pricing-fleet"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-integrations"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-handbook",
+            "kb-case-saltmarsh",
+            "kb-pricing-crew",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-handbook",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s02",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-limits"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-limits",
+            "kb-field-app",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-overview",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s03",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-bramble",
+            "kb-overview",
+            "kb-handbook",
+            "kb-security",
+            "kb-pricing-fleet",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-bramble",
+            "kb-overview",
+            "kb-handbook",
+            "kb-security"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-bramble",
+            "kb-overview",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-security",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-bramble",
+            "kb-overview",
+            "kb-handbook",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s04",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-saltmarsh",
+            "kb-overview",
+            "kb-pricing-crew",
+            "kb-handbook",
+            "kb-field-app",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-saltmarsh",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-saltmarsh",
+            "kb-overview",
+            "kb-pricing-crew",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-saltmarsh",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-saltmarsh",
+            "kb-pricing-crew",
+            "kb-overview",
+            "kb-field-app",
+            "kb-pricing-fleet",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-saltmarsh",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-saltmarsh",
+            "kb-pricing-crew",
+            "kb-overview",
+            "kb-field-app"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-saltmarsh",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s05",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-overview",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-overview",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-overview",
+            "kb-limits",
+            "kb-handbook",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-overview",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s06",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-handbook",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-case-saltmarsh",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-case-saltmarsh",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s07",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-handbook",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-security",
+            "kb-handbook",
+            "kb-field-app",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-security",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s08",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-handbook"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-handbook"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh",
+            "kb-security",
+            "kb-pricing-fleet"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s09",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-pricing-crew",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-case-saltmarsh",
+            "kb-overview",
+            "kb-limits",
+            "kb-handbook",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-case-saltmarsh",
+            "kb-overview",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s10",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s11",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-integrations",
+            "kb-overview",
+            "kb-handbook",
+            "kb-security",
+            "kb-limits"
+          ],
+          "returnedCount": 5,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-integrations",
+            "kb-overview",
+            "kb-handbook",
+            "kb-security"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-integrations",
+            "kb-overview",
+            "kb-limits",
+            "kb-security",
+            "kb-handbook",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-integrations",
+            "kb-overview",
+            "kb-limits",
+            "kb-security"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s12",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-case-bramble",
+            "kb-integrations",
+            "kb-limits"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-case-bramble",
+            "kb-integrations",
+            "kb-limits"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-integrations",
+            "kb-case-bramble",
+            "kb-limits",
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-integrations",
+            "kb-case-bramble",
+            "kb-limits",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s13",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-integrations",
+            "kb-overview"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-integrations",
+            "kb-overview"
+          ],
+          "returnedCount": 2,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-integrations",
+            "kb-limits",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-integrations",
+            "kb-limits",
+            "kb-overview",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-integrations",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s14",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh",
+            "kb-pricing-crew",
+            "kb-field-app"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-field-app",
+            "kb-case-saltmarsh",
+            "kb-security"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-field-app"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 2
+      }
+    },
+    {
+      "id": "n-s15",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-field-app",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-integrations"
+          ],
+          "returnedCount": 5,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-field-app",
+            "kb-overview",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-field-app",
+            "kb-case-bramble",
+            "kb-handbook",
+            "kb-overview",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-field-app",
+            "kb-case-bramble",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-s16",
+      "category": "single_fact",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-limits",
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-limits",
+            "kb-overview",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-limits",
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-case-bramble",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-limits",
+            "kb-overview",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-p01",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [],
+          "returnedCount": 0,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [],
+          "returnedCount": 0,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-handbook",
+            "kb-field-app",
+            "kb-overview",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 3,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-handbook",
+            "kb-field-app"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 3,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 11
+      }
+    },
+    {
+      "id": "n-p02",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-limits",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-limits",
+            "kb-handbook",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 2,
+          "passages": [
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 2
+      }
+    },
+    {
+      "id": "n-p03",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-security",
+            "kb-handbook"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-security",
+            "kb-handbook"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-case-saltmarsh",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-overview",
+            "kb-handbook",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": false,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": null,
+          "passages": [
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": false,
+              "entryRank": null,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 7
+      }
+    },
+    {
+      "id": "n-p04",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-overview",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-overview",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-field-app",
+            "kb-overview",
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-field-app",
+            "kb-overview",
+            "kb-pricing-crew",
+            "kb-pricing-fleet"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-field-app",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-p05",
+      "category": "paraphrase",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-case-saltmarsh",
+            "kb-integrations"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-case-saltmarsh",
+            "kb-integrations"
+          ],
+          "returnedCount": 3,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh",
+            "kb-security",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": false
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-m01",
+      "category": "two_entry",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-handbook",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-case-saltmarsh",
+            "kb-handbook",
+            "kb-overview",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-case-saltmarsh",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-pricing-crew",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-pricing-fleet",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-m02",
+      "category": "two_entry",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-limits",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-limits",
+            "kb-handbook",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-limits",
+            "kb-handbook",
+            "kb-case-saltmarsh",
+            "kb-overview",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-limits",
+            "kb-handbook",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-security",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-limits",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-m03",
+      "category": "two_entry",
+      "answerable": true,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-overview",
+            "kb-pricing-crew",
+            "kb-pricing-fleet",
+            "kb-field-app"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-overview",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 2,
+              "passageInExcerpt": false
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-pricing-fleet",
+            "kb-field-app",
+            "kb-integrations"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": true,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": true
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-pricing-fleet"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": true,
+          "allGoldPassagesSeen": false,
+          "firstGoldRank": 1,
+          "passages": [
+            {
+              "entry": "kb-case-bramble",
+              "entryRetrieved": true,
+              "entryRank": 3,
+              "passageInExcerpt": false
+            },
+            {
+              "entry": "kb-handbook",
+              "entryRetrieved": true,
+              "entryRank": 1,
+              "passageInExcerpt": true
+            }
+          ]
+        },
+        "fullDepthPassageRank": 1
+      }
+    },
+    {
+      "id": "n-u01",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-overview",
+            "kb-limits",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-overview",
+            "kb-limits",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-overview",
+            "kb-handbook",
+            "kb-limits",
+            "kb-handbook",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-overview",
+            "kb-handbook",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "n-u02",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-security",
+            "kb-handbook",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-security",
+            "kb-handbook",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-security",
+            "kb-limits",
+            "kb-handbook",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-handbook",
+            "kb-overview",
+            "kb-security",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "n-u03",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-limits",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-limits",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-limits",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-bramble"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-pricing-fleet",
+            "kb-pricing-crew",
+            "kb-limits",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "n-u04",
+      "category": "unanswerable",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh",
+            "kb-security",
+            "kb-pricing-crew",
+            "kb-pricing-fleet"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh",
+            "kb-security"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-case-bramble",
+            "kb-limits",
+            "kb-handbook",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-case-bramble",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "n-u05",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-case-bramble",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-overview",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-limits",
+            "kb-case-saltmarsh",
+            "kb-overview"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-security",
+            "kb-handbook",
+            "kb-handbook",
+            "kb-limits"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "n-u06",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-limits"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-limits"
+          ],
+          "returnedCount": 1,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-limits",
+            "kb-pricing-fleet",
+            "kb-field-app",
+            "kb-overview",
+            "kb-case-bramble",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-limits",
+            "kb-pricing-fleet",
+            "kb-field-app",
+            "kb-overview"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    },
+    {
+      "id": "n-u07",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "lexical": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-limits",
+            "kb-overview",
+            "kb-field-app",
+            "kb-handbook",
+            "kb-case-bramble",
+            "kb-pricing-crew"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-limits",
+            "kb-overview",
+            "kb-field-app",
+            "kb-handbook"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        }
+      },
+      "askKBRequest": {
+        "provider": "anthropic",
+        "model": "claude-haiku-4-5-20251001",
+        "max_tokens": 350
+      },
+      "offline": {
+        "askKB_k6_500": {
+          "returned": [
+            "kb-limits",
+            "kb-field-app",
+            "kb-overview",
+            "kb-case-saltmarsh",
+            "kb-case-bramble",
+            "kb-handbook"
+          ],
+          "returnedCount": 6,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "coach_k4_240": {
+          "returned": [
+            "kb-limits",
+            "kb-field-app",
+            "kb-overview",
+            "kb-case-saltmarsh"
+          ],
+          "returnedCount": 4,
+          "allGoldEntriesRetrieved": null,
+          "allGoldPassagesSeen": null,
+          "firstGoldRank": null,
+          "passages": []
+        },
+        "fullDepthPassageRank": null
+      }
+    }
+  ]
+}
