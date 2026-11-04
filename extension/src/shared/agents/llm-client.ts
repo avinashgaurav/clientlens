@@ -21,7 +21,9 @@ export interface LLMConfig {
   baseUrl?: string;
 }
 
-const ANTHROPIC_MODEL = "claude-opus-4-7";
+// Must be in the backend's default Anthropic allowlist (backend/api/routes/llm.py),
+// or every call using the default model 400s on a server without ALLOWED_MODELS_ANTHROPIC.
+const ANTHROPIC_MODEL = "claude-sonnet-4-6";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
 const OLLAMA_MODEL = "llama3.1:8b";
 const OLLAMA_BASE = "http://localhost:11434";
@@ -140,7 +142,9 @@ export function resolveLLMConfig(override?: { provider: LLMProvider; model: stri
 }
 
 export interface LLMClient {
-  call(system: string, user: string, maxTokens: number): Promise<string>;
+  // `signal` (optional) cancels the request; only the direct clients (Ollama,
+  // custom endpoint) honour it so far.
+  call(system: string, user: string, maxTokens: number, signal?: AbortSignal): Promise<string>;
   // Streaming variant: `onDelta` is invoked with each text chunk as it arrives.
   // Resolves with the full concatenated text. Providers without native
   // streaming fall back to a single onDelta with the full string at the end.
@@ -316,13 +320,19 @@ class ProxiedLLMClient implements LLMClient {
 
 // Groq is proxied via the backend (#1). See ProxiedLLMClient.
 
+// The non-streaming timeout, plus the caller's signal when there is one.
+function withTimeout(signal?: AbortSignal): AbortSignal {
+  const timeout = AbortSignal.timeout(LLM_TIMEOUT_MS);
+  return signal ? AbortSignal.any([timeout, signal]) : timeout;
+}
+
 class OllamaClient implements LLMClient {
   constructor(private cfg: LLMConfig) {}
-  async call(system: string, user: string, maxTokens: number): Promise<string> {
+  async call(system: string, user: string, maxTokens: number, signal?: AbortSignal): Promise<string> {
     const base = this.cfg.baseUrl ?? OLLAMA_BASE;
     const res = await fetch(`${base}/v1/chat/completions`, {
       method: "POST",
-      signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+      signal: withTimeout(signal),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: this.cfg.model,
@@ -348,14 +358,14 @@ class OllamaClient implements LLMClient {
 
 class CustomOpenAICompatClient implements LLMClient {
   constructor(private cfg: LLMConfig) {}
-  async call(system: string, user: string, maxTokens: number): Promise<string> {
+  async call(system: string, user: string, maxTokens: number, signal?: AbortSignal): Promise<string> {
     const base = (this.cfg.baseUrl ?? "").replace(/\/$/, "");
     const url = base.endsWith("/chat/completions") ? base : `${base}/chat/completions`;
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (this.cfg.apiKey) headers.Authorization = `Bearer ${this.cfg.apiKey}`;
     const res = await fetch(url, {
       method: "POST",
-      signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+      signal: withTimeout(signal),
       headers,
       body: JSON.stringify({
         model: this.cfg.model,
@@ -462,8 +472,8 @@ export function makeLLMClient(cfg: LLMConfig): LLMClient {
       ? new OllamaClient(cfg)
       : new CustomOpenAICompatClient(cfg);
   return {
-    async call(system, user, maxTokens) {
-      const out = await inner.call(system, user, maxTokens);
+    async call(system, user, maxTokens, signal) {
+      const out = await inner.call(system, user, maxTokens, signal);
       bumpUsage(cfg.provider);
       return out;
     },

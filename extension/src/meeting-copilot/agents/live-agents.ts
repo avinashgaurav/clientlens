@@ -17,6 +17,8 @@ import type {
 } from "../../shared/types";
 import { searchChunks, type SearchHit } from "../../shared/utils/kb-vector-store";
 import { computeWikiCoachMap } from "../../shared/utils/wiki-index";
+import { bestPassage, countTermHits, queryTerms } from "../../shared/utils/passage";
+import { KB_SAFETY_INSTRUCTION, kbSnippetsToPromptBlock, sanitizeKBContent } from "../../shared/agents/prompt-safety";
 
 const WINDOW_CHARS = 2400;
 // Live agents (coach + sentiment) only need the last few turns to stay in
@@ -46,7 +48,7 @@ function liveWindow(transcript: TranscriptSegment[]): string {
 // For OpenRouter we pick the smallest reliable free model so parallel agent
 // calls don't stack up on the 429-prone 70B quota. 8B instant is ~3× faster
 // and shares a different rate-limit bucket from the main model.
-const LIVE_MODELS: Record<LLMProvider, string | undefined> = {
+export const LIVE_MODELS: Record<LLMProvider, string | undefined> = {
   anthropic: "claude-haiku-4-5-20251001",
   // gemini-3.6-flash is the only Gemini name a key created today can call; the
   // 2.x and 1.5 families 404 with "no longer available to new users".
@@ -133,8 +135,9 @@ async function callLiveLLM(
 //   3. If the embed call itself throws (no Gemini key, quota hit), degrade
 //      gracefully to pure lexical for the whole KB.
 //
-// Returns objects shaped like the LLM-prompt snippets we used to build by
-// hand, so the call sites just JSON.stringify the result.
+// Call sites render the result with kbSnippetsToPromptBlock (sanitized,
+// <kb_source>-wrapped) and add KB_SAFETY_INSTRUCTION to the system prompt,
+// the same prompt-injection defence the pitch councils use.
 
 export interface RetrievedSnippet {
   id: string;            // kb_entry_id (carries through to source citations)
@@ -144,19 +147,17 @@ export interface RetrievedSnippet {
   score?: number;        // cosine score when from vector store; lexical = match count
 }
 
+// Keyword match over raw entries. Short terms count (SSO, MFA, ERP), and each
+// excerpt is the window around the matched terms, not the entry's opening.
 function lexicalFallback(query: string, entries: KBEntry[], topK: number, maxChars: number): RetrievedSnippet[] {
-  const terms = query.toLowerCase().split(/\W+/).filter((t) => t.length > 3);
+  const terms = queryTerms(query);
   if (terms.length === 0) {
     return entries.slice(0, topK).map((e) => ({
-      id: e.id, name: e.name, namespace: e.namespace, excerpt: (e.content || "").slice(0, maxChars), score: 0,
+      id: e.id, name: e.name, namespace: e.namespace, excerpt: bestPassage(e.content || "", [], maxChars), score: 0,
     }));
   }
   return entries
-    .map((entry) => {
-      const hay = `${entry.name}\n${entry.content || ""}`.toLowerCase();
-      const score = terms.reduce((a, t) => a + (hay.includes(t) ? 1 : 0), 0);
-      return { entry, score };
-    })
+    .map((entry) => ({ entry, score: countTermHits(`${entry.name}\n${entry.content || ""}`, terms) }))
     .filter((r) => r.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, topK)
@@ -164,7 +165,7 @@ function lexicalFallback(query: string, entries: KBEntry[], topK: number, maxCha
       id: r.entry.id,
       name: r.entry.name,
       namespace: r.entry.namespace,
-      excerpt: (r.entry.content || "").slice(0, maxChars),
+      excerpt: bestPassage(r.entry.content || "", terms, maxChars),
       score: r.score,
     }));
 }
@@ -196,11 +197,14 @@ async function retrieveKB(
     return lexicalFallback(query, kb, topK, maxCharsPerSnippet);
   }
 
+  // A chunk can run to ~1,800 chars, past the per-snippet budget: send the
+  // part of it that matches the query rather than its first maxChars.
+  const terms = queryTerms(query);
   const semantic: RetrievedSnippet[] = semanticHits.map((h) => ({
     id: h.entryId,
     name: h.entryName,
     namespace: h.namespace,
-    excerpt: h.text.length > maxCharsPerSnippet ? h.text.slice(0, maxCharsPerSnippet) : h.text,
+    excerpt: bestPassage(h.text, terms, maxCharsPerSnippet),
     score: h.score,
   }));
 
@@ -313,7 +317,8 @@ Rules:
 - Only urgent suggestions (high) if the prospect just raised an objection or a buying signal.
 - Quote KB entries verbatim when grounding an answer.
 - Never invent facts. If KB does not support a claim, skip.
-- ALWAYS include a rationale: the rep needs to know *why* you raised this.`;
+- ALWAYS include a rationale: the rep needs to know *why* you raised this.
+${KB_SAFETY_INSTRUCTION}`;
 
 export async function runCoachAgent(
   session: MeetingSession,
@@ -344,7 +349,7 @@ ${JSON.stringify(wikiMap.toc)}
 Top concepts: ${JSON.stringify(wikiMap.top_concepts)}
 
 KB excerpts most relevant to the current transcript window (use these to ground specific claims):
-${JSON.stringify(kbSnippets)}
+${kbSnippetsToPromptBlock(kbSnippets)}
 
 Live transcript (latest chunk):
 ${window}
@@ -434,7 +439,8 @@ Rules:
 - REJECT if the body invents a customer name, metric, price, or roadmap item.
 - REVISE if the suggestion is directionally right but over-promises; rewrite to be grounded.
 - APPROVE if the suggestion is purely a coaching nudge (e.g. "ask about their timeline") with no factual claims needed.
-- Brand voice: clear, specific, no marketing puffery, no emojis.`;
+- Brand voice: clear, specific, no marketing puffery, no emojis.
+${KB_SAFETY_INSTRUCTION}`;
 
 export interface LiveValidationOutcome {
   verdict: "approve" | "revise" | "reject";
@@ -498,7 +504,7 @@ Suggestion under review:
 ${JSON.stringify({ kind: suggestion.kind, title: suggestion.title, body: suggestion.body, sources: suggestion.sources })}
 
 KB grounding available:
-${JSON.stringify(kbSnippets)}
+${kbSnippetsToPromptBlock(kbSnippets)}
 
 Review the suggestion. JSON only.`;
 
@@ -582,65 +588,107 @@ export const LIVE_COUNCIL_AGENTS = [
 
 // ─── Push-to-ask KB ────────────────────────────────────────────────────────
 // Rep types a question on the transponder mid-call. Retrieve → answer →
-// validate via the same council gate, then return the approved answer.
+// check the answer's quotes (verifyKbAnswer) → return it or "Not in KB.".
 const KB_ASK_SYSTEM = `You answer a salesperson's live question using ONLY the KB snippets provided.
 Return JSON only:
 { "answer": "one or two crisp sentences", "sources": [{"kb_entry_id": "...", "quote": "..."}] }
 Rules:
 - If the KB does not answer the question, return { "answer": "Not in KB.", "sources": [] }.
-- Never invent. Quote KB verbatim when grounding.`;
+- Never invent. Quote KB verbatim when grounding.
+${KB_SAFETY_INSTRUCTION}`;
+
+export interface KbAskResult {
+  answer: string;
+  sources?: { kb_entry_id: string; quote: string }[];
+  rejected?: boolean;
+}
+
+const NOT_IN_KB = "Not in KB.";
+const MIN_QUOTE_CHARS = 12;
+
+/**
+ * Deterministic check of a model's Ask-KB answer, no extra model call. An
+ * answer passes only if it cites at least one source and every source quote
+ * is at least MIN_QUOTE_CHARS long (trimmed) and an exact substring of an
+ * excerpt sent for that kb_entry_id (as sanitized into the prompt). Otherwise the rep gets "Not in KB." with rejected: true.
+ * This proves the quotes are real, not that the answer sentence follows
+ * from them.
+ */
+export function verifyKbAnswer(
+  parsed: { answer?: unknown; sources?: unknown },
+  sent: RetrievedSnippet[],
+): KbAskResult {
+  const answer = typeof parsed.answer === "string" ? parsed.answer.trim() : "";
+  if (answer === NOT_IN_KB) return { answer: NOT_IN_KB, sources: [] };
+  const sources = Array.isArray(parsed.sources) ? parsed.sources : [];
+  const excerpts = sent.map((s) => ({ id: s.id, text: sanitizeKBContent(s.excerpt) }));
+  const quoted = (src: unknown): src is { kb_entry_id: string; quote: string } => {
+    const s = src as { kb_entry_id?: unknown; quote?: unknown } | null;
+    if (!s || typeof s.kb_entry_id !== "string" || typeof s.quote !== "string") return false;
+    // A very short quote ("SSO", "30 days") proves little about the answer.
+    if (s.quote.trim().length < MIN_QUOTE_CHARS) return false;
+    return excerpts.some((e) => e.id === s.kb_entry_id && e.text.includes(s.quote as string));
+  };
+  if (!answer || sources.length === 0 || !sources.every(quoted)) {
+    return { answer: NOT_IN_KB, sources: [], rejected: true };
+  }
+  return { answer, sources: sources as { kb_entry_id: string; quote: string }[] };
+}
 
 export async function runLiveKbAsk(
   question: string,
   session: MeetingSession,
   kb: KBEntry[],
   signal?: AbortSignal,
-): Promise<{ answer: string; sources?: { kb_entry_id: string; quote: string }[]; rejected?: boolean }> {
+): Promise<KbAskResult> {
   const q = question.trim();
   if (!q) return { answer: "Empty question." };
 
   // Semantic top-K with lexical fallback for un-indexed entries. Replaces
   // the old keyword prefilter, which missed paraphrases (e.g. "how much for
   // big customers?" never matched a chunk titled "enterprise pricing").
-  const kbJson = await retrieveKB(q, kb, 6, 500);
+  const kbSnippets = await retrieveKB(q, kb, 6, 500);
 
-  const user = `Question: ${q}\n\nKB:\n${JSON.stringify(kbJson)}\n\nJSON only.`;
+  const user = `Question: ${q}\n\nKB:\n${kbSnippetsToPromptBlock(kbSnippets)}\n\nJSON only.`;
 
-  // Mid-call latency: use a small fast model (8B) on a separate OpenRouter
-  // rate-limit pool from the coach (20B). KB output is ≤350 tokens, no
-  // truncation risk at 8B. X-Priority header routes through the user lane
-  // on the backend (separate semaphore, no gap wait).
+  // Mid-call latency: use the provider's fast live-tier model (LIVE_MODELS),
+  // the same one the coach and sentiment agents use, so the request passes
+  // the backend's model allowlist for every provider. X-Priority routes it
+  // through the user lane on the backend (separate semaphore, no gap wait).
+  // Ollama and custom endpoints are direct-only: the backend refuses them.
   void session;
   const cfg = resolveLLMConfig(liveModelOverride());
-  const provider = "error" in cfg ? "openrouter" : cfg.provider;
-  // Force a fast small model for KB asks, separate rate pool from coach.
-  const KB_FAST_MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+  if ("error" in cfg) return { answer: cfg.error };
   let raw = "";
   try {
-    const jwt = await backendJwt();
-    const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {
-      method: "POST",
-      signal,  // AbortSignal: cancelled when rep asks a new question
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${jwt}`,
-        "X-Priority": "true",
-      },
-      body: JSON.stringify({
-        provider,
-        model: KB_FAST_MODEL,
-        system: KB_ASK_SYSTEM,
-        user,
-        max_tokens: 350,
-      }),
-    });
-    if (!res.ok) return { answer: "Error reaching backend" };
-    const data = await res.json() as { text?: string };
-    raw = data.text ?? "";
+    if (cfg.provider === "ollama" || cfg.provider === "custom") {
+      raw = await makeLLMClient(cfg).call(KB_ASK_SYSTEM, user, 350, signal);
+    } else {
+      const jwt = await backendJwt();
+      const res = await fetch(`${backendUrl()}/api/v1/llm/complete`, {
+        method: "POST",
+        signal,  // AbortSignal: cancelled when rep asks a new question
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`,
+          "X-Priority": "true",
+        },
+        body: JSON.stringify({
+          provider: cfg.provider,
+          model: cfg.model,
+          system: KB_ASK_SYSTEM,
+          user,
+          max_tokens: 350,
+        }),
+      });
+      if (!res.ok) return { answer: "Error reaching backend" };
+      const data = await res.json() as { text?: string };
+      raw = data.text ?? "";
+    }
   } catch (err) {
     return { answer: `Error: ${String(err)}` };
   }
-  const parsed = safeJson<{ answer: string; sources?: { kb_entry_id: string; quote: string }[] }>(raw);
+  const parsed = safeJson<{ answer?: unknown; sources?: unknown }>(raw);
   if (!parsed?.answer) return { answer: "No answer available." };
-  return { answer: parsed.answer, sources: parsed.sources };
+  return verifyKbAnswer(parsed, kbSnippets);
 }

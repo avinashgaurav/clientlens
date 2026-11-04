@@ -68,7 +68,7 @@ export const MODEL_CATALOG: ModelOption[] = [
     model: "meta-llama/llama-3.1-8b-instruct:free",
     label: "Llama 3.1 8B (OpenRouter)",
     tier: "free",
-    note: "Free · fast 8B · used automatically for live copilot agents",
+    note: "Free · fast 8B",
   },
   {
     provider: "openrouter",

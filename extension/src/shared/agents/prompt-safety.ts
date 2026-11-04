@@ -61,6 +61,9 @@ const INJECTION_PATTERNS: RegExp[] = [
   /^\s*(system|assistant|user)\s*:/gim,
   // Markdown-section instruction headers
   /^\s*#{1,3}\s*(instruction|instructions|directive|prompt)\s*$/gim,
+  // Our own wrapper tags: KB text must not close its <kb_source> or open a
+  // fake one. Tolerates spaces ("< / kb_source >") and a missing ">".
+  /<\s*\/?\s*kb_source\b[^>\n]*>?/gi,
 ];
 
 const ESCAPED_INJECTION_MARKER = "[redacted]";
@@ -131,12 +134,23 @@ export function kbToPromptBlock(
   if (!kb.length) return emptyMessage;
   return kb
     .slice(0, limit)
-    .map((e) => {
-      const id = sanitizeAttr(e.id);
-      const ns = sanitizeAttr(e.namespace);
-      const name = sanitizeAttr(e.name);
-      const body = sanitizeKBContent((e.content ?? "")).slice(0, perEntryChars);
-      return `<kb_source id="${id}" namespace="${ns}" name="${name}">\n${body}\n</kb_source>`;
-    })
+    .map((e) => kbSourceTag(e, sanitizeKBContent((e.content ?? "")).slice(0, perEntryChars)))
     .join("\n\n");
+}
+
+function kbSourceTag(e: { id: string; namespace: string; name: string }, body: string): string {
+  return `<kb_source id="${sanitizeAttr(e.id)}" namespace="${sanitizeAttr(e.namespace)}" name="${sanitizeAttr(e.name)}">\n${body}\n</kb_source>`;
+}
+
+/**
+ * Same wrapping for retrieved excerpts (the live coach, live validator and
+ * Ask-KB). Each excerpt is sanitized with `sanitizeKBContent`, so a caller
+ * checking quotes against what the model saw should sanitize the same way.
+ */
+export function kbSnippetsToPromptBlock(
+  snippets: { id: string; namespace: string; name: string; excerpt: string }[],
+  emptyMessage = "(no matching KB excerpts)",
+): string {
+  if (!snippets.length) return emptyMessage;
+  return snippets.map((s) => kbSourceTag(s, sanitizeKBContent(s.excerpt))).join("\n\n");
 }
