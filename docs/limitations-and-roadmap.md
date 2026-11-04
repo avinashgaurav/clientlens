@@ -21,9 +21,27 @@ Worth knowing before you invest an evening in it:
 
 ## Roadmap
 
+### Switch on more of what's built
+
+These features exist in the code and work once the hosted backend has the right keys.
+
+| Feature | What it needs | Status |
+|---|---|---|
+| Write pitches into Google Slides and Docs, Google Calendar sync | A Google OAuth client ID for the extension's fixed ID (`VITE_GOOGLE_CLIENT_ID`) | Built. Without it, copy the draft instead. |
+| Live coaching in Google Meet | A Deepgram API key and project ID on the backend, and the Copilot flag in the build (`VITE_MEETING_COPILOT=true`, `VITE_STT_PROVIDER=deepgram`) | Built, off in the shared build. Follow-ups in [#168](https://github.com/avinashgaurav/clientlens/issues/168). |
+
+### Accounts and email
+
+- **Password reset.** Needs a custom email provider (for example Resend) on the Supabase project; Supabase's built-in sender only reaches the project team. "Forgot password" stays hidden behind `VITE_PASSWORD_RESET` until then. [#165](https://github.com/avinashgaurav/clientlens/issues/165)
+- **Sign-up protection:** CAPTCHA and a minimum password length of 8 enforced by the server, set in Supabase > Authentication > Attack Protection. Sign-up is open, so this matters before wider sharing.
+
+### Product
+
 1. Salesforce and HubSpot connectors, Microsoft Teams copilot.
 2. On-device STT (Whisper) for privacy-sensitive deployments.
 3. Multi-tenant mode with org-level KB isolation.
-4. A zero-setup way to try it. Mock mode still needs the backend running, so today there is no way to see the UI without a full install.
+4. Index Git repos as a knowledge source ([#175](https://github.com/avinashgaurav/clientlens/issues/175)); one-pager output laid out as a single summary ([#174](https://github.com/avinashgaurav/clientlens/issues/174)).
+
+Done: a zero-setup way to try it. The hosted backend and open sign-up (v1.1.0) let anyone create an account and try it with sample data.
 
 The backlog with acceptance criteria lives in [#113](https://github.com/avinashgaurav/clientlens/issues/113). Items are largely independent, so pick any of them in any order.
