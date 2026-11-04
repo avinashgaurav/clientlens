@@ -1,0 +1,690 @@
+{
+  "note": "Second test set, written after the code was tuned on rag.json. Fictional product (Tidewell Dispatch by Orrinmoor Systems), fictional customers, apps and partners; no real companies, and no overlap with the Lumora Ledger set. kb-handbook is the long entry (2,141 characters): most of its key facts sit past character 1,000 and several past 1,500. In kb-overview the n-s01 and n-s02 facts also start past character 500 (at characters 538 and 606). kb-pricing-crew and kb-pricing-fleet are near-duplicate distractors, as are the two case studies. Some facts use 3-letter terms (SMS, ETA, GPS, API, CRM, TAM). kb-limits states what the product does NOT do, and kb-security denies a SOC 2 Type II report. All answers below were written before any model run. Scoring rules are the same as rag.json: regexes are case-insensitive; an answerable case is correct when every must_contain regex matches the answer, no must_not_contain regex matches, and the answer is not 'Not in KB.'. An 'unanswerable' case passes only on exactly 'Not in KB.' with no sources. An 'unanswerable_denied' case is a trap the KB explicitly denies: it passes on exactly 'Not in KB.' with no sources, or on an answer that matches an accept_denial regex, matches no must_not_contain regex, and quotes only text present in the retrieved excerpts. gold_chunk_substr is exact KB text that must appear inside a retrieved excerpt for retrieval to count as finding the right passage. Pitch targets (arm C) list the KB ids a good Retrieval Agent should pick and regexes for false claims that must not reach a writable doc.",
+  "session_company": "Larchmont Mechanical",
+  "kb": [
+    {
+      "id": "kb-overview",
+      "name": "Tidewell Dispatch product overview",
+      "namespace": "product_overview",
+      "content": "Tidewell Dispatch is a field-service scheduling and dispatch product from Orrinmoor Systems. Dispatchers drag jobs onto a live board, and the routing engine orders each technician's day to cut drive time between jobs. It is built for heating, plumbing and electrical contractors with 20 to 500 field technicians. Native integrations: Quillfeather Books for invoicing and Hollins Payroll for timesheets. Technicians use the Tidewell Field app on iOS and Android. In Orrinmoor's 2025 study of 41,000 completed jobs across nine contractors, average drive time per job fell 18%. One dispatcher seat can manage up to 60 technicians on the live board."
+    },
+    {
+      "id": "kb-case-bramble",
+      "name": "Case study: Bramblecote Heating & Air",
+      "namespace": "case_studies",
+      "content": "Bramblecote Heating & Air, a contractor with 140 technicians in three states, moved its dispatch to Tidewell Dispatch in early 2025. First-time fix rate rose from 71% to 84% within six months. Technician overtime hours fell 27% over the same period. The company kept the same four dispatchers while adding 22 technicians."
+    },
+    {
+      "id": "kb-case-saltmarsh",
+      "name": "Case study: Saltmarsh Plumbing Co",
+      "namespace": "case_studies",
+      "content": "Saltmarsh Plumbing Co, a 38-technician plumbing business, uses Tidewell Dispatch for emergency call-outs. Completed jobs per technician per day rose from 4.1 to 5.3. Missed appointment windows dropped to 3% of bookings."
+    },
+    {
+      "id": "kb-security",
+      "name": "Security and compliance",
+      "namespace": "security_compliance",
+      "content": "Orrinmoor Systems holds ISO 27001 certification, first achieved in 2024 and renewed annually. Its SOC 2 report is Type I; a SOC 2 Type II audit is underway and has not been completed. Customer data is stored in a Canada Central region or a UK South region, chosen by the customer at signup. Data is encrypted with AES-256 at rest and TLS 1.3 in transit. Card payments are processed by Pennyroyal Pay, so card numbers never touch Tidewell servers. Tidewell Dispatch is not HIPAA compliant."
+    },
+    {
+      "id": "kb-pricing-crew",
+      "name": "Crew plan pricing",
+      "namespace": "roi_pricing",
+      "content": "Tidewell Dispatch Crew plan pricing is $39 per technician per month, with a minimum of 10 technicians. Typical onboarding on the Crew plan takes three weeks. New customers can start a 14-day free trial with sample jobs before signing."
+    },
+    {
+      "id": "kb-pricing-fleet",
+      "name": "Fleet plan pricing",
+      "namespace": "roi_pricing",
+      "content": "Tidewell Dispatch Fleet plan pricing is $64 per technician per month, with a minimum of 75 technicians. Typical onboarding on the Fleet plan takes eight weeks. Fleet customers get a dedicated onboarding lead and a 99.9% uptime commitment in the service agreement."
+    },
+    {
+      "id": "kb-field-app",
+      "name": "Tidewell Field app",
+      "namespace": "product_overview",
+      "content": "Tidewell Field app. Technicians see their day's jobs, customer notes and job history on iOS and Android phones and tablets. The app works offline and keeps up to 7 days of assigned jobs on the device; changes sync when signal returns. Customers get an SMS with the technician's ETA 30 minutes before arrival. The app records GPS location only while a technician is clocked in. Technicians capture photos and the customer's signature on the job sheet."
+    },
+    {
+      "id": "kb-integrations",
+      "name": "Integrations and API",
+      "namespace": "product_overview",
+      "content": "Integrations and API. Quillfeather Books syncs two ways: completed jobs become draft invoices, and payment status returns every 10 minutes. Hollins Payroll receives approved timesheets once a week, every Monday. Ravenmoor CRM connects only through Zapier; there is no native Ravenmoor connector. The public REST API allows 120 requests per minute per account, and webhooks fire when a job is created, completed or cancelled."
+    },
+    {
+      "id": "kb-limits",
+      "name": "Limits and unsupported uses",
+      "namespace": "product_overview",
+      "content": "Limits and unsupported uses. Tidewell Dispatch runs only as a cloud service and cannot be hosted on-premises. There is no desktop app for technicians; the Field app runs on phones and tablets only. Orrinmoor does not sell or install vehicle tracking hardware; location comes from technicians' phones. Tidewell does not calculate payroll or taxes. It does not manage parts inventory or create purchase orders for parts. The apps are available in English and French only."
+    },
+    {
+      "id": "kb-handbook",
+      "name": "Rollout and support guide",
+      "namespace": "product_overview",
+      "content": "Tidewell Dispatch rollout and support guide. This guide explains how Orrinmoor Systems moves a contractor from paper or spreadsheet scheduling onto Tidewell Dispatch, and how support works once dispatchers rely on it every day. It is meant for operations managers and office leads planning the switch. Every rollout runs in three stages: import, tune and launch. Read it alongside the plan pricing sheets.\n\nImport stage. The customer's office lead exports the customer list, the technician roster and job history from the old system. Orrinmoor's onboarding team imports the last 24 months of job history so that the routing engine can learn typical job lengths for each job type. Skills and certifications are imported per technician, for example gas-safe or backflow-certified, so that jobs are only offered to qualified people. Orrinmoor asks for one named operations owner for the rollout.\n\nTune stage. During tuning the operations owner sets service zones, working hours and job-type durations. By default the scheduler never books a technician for more than 10 hours in a day and leaves a 15-minute buffer between consecutive jobs; both values can be changed per team. Orrinmoor then runs a one-week shadow period in which dispatchers schedule in both the old system and Tidewell and compare the boards each evening.\n\nSupport after launch. Support is staffed on weekdays from 7am to 7pm US Eastern time by phone and in-app chat. Severity-one incidents, meaning the dispatch board is down or technicians cannot receive jobs, have a first-response target of 30 minutes at any hour. All other tickets have a first-response target of four business hours. Accounts with more than 200 technicians are assigned a technical account manager (TAM) who runs a review every six months.\n\nRecords and leaving. Job records, photos and signatures are kept for five years by default, and the retention period can be shortened on request. If a customer leaves, Orrinmoor exports all job records as CSV and JSON files within 14 days of the request, and then deletes the customer's data within a further 60 days. Backups are encrypted and kept for 30 days."
+    }
+  ],
+  "cases": [
+    {
+      "id": "n-s01",
+      "question": "By how much did average drive time per job fall in Orrinmoor's 2025 study?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-overview"
+      ],
+      "gold_chunk_substr": [
+        "average drive time per job fell 18%"
+      ],
+      "must_contain": [
+        "18\\s?%"
+      ],
+      "must_not_contain": [
+        "27\\s?%"
+      ]
+    },
+    {
+      "id": "n-s02",
+      "question": "How many technicians can one dispatcher seat manage on the live board?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-overview"
+      ],
+      "gold_chunk_substr": [
+        "up to 60 technicians"
+      ],
+      "must_contain": [
+        "\\b(60|sixty)\\b"
+      ],
+      "must_not_contain": [
+        "\\b500\\b"
+      ]
+    },
+    {
+      "id": "n-s03",
+      "question": "What first-time fix rate did Bramblecote Heating & Air reach?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-case-bramble"
+      ],
+      "gold_chunk_substr": [
+        "rose from 71% to 84%"
+      ],
+      "must_contain": [
+        "84\\s?%"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-s04",
+      "question": "How many jobs per technician per day does Saltmarsh Plumbing complete now?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-case-saltmarsh"
+      ],
+      "gold_chunk_substr": [
+        "rose from 4.1 to 5.3"
+      ],
+      "must_contain": [
+        "5\\.3"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-s05",
+      "question": "What type of SOC 2 report does Orrinmoor have?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-security"
+      ],
+      "gold_chunk_substr": [
+        "Its SOC 2 report is Type I"
+      ],
+      "must_contain": [
+        "type\\s?(i|1)\\b"
+      ],
+      "must_not_contain": [
+        "(has|holds) (a |an |its )?SOC 2 Type (II|2) report"
+      ]
+    },
+    {
+      "id": "n-s06",
+      "question": "What does the Fleet plan cost per technician per month?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-pricing-fleet"
+      ],
+      "gold_chunk_substr": [
+        "$64 per technician per month"
+      ],
+      "must_contain": [
+        "\\$?64\\b"
+      ],
+      "must_not_contain": [
+        "\\$39\\b"
+      ]
+    },
+    {
+      "id": "n-s07",
+      "question": "What is the minimum number of technicians on the Crew plan?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-pricing-crew"
+      ],
+      "gold_chunk_substr": [
+        "minimum of 10 technicians"
+      ],
+      "must_contain": [
+        "\\b(10|ten)\\b"
+      ],
+      "must_not_contain": [
+        "\\b75\\b"
+      ]
+    },
+    {
+      "id": "n-s08",
+      "question": "How long is the free trial?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-pricing-crew"
+      ],
+      "gold_chunk_substr": [
+        "14-day free trial"
+      ],
+      "must_contain": [
+        "\\b(14|fourteen)\\b"
+      ],
+      "must_not_contain": [
+        "30[- ]day"
+      ]
+    },
+    {
+      "id": "n-s09",
+      "question": "How many days of assigned jobs does the app keep for offline use?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-field-app"
+      ],
+      "gold_chunk_substr": [
+        "keeps up to 7 days of assigned jobs"
+      ],
+      "must_contain": [
+        "\\b(7|seven)\\b"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-s10",
+      "question": "When do customers get the SMS with the technician's ETA?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-field-app"
+      ],
+      "gold_chunk_substr": [
+        "ETA 30 minutes before arrival"
+      ],
+      "must_contain": [
+        "30 minutes|30-minute|half an hour"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-s11",
+      "question": "How often does payment status come back from Quillfeather Books?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-integrations"
+      ],
+      "gold_chunk_substr": [
+        "payment status returns every 10 minutes"
+      ],
+      "must_contain": [
+        "\\b(10|ten) minutes"
+      ],
+      "must_not_contain": [
+        "monday"
+      ]
+    },
+    {
+      "id": "n-s12",
+      "question": "What is the API rate limit?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-integrations"
+      ],
+      "gold_chunk_substr": [
+        "allows 120 requests per minute per account"
+      ],
+      "must_contain": [
+        "\\b120\\b"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-s13",
+      "question": "Is there a native connector for Ravenmoor CRM?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-integrations"
+      ],
+      "gold_chunk_substr": [
+        "there is no native Ravenmoor connector"
+      ],
+      "must_contain": [
+        "Zapier"
+      ],
+      "must_not_contain": [
+        "^yes"
+      ]
+    },
+    {
+      "id": "n-s14",
+      "question": "What is the default maximum number of hours a technician can be booked in a day?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-handbook"
+      ],
+      "gold_chunk_substr": [
+        "more than 10 hours in a day"
+      ],
+      "must_contain": [
+        "\\b(10|ten)[- ]hours?\\b"
+      ],
+      "must_not_contain": [
+        "\\b(8|eight|12|twelve)[- ]hours?\\b"
+      ]
+    },
+    {
+      "id": "n-s15",
+      "question": "How long are job records kept by default?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-handbook"
+      ],
+      "gold_chunk_substr": [
+        "kept for five years by default"
+      ],
+      "must_contain": [
+        "five years|5 years"
+      ],
+      "must_not_contain": [
+        "30 days"
+      ]
+    },
+    {
+      "id": "n-s16",
+      "question": "Does the app track GPS when a technician is off the clock?",
+      "category": "single_fact",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-field-app"
+      ],
+      "gold_chunk_substr": [
+        "records GPS location only while a technician is clocked in"
+      ],
+      "must_contain": [
+        "clocked in|clocked-in|on the clock|only while"
+      ],
+      "must_not_contain": [
+        "^yes"
+      ]
+    },
+    {
+      "id": "n-p01",
+      "question": "If our crews can't get their assignments at 2am, how quickly will someone reply?",
+      "category": "paraphrase",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-handbook"
+      ],
+      "gold_chunk_substr": [
+        "have a first-response target of 30 minutes at any hour"
+      ],
+      "must_contain": [
+        "30 minutes|30-minute|half an hour"
+      ],
+      "must_not_contain": [
+        "four business hours",
+        "7am"
+      ]
+    },
+    {
+      "id": "n-p02",
+      "question": "Can we run the software on machines in our own office?",
+      "category": "paraphrase",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-limits"
+      ],
+      "gold_chunk_substr": [
+        "cannot be hosted on-premises"
+      ],
+      "must_contain": [
+        "cloud|on-prem|cannot be hosted|can't be hosted|not be hosted"
+      ],
+      "must_not_contain": [
+        "^yes"
+      ]
+    },
+    {
+      "id": "n-p03",
+      "question": "What would we pay for each engineer monthly on the bigger tier?",
+      "category": "paraphrase",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-pricing-fleet"
+      ],
+      "gold_chunk_substr": [
+        "$64 per technician per month"
+      ],
+      "must_contain": [
+        "\\$?64\\b"
+      ],
+      "must_not_contain": [
+        "\\$39\\b"
+      ]
+    },
+    {
+      "id": "n-p04",
+      "question": "Will our clients get a heads-up text before the engineer shows up?",
+      "category": "paraphrase",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-field-app"
+      ],
+      "gold_chunk_substr": [
+        "Customers get an SMS with the technician's ETA 30 minutes before arrival"
+      ],
+      "must_contain": [
+        "30 minutes|30-minute|half an hour"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-p05",
+      "question": "Who looks after very large operations as their single point of contact?",
+      "category": "paraphrase",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-handbook"
+      ],
+      "gold_chunk_substr": [
+        "assigned a technical account manager (TAM)"
+      ],
+      "must_contain": [
+        "technical account manager|\\bTAM\\b"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-m01",
+      "question": "How do the Crew and Fleet plans compare on price per technician?",
+      "category": "two_entry",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-pricing-crew",
+        "kb-pricing-fleet"
+      ],
+      "gold_chunk_substr": [
+        "$39 per technician per month",
+        "$64 per technician per month"
+      ],
+      "must_contain": [
+        "\\$?39\\b",
+        "\\$?64\\b"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-m02",
+      "question": "Which regions can our data be stored in, and can Tidewell be hosted on-premises?",
+      "category": "two_entry",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-security",
+        "kb-limits"
+      ],
+      "gold_chunk_substr": [
+        "Canada Central region or a UK South region",
+        "cannot be hosted on-premises"
+      ],
+      "must_contain": [
+        "Canada Central",
+        "UK South",
+        "\\bno\\b|not|cannot|can't|cloud"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-m03",
+      "question": "How many technicians did Bramblecote add, and at what size does an account get a technical account manager?",
+      "category": "two_entry",
+      "answerable": true,
+      "gold_entry_ids": [
+        "kb-case-bramble",
+        "kb-handbook"
+      ],
+      "gold_chunk_substr": [
+        "while adding 22 technicians",
+        "more than 200 technicians"
+      ],
+      "must_contain": [
+        "\\b22\\b",
+        "\\b200\\b"
+      ],
+      "must_not_contain": []
+    },
+    {
+      "id": "n-u01",
+      "question": "What discount does Orrinmoor give for paying annually?",
+      "category": "unanswerable",
+      "answerable": false,
+      "gold_entry_ids": [],
+      "gold_chunk_substr": [],
+      "must_contain": [],
+      "must_not_contain": [
+        "\\d+\\s?%"
+      ]
+    },
+    {
+      "id": "n-u02",
+      "question": "Which cities does Orrinmoor Systems have offices in?",
+      "category": "unanswerable",
+      "answerable": false,
+      "gold_entry_ids": [],
+      "gold_chunk_substr": [],
+      "must_contain": [],
+      "must_not_contain": [
+        "toronto|london|boston|new york"
+      ]
+    },
+    {
+      "id": "n-u03",
+      "question": "What uptime commitment comes with the Crew plan?",
+      "category": "unanswerable",
+      "answerable": false,
+      "gold_entry_ids": [],
+      "gold_chunk_substr": [],
+      "must_contain": [],
+      "must_not_contain": [
+        "99\\.9"
+      ]
+    },
+    {
+      "id": "n-u04",
+      "question": "How many contractors use Tidewell Dispatch today?",
+      "category": "unanswerable",
+      "answerable": false,
+      "gold_entry_ids": [],
+      "gold_chunk_substr": [],
+      "must_contain": [],
+      "must_not_contain": [
+        "\\b(nine|9)\\b",
+        "\\b\\d{2,}"
+      ]
+    },
+    {
+      "id": "n-u05",
+      "question": "In which year did Tidewell complete its SOC 2 Type II audit?",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "gold_entry_ids": [],
+      "gold_chunk_substr": [],
+      "must_contain": [],
+      "must_not_contain": [
+        "SOC 2 Type (II|2)[^.]*\\b20\\d\\d\\b",
+        "(?<!not )(?<!not been )(completed|achieved|received|obtained) (its |a |the )?SOC 2 Type (II|2)"
+      ],
+      "accept_denial": [
+        "not (yet |been )?(completed|finished)|underway|in progress|has not|hasn't|Type I\\b"
+      ]
+    },
+    {
+      "id": "n-u06",
+      "question": "How do we get the vehicle tracking units installed in our vans?",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "gold_entry_ids": [],
+      "gold_chunk_substr": [],
+      "must_contain": [],
+      "must_not_contain": [
+        "install(ation)? (takes|appointment|is scheduled)|will install|book an install"
+      ],
+      "accept_denial": [
+        "(does not|doesn't|do not|don't) (sell|install|provide|offer)|no (vehicle )?tracking hardware|technicians' phones|phones"
+      ]
+    },
+    {
+      "id": "n-u07",
+      "question": "Where can technicians download the desktop app?",
+      "category": "unanswerable_denied",
+      "answerable": false,
+      "gold_entry_ids": [],
+      "gold_chunk_substr": [],
+      "must_contain": [],
+      "must_not_contain": [
+        "download (it )?from|windows|macos|mac app store|microsoft store"
+      ],
+      "accept_denial": [
+        "no desktop app|there is no desktop|not available on desktop|phones and tablets only|(does not|doesn't) (have|offer)"
+      ]
+    }
+  ],
+  "pitch_targets": [
+    {
+      "id": "n-c01",
+      "input": {
+        "company_name": "Larchmont Mechanical",
+        "persona_role": "Operations Director",
+        "deal_size": "100k_1m",
+        "meeting_stage": "discovery",
+        "pain_points": "too much technician overtime and too many repeat visits to finish a job"
+      },
+      "gold_source_ids": [
+        "kb-case-bramble",
+        "kb-overview"
+      ],
+      "must_not_contain": [
+        "first-time fix rate (of |to |reached )?(9\\d|100)\\s?%",
+        "overtime (hours )?(fell|dropped|down|cut)( by)? (3\\d|4\\d|5\\d)\\s?%"
+      ]
+    },
+    {
+      "id": "n-c02",
+      "input": {
+        "company_name": "Hollybrook Facilities",
+        "persona_role": "CTO",
+        "deal_size": "100k_1m",
+        "meeting_stage": "tech_deep_dive",
+        "pain_points": "we need ISO 27001, a SOC 2 Type II report and UK data residency"
+      },
+      "gold_source_ids": [
+        "kb-security"
+      ],
+      "must_not_contain": [
+        "(has|holds|with|provides) (a |an |its )?SOC 2 Type (II|2)(?! audit)",
+        "SOC 2 Type (II|2) (certified|compliant|attested)"
+      ]
+    },
+    {
+      "id": "n-c03",
+      "input": {
+        "company_name": "Kestrel Building Services",
+        "persona_role": "Financial Controller",
+        "deal_size": "100k_1m",
+        "meeting_stage": "poc_scoping",
+        "pain_points": "budget for about 90 technicians, and we need an uptime commitment in the contract"
+      },
+      "gold_source_ids": [
+        "kb-pricing-fleet"
+      ],
+      "must_not_contain": [
+        "Crew plan[^.]*99\\.9",
+        "99\\.9\\s?%[^.]*\\$39"
+      ]
+    },
+    {
+      "id": "n-c04",
+      "input": {
+        "company_name": "Northvale Clinic Maintenance",
+        "persona_role": "CFO",
+        "deal_size": "100k_1m",
+        "meeting_stage": "tech_deep_dive",
+        "pain_points": "our work orders include patient details from hospitals, so we must stay HIPAA compliant"
+      },
+      "gold_source_ids": [
+        "kb-security"
+      ],
+      "must_not_contain": [
+        "(?<!not )(?<!isn't )(?<!non-)HIPAA[- ]compliant"
+      ]
+    },
+    {
+      "id": "n-c05",
+      "input": {
+        "company_name": "Fenwick Electrical",
+        "persona_role": "VP Engineering",
+        "deal_size": "100k_1m",
+        "meeting_stage": "tech_deep_dive",
+        "pain_points": "we run Ravenmoor CRM and need to know the integration options"
+      },
+      "gold_source_ids": [
+        "kb-integrations"
+      ],
+      "must_not_contain": [
+        "(?<!no )(?<!not a )native (two-way )?(Ravenmoor )?(connector|integration) (for|with) Ravenmoor",
+        "(?<!no )(?<!not a )native Ravenmoor (connector|integration)"
+      ]
+    },
+    {
+      "id": "n-c06",
+      "input": {
+        "company_name": "Ashcombe Drainage",
+        "persona_role": "COO",
+        "deal_size": "100k_1m",
+        "meeting_stage": "commercial_close",
+        "pain_points": "how long job photos and records are kept, and what happens to our data if we leave"
+      },
+      "gold_source_ids": [
+        "kb-handbook"
+      ],
+      "must_not_contain": [
+        "\\b(seven|7|ten|10) years",
+        "within (30|thirty) days of (the|your|a) request"
+      ]
+    }
+  ]
+}
