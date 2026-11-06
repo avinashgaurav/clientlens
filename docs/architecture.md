@@ -92,9 +92,9 @@ clientlens/
 │   │   └── migrations/                 # 001_initial, 002_llm_usage, 003_tighten_rls
 │   └── scripts/                        # OpenRouter smoke tests (live key needed)
 │
-├── landing/                            # Static site, published to GitHub Pages
-│   ├── index.html                      # Deployed from the gh-pages branch, not
-│   ├── styles.css                      #   from Actions: see .github/workflows
+├── landing/                            # Static site, deployed by Vercel
+│   ├── index.html                      # Live at clientlens-ai.vercel.app; every
+│   ├── styles.css                      #   push to main that touches landing/ redeploys it
 │   ├── favicon.svg                     # The mark, generated
 │   ├── og.png                          # Social share card, generated
 │   └── github-social-1280x640.png      # Repo social preview, generated
@@ -109,7 +109,6 @@ clientlens/
 │                                       #   icons, favicon, og card, social card
 │
 ├── .github/
-│   ├── workflows/deploy-landing.yml    # Publishes landing/ to gh-pages
 │   ├── ISSUE_TEMPLATE/                 # Bug + feature templates
 │   └── pull_request_template.md
 │

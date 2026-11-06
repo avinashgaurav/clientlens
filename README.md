@@ -2,7 +2,7 @@
 
 Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so ClientLens is an open-source Chrome sidebar that drafts pitches from your own knowledge base and coaches you live in Google Meet. Use the hosted backend, or self-host it on your own LLM keys.
 
-**Demo site:** https://avinashgaurav.github.io/clientlens/
+**Demo site:** https://clientlens-ai.vercel.app/
 
 ## Watch
 
