@@ -2,7 +2,7 @@
 
 Sales reps lose the agenda, fumble objections and forget follow-ups on calls, so ClientLens is an open-source Chrome sidebar that drafts pitches from your own knowledge base and coaches you live in Google Meet. Use the hosted backend, or self-host it on your own LLM keys.
 
-**Demo site:** https://avinashgaurav.github.io/clientlens/
+**Demo site:** https://clientlens-ai.vercel.app/
 
 ## Watch
 
@@ -92,4 +92,4 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 
 [MIT](LICENSE) © 2026 Avinash Gaurav.
 
-Free to use, modify and distribute. You can use the hosted backend, or self-host it and run it on your own provider accounts. There is no telemetry.
+Free to use, modify and distribute. You can use the hosted backend, or self-host it and run it on your own provider accounts. The extension sends no telemetry. The landing page (clientlens-ai.vercel.app) counts anonymous page views with Vercel Analytics.
