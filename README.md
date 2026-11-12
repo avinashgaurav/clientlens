@@ -80,6 +80,7 @@ Then load `extension/dist/` at `chrome://extensions` with Developer mode on, and
 
 ## More
 
+- **Sister project:** [Followthrough](https://github.com/avinashgaurav/followthrough) picks up after the call. It finds every client ask in a transcript, with the client's exact words, and tracks it from shipped to client told.
 - [Features in detail](docs/features.md): what it does, the loop in screens, every surface
 - [Limitations and roadmap](docs/limitations-and-roadmap.md): what v1.0 is not, known limitations, what comes next
 - [Configuration](docs/configuration.md): both `.env` files, Gemini models on a new key, the manifest template

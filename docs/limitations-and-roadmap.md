@@ -33,6 +33,9 @@ These features exist in the code and work once the hosted backend has the right 
 ### Accounts and email
 
 - **Password reset.** Needs a custom email provider (for example Resend) on the Supabase project; Supabase's built-in sender only reaches the project team. "Forgot password" stays hidden behind `VITE_PASSWORD_RESET` until then. [#165](https://github.com/avinashgaurav/clientlens/issues/165)
+- **Password reset without email (planned):** an alternative to the item above that works before an email provider is connected. A one-time recovery code is shown at sign-up and used behind the same "Forgot password?" link to set a new password. Followthrough is adding the same approach.
+- **Sign in with Google (planned):** via Supabase OAuth on the hosted backend, separate from the unused `chrome.identity` Workspace SSO helper. No password to forget, and Google proves the email.
+- **Team invites (planned):** today every account is its own workspace. Invites first need a shared workspace with an owner who can manage members (see Multi-tenant mode under Product). Then an owner could send a single-use invite link over Slack or chat, and the teammate sets their own password to join.
 - **Sign-up protection:** turn on CAPTCHA and set a server-side minimum password length of 8 in Supabase > Authentication > Attack Protection (the extension already asks for 8). Sign-up is open, so this matters before wider sharing.
 
 ### Product
@@ -40,7 +43,8 @@ These features exist in the code and work once the hosted backend has the right 
 1. Salesforce and HubSpot connectors, Microsoft Teams copilot.
 2. On-device STT (Whisper) for privacy-sensitive deployments.
 3. Multi-tenant mode with org-level KB isolation.
-4. Index Git repos as a knowledge source ([#175](https://github.com/avinashgaurav/clientlens/issues/175)); one-pager output laid out as a single summary ([#174](https://github.com/avinashgaurav/clientlens/issues/174)).
+4. **Send to Followthrough:** after a Google Meet call, send its transcript to [Followthrough](https://github.com/avinashgaurav/followthrough), which tracks every client ask from the call to shipped to client told.
+5. Index Git repos as a knowledge source ([#175](https://github.com/avinashgaurav/clientlens/issues/175)); one-pager output laid out as a single summary ([#174](https://github.com/avinashgaurav/clientlens/issues/174)).
 
 Done: a zero-setup way to try it. The hosted backend and open sign-up (v1.1.0) let anyone create an account and try it with sample data.
 
