@@ -33,9 +33,9 @@ These features exist in the code and work once the hosted backend has the right 
 ### Accounts and email
 
 - **Password reset.** Needs a custom email provider (for example Resend) on the Supabase project; Supabase's built-in sender only reaches the project team. "Forgot password" stays hidden behind `VITE_PASSWORD_RESET` until then. [#165](https://github.com/avinashgaurav/clientlens/issues/165)
-- **Password reset without email:** a one-time recovery code shown at sign-up, used on the sign-in page to set a new password (the approach Followthrough uses). Works before an email provider is connected.
-- **Sign in with Google:** no password to forget, and Google proves the email, which also verifies accounts and makes invites by email safe. Needs a Google OAuth client on the Supabase project (no domain needed).
-- **Team invites:** an admin makes a single-use invite link (48 hours, revocable) and sends it over Slack or chat; the teammate sets their own password and joins the shared workspace. Depends on the org-level multi-tenant mode below.
+- **Password reset without email (planned):** an alternative to the item above that works before an email provider is connected. A one-time recovery code is shown at sign-up and used behind the same "Forgot password?" link to set a new password. Followthrough is adding the same approach.
+- **Sign in with Google (planned):** via Supabase OAuth on the hosted backend, separate from the unused `chrome.identity` Workspace SSO helper. No password to forget, and Google proves the email.
+- **Team invites (planned):** today every account is its own workspace. Invites first need a shared workspace with an owner who can manage members (see Multi-tenant mode under Product). Then an owner could send a single-use invite link over Slack or chat, and the teammate sets their own password to join.
 - **Sign-up protection:** turn on CAPTCHA and set a server-side minimum password length of 8 in Supabase > Authentication > Attack Protection (the extension already asks for 8). Sign-up is open, so this matters before wider sharing.
 
 ### Product
